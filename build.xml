@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<project name="Jinq" default="RunDemo">
+
+	<property name="asm" location="lib/asm-all-5.0_BETA.jar"/>
+	<property name="derby" location="lib/derby.jar"/>
+	<property name="derbytools" location="lib/derbytools.jar"/>
+	<property name="derbydata" location="bin/derby/data"/>
+
+	<target name="Build Jinq">
+		<mkdir dir="bin"/>
+		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
+			<classpath>
+				<pathelement location="${asm}"/>
+			</classpath>
+			<src path="runtime"/>
+			<src path="orm"/>
+			<src path="queryll2"/>
+		</javac>
+	</target>
+
+	<target name="Generate Demo ORM Entities" depends="Build Jinq">
+		<mkdir dir="demogen/ch/epfl/labos/iu/orm/test/entities"/>
+		<java classname="ch.epfl.labos.iu.orm.tools.EntityGenerator">
+			<classpath>
+				<pathelement location="bin"/>
+			</classpath>
+			<arg file="demosrc/entities.xml"/>
+			<arg path="demogen"/>
+		</java>
+	</target>
+
+	<target name="Build Demo" depends="Generate Demo ORM Entities">
+		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
+			<classpath>
+				<pathelement location="${asm}"/>
+				<pathelement location="bin"/>
+			</classpath>
+			<src path="demogen"/>
+			<src path="demosrc"/>
+		</javac>
+	</target>
+
+	<target name="Create Demo Derby DB Data (Optional)">
+		<mkdir dir="${derbydata}"/>
+		<java fork="true" classname="org.apache.derby.tools.ij" dir="${derbydata}">
+			<classpath>
+				<pathelement location="${derby}"/>
+				<pathelement location="${derbytools}"/>
+			</classpath>
+			<jvmarg value="-Dij.driver=org.apache.derby.jdbc.EmbeddedDriver"/>
+			<arg file="demosrc/entities.sql"/>
+			<jvmarg value="-Dij.user=APP"/>
+			<jvmarg value="-Dij.password=APP"/>
+		</java>
+	</target>	
+
+	<target name="RunDemo" depends="Build Demo">
+		<java classname="Main" dir="bin" fork="true">
+			<classpath>
+				<pathelement location="${asm}"/>
+				<pathelement location="bin"/>
+			</classpath>
+			<arg value="-nodb"/>  
+		</java>
+	</target>
+
+	<!-- Runs the demo above, but actually sends the queries to a Derby database to run -->
+	<target name="RunDemoWithDb" depends="Build Demo,Create Demo Derby DB Data (Optional)">
+		<java classname="Main" dir="bin" fork="true">
+			<classpath>
+				<pathelement location="${asm}"/>
+				<pathelement location="${derby}"/>
+				<pathelement location="bin"/>
+			</classpath>
+			<arg value="-db"/> 
+			<sysproperty key="derby.system.home" path="${derbydata}"/>
+		</java>
+	</target>
+
+	<target name="Clean">
+		<delete includeemptydirs="true">
+			<fileset dir="bin"/>
+			<fileset dir="demogen" includes="**"/>
+		</delete>
+	</target>
+
+	<target name="Zip">
+		<zip destfile="demo.zip">
+			<zipfileset dir="." prefix="DBLambda" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**"/>
+		</zip>
+	</target>
+	
+</project>
