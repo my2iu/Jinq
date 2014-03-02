@@ -86,7 +86,7 @@
 
 	<target name="Zip">
 		<zip destfile="demo.zip">
-			<zipfileset dir="." prefix="DBLambda" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**"/>
 		</zip>
 	</target>
 	
