@@ -9,10 +9,13 @@ public class Main
    public static void main(String[] args)
    {
       boolean useDB = false;
-      if (args[0].equals("-db"))
-         useDB = true;
-      else if (args[0].equals("-nodb"))
-         useDB = false;
+      if (args.length > 0)
+      {
+         if (args[0].equals("-db"))
+            useDB = true;
+         else if (args[0].equals("-nodb"))
+            useDB = false;
+      }
       new Main().runTest(0, "", useDB);
    }
 

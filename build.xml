@@ -85,7 +85,10 @@
 	</target>
 
 	<target name="Zip">
-		<zip destfile="demo.zip">
+		<tstamp>
+			<format property="tstamp" pattern="yyyy-MM-dd-HH-mm" />
+		</tstamp>
+		<zip destfile="jinq-${tstamp}.zip">
 			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**"/>
 		</zip>
 	</target>
