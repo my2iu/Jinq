@@ -207,7 +207,7 @@ public class TypedValue implements Value
    {
       public enum Op
       {
-         plus, minus;
+         plus, minus, mul;
       }
       static String opToString(Op op)
       {
@@ -215,6 +215,7 @@ public class TypedValue implements Value
          {
          case plus:  return "+";
          case minus:  return "-";
+         case mul: return "*";
          default:  return "??";
          }
       }

@@ -6,6 +6,8 @@
 		<field name="CustomerId" type="int" key="true" column="CustomerId"/>
 		<field name="Name" type="String" column="Name"/>
 		<field name="Country" type="String" column="Country"/>
+		<field name="Debt" type="int" column="Debt"/>
+		<field name="Salary" type="int" column="Salary"/>
 	</entity>
 	
 	<link map="1:N">

@@ -155,6 +155,18 @@ public class Main
          .select(c -> c.getName())
          .sortedByStringAscending(name -> name);
       result.size();
+      
+      // Simple query that is not possible with a simple ORM.
+      System.out.println("If statements in a where()");
+      result = em.allCustomer()
+         .where( c -> {
+            if (c.getSalary() > 50)
+               return c.getSalary() > c.getDebt();
+            else
+               return c.getSalary() > 2 * c.getDebt();
+         });
+      result.size();
+      
 
       // Query that cannot be translated into SQL
 //      result = em.allCustomer()

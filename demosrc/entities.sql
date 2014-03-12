@@ -4,7 +4,9 @@ CREATE TABLE Customers
 (
 	CustomerId	INTEGER NOT NULL,
 	Name	VARCHAR(50) NOT NULL,
-	Country VARCHAR(50) NOT NULL
+	Country VARCHAR(50) NOT NULL,
+	Debt INTEGER NOT NULL,
+	Salary INTEGER NOT NULL
 );
 
 DROP TABLE Sales;
@@ -49,11 +51,11 @@ CREATE TABLE Suppliers
 
 INSERT INTO Customers (CustomerId, Name, Country)
 VALUES 
-	(1, 'ABB', 'Switzerland'),
-	(2, 'Nestle', 'Switzerland'),
-	(3, 'GM', 'USA'),
-	(4, 'Microsoft', 'USA'),
-	(5, 'Canadian Tire', 'Canada');
+	(1, 'ABB', 'Switzerland', 100, 200),
+	(2, 'Nestle', 'Switzerland', 200, 300),
+	(3, 'GM', 'USA', 300, 250),
+	(4, 'Microsoft', 'USA', 100, 500),
+	(5, 'Canadian Tire', 'Canada', 10, 30);
 	
 INSERT INTO Sales (SaleId, CustomerId, Date)
 VALUES
