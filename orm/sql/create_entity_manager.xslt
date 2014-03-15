@@ -28,6 +28,7 @@ import ch.epfl.labos.iu.orm.query2.SQLQueryComposer;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReaderColumnDescription;
 import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
+import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.QueryJinqStream;
 import java.io.Serializable;
 import java.util.List;
@@ -396,7 +397,7 @@ public class EntityManager implements EntityManagerBackdoor, Serializable
 	{
 		return <xsl:value-of select="$lowername"/>;
 	}
-	public Stream&lt;<xsl:value-of select="$uppername"/>&gt; <xsl:value-of select="$lowername"/>Stream()
+	public JinqStream&lt;<xsl:value-of select="$uppername"/>&gt; <xsl:value-of select="$lowername"/>Stream()
 	{
 	   return new QueryJinqStream&lt;&gt;(<xsl:value-of select="$lowername"/>Query);
 	}

@@ -176,12 +176,12 @@ public class Main
       // Experiment with streams
       System.out.println("Streams: Names of customers");
       resultList = em.customerStream()
-//          .select(c -> c.getName());
-            .map( c -> c.getName() )
+            .select(c -> c.getName())
             .collect(Collectors.toList());
       System.out.println("Streams: Customers from the UK");
       resultList = em.customerStream()
-         .filter(c -> c.getCountry().equals("UK"))
+         .where(c -> c.getCountry().equals("UK"))
+         .select(c -> c.getCustomerId())
          .collect(Collectors.toList());
 
       // Query that cannot be translated into SQL
