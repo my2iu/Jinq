@@ -4,7 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -79,6 +82,97 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       JDBCFragment sql;
       PreparedStatement stmt;  // TODO: not used currently because I'm too lazy to put in the code for cleaning them up properly
+   }
+   
+   public Iterator<T> executeAndReturnResultIterator()
+   {
+      if (query == null)
+         return Collections.emptyIterator();
+      try
+      {
+         JDBCFragment sql = null;
+         if (emSource.isQueriesCached())
+            sql = (JDBCFragment)emSource.getGeneratedQueryCacheEntry(query);
+         if (sql == null)
+         {
+            JDBCQuerySetup setup = new JDBCQuerySetup();
+            query.prepareQuery(setup);
+            sql = query.generateQuery(setup);
+            if (emSource.isQueriesCached())
+               emSource.putGeneratedQueryCacheEntry(query, sql);
+         }
+         if (jdbc.testOut != null)
+         {
+            jdbc.testOut.println(sql.query);
+            jdbc.testOut.flush();
+         }
+         if (jdbc.connection != null)
+         {
+            PreparedStatement stmt = 
+               jdbc.connection.prepareStatement(sql.query);
+            for (int n = 0; n < sql.paramLinks.size(); n++)
+               sql.paramLinks.get(n).configureParameters(stmt, params, n+1);
+            final ResultSet rs = stmt.executeQuery();
+            
+            final SQLReader<T> reader = query.getReader();
+
+            return new Iterator<T>()
+               {
+                  boolean hasMore = true;
+                  boolean hasRead = false;
+                  boolean hasClosed = false;
+                  @Override public boolean hasNext()
+                  {
+                     try {
+                        if (!hasRead)
+                           hasMore = rs.next();
+                        hasRead = true;
+                        if (!hasMore) close();
+                        return hasMore;
+                     } catch (SQLException e) {
+                        // TODO: Find a better way to handle this
+                        throw new RuntimeException(e);
+                     }
+                  }
+                  
+                  public void close()
+                  {
+                     if (!hasClosed)
+                     {
+                        hasClosed = true;
+                        try { rs.close(); } catch (SQLException e) {}
+                        try { stmt.close(); } catch (SQLException e) {}
+                     }
+                  }
+
+                  @Override public T next()
+                  {
+                     try {
+                        if (!hasRead) 
+                           hasMore = rs.next();
+                        if (!hasMore) close();
+                        if (!hasMore) throw new NoSuchElementException();
+                        T toReturn = (T)reader.readData(rs, 1);
+                        hasRead = false;
+                        return toReturn;
+                     } catch (SQLException e) {
+                        // TODO: Find a better way to handle this
+                        throw new RuntimeException(e);
+                     }
+                  }
+            
+               };
+         }
+      } catch (QueryGenerationException e)
+      {
+         e.printStackTrace();
+      }
+      catch (SQLException e)
+      {
+         e.printStackTrace();
+      }
+      // TODO: What to return here?
+      return Collections.emptyIterator();
    }
    
    public VectorSet<T> createRealizedSet()

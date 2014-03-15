@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 import ch.epfl.labos.iu.orm.DBSet;
 import ch.epfl.labos.iu.orm.DateSorter;
@@ -22,7 +23,7 @@ import ch.epfl.labos.iu.orm.DBSet.Join;
 import ch.epfl.labos.iu.orm.DBSet.Select;
 import ch.epfl.labos.iu.orm.DBSet.Where;
 
-public class QueryListRealizer<T> implements QueryComposer<T>
+@Deprecated public class QueryListRealizer<T> implements QueryComposer<T>
 {
    public QueryListRealizer(Connection con, SelectFromWhere query, RowReader<T> reader)
    {
@@ -57,6 +58,11 @@ public class QueryListRealizer<T> implements QueryComposer<T>
       return realizedSet;
    }
 
+   @Override public Iterator<T> executeAndReturnResultIterator()
+   {
+      return null;
+   }
+   
    // Dummy versions of query handlers that always return null
    public QueryComposer<T> firstN(int n)
    {
@@ -141,4 +147,5 @@ public class QueryListRealizer<T> implements QueryComposer<T>
    {
       return null;
    }
+
 }

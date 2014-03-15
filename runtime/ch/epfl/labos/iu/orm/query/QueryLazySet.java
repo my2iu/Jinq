@@ -17,7 +17,7 @@ import ch.epfl.labos.iu.orm.DBSet;
 import ch.epfl.labos.iu.orm.Unique;
 import ch.epfl.labos.iu.orm.VectorSet;
 
-public class QueryLazySet<T> extends QueryList<T>
+@Deprecated public class QueryLazySet<T> extends QueryList<T>
 {
    public QueryLazySet(Connection con, SelectFromWhere query, RowReader<T> reader)
    {

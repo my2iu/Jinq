@@ -1,5 +1,7 @@
 package ch.epfl.labos.iu.orm;
 
+import java.util.Iterator;
+
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
 import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
@@ -12,6 +14,9 @@ public interface QueryComposer<T>
 {
    // Actually executes the query and returns the results in a set
    public VectorSet<T> createRealizedSet();
+
+   // Actually executes the query and returns the results in an iterator
+   public Iterator<T> executeAndReturnResultIterator();
    
    // Returns a new query with the given operation integrated in
    // (or returns null if the given operation cannot be integrated)

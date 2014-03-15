@@ -1,8 +1,11 @@
 import ch.epfl.labos.iu.orm.*;
 import ch.epfl.labos.iu.orm.test.entities.*;
 import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
+
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main
 {
@@ -166,7 +169,20 @@ public class Main
                return c.getSalary() > 2 * c.getDebt();
          });
       result.size();
-      
+
+      // Used for testing streams.
+      List resultList;
+
+      // Experiment with streams
+      System.out.println("Streams: Names of customers");
+      resultList = em.customerStream()
+//          .select(c -> c.getName());
+            .map( c -> c.getName() )
+            .collect(Collectors.toList());
+      System.out.println("Streams: Customers from the UK");
+      resultList = em.customerStream()
+         .filter(c -> c.getCountry().equals("UK"))
+         .collect(Collectors.toList());
 
       // Query that cannot be translated into SQL
 //      result = em.allCustomer()

@@ -28,6 +28,7 @@ import ch.epfl.labos.iu.orm.query2.SQLQueryComposer;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReaderColumnDescription;
 import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
+import org.jinq.orm.stream.QueryJinqStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.WeakHashMap;
+import java.util.stream.Stream;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
@@ -388,10 +390,15 @@ public class EntityManager implements EntityManagerBackdoor, Serializable
 	</xsl:variable>
 
 	// TODO: add plural forms of entity names
+	transient SQLQueryComposer&lt;<xsl:value-of select="$uppername"/>&gt; <xsl:value-of select="$lowername"/>Query;
 	transient DBSet&lt;<xsl:value-of select="$uppername"/>&gt; <xsl:value-of select="$lowername"/>;
 	public DBSet&lt;<xsl:value-of select="$uppername"/>&gt; all<xsl:value-of select="$uppername"/>()
 	{
 		return <xsl:value-of select="$lowername"/>;
+	}
+	public Stream&lt;<xsl:value-of select="$uppername"/>&gt; <xsl:value-of select="$lowername"/>Stream()
+	{
+	   return new QueryJinqStream&lt;&gt;(<xsl:value-of select="$lowername"/>Query);
 	}
 
 	void dispose(<xsl:value-of select="$uppername"/> obj)
@@ -779,6 +786,7 @@ public class EntityManager implements EntityManagerBackdoor, Serializable
 						reader.getColumnNames(),
 						"<xsl:value-of select="@table"/>"
 					);
+			<xsl:value-of select="$lowername"/>Query = query;
 			<xsl:value-of select="$lowername"/> = new QueryList&lt;<xsl:value-of select="$uppername"/>&gt;(query);
 		}
 </xsl:template>
