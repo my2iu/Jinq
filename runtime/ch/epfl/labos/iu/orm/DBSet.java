@@ -14,16 +14,6 @@ public interface DBSet<T> extends Collection<T>
    
    public DBSet<T> comparisonClone();
    
-   public abstract DBSet<T> apply(Filter<T> transform);
-
-   public abstract <To> DBSet<To> apply(Expand<T, To> transform);
-
-   public abstract <To> DBSet<To> apply(Replace<T, To> transform);
-
-   public abstract <Key> DBSet apply(Unique<T, Key> unique);
-
-   public abstract void apply(Iterate<T> transform);
-
    public DBSet<T> sortedByIntAscending(final IntSorter<T> sorter);
    public DBSet<T> sortedByIntDescending(final IntSorter<T> sorter);
    public DBSet<T> sortedByDoubleAscending(final DoubleSorter<T> sorter);

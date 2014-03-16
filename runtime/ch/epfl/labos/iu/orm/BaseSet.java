@@ -41,64 +41,6 @@ abstract public class BaseSet<T> implements DBSet<T>
       newset.add(toAdd);
       return newset;
    }
-
-   public DBSet<T> apply(Filter<T> transform)
-   {
-      DBSet<T> newset = new VectorSet<T>();
-      for (T o: this)
-      {
-         if (transform.filter(o))
-         {
-            newset.add(o);
-         }
-      }
-      return newset;
-   }
-   
-   public <To> DBSet<To> apply(Expand<T, To> transform)
-   {
-      DBSet<To> newset = new VectorSet<To>();
-      for (T o: this)
-      {
-         newset.addAll(transform.expand(o));
-      }
-      return newset;
-   }
-
-   public <To> DBSet<To> apply(Replace<T, To> transform)
-   {
-      DBSet<To> newset = new VectorSet<To>();
-      for (T o: this)
-      {
-         To newobj = transform.replace(o);
-         if (newobj != null) newset.add(newobj);
-      }
-      return newset;
-   }
-
-   public <Key> DBSet<T> apply(Unique<T, Key> unique)
-   {
-      HashMap<Key, T> dictionary = new HashMap<Key, T>();
-      for (T o: this)
-         dictionary.put(unique.uniquify(o), o);
-
-      DBSet<T> newset = new VectorSet<T>();
-      for (T o: dictionary.values())
-         newset.add(o);
-      
-      return newset;
-   }
-
-   
-
-   public void apply(Iterate<T> transform)
-   {
-      for (T o: this)
-      {
-         transform.iterate(o);
-      }
-   }
-
    
    public DBSet<T> sortedByIntAscending(final IntSorter<T> sorter)
    {

@@ -1,13 +1,5 @@
 package ch.epfl.labos.iu.orm;
 
-import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
-import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
-import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
-import ch.epfl.labos.iu.orm.DBSet.Join;
-import ch.epfl.labos.iu.orm.DBSet.Select;
-import ch.epfl.labos.iu.orm.DBSet.Where;
-import ch.epfl.labos.iu.orm.query.QueryListRealizer;
-
 public class QueryList<T> extends LazySet<T>
 {
    public QueryList() {}
