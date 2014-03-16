@@ -86,6 +86,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    
    public Iterator<T> executeAndReturnResultIterator()
    {
+      // TODO: Perhaps, the query should only be executed if the iterator is read, and not immediately.
       if (query == null)
          return Collections.emptyIterator();
       try

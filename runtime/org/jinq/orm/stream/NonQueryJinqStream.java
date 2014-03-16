@@ -13,6 +13,11 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       super(wrapped);
    }
 
+   NonQueryJinqStream()
+   {
+      super();
+   }
+   
    @Override
    public JinqStream<T> where(Where<T> test)
    {

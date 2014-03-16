@@ -13,7 +13,7 @@ import ch.epfl.labos.iu.orm.QueryList;
 import ch.epfl.labos.iu.orm.DBSet.Select;
 import ch.epfl.labos.iu.orm.DBSet.Where;
 
-public class QueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
+public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStream<T>
 {
    QueryComposer<T> queryComposer;
    public QueryJinqStream(QueryComposer<T> query)
@@ -33,7 +33,7 @@ public class QueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStre
    {
       QueryComposer<T> newComposer = queryComposer.where(test);
       if (newComposer != null) return new QueryJinqStream<T>(newComposer);
-      return new NonQueryJinqStream<>(filter( val -> test.where(val) ));
+      return super.where(test);
    }
 
    @Override
@@ -41,6 +41,6 @@ public class QueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStre
    {
       QueryComposer<U> newComposer = queryComposer.select(select);
       if (newComposer != null) return new QueryJinqStream<U>(newComposer);
-      return new NonQueryJinqStream<>(map( val -> select.select(val) ));
+      return super.select(select);
    }
 }

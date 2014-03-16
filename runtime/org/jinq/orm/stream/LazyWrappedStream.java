@@ -36,6 +36,8 @@ public class LazyWrappedStream<T> implements Stream<T>
 
    protected void realizeStream()
    {
+      // TODO: Perhaps this should only be called when the data from the
+      // stream is actually used and not when the stream is being set-up.
       if (wrappedStream == null) wrappedStream = createWrappedStream();
    }
    
