@@ -2,8 +2,11 @@ package org.jinq.orm.stream;
 
 import java.util.stream.Stream;
 
+import ch.epfl.labos.iu.orm.DateSorter;
+import ch.epfl.labos.iu.orm.DoubleSorter;
+import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.QueryComposer;
+import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
 import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
@@ -25,5 +28,18 @@ public interface JinqStream<T> extends Stream<T>
    public double maxDouble(AggregateDouble<T> aggregate);
    public int maxInt(AggregateInteger<T> aggregate);
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
+
+   public JinqStream<T> sortedByIntAscending(final IntSorter<T> sorter);
+   public JinqStream<T> sortedByIntDescending(final IntSorter<T> sorter);
+   public JinqStream<T> sortedByDoubleAscending(final DoubleSorter<T> sorter);
+   public JinqStream<T> sortedByDoubleDescending(final DoubleSorter<T> sorter);
+   public JinqStream<T> sortedByStringAscending(final StringSorter<T> sorter);
+   public JinqStream<T> sortedByStringDescending(final StringSorter<T> sorter);
+   public JinqStream<T> sortedByDateAscending(final DateSorter<T> sorter);
+   public JinqStream<T> sortedByDateDescending(final DateSorter<T> sorter);
    
+   public JinqStream<T> firstN(int n);
+   
+   public T getOnlyValue();
+   public JinqStream<T> with(T toAdd);
 }

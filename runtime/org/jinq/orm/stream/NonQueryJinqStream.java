@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ch.epfl.labos.iu.orm.DBSet;
+import ch.epfl.labos.iu.orm.DateSorter;
+import ch.epfl.labos.iu.orm.DoubleSorter;
+import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.QueryComposer;
+import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.VectorSet;
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -120,5 +125,80 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       // TODO: Modify aggregate to take a stream not a DBSet
       DBSet<T> set = collect(Collectors.toCollection(() -> new VectorSet<>()));
       return aggregate.aggregateSelect(set);
+   }
+
+   @Override
+   public JinqStream<T> sortedByIntAscending(IntSorter<T> sorter)
+   {
+      return new NonQueryJinqStream<>(sorted(
+         (o1, o2) -> sorter.value(o1) - sorter.value(o2)));
+   }
+
+   @Override
+   public JinqStream<T> sortedByIntDescending(IntSorter<T> sorter)
+   {
+      return new NonQueryJinqStream<>(sorted(
+            (o1, o2) -> sorter.value(o2) - sorter.value(o1)));
+   }
+
+   @Override
+   public JinqStream<T> sortedByDoubleAscending(DoubleSorter<T> sorter)
+   {
+      return new NonQueryJinqStream<>(sorted(
+            (o1, o2) -> (int)Math.signum(sorter.value(o1) - sorter.value(o2))));
+   }
+
+   @Override
+   public JinqStream<T> sortedByDoubleDescending(DoubleSorter<T> sorter)
+   {
+      return new NonQueryJinqStream<>(sorted(
+            (o1, o2) -> (int)Math.signum(sorter.value(o2) - sorter.value(o1))));
+   }
+
+   @Override
+   public JinqStream<T> sortedByStringAscending(StringSorter<T> sorter)
+   {
+      return new NonQueryJinqStream<>(sorted(
+            (o1, o2) -> sorter.value(o1).compareTo(sorter.value(o2))));
+   }
+
+   @Override
+   public JinqStream<T> sortedByStringDescending(StringSorter<T> sorter)
+   {
+      return new NonQueryJinqStream<>(sorted(
+            (o1, o2) -> -sorter.value(o1).compareTo(sorter.value(o2))));
+   }
+
+   @Override
+   public JinqStream<T> sortedByDateAscending(DateSorter<T> sorter)
+   {
+      return new NonQueryJinqStream<>(sorted(
+            (o1, o2) -> sorter.value(o1).compareTo(sorter.value(o2))));
+   }
+
+   @Override
+   public JinqStream<T> sortedByDateDescending(DateSorter<T> sorter)
+   {
+      return new NonQueryJinqStream<>(sorted(
+            (o1, o2) -> -sorter.value(o1).compareTo(sorter.value(o2))));
+   }
+
+   @Override
+   public JinqStream<T> firstN(int n)
+   {
+      return new NonQueryJinqStream<>(limit(n));
+   }
+   
+   public T getOnlyValue()
+   {
+      List<T> vals = collect(Collectors.toList());
+      if (vals.size() == 1) return vals.get(0);
+      throw new NoSuchElementException();
+   }
+   
+   public JinqStream<T> with(T toAdd)
+   {
+      return new NonQueryJinqStream<>(
+            Stream.concat(this, Stream.of(toAdd)));
    }
 }

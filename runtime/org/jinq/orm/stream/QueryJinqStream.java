@@ -8,9 +8,13 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import ch.epfl.labos.iu.orm.DBSet;
+import ch.epfl.labos.iu.orm.DateSorter;
+import ch.epfl.labos.iu.orm.DoubleSorter;
+import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.QueryComposer;
 import ch.epfl.labos.iu.orm.QueryList;
+import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
 import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
@@ -112,5 +116,77 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       U val = queryComposer.selectAggregates(aggregate);
       if (val != null) return val;
       return super.selectAggregates(aggregate);
+   }
+
+   @Override
+   public JinqStream<T> sortedByIntAscending(IntSorter<T> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedByInt(sorter, true);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.sortedByIntAscending(sorter);
+   }
+
+   @Override
+   public JinqStream<T> sortedByIntDescending(IntSorter<T> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedByInt(sorter, false);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.sortedByIntDescending(sorter);
+   }
+
+   @Override
+   public JinqStream<T> sortedByDoubleAscending(DoubleSorter<T> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedByDouble(sorter, true);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.sortedByDoubleAscending(sorter);
+   }
+
+   @Override
+   public JinqStream<T> sortedByDoubleDescending(DoubleSorter<T> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedByDouble(sorter, false);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.sortedByDoubleDescending(sorter);
+   }
+
+   @Override
+   public JinqStream<T> sortedByStringAscending(StringSorter<T> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedByString(sorter, true);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.sortedByStringAscending(sorter);
+   }
+
+   @Override
+   public JinqStream<T> sortedByStringDescending(StringSorter<T> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedByString(sorter, false);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.sortedByStringDescending(sorter);
+   }
+
+   @Override
+   public JinqStream<T> sortedByDateAscending(DateSorter<T> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedByDate(sorter, true);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.sortedByDateAscending(sorter);
+   }
+
+   @Override
+   public JinqStream<T> sortedByDateDescending(DateSorter<T> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedByDate(sorter, false);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.sortedByDateDescending(sorter);
+   }
+
+   @Override
+   public JinqStream<T> firstN(int n)
+   {
+      QueryComposer<T> newComposer = queryComposer.firstN(n);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      return super.firstN(n);
    }
 }
