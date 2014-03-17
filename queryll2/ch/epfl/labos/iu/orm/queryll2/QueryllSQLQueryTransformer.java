@@ -10,20 +10,18 @@ import java.util.Map;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 
-import com.user00.thunk.SerializedLambda;
-
 import ch.epfl.labos.iu.orm.DBSet;
-import ch.epfl.labos.iu.orm.DateSorter;
-import ch.epfl.labos.iu.orm.DoubleSorter;
-import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
 import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
 import ch.epfl.labos.iu.orm.DBSet.Join;
 import ch.epfl.labos.iu.orm.DBSet.Select;
 import ch.epfl.labos.iu.orm.DBSet.Where;
+import ch.epfl.labos.iu.orm.DateSorter;
+import ch.epfl.labos.iu.orm.DoubleSorter;
+import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
+import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
 import ch.epfl.labos.iu.orm.query2.ParameterLocation;
 import ch.epfl.labos.iu.orm.query2.SQLFragment;
@@ -32,10 +30,8 @@ import ch.epfl.labos.iu.orm.query2.SQLQuery;
 import ch.epfl.labos.iu.orm.query2.SQLQuery.SelectFromWhere;
 import ch.epfl.labos.iu.orm.query2.SQLQueryTransforms;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
-import ch.epfl.labos.iu.orm.query2.SQLReader.DateSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.DoubleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.IntegerSQLReader;
-import ch.epfl.labos.iu.orm.query2.SQLReader.StringSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution.FromReference;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
@@ -44,6 +40,8 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ArgValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
+
+import com.user00.thunk.SerializedLambda;
 
 //These methods will clobber the query passed into it when making a 
 //new one, so be sure to always pass in a copy of the query instead 

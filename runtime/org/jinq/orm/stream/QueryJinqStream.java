@@ -2,19 +2,9 @@ package org.jinq.orm.stream;
 
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import ch.epfl.labos.iu.orm.DBSet;
-import ch.epfl.labos.iu.orm.DateSorter;
-import ch.epfl.labos.iu.orm.DoubleSorter;
-import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.QueryComposer;
-import ch.epfl.labos.iu.orm.QueryList;
-import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
 import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
@@ -22,6 +12,12 @@ import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
 import ch.epfl.labos.iu.orm.DBSet.Join;
 import ch.epfl.labos.iu.orm.DBSet.Select;
 import ch.epfl.labos.iu.orm.DBSet.Where;
+import ch.epfl.labos.iu.orm.DateSorter;
+import ch.epfl.labos.iu.orm.DoubleSorter;
+import ch.epfl.labos.iu.orm.IntSorter;
+import ch.epfl.labos.iu.orm.Pair;
+import ch.epfl.labos.iu.orm.QueryComposer;
+import ch.epfl.labos.iu.orm.StringSorter;
 
 public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStream<T>
 {

@@ -3,8 +3,6 @@ package ch.epfl.labos.iu.orm.query2;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Vector;
 
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.Tuple3;

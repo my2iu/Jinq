@@ -1,6 +1,5 @@
 package ch.epfl.labos.iu.orm.queryll2;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.objectweb.asm.tree.analysis.AnalyzerException;

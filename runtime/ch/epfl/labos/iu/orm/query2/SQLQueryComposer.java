@@ -378,7 +378,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       try {
          if (transformer == null) return null;
-         QueryComposer cached = lookupQueryCache("group", select, aggregate);
+         QueryComposer<Pair<U, V>> cached = lookupQueryCache("group", select, aggregate);
          if (cached != null) return cached;
          SQLQuery<Pair<U,V>> newQuery = transformer.group(query.copy(), nextLambdaParamIndex, select, nextLambdaParamIndex + 1, aggregate, emSource);
          List<ParameterLocation> paramLocSelect = new ArrayList<ParameterLocation>();
@@ -399,7 +399,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       try {
          if (transformer == null) return null;
-         QueryComposer cached = lookupQueryCache("join", join, null);
+         QueryComposer<Pair<T,U>> cached = lookupQueryCache("join", join, null);
          if (cached != null) return cached;
          SQLQuery<Pair<T,U>> newQuery = transformer.join(query.copy(), nextLambdaParamIndex, join, emSource);
          List<ParameterLocation> paramLocs = new ArrayList<ParameterLocation>();
@@ -418,7 +418,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       try {
          if (transformer == null) return null;
-         QueryComposer cached = lookupQueryCache("select", select, null);
+         QueryComposer<U> cached = lookupQueryCache("select", select, null);
          if (cached != null) return cached;
          SQLQuery<U> newQuery = transformer.select(query.copy(), nextLambdaParamIndex, select, emSource);
          List<ParameterLocation> paramLocs = new ArrayList<ParameterLocation>();
@@ -444,7 +444,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       try {
          if (transformer == null) return null;
-         QueryComposer cached = lookupQueryCache("where", test, null);
+         QueryComposer<T> cached = lookupQueryCache("where", test, null);
          if (cached != null) return cached;
          SQLQuery<T> newQuery = transformer.where(query.copy(), nextLambdaParamIndex, test, emSource);
          List<ParameterLocation> paramLocs = new ArrayList<ParameterLocation>();
@@ -564,7 +564,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    public QueryComposer<T> firstN(int n)
    {
       if (transformer == null) return null;
-      QueryComposer cached = lookupQueryCache("firstN", null, null);
+      QueryComposer<T> cached = lookupQueryCache("firstN", null, null);
       if (cached != null) return cached;
       SQLQuery<T> newQuery = transformer.firstN(query.copy(), n, emSource);
       if (newQuery != null)
@@ -580,7 +580,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       try {
          if (transformer == null) return null;
-         QueryComposer cached = lookupQueryCache(isAscending ? "sortedByDateAscending" : "sortedByDateDescending", sorter, null);
+         QueryComposer<T> cached = lookupQueryCache(isAscending ? "sortedByDateAscending" : "sortedByDateDescending", sorter, null);
          if (cached != null) return cached;
          SQLQuery<T> newQuery = transformer.sortedByDate(query.copy(), nextLambdaParamIndex, sorter, isAscending, emSource);
          List<ParameterLocation> paramLocs = new ArrayList<ParameterLocation>();
@@ -600,7 +600,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       try {
          if (transformer == null) return null;
-         QueryComposer cached = lookupQueryCache(isAscending ? "sortedByDoubleAscending" : "sortedByDoubleDescending", sorter, null);
+         QueryComposer<T> cached = lookupQueryCache(isAscending ? "sortedByDoubleAscending" : "sortedByDoubleDescending", sorter, null);
          if (cached != null) return cached;
          SQLQuery<T> newQuery = transformer.sortedByDouble(query.copy(), nextLambdaParamIndex, sorter, isAscending, emSource);
          List<ParameterLocation> paramLocs = new ArrayList<ParameterLocation>();
@@ -619,7 +619,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       try {
          if (transformer == null) return null;
-         QueryComposer cached = lookupQueryCache(isAscending ? "sortedByIntAscending" : "sortedByIntDescending", sorter, null);
+         QueryComposer<T> cached = lookupQueryCache(isAscending ? "sortedByIntAscending" : "sortedByIntDescending", sorter, null);
          if (cached != null) return cached;
          SQLQuery<T> newQuery = transformer.sortedByInt(query.copy(), nextLambdaParamIndex, sorter, isAscending, emSource);
          List<ParameterLocation> paramLocs = new ArrayList<ParameterLocation>();
@@ -639,7 +639,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    {
       try {
          if (transformer == null) return null;
-         QueryComposer cached = lookupQueryCache(isAscending ? "sortedByStringAscending" : "sortedByStringDescending", sorter, null);
+         QueryComposer<T> cached = lookupQueryCache(isAscending ? "sortedByStringAscending" : "sortedByStringDescending", sorter, null);
          if (cached != null) return cached;
          SQLQuery<T> newQuery = transformer.sortedByString(query.copy(), nextLambdaParamIndex, sorter, isAscending, emSource);
          List<ParameterLocation> paramLocs = new ArrayList<ParameterLocation>();

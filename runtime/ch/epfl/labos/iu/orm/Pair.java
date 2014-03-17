@@ -31,8 +31,9 @@ public class Pair<T, U>
       
       if (! (obj instanceof Pair)) return false;
       
-      return this.one.equals(((Pair)obj).one)
-         && this.two.equals(((Pair)obj).two);
+      Pair<?,?> pair = (Pair<?,?>)obj;
+      return this.one.equals(pair.one)
+         && this.two.equals(pair.two);
    }
    
    public int hashCode()

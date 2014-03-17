@@ -2,11 +2,7 @@ package ch.epfl.labos.iu.orm;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Spliterator;
 import java.util.Vector;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class VectorSet<T> extends BaseSet<T> implements Cloneable
 {

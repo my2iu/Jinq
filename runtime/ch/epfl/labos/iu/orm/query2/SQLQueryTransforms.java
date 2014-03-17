@@ -5,9 +5,7 @@ import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.QueryComposer;
 import ch.epfl.labos.iu.orm.StringSorter;
-import ch.epfl.labos.iu.orm.DBSet.Join;
 
 // These methods will clobber the query passed into it when making a 
 // new one, so be sure to always pass in a copy of the query instead 

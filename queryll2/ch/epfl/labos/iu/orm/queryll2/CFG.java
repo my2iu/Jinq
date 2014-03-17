@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
+import org.objectweb.asm.tree.analysis.BasicValue;
 
 class CFG
 {
@@ -23,13 +24,13 @@ class CFG
    Map<Integer, List<Integer>> fromto = new HashMap<Integer, List<Integer>>();
    CFG(String internalName, MethodNode m) throws AnalyzerException
    {
-      Analyzer a = new Analyzer(new BasicInterpreter()){
+      Analyzer<BasicValue> a = new Analyzer<BasicValue>(new BasicInterpreter()){
          @Override protected void newControlFlowEdge(final int insn, final int successor) {
             if (!fromto.containsKey(insn))
                fromto.put(insn, new Vector<Integer>());
             fromto.get(insn).add(successor);
          }
       };
-   a.analyze(internalName, m);
+      a.analyze(internalName, m);
    }
 }

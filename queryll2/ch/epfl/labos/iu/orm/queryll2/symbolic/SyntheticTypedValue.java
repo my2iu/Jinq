@@ -1,6 +1,5 @@
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
-import org.objectweb.asm.Type;
 
 public interface SyntheticTypedValue
 {

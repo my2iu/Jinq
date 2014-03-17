@@ -2,8 +2,6 @@ package ch.epfl.labos.iu.orm;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public interface DBSet<T> extends Collection<T>
 {

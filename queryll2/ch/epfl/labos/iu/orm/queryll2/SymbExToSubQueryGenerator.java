@@ -1,12 +1,7 @@
 package ch.epfl.labos.iu.orm.queryll2;
 
-import org.objectweb.asm.Type;
-
 import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
-import ch.epfl.labos.iu.orm.query2.SQLFragment;
 import ch.epfl.labos.iu.orm.query2.SQLQuery;
-import ch.epfl.labos.iu.orm.query2.SQLReader;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;

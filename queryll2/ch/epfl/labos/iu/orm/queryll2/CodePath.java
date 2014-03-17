@@ -15,17 +15,13 @@ import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
-import org.objectweb.asm.tree.analysis.Frame;
-import org.objectweb.asm.tree.analysis.Interpreter;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.FrameWithHelpers;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.InterpreterWithArgs;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.SymbolicInterpreterWithFieldAccess;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue;
 
 
 public class CodePath

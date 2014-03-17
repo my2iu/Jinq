@@ -3,7 +3,6 @@
  */
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Type;

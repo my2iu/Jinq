@@ -3,8 +3,6 @@ package ch.epfl.labos.iu.orm.query2;
 import java.util.List;
 import java.util.Map;
 
-import ch.epfl.labos.iu.orm.query2.SQLFragment.SubFragment;
-
 
 public abstract class SQLFrom implements SQLComponent
 {

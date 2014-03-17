@@ -3,7 +3,6 @@ package ch.epfl.labos.iu.orm.query;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.Vector;
 
 public class SelectFromWhere implements Cloneable

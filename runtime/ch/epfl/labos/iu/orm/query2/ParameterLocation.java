@@ -1,10 +1,6 @@
 package ch.epfl.labos.iu.orm.query2;
 
-import java.lang.reflect.Field;
-
 import com.user00.thunk.SerializedLambda;
-
-import ch.epfl.labos.iu.orm.query2.SQLSubstitution.FromReference;
 
 public abstract class ParameterLocation
 {

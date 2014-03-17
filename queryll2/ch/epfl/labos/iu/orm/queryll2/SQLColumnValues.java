@@ -2,7 +2,6 @@ package ch.epfl.labos.iu.orm.queryll2;
 
 import ch.epfl.labos.iu.orm.query2.SQLFragment;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
-import ch.epfl.labos.iu.orm.query2.SQLSubstitution;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SQLColumnValues<T>

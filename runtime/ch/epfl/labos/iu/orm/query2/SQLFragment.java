@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import ch.epfl.labos.iu.orm.query2.SQLSubstitution.FromReference;
-
 public class SQLFragment implements SQLComponent
 {
    List<SubFragment> fragments = new Vector<SubFragment>();

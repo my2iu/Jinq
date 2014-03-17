@@ -6,13 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Spliterator;
 import java.util.Vector;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
-import ch.epfl.labos.iu.orm.DBSet.Join;
 
 abstract public class BaseSet<T> implements DBSet<T>
 {

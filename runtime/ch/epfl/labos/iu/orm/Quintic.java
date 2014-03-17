@@ -49,11 +49,12 @@ public class Quintic<T, U, V, W, X>
       
       if (! (obj instanceof Quintic)) return false;
       
-      return this.one.equals(((Quintic)obj).one)
-         && this.two.equals(((Quintic)obj).two)
-         && this.three.equals(((Quintic)obj).three)
-         && this.four.equals(((Quintic)obj).four)
-         && this.five.equals(((Quintic)obj).five);
+      Quintic<?,?,?,?,?> quintic = (Quintic<?,?,?,?,?>)obj;
+      return this.one.equals(quintic.one)
+         && this.two.equals(quintic.two)
+         && this.three.equals(quintic.three)
+         && this.four.equals(quintic.four)
+         && this.five.equals(quintic.five);
    }
    
    public int hashCode()

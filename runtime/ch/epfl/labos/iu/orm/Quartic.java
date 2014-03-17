@@ -42,10 +42,11 @@ public class Quartic<T, U, V, W>
       
       if (! (obj instanceof Quartic)) return false;
       
-      return this.one.equals(((Quartic)obj).one)
-         && this.two.equals(((Quartic)obj).two)
-         && this.three.equals(((Quartic)obj).three)
-         && this.four.equals(((Quartic)obj).four);
+      Quartic<?,?,?,?> quartic = (Quartic<?,?,?,?>)obj;
+      return this.one.equals(quartic.one)
+         && this.two.equals(quartic.two)
+         && this.three.equals(quartic.three)
+         && this.four.equals(quartic.four);
    }
    
    public int hashCode()

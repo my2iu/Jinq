@@ -3,8 +3,6 @@ package ch.epfl.labos.iu.orm.query;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import ch.epfl.labos.iu.orm.Pair;
-
 public class DoubleRowReader implements RowReader<Double>
 {
    QueryStringWithParameters select;

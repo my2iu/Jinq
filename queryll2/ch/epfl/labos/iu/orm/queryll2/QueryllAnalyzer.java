@@ -4,15 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
-
 import ch.epfl.labos.iu.orm.queryll2.runtime.ConfigureQueryll;
-import ch.epfl.labos.iu.orm.queryll2.runtime.QueryllEntityConfigurationInfo;
 
 public class QueryllAnalyzer
 {

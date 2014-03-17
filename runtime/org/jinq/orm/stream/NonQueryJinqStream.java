@@ -1,6 +1,5 @@
 package org.jinq.orm.stream;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,13 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ch.epfl.labos.iu.orm.DBSet;
-import ch.epfl.labos.iu.orm.DateSorter;
-import ch.epfl.labos.iu.orm.DoubleSorter;
-import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.QueryComposer;
-import ch.epfl.labos.iu.orm.StringSorter;
-import ch.epfl.labos.iu.orm.VectorSet;
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
 import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
@@ -23,6 +15,12 @@ import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
 import ch.epfl.labos.iu.orm.DBSet.Join;
 import ch.epfl.labos.iu.orm.DBSet.Select;
 import ch.epfl.labos.iu.orm.DBSet.Where;
+import ch.epfl.labos.iu.orm.DateSorter;
+import ch.epfl.labos.iu.orm.DoubleSorter;
+import ch.epfl.labos.iu.orm.IntSorter;
+import ch.epfl.labos.iu.orm.Pair;
+import ch.epfl.labos.iu.orm.StringSorter;
+import ch.epfl.labos.iu.orm.VectorSet;
 
 public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
 {
