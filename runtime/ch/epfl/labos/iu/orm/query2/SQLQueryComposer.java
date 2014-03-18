@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
@@ -298,9 +299,10 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       toReturn[toReturn.length - 1] = lambdaParams;
       return toReturn;
    }
-
-   private <U> QueryComposer<U> lookupQueryCache(String context, Object lambda1, Object lambda2)
+   
+   private CachedQuery findQueryInCache(String context, Object lambda1, Object lambda2)
    {
+      // TODO: Add support for caching queries constructed from Java 8 lambdas
       if (!emSource.isQueriesCached()) return null;
 
       String lambdaRep = "";
@@ -308,51 +310,41 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
          lambdaRep += lambda1.getClass().getName();
       if (lambda2 != null)
          lambdaRep += lambda2.getClass().getName();
-      CachedQuery lookup = (CachedQuery)emSource.getQueryCacheEntry(context, query, lambdaRep);
-      if (lookup != null)
+      return (CachedQuery)emSource.getQueryCacheEntry(context, query, lambdaRep);
+   }
+   
+   private Object[][] gatherParamsForCachedQuery(CachedQuery lookup, Object lambda1, Object lambda2) throws QueryGenerationException
+   {
+      Object[][] newParams = params;
+      assert(lookup.paramsToSave.length < 3);
+      if (lookup.paramsToSave.length > 0)
+         newParams = gatherParams(newParams, lookup.paramsToSave[0], lambda1);
+      if (lookup.paramsToSave.length == 2 || lambda2 != null)
       {
-         try {
-            Object[][] newParams = params;
-            assert(lookup.paramsToSave.length < 3);
-            if (lookup.paramsToSave.length > 0)
-               newParams = gatherParams(newParams, lookup.paramsToSave[0], lambda1);
-            if (lookup.paramsToSave.length == 2 || lambda2 != null)
-            {
-               assert(lookup.paramsToSave.length == 2 && lambda2 != null);
-               newParams = gatherParams(newParams, lookup.paramsToSave[1], lambda2);
-            }
-            return new SQLQueryComposer<>(emSource, jdbc, transformer, lookup.query, nextLambdaParamIndex + lookup.paramsToSave.length, newParams);
-         } catch(QueryGenerationException e) {return null;}
+         assert(lookup.paramsToSave.length == 2 && lambda2 != null);
+         newParams = gatherParams(newParams, lookup.paramsToSave[1], lambda2);
       }
-      return null;
+      return newParams;
+   }
+
+   private <U> QueryComposer<U> lookupQueryCache(String context, Object lambda1, Object lambda2)
+   {
+      CachedQuery lookup = findQueryInCache(context, lambda1, lambda2);
+      if (lookup == null) return null;
+      try {
+         Object[][] newParams = gatherParamsForCachedQuery(lookup, lambda1, lambda2);
+         return new SQLQueryComposer<>(emSource, jdbc, transformer, lookup.query, nextLambdaParamIndex + lookup.paramsToSave.length, newParams);
+      } catch(QueryGenerationException e) {return null;}
    }
 
    private <U> U lookupQueryCacheRow(String context, Object lambda1, Object lambda2)
    {
-      if (!emSource.isQueriesCached()) return null;
-
-      String lambdaRep = "";
-      if (lambda1 != null)
-         lambdaRep += lambda1.getClass().getName();
-      if (lambda2 != null)
-         lambdaRep += lambda2.getClass().getName();
-      CachedQuery lookup = (CachedQuery)emSource.getQueryCacheEntry(context, query, lambdaRep);
-      if (lookup != null)
-      {
-         try {
-            Object[][] newParams = params;
-            assert(lookup.paramsToSave.length < 3);
-            if (lookup.paramsToSave.length > 0)
-               newParams = gatherParams(newParams, lookup.paramsToSave[0], lambda1);
-            if (lookup.paramsToSave.length == 2 || lambda2 != null)
-            {
-               assert(lookup.paramsToSave.length == 2 && lambda2 != null);
-               newParams = gatherParams(newParams, lookup.paramsToSave[1], lambda2);
-            }
-            return evaluateRowQuery((SQLQuery<U>)lookup.query, newParams);
-         } catch(QueryGenerationException e) {return null;}
-      }
-      return null;
+      CachedQuery lookup = findQueryInCache(context, lambda1, lambda2);
+      if (lookup == null) return null;
+      try {
+         Object[][] newParams = gatherParamsForCachedQuery(lookup, lambda1, lambda2);
+         return evaluateRowQuery((SQLQuery<U>)lookup.query, newParams);
+      } catch(QueryGenerationException e) {return null;}
    }
 
    private void storeInQueryCache(String context, SQLQuery cached, Object lambda1, List<ParameterLocation> params1, Object lambda2, List<ParameterLocation> params2)
