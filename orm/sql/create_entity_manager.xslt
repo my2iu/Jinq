@@ -22,7 +22,6 @@ import ch.epfl.labos.iu.orm.Quintic;
 import ch.epfl.labos.iu.orm.QueryList;
 import ch.epfl.labos.iu.orm.query.RowReader;
 import ch.epfl.labos.iu.orm.query.SelectFromWhere;
-import ch.epfl.labos.iu.orm.query.QueryLazySet;
 import ch.epfl.labos.iu.orm.query2.JDBCConnectionInfo;
 import ch.epfl.labos.iu.orm.query2.SQLQueryComposer;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
