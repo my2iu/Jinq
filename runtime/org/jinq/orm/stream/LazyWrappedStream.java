@@ -41,6 +41,11 @@ public class LazyWrappedStream<T> implements Stream<T>
       if (wrappedStream == null) wrappedStream = createWrappedStream();
    }
    
+   protected <U> Stream<U> wrap(Stream<U> toWrap)
+   {
+      return toWrap;
+   }
+   
    protected Stream<T> createWrappedStream() 
    {
       return null;
@@ -50,14 +55,14 @@ public class LazyWrappedStream<T> implements Stream<T>
    public Stream<T> filter(Predicate<? super T> predicate)
    {
       realizeStream();
-      return wrappedStream.filter(predicate);
+      return wrap(wrappedStream.filter(predicate));
    }
 
    @Override
    public <R> Stream<R> map(Function<? super T, ? extends R> mapper)
    {
       realizeStream();
-      return wrappedStream.map(mapper);
+      return wrap(wrappedStream.map(mapper));
    }
 
    @Override
@@ -86,7 +91,7 @@ public class LazyWrappedStream<T> implements Stream<T>
          Function<? super T, ? extends Stream<? extends R>> mapper)
    {
       realizeStream();
-      return wrappedStream.flatMap(mapper);
+      return wrap(wrappedStream.flatMap(mapper));
    }
 
    @Override
@@ -116,42 +121,42 @@ public class LazyWrappedStream<T> implements Stream<T>
    public Stream<T> distinct()
    {
       realizeStream();
-      return wrappedStream.distinct();
+      return wrap(wrappedStream.distinct());
    }
 
    @Override
    public Stream<T> sorted()
    {
       realizeStream();
-      return wrappedStream.sorted();
+      return wrap(wrappedStream.sorted());
    }
 
    @Override
    public Stream<T> sorted(Comparator<? super T> comparator)
    {
       realizeStream();
-      return wrappedStream.sorted(comparator);
+      return wrap(wrappedStream.sorted(comparator));
    }
 
    @Override
    public Stream<T> peek(Consumer<? super T> action)
    {
       realizeStream();
-      return wrappedStream.peek(action);
+      return wrap(wrappedStream.peek(action));
    }
 
    @Override
    public Stream<T> limit(long maxSize)
    {
       realizeStream();
-      return wrappedStream.limit(maxSize);
+      return wrap(wrappedStream.limit(maxSize));
    }
 
    @Override
    public Stream<T> skip(long n)
    {
       realizeStream();
-      return wrappedStream.skip(n);
+      return wrap(wrappedStream.skip(n));
    }
 
    @Override
@@ -300,34 +305,34 @@ public class LazyWrappedStream<T> implements Stream<T>
    public Stream<T> sequential()
    {
       realizeStream();
-      return wrappedStream.sequential();
+      return wrap(wrappedStream.sequential());
    }
 
    @Override
    public Stream<T> parallel()
    {
       realizeStream();
-      return wrappedStream.parallel();
+      return wrap(wrappedStream.parallel());
    }
 
    @Override
    public Stream<T> unordered()
    {
       realizeStream();
-      return wrappedStream.unordered();
+      return wrap(wrappedStream.unordered());
    }
 
    @Override
    public Stream<T> onClose(Runnable closeHandler)
    {
       realizeStream();
-      return wrappedStream.onClose(closeHandler);
+      return wrap(wrappedStream.onClose(closeHandler));
    }
 
    @Override
    public void close()
    {
       realizeStream();
-     wrappedStream.close();
+      wrappedStream.close();
    }
 }

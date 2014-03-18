@@ -1,6 +1,9 @@
 package ch.epfl.labos.iu.orm;
 
 import java.util.Iterator;
+import java.util.function.Predicate;
+
+import org.jinq.orm.stream.JinqStream;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -29,6 +32,7 @@ public interface QueryComposer<T>
    
    // New stuff for Queryll2
    public QueryComposer<T> where(Where<T> test);
+   public QueryComposer<T> where(JinqStream.Where<T> test);
    public <U> QueryComposer<U> select(Select<T, U> select);
    public <U> QueryComposer<Pair<T, U>> join(Join<T,U> join);
    public QueryComposer<T> unique();

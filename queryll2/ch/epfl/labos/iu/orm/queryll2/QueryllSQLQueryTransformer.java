@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
+import org.jinq.orm.stream.JinqStream;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 
@@ -480,6 +482,23 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          if (!whereAnalysis.containsKey(className)) return null;
          analysis = whereAnalysis.get(className);
       }
+      return where(query, lambdaThisIndex, test, emSource, analysis, s);
+   }
+
+   // Version of where analysis used by JinqStream.where()
+   public <T> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Where<T> test, Object emSource)
+   {
+      SerializedLambda s = SerializedLambda.extractLambda(test);
+      if (s == null) return null;
+      MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
+      if (analysis == null) return null;
+      return where(query, lambdaThisIndex, test, emSource, analysis, s);
+   }
+   
+   private <T> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex,
+         Object test, Object emSource, MethodAnalysisResults analysis,
+         SerializedLambda s)
+   {
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
       if (query instanceof SQLQuery.SelectFromWhere)
       {

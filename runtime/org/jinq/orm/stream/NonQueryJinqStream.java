@@ -14,7 +14,6 @@ import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
 import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
 import ch.epfl.labos.iu.orm.DBSet.Join;
 import ch.epfl.labos.iu.orm.DBSet.Select;
-import ch.epfl.labos.iu.orm.DBSet.Where;
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
@@ -33,6 +32,12 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    {
       super();
    }
+   
+   protected <U> Stream<U> wrap(Stream<U> toWrap)
+   {
+      return new NonQueryJinqStream<>(toWrap);
+   }
+
    
    @Override
    public JinqStream<T> where(Where<T> test)

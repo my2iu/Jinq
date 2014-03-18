@@ -9,7 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import org.jinq.orm.stream.JinqStream;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -459,6 +462,12 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
    }
 
    public QueryComposer<T> where(Where<T> test)
+   {
+      return composeQuery("where", test,
+            null, () -> transformer.where(query.copy(), nextLambdaParamIndex, test, emSource));
+   }
+
+   public QueryComposer<T> where(JinqStream.Where<T> test)
    {
       return composeQuery("where", test,
             null, () -> transformer.where(query.copy(), nextLambdaParamIndex, test, emSource));

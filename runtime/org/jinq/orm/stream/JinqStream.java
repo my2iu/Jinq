@@ -1,5 +1,6 @@
 package org.jinq.orm.stream;
 
+import java.io.Serializable;
 import java.util.stream.Stream;
 
 import ch.epfl.labos.iu.orm.DateSorter;
@@ -13,10 +14,12 @@ import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
 import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
 import ch.epfl.labos.iu.orm.DBSet.Join;
 import ch.epfl.labos.iu.orm.DBSet.Select;
-import ch.epfl.labos.iu.orm.DBSet.Where;
 
 public interface JinqStream<T> extends Stream<T>
 {
+   public static interface Where<U> extends Serializable {
+      public boolean where(U obj);
+   }
    public JinqStream<T> where(Where<T> test);
    public <U> JinqStream<U> select(Select<T, U> select);
    // TODO: Rewrite join so that it doesn't take a DBSet
