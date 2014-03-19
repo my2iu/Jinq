@@ -1,5 +1,6 @@
 package org.jinq.orm.stream;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,19 +8,11 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import ch.epfl.labos.iu.orm.DBSet;
-import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
-import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
-import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
-import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
-import ch.epfl.labos.iu.orm.DBSet.Join;
-import ch.epfl.labos.iu.orm.DBSet.Select;
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.StringSorter;
-import ch.epfl.labos.iu.orm.VectorSet;
 
 public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
 {
@@ -57,8 +50,8 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       // TODO: This stream should be constructed on the fly
       final Stream.Builder<Pair<T,U>> streamBuilder = Stream.builder();
       forEach( left -> {
-         for (U right : join.join(left))
-            streamBuilder.accept(new Pair<>(left, right));
+         join.join(left).forEach( right -> 
+            { streamBuilder.accept(new Pair<>(left, right)); });
          });
       return new NonQueryJinqStream<>(streamBuilder.build());
    }
@@ -72,20 +65,19 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    @Override
    public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate)
    {
-      // TODO: Change AggregateGroup to use Streams
       // TODO: This stream should be constructed on the fly
       final Stream.Builder<Pair<U,V>> streamBuilder = Stream.builder();
       
       // TODO: Rewrite to use Collectors.groupingBy()
-      HashMap<U, DBSet<T>> map = new HashMap<>();
+      HashMap<U, List<T>> map = new HashMap<>();
       forEach( val -> {
          U group = select.select(val);
          if (!map.containsKey(group))
-            map.put(group, new VectorSet<>());
+            map.put(group, new ArrayList<>());
          map.get(group).add(val);
       });
-      for (Map.Entry<U, DBSet<T>> entry: map.entrySet())
-         streamBuilder.accept(new Pair<>(entry.getKey(), aggregate.aggregateSelect(entry.getKey(), entry.getValue())));
+      for (Map.Entry<U, List<T>> entry: map.entrySet())
+         streamBuilder.accept(new Pair<>(entry.getKey(), aggregate.aggregateSelect(entry.getKey(), new NonQueryJinqStream<>(entry.getValue().stream()))));
       return new NonQueryJinqStream<>(streamBuilder.build());
    }
 
@@ -125,9 +117,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    @Override
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate)
    {
-      // TODO: Modify aggregate to take a stream not a DBSet
-      DBSet<T> set = collect(Collectors.toCollection(() -> new VectorSet<>()));
-      return aggregate.aggregateSelect(set);
+      return aggregate.aggregateSelect(this);
    }
 
    @Override

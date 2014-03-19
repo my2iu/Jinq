@@ -8,12 +8,6 @@ import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.StringSorter;
-import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
-import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
-import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
-import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
-import ch.epfl.labos.iu.orm.DBSet.Join;
-import ch.epfl.labos.iu.orm.DBSet.Select;
 
 public interface JinqStream<T> extends Stream<T>
 {
@@ -21,11 +15,37 @@ public interface JinqStream<T> extends Stream<T>
       public boolean where(U obj);
    }
    public JinqStream<T> where(Where<T> test);
+   public static interface Select<U, V> extends Serializable {
+      public V select(U val);
+   }
    public <U> JinqStream<U> select(Select<T, U> select);
+   // TODO: Joins are somewhat dangerous because certain types of joins that are
+   // expressible here are NOT expressible in SQL. (Moving a join into
+   // a from clause is only possible if the join does not access variables from
+   // other things in the FROM clause *if* it ends up as a subquery. If we can 
+   // express it as not a subquery, then it's ok.
+   // TODO: Perhaps only providing a join(DBSet<U> other) is safer because
+   // I think it will translate into valid SQL code, but it prevents people from
+   // using navigational queries e.g. customers.join(customer -> customer.getPurchases);
+   public static interface Join<U, V> extends Serializable {
+      public JinqStream<V> join(U val);
+   }
    // TODO: Rewrite join so that it doesn't take a DBSet
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join);
    public JinqStream<T> unique();
+   public static interface AggregateGroup<W, U, V> extends Serializable {
+      public V aggregateSelect(W key, JinqStream<U> val);
+   }
    public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate);
+   public static interface AggregateDouble<U> extends Serializable {
+      public double aggregate(U val);
+   }
+   public static interface AggregateInteger<U> extends Serializable {
+      public int aggregate(U val);
+   }
+   public static interface AggregateSelect<U, V> extends Serializable {
+      public V aggregateSelect(JinqStream<U> val);
+   }
    public double sumDouble(AggregateDouble<T> aggregate);
    public int sumInt(AggregateInteger<T> aggregate);
    public double maxDouble(AggregateDouble<T> aggregate);

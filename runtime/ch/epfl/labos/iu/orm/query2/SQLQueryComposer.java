@@ -442,13 +442,32 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
             () -> transformer.group(query.copy(), nextLambdaParamIndex, select, nextLambdaParamIndex + 1, aggregate, emSource));
    }
 
+   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select,
+         JinqStream.AggregateGroup<U, T, V> aggregate) 
+   {
+      return composeQuery("group", select, aggregate, 
+            () -> transformer.group(query.copy(), nextLambdaParamIndex, select, nextLambdaParamIndex + 1, aggregate, emSource));
+   }
+
    public <U> QueryComposer<Pair<T, U>> join(Join<T,U> join)
    {
       return composeQuery("join", join,
             null, () -> transformer.join(query.copy(), nextLambdaParamIndex, join, emSource));
    }
 
+   public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join)
+   {
+      return composeQuery("join", join,
+            null, () -> transformer.join(query.copy(), nextLambdaParamIndex, join, emSource));
+   }
+
    public <U> QueryComposer<U> select(Select<T, U> select)
+   {
+      return composeQuery("select", select,
+            null, () -> transformer.select(query.copy(), nextLambdaParamIndex, select, emSource));
+   }
+
+   public <U> QueryComposer<U> select(JinqStream.Select<T, U> select)
    {
       return composeQuery("select", select,
             null, () -> transformer.select(query.copy(), nextLambdaParamIndex, select, emSource));
@@ -486,7 +505,19 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
             () -> transformer.sumDouble(query.copy(), nextLambdaParamIndex, aggregate, emSource));
    }
 
+   public Double sumDouble(JinqStream.AggregateDouble<T> aggregate)
+   {
+      return composeQueryRow("sumDouble", aggregate,
+            () -> transformer.sumDouble(query.copy(), nextLambdaParamIndex, aggregate, emSource));
+   }
+
    public Integer sumInt(AggregateInteger<T> aggregate)
+   {
+      return composeQueryRow("sumInt", aggregate,
+            () -> transformer.sumInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));
+   }
+
+   public Integer sumInt(JinqStream.AggregateInteger<T> aggregate)
    {
       return composeQueryRow("sumInt", aggregate,
             () -> transformer.sumInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));
@@ -497,14 +528,32 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       return composeQueryRow("maxDouble", aggregate,
             () -> transformer.maxDouble(query.copy(), nextLambdaParamIndex, aggregate, emSource));
    }
-   
+
+   public Double maxDouble(JinqStream.AggregateDouble<T> aggregate)
+   {
+      return composeQueryRow("maxDouble", aggregate,
+            () -> transformer.maxDouble(query.copy(), nextLambdaParamIndex, aggregate, emSource));
+   }
+
    public Integer maxInt(AggregateInteger<T> aggregate)
    {
       return composeQueryRow("maxInt", aggregate,
             () -> transformer.maxInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));
    }
 
+   public Integer maxInt(JinqStream.AggregateInteger<T> aggregate)
+   {
+      return composeQueryRow("maxInt", aggregate,
+            () -> transformer.maxInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));
+   }
+
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate)
+   {
+      return composeQueryRow("selectAggregates", aggregate,
+            () -> transformer.selectAggregates(query.copy(), nextLambdaParamIndex, aggregate, emSource));
+   }
+
+   public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate)
    {
       return composeQueryRow("selectAggregates", aggregate,
             () -> transformer.selectAggregates(query.copy(), nextLambdaParamIndex, aggregate, emSource));

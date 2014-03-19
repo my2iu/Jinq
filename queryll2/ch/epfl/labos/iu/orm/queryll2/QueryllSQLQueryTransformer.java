@@ -600,6 +600,14 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       return null;
    }
 
+   @Override
+   public <T, U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex,
+         JinqStream.Select<T, U> select, Object emSource)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
    public <T, U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex, Select<T, U> select, Object emSource)
    {
       MethodAnalysisResults analysis = null;
@@ -852,6 +860,15 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       return handleSimpleAggregate(query, analysis, "SUM", IntegerSQLReader.class, new ParamsToJava8LambdaDescription(), null, emSource);
    }
    
+   @Override
+   public <T> SQLQuery<Integer> sumInt(SQLQuery<T> query, int lambdaThisIndex,
+         JinqStream.AggregateInteger<T> aggregate,
+         Object emSource)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
    public <T> SQLQuery<Integer> sumInt(SQLQuery<T> query, int lambdaThisIndex, 
                                        AggregateInteger<T> aggregate, Object emSource)
    {
@@ -860,6 +877,16 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", IntegerSQLReader.class, emSource);
    }
 
+   @Override
+   public <T> SQLQuery<Double> sumDouble(SQLQuery<T> query,
+         int lambdaThisIndex,
+         JinqStream.AggregateDouble<T> aggregate,
+         Object emSource)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+   
    public <T> SQLQuery<Double> sumDouble(SQLQuery<T> query, int lambdaThisIndex, 
                                          AggregateDouble<T> aggregate, Object emSource)
    {
@@ -868,6 +895,15 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", DoubleSQLReader.class, emSource);
    }
 
+   @Override
+   public <T> SQLQuery<Integer> maxInt(SQLQuery<T> query, int lambdaThisIndex,
+         JinqStream.AggregateInteger<T> aggregate,
+         Object emSource)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+   
    public <T> SQLQuery<Integer> maxInt(SQLQuery<T> query,
                                        TypedValue lambda,
                                        EntityManagerBackdoor emSource) throws TypedValueVisitorException
@@ -900,6 +936,16 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "MAX", IntegerSQLReader.class, emSource);
    }
 
+   @Override
+   public <T> SQLQuery<Double> maxDouble(SQLQuery<T> query,
+         int lambdaThisIndex,
+         JinqStream.AggregateDouble<T> aggregate,
+         Object emSource)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+   
    public <T> SQLQuery<Double> maxDouble(SQLQuery<T> query, int lambdaThisIndex, 
                                          AggregateDouble<T> aggregate, Object emSource)
    {
@@ -908,6 +954,15 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "MAX", DoubleSQLReader.class, emSource);
    }
 
+   @Override
+   public <T, U> SQLQuery<Pair<T, U>> join(SQLQuery<T> query,
+         int lambdaThisIndex, JinqStream.Join<T, U> join,
+         Object emSource)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+   
    public <T, U> SQLQuery<Pair<T, U>> join(SQLQuery<T> query, int lambdaThisIndex, Join<T, U> join, Object emSource)
    {
       SerializedLambda s = SerializedLambda.extractLambda(join);
@@ -960,6 +1015,14 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       return null;
    }
 
+   @Override
+   public <T, U> SQLQuery<U> selectAggregates(SQLQuery<T> query,
+         int lambdaThisIndex, JinqStream.AggregateSelect<T, U> join, Object emSource)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
    public <T,U> SQLQuery<U> selectAggregates(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateSelect<T,U> select, Object emSource)
    {
       SerializedLambda s = SerializedLambda.extractLambda(select);
@@ -998,6 +1061,18 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       }
       return null;
       
+   }
+
+   @Override
+   public <T, U, V> SQLQuery<Pair<U, V>> group(SQLQuery<T> query,
+         int lambdaSelectThisIndex,
+         JinqStream.Select<T, U> select,
+         int lambdaAggregateThisIndex,
+         JinqStream.AggregateGroup<U, T, V> aggregate,
+         Object emSource)
+   {
+      // TODO Auto-generated method stub
+      return null;
    }
 
    public <T, U, V> SQLQuery<Pair<U, V>> group(SQLQuery<T> query,
@@ -1198,5 +1273,4 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       MethodAnalysisResults analysis = analyzeSorterLambda(sorter, stringSorterAnalysis);
       return handleSorter(query, analysis, sorter, isAscending, new ParamHandler<Object>(lambdaThisIndex, sorter, emSource), SQLReader.StringSQLReader.class, emSource);
    }
-
 }

@@ -34,14 +34,22 @@ public interface QueryComposer<T>
    public QueryComposer<T> where(Where<T> test);
    public QueryComposer<T> where(JinqStream.Where<T> test);
    public <U> QueryComposer<U> select(Select<T, U> select);
+   public <U> QueryComposer<U> select(JinqStream.Select<T, U> select);
    public <U> QueryComposer<Pair<T, U>> join(Join<T,U> join);
+   public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
    public QueryComposer<T> unique();
    public <U, V> QueryComposer<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate);
+   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 
    // returns null if the aggregates cannot be calculated
    public Double sumDouble(AggregateDouble<T> aggregate);
+   public Double sumDouble(JinqStream.AggregateDouble<T> aggregate);
    public Integer sumInt(AggregateInteger<T> aggregate);
+   public Integer sumInt(JinqStream.AggregateInteger<T> aggregate);
    public Double maxDouble(AggregateDouble<T> aggregate);
+   public Double maxDouble(JinqStream.AggregateDouble<T> aggregate);
    public Integer maxInt(AggregateInteger<T> aggregate);
+   public Integer maxInt(JinqStream.AggregateInteger<T> aggregate);
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
+   public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate);
 }
