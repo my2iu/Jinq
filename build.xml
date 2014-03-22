@@ -6,7 +6,14 @@
 	<property name="derbytools" location="lib/derbytools.jar"/>
 	<property name="derbydata" location="bin/derby/data"/>
 
-	<target name="Build Jinq">
+	<target name="Build Jinq API">
+		<mkdir dir="bin"/>
+		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
+			<src path="api"/>
+		</javac>
+	</target>
+
+	<target name="Build Jinq" depends="Build Jinq API">
 		<mkdir dir="bin"/>
 		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
 			<classpath>
