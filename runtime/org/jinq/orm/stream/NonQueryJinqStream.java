@@ -1,6 +1,7 @@
 package org.jinq.orm.stream;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,6 +183,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return new NonQueryJinqStream<>(limit(n));
    }
    
+   @Override
    public T getOnlyValue()
    {
       List<T> vals = collect(Collectors.toList());
@@ -189,9 +191,32 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       throw new NoSuchElementException();
    }
    
+   @Override
    public JinqStream<T> with(T toAdd)
    {
       return new NonQueryJinqStream<>(
             Stream.concat(this, Stream.of(toAdd)));
    }
+   
+   @Override
+   public List<T> toList()
+   {
+      return collect(Collectors.toList());
+   }
+   
+   Map<Object, Throwable> recordedExceptions = new HashMap<>();
+   
+   @Override
+   public void propagateException(Object source, Throwable exception)
+   {
+      if (!recordedExceptions.containsKey(source))
+         recordedExceptions.put(source, exception);
+   }
+
+   @Override
+   public Collection<Throwable> getExceptions()
+   {
+      return recordedExceptions.values();
+   }
+
 }

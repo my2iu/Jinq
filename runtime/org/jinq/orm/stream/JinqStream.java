@@ -1,6 +1,8 @@
 package org.jinq.orm.stream;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 import ch.epfl.labos.iu.orm.DateSorter;
@@ -65,4 +67,20 @@ public interface JinqStream<T> extends Stream<T>
    
    public T getOnlyValue();
    public JinqStream<T> with(T toAdd);
+   
+   // TODO: Should toList() throw an exception?
+   public List<T> toList();
+   
+   /**
+    * Used for recording an exception that occurred during processing
+    * somewhere in the stream chain.
+    *  
+    * @param source lambda object that caused the exception (used so that
+    *    if the same lambda causes multiple exceptions, only some of them 
+    *    need to be recorded in order to avoid memory issues)
+    * @param exception actual exception object
+    */
+   public void propagateException(Object source, Throwable exception);
+   
+   public Collection<Throwable> getExceptions();
 }

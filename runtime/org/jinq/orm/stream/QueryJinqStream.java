@@ -23,7 +23,9 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    protected Stream<T> createWrappedStream() 
    {
       return StreamSupport.stream(
-            Spliterators.spliteratorUnknownSize(queryComposer.executeAndReturnResultIterator(), Spliterator.CONCURRENT), 
+            Spliterators.spliteratorUnknownSize(
+                  queryComposer.executeAndReturnResultIterator( err -> propagateException(this, err) ), 
+                  Spliterator.CONCURRENT), 
             false);
    }
    

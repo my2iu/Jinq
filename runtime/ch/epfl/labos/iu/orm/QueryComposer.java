@@ -1,6 +1,7 @@
 package ch.epfl.labos.iu.orm;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.jinq.orm.stream.JinqStream;
@@ -19,7 +20,7 @@ public interface QueryComposer<T>
    public VectorSet<T> createRealizedSet();
 
    // Actually executes the query and returns the results in an iterator
-   public Iterator<T> executeAndReturnResultIterator();
+   public Iterator<T> executeAndReturnResultIterator(Consumer<Throwable> exceptionReporter);
    
    // Returns a new query with the given operation integrated in
    // (or returns null if the given operation cannot be integrated)

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -89,7 +90,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       PreparedStatement stmt;  // TODO: not used currently because I'm too lazy to put in the code for cleaning them up properly
    }
    
-   public Iterator<T> executeAndReturnResultIterator()
+   public Iterator<T> executeAndReturnResultIterator(final Consumer<Throwable> exceptionReporter)
    {
       // TODO: Perhaps, the query should only be executed if the iterator is read, and not immediately.
       if (query == null)
@@ -136,8 +137,11 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
                         if (!hasMore) close();
                         return hasMore;
                      } catch (SQLException e) {
-                        // TODO: Find a better way to handle this
-                        throw new RuntimeException(e);
+                        // TODO: Find a better way to handle these exceptions
+                        hasMore = false;
+                        close();
+                        exceptionReporter.accept(e);
+                        return false;
                      }
                   }
                   
@@ -162,8 +166,11 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
                         hasRead = false;
                         return toReturn;
                      } catch (SQLException e) {
-                        // TODO: Find a better way to handle this
-                        throw new RuntimeException(e);
+                        // TODO: Find a better way to handle these exceptions
+                        hasMore = false;
+                        close();
+                        exceptionReporter.accept(e);
+                        return null;
                      }
                   }
             
@@ -172,10 +179,12 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       } catch (QueryGenerationException e)
       {
          e.printStackTrace();
+         exceptionReporter.accept(e);
       }
       catch (SQLException e)
       {
          e.printStackTrace();
+         exceptionReporter.accept(e);
       }
       // TODO: What to return here?
       return Collections.emptyIterator();
