@@ -71,6 +71,8 @@ public interface JinqStream<T> extends Stream<T>
    // TODO: Should toList() throw an exception?
    public List<T> toList();
    
+   public String getDebugQueryString();
+   
    /**
     * Used for recording an exception that occurred during processing
     * somewhere in the stream chain.

@@ -19,6 +19,8 @@ public interface QueryComposer<T>
    // Actually executes the query and returns the results in a set
    public VectorSet<T> createRealizedSet();
 
+   public String getDebugQueryString();
+   
    // Actually executes the query and returns the results in an iterator
    public Iterator<T> executeAndReturnResultIterator(Consumer<Throwable> exceptionReporter);
    

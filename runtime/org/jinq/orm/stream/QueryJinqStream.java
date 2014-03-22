@@ -180,4 +180,11 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       if (newComposer != null) return new QueryJinqStream<>(newComposer);
       return super.firstN(n);
    }
+   
+   @Override
+   public String getDebugQueryString()
+   {
+      return queryComposer.getDebugQueryString();
+   }
+
 }

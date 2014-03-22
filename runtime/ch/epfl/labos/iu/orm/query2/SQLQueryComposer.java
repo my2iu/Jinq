@@ -90,6 +90,31 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       PreparedStatement stmt;  // TODO: not used currently because I'm too lazy to put in the code for cleaning them up properly
    }
    
+   public String getDebugQueryString()
+   {
+      // TODO: Perhaps, the query should only be executed if the iterator is read, and not immediately.
+      if (query == null) return null;
+      try
+      {
+         JDBCFragment sql = null;
+         if (emSource.isQueriesCached())
+            sql = (JDBCFragment)emSource.getGeneratedQueryCacheEntry(query);
+         if (sql == null)
+         {
+            JDBCQuerySetup setup = new JDBCQuerySetup();
+            query.prepareQuery(setup);
+            sql = query.generateQuery(setup);
+            if (emSource.isQueriesCached())
+               emSource.putGeneratedQueryCacheEntry(query, sql);
+         }
+         return sql.query;
+      } catch (QueryGenerationException e)
+      {
+         e.printStackTrace();
+      }
+      return null;
+   }
+   
    public Iterator<T> executeAndReturnResultIterator(final Consumer<Throwable> exceptionReporter)
    {
       // TODO: Perhaps, the query should only be executed if the iterator is read, and not immediately.

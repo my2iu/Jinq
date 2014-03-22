@@ -204,7 +204,16 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return collect(Collectors.toList());
    }
    
-   Map<Object, Throwable> recordedExceptions = new HashMap<>();
+   @Override
+   public String getDebugQueryString()
+   {
+      // TODO: It would be nice if this could follow the stream chain
+      //    down to get the underlying query (the stream chain isn't currently
+      //    recorded, so this is not possible at the moment).
+      return null;
+   }
+   
+   protected Map<Object, Throwable> recordedExceptions = new HashMap<>();
    
    @Override
    public void propagateException(Object source, Throwable exception)
