@@ -604,8 +604,11 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
    public <T, U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex,
          JinqStream.Select<T, U> select, Object emSource)
    {
-      // TODO Auto-generated method stub
-      return null;
+      SerializedLambda s = SerializedLambda.extractLambda(select);
+      if (s == null) return null;
+      MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
+      if (analysis == null) return null;
+      return select(query, lambdaThisIndex, select, emSource, analysis, s);
    }
 
    public <T, U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex, Select<T, U> select, Object emSource)
@@ -623,6 +626,13 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          if (!selectAnalysis.containsKey(className)) return null;
          analysis = selectAnalysis.get(className);
       }
+      return select(query, lambdaThisIndex, select, emSource, analysis, s);
+   }
+
+   private <T, U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex,
+         Object select, Object emSource, MethodAnalysisResults analysis,
+         SerializedLambda s)
+   {
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
       if (query instanceof SQLQuery.SelectFromWhere)
       {
