@@ -1,8 +1,7 @@
+import com.example.orm.test.entities.*;
 import ch.epfl.labos.iu.orm.*;
-import ch.epfl.labos.iu.orm.test.entities.*;
 import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;

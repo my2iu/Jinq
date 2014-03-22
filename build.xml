@@ -19,7 +19,7 @@
 	</target>
 
 	<target name="Generate Demo ORM Entities" depends="Build Jinq">
-		<mkdir dir="demogen/ch/epfl/labos/iu/orm/test/entities"/>
+		<mkdir dir="demogen/com/example/orm/test/entities"/>
 		<java classname="ch.epfl.labos.iu.orm.tools.EntityGenerator">
 			<classpath>
 				<pathelement location="bin"/>

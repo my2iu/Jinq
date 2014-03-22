@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<entities package="ch.epfl.labos.iu.orm.test.entities">
+<entities package="com.example.orm.test.entities">
 	<jdbc driver="org.apache.derby.jdbc.EmbeddedDriver" db="jdbc:derby:demoDB"/>
 
 	<entity name="Customer" table="Customers">
