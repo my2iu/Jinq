@@ -969,8 +969,11 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          int lambdaThisIndex, JinqStream.Join<T, U> join,
          Object emSource)
    {
-      // TODO Auto-generated method stub
-      return null;
+      SerializedLambda s = SerializedLambda.extractLambda(join);
+      if (s == null) return null;
+      MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
+      if (analysis == null) return null;
+      return join(query, lambdaThisIndex, join, emSource, analysis, s);
    }
    
    public <T, U> SQLQuery<Pair<T, U>> join(SQLQuery<T> query, int lambdaThisIndex, Join<T, U> join, Object emSource)
@@ -988,6 +991,13 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          if (!joinAnalysis.containsKey(className)) return null;
          analysis = joinAnalysis.get(className);
       }
+      return join(query, lambdaThisIndex, join, emSource, analysis, s);
+   }
+
+   private <T, U> SQLQuery<Pair<T, U>> join(SQLQuery<T> query,
+         int lambdaThisIndex, Object join, Object emSource,
+         MethodAnalysisResults analysis, SerializedLambda s)
+   {
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
       if (query instanceof SQLQuery.SelectFromWhere)
       {
