@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.jinq.orm.annotations.EntitySupplier;
+import org.jinq.orm.annotations.NoSideEffects;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -28,6 +30,8 @@ public class TransformationClassAnalyzer
       new HashSet<MethodSignature>();
    public static Set<MethodSignature> KnownSafeStaticMethods =
       new HashSet<MethodSignature>();
+   public static Set<Class<?>> SafeMethodAnnotations =
+      new HashSet<Class<?>>();
    
    public static String WHERE_INTERFACE = "ch/epfl/labos/iu/orm/DBSet$Where";
    public static String WHERE_METHOD = "where";
@@ -130,6 +134,8 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(tuple8GetSix);
       KnownSafeMethods.add(tuple8GetSeven);
       KnownSafeMethods.add(tuple8GetEight);
+      SafeMethodAnnotations.add(NoSideEffects.class);
+      SafeMethodAnnotations.add(EntitySupplier.class);
    }
    
    ClassNode cl = new ClassNode();
@@ -266,7 +272,7 @@ public class TransformationClassAnalyzer
       {
          PathAnalysis pathAnalysis = 
             path.calculateReturnValueAndConditions(cl, m, 
-                  safeMethods, safeStaticMethods,
+                  safeMethods, safeStaticMethods, SafeMethodAnnotations,
                   allTransformClasses,
                   entityInfo);
          pathResults.add(pathAnalysis);

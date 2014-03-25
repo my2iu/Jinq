@@ -20,15 +20,16 @@ package <xsl:value-of select="$package"/>;
 import ch.epfl.labos.iu.orm.DBSet;
 import ch.epfl.labos.iu.orm.VectorSet;
 import ch.epfl.labos.iu.orm.LazySet;
+import ch.epfl.labos.iu.orm.Pair;
+import ch.epfl.labos.iu.orm.Triple;
+import ch.epfl.labos.iu.orm.Quartic;
+import ch.epfl.labos.iu.orm.Quintic;
+import org.jinq.orm.annotations.NoSideEffects;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.Triple;
-import ch.epfl.labos.iu.orm.Quartic;
-import ch.epfl.labos.iu.orm.Quintic;
 
 public class <xsl:value-of select="@name"/> implements Cloneable
 {

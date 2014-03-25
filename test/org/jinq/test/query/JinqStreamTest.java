@@ -11,12 +11,14 @@ import org.junit.Test;
 import org.jinq.test.entities.DBManager;
 import org.jinq.test.entities.EntityManager;
 
+import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
 
 public class JinqStreamTest
 {
    StringWriter savedOutput;
    DBManager db;
+   EntityManager em;
 
    @Before
    public void setUp() throws Exception
@@ -25,23 +27,34 @@ public class JinqStreamTest
       db = new DBManager(new PrintWriter(savedOutput));
       QueryllAnalyzer queryll2 = new QueryllAnalyzer(); 
       queryll2.useRuntimeAnalysis(db);
+      em = db.begin();
    }
    
    @After
    public void tearDown()
    {
+      db.end(em, true);
       db.close();
    }
 
    @Test
    public void testWhere()
    {
-      EntityManager em = db.begin();
       assertEquals("SELECT A.Name AS COL1 FROM Customers AS A",
          em.customerStream()
             .select(c -> c.getName())
             .getDebugQueryString());
-      db.end(em, true);
    }
 
+   @Test
+   public void testJoin()
+   {
+      EntityManager em = this.em;
+      assertEquals("SELECT A.Name AS COL1, B.Date AS COL2 FROM Customers AS A, Sales AS B",
+            em.customerStream()
+               .join(c -> em.saleStream())
+               .select(pair -> new Pair<>(pair.getOne().getName(),
+                                       pair.getTwo().getDate()))
+               .getDebugQueryString());
+   }
 }

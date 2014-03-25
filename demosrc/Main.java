@@ -1,10 +1,11 @@
-import com.example.orm.test.entities.*;
 import ch.epfl.labos.iu.orm.*;
 import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
 
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.example.orm.test.entities.*;
 
 public class Main
 {
@@ -176,13 +177,26 @@ public class Main
       System.out.println("Streams: Names of customers");
       resultList = em.customerStream()
             .select(c -> c.getName())
-            .collect(Collectors.toList());
+            .toList();
       System.out.println("Streams: Customers from the UK");
       resultList = em.customerStream()
          .where(c -> c.getCountry().equals("UK"))
          .select(c -> c.getCustomerId())
-         .collect(Collectors.toList());
+         .toList();
+      System.out.println("Streams: Customers from a country to be specified");
+      resultList = em.customerStream()
+         .where( c -> c.getCountry().equals(stringParam))
+         .toList();
+      result.size();
+      System.out.println("Streams: Join of customer and sale tables");
+      resultList = em.customerStream()
+         .join(c -> em.saleStream())
+         .select(pair -> new Pair<>(pair.getOne().getName(),
+                                    pair.getTwo().getDate()))
+         .toList();
 
+      
+      
       // Query that cannot be translated into SQL
 //      result = em.allCustomer()
 //         .select(o -> o.hashCode());

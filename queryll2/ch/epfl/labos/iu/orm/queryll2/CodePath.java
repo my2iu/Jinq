@@ -1,11 +1,14 @@
 package ch.epfl.labos.iu.orm.queryll2;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.jinq.orm.annotations.NoSideEffects;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -121,6 +124,7 @@ public class CodePath
          ClassNode cl, MethodNode m,
          final Set<MethodSignature> safeMethods, 
          final Set<MethodSignature> safeStaticMethods,
+         final Set<Class<?>> safeMethodAnnotations,
          final List<String> otherTransformClasses,
          final ORMInformation entityInfo) throws AnalyzerException
    {
@@ -173,8 +177,26 @@ public class CodePath
                      }
                      return true;
                   }
+                  else if (safeMethods.contains(m))
+                  {
+                     return true;
+                  }
                   else
-                     return safeMethods.contains(m); 
+                  {
+                     // Use reflection to get info about the method (or would it be better
+                     // to do this through direct bytecode inspection?)
+                     try
+                     {
+                        Method reflectedMethod = Annotations.asmMethodSignatureToReflectionMethod(m);
+                        return Annotations.methodHasSomeAnnotations(reflectedMethod, safeMethodAnnotations);
+                     } catch (ClassNotFoundException|NoSuchMethodException e)
+                     {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                     }
+                     return false; 
+                     
+                  }
                }});
       
       for (PathInstruction instruction: path)
@@ -192,5 +214,4 @@ public class CodePath
       
       return new PathAnalysis(returnValue, conditions, transformConstructorsCalled, unresolvedDBSets);
    }
-
 }

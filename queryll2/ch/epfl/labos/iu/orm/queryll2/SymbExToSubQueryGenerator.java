@@ -1,5 +1,7 @@
 package ch.epfl.labos.iu.orm.queryll2;
 
+import org.jinq.orm.annotations.EntitySupplier;
+
 import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
 import ch.epfl.labos.iu.orm.query2.SQLQuery;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
@@ -61,6 +63,23 @@ public class SymbExToSubQueryGenerator<T> extends TypedValueVisitor<T, SQLQuery>
                em.getTableForEntity(entityName));
       }
       else
-         return super.virtualMethodCallValue(val, in);
+      {
+         EntitySupplier entitySupplier = Annotations.methodFindAnnotation(sig, EntitySupplier.class);
+         if (entitySupplier != null)
+         {
+            String entityName = entitySupplier.entityClass();
+            // TODO: Fix this with a proper mapping between class name and entity
+            entityName = entityName.substring(entityName.lastIndexOf(".") + 1);
+            EntityManagerBackdoor em = getAndCheckEntityManager(val.base);
+            if (em == null)
+               throw new TypedValueVisitorException("Accessing an unknown entity manager");
+            return new SQLQuery.SelectFromWhere<T>(
+                  em.getReaderForEntity(entityName), 
+                  em.getEntityColumnNames(entityName),
+                  em.getTableForEntity(entityName));
+         }
+         else
+            return super.virtualMethodCallValue(val, in);
+      }
    }
 }
