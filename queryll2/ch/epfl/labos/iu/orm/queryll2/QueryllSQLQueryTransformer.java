@@ -875,8 +875,9 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          JinqStream.AggregateInteger<T> aggregate,
          Object emSource)
    {
-      // TODO Auto-generated method stub
-      return null;
+      MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateIntegerAnalysis);
+      if (analysis == null) return null;
+      return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", IntegerSQLReader.class, emSource);
    }
 
    public <T> SQLQuery<Integer> sumInt(SQLQuery<T> query, int lambdaThisIndex, 
@@ -893,8 +894,9 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          JinqStream.AggregateDouble<T> aggregate,
          Object emSource)
    {
-      // TODO Auto-generated method stub
-      return null;
+      MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateDoubleAnalysis);
+      if (analysis == null) return null;
+      return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", DoubleSQLReader.class, emSource);
    }
    
    public <T> SQLQuery<Double> sumDouble(SQLQuery<T> query, int lambdaThisIndex, 
@@ -910,8 +912,9 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          JinqStream.AggregateInteger<T> aggregate,
          Object emSource)
    {
-      // TODO Auto-generated method stub
-      return null;
+      MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateIntegerAnalysis);
+      if (analysis == null) return null;
+      return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "MAX", IntegerSQLReader.class, emSource);
    }
    
    public <T> SQLQuery<Integer> maxInt(SQLQuery<T> query,
@@ -952,8 +955,9 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          JinqStream.AggregateDouble<T> aggregate,
          Object emSource)
    {
-      // TODO Auto-generated method stub
-      return null;
+      MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateDoubleAnalysis);
+      if (analysis == null) return null;
+      return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "MAX", DoubleSQLReader.class, emSource);
    }
    
    public <T> SQLQuery<Double> maxDouble(SQLQuery<T> query, int lambdaThisIndex, 
@@ -1037,10 +1041,12 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
 
    @Override
    public <T, U> SQLQuery<U> selectAggregates(SQLQuery<T> query,
-         int lambdaThisIndex, JinqStream.AggregateSelect<T, U> join, Object emSource)
+         int lambdaThisIndex, JinqStream.AggregateSelect<T, U> select, Object emSource)
    {
-      // TODO Auto-generated method stub
-      return null;
+      SerializedLambda s = SerializedLambda.extractLambda(select);
+      MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
+      if (analysis == null) return null;
+      return selectAggregates(query, lambdaThisIndex, select, analysis, emSource);
    }
 
    public <T,U> SQLQuery<U> selectAggregates(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateSelect<T,U> select, Object emSource)
@@ -1058,6 +1064,13 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          if (!aggregateSelectAnalysis.containsKey(className)) return null;
          analysis = aggregateSelectAnalysis.get(className);
       }
+      return selectAggregates(query, lambdaThisIndex, select, analysis, emSource);
+   }
+
+   private <T, U> SQLQuery<U> selectAggregates(SQLQuery<T> query,
+         int lambdaThisIndex, Object select,
+         MethodAnalysisResults analysis, Object emSource)
+   {
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
       if (query instanceof SQLQuery.SelectFromWhere)
       {
@@ -1080,7 +1093,6 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          }
       }
       return null;
-      
    }
 
    @Override
