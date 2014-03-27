@@ -26,4 +26,12 @@ public class MethodAnalysisResults
          allUnresolvedDBSets.addAll(path.getUnresolvedDBSets());
       return allUnresolvedDBSets;
    }
+
+   public Set<TypedValue> getAllUnresolvedJinqStreams()
+   {
+      Set<TypedValue> allUnresolvedJinqStreams = new HashSet<TypedValue>();
+      for (PathAnalysis path: paths)
+         allUnresolvedJinqStreams.addAll(path.getUnresolvedJinqStreams());
+      return allUnresolvedJinqStreams;
+   }
 }

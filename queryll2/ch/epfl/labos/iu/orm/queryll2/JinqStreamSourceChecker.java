@@ -8,10 +8,10 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class DBSetSourceChecker extends TypedValueVisitor<Set<TypedValue>, Boolean>
+public class JinqStreamSourceChecker extends TypedValueVisitor<Set<TypedValue>, Boolean>
 {
    ORMInformation entityInfo;
-   public DBSetSourceChecker(ORMInformation entityInfo)
+   public JinqStreamSourceChecker(ORMInformation entityInfo)
    {
       this.entityInfo = entityInfo;
    }
@@ -19,11 +19,7 @@ public class DBSetSourceChecker extends TypedValueVisitor<Set<TypedValue>, Boole
    @Override public Boolean virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, Set<TypedValue> in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
-      if (entityInfo.dbSetMethods.contains(sig))
-      {
-         return true;   // The capture of the underlying dbset was probably already handled when the previous method was processed
-      }
-      else if (entityInfo.jinqStreamMethods.contains(sig))
+      if (entityInfo.jinqStreamMethods.contains(sig))
       {
          return true;   // The capture of the underlying jinq stream was probably already handled when the previous method was processed
       }

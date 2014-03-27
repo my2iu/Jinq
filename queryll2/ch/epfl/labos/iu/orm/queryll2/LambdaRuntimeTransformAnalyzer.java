@@ -16,6 +16,7 @@ public class LambdaRuntimeTransformAnalyzer
    
    public MethodAnalysisResults analyzeLambda(SerializedLambda lambda) 
    {
+      if (lambda == null) return null;
       return analyzeLambda(lambda.implClass, lambda.implMethodName, lambda.implMethodSignature);
    }
    

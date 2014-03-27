@@ -107,9 +107,33 @@ public class JinqStreamTest
          .selectAggregates(loset ->
             new Pair<>(loset.sumInt(lo -> lo.getQuantity()),
                        loset.sumInt(lo -> 1)));
-      assertEquals("SELECT SUM(A.Quantity) AS COL1 FROM LineOrders AS A",
+      assertEquals("SELECT SUM(A.Quantity) AS COL1, SUM(1) AS COL2 FROM LineOrders AS A",
             savedOutput.toString().trim());
-      
+   }
+   
+   @Test
+   public void testGroup()
+   {
+      // Group together results (Customers and the number of sales to them)
+      assertEquals("SELECT B.CustomerId AS COL3, SUM(1) AS COL4 FROM Sales AS A, Customers AS B WHERE (A.CustomerId) = (B.CustomerId) GROUP BY B.CustomerId",
+            em.saleStream()
+               .group(
+                  s -> s.getPurchaser().getCustomerId(),
+                  (key, sales) -> sales.sumInt(sale -> 1))
+               .getDebugQueryString());
+   }
+   
+   @Test
+   public void testSubQuery()
+   {
+      // Basic subquery (Most recent sale)
+      // TODO: Port over support for stream sources to subqueries 
+      fail();
+      assertEquals("SELECT A.Name AS COL2 FROM Customers AS A ORDER BY A.Name ASC",
+            em.saleStream()
+                  .where((s) -> em.saleStream().maxInt(ss -> ss.getSaleId())
+                        == s.getSaleId())
+                  .getDebugQueryString());
    }
    
    @Test

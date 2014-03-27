@@ -144,6 +144,9 @@ public class CodePath
       final List<MethodSignature> transformConstructorsCalled = new ArrayList<MethodSignature>();
       final DBSetSourceChecker checkDBSets = new DBSetSourceChecker(entityInfo);
       final Set<TypedValue> unresolvedDBSets = new HashSet<TypedValue>();
+      // TODO: make sure that jinq streams are handled in the same way that dbsets are handled above
+      final JinqStreamSourceChecker checkJinqStreams = new JinqStreamSourceChecker(entityInfo);
+      final Set<TypedValue> unresolvedJinqStreams = new HashSet<TypedValue>();
       ConditionRecorder pathConditions = new ConditionRecorder();
       BasicSymbolicInterpreter interpreter = new SymbolicInterpreterWithFieldAccess(Opcodes.ASM5);
       FrameWithHelpers frame = new FrameWithHelpers(cl, m, interpreter);
@@ -170,6 +173,24 @@ public class CodePath
                            if (t.getSort() != Type.OBJECT) continue;
                            if (!t.getInternalName().equals("Lch/epfl/labos/iu/orm/DBSet;")) continue;
                            args.get(n).visit(checkDBSets, unresolvedDBSets);
+                        }
+                     } catch (TypedValueVisitorException e)
+                     {
+                        return false;
+                     }
+                     return true;
+                  }
+                  else if (entityInfo.jinqStreamMethods.contains(m))
+                  {
+                     Type[] argTypes = Type.getArgumentTypes(m.desc);
+                     try {
+                        base.visit(checkJinqStreams, unresolvedJinqStreams);
+                        for (int n = 0; n < argTypes.length; n++)
+                        {
+                           Type t = argTypes[n];
+                           if (t.getSort() != Type.OBJECT) continue;
+                           if (!t.getInternalName().equals("Lorg/jinq/orm/stream/JinqStream;")) continue;
+                           args.get(n).visit(checkJinqStreams, unresolvedJinqStreams);
                         }
                      } catch (TypedValueVisitorException e)
                      {
@@ -212,6 +233,7 @@ public class CodePath
       TypedValue returnValue = interpreter.returnValue;
       List<TypedValue.ComparisonValue> conditions = pathConditions.conditions;
       
-      return new PathAnalysis(returnValue, conditions, transformConstructorsCalled, unresolvedDBSets);
+      return new PathAnalysis(returnValue, conditions, transformConstructorsCalled, 
+            unresolvedDBSets, unresolvedJinqStreams);
    }
 }

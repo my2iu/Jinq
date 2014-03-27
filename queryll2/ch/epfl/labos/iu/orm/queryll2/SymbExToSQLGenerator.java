@@ -222,28 +222,28 @@ public class SymbExToSQLGenerator<T> extends TypedValueVisitor<T, SQLColumnValue
                newQuery = queryMethodHandler.sumInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
             else if (sig.equals(TransformationClassAnalyzer.dbsetMaxInt))
                newQuery = queryMethodHandler.maxInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-            if (newQuery == null) throw new TypedValueVisitorException("Could not decode a subquery " + val);
-            if (newQuery instanceof SQLQuery.InternalGroup)
-            {
-               SQLQuery.InternalGroup<Integer> agg = (SQLQuery.InternalGroup<Integer>)newQuery;
-               // TODO: This is probably correct but potentially bogus.
-               // It should be thought through a bit more wrt what InternalGroup
-               // means and whether that is sufficient to allow us to do this
-               assert(agg.reader instanceof SQLReader.IntegerSQLReader);
-               SQLColumnValues<Integer> toReturn = new SQLColumnValues<Integer>(agg.reader);
-               toReturn.columns[0] = agg.columns.get(0);
-               return toReturn;
-            }
-            else if (newQuery instanceof SQLQuery.SelectFromWhere)
-            {
-               SQLQuery.SelectFromWhere<Integer> subquery = (SQLQuery.SelectFromWhere<Integer>)newQuery;
-               assert(subquery.reader instanceof SQLReader.IntegerSQLReader);
-               SQLColumnValues<Integer> toReturn = new SQLColumnValues<Integer>(subquery.reader);
-               toReturn.columns[0].add(new SQLSubstitution.ScalarSelectFromWhereSubQuery(subquery));
-               return toReturn;
-            }
-            else
-               throw new TypedValueVisitorException("Unhandled nesting of a query");
+            return handleAggregationSubQuery(val, newQuery);
+         }
+         // TODO: Implement other aggregation functions
+         throw new TypedValueVisitorException("Unhandled DBSet operation");
+      }
+      else if (entityInfo.jinqStreamMethods.contains(sig))
+      {
+         if (lambdaContext.joins == null)
+            throw new TypedValueVisitorException("Need a join handler here for subqueries just in case there's an embedded navigational query: " + val);
+         // TODO: Handle checking out the constructor and verifying how
+         // parameters pass through the constructor
+         SQLQuery subQuery = val.base.visit(subQueryHandler, in);
+         if (sig.equals(TransformationClassAnalyzer.streamSumInt)
+               || sig.equals(TransformationClassAnalyzer.streamMaxInt))
+         {
+            // TODO: do subqueries need to be copied before being passed in here?
+            SQLQuery<Integer> newQuery = null;
+            if (sig.equals(TransformationClassAnalyzer.streamSumInt))
+               newQuery = queryMethodHandler.sumInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
+            else if (sig.equals(TransformationClassAnalyzer.streamMaxInt))
+               newQuery = queryMethodHandler.maxInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
+            return handleAggregationSubQuery(val, newQuery);
          }
          // TODO: Implement other aggregation functions
          throw new TypedValueVisitorException("Unhandled DBSet operation");
@@ -300,5 +300,32 @@ public class SymbExToSQLGenerator<T> extends TypedValueVisitor<T, SQLColumnValue
       }
       else
          return super.virtualMethodCallValue(val, in);
+   }
+   private SQLColumnValues handleAggregationSubQuery(
+         MethodCallValue.VirtualMethodCallValue val, SQLQuery<Integer> newQuery)
+         throws TypedValueVisitorException
+   {
+      if (newQuery == null) throw new TypedValueVisitorException("Could not decode a subquery " + val);
+      if (newQuery instanceof SQLQuery.InternalGroup)
+      {
+         SQLQuery.InternalGroup<Integer> agg = (SQLQuery.InternalGroup<Integer>)newQuery;
+         // TODO: This is probably correct but potentially bogus.
+         // It should be thought through a bit more wrt what InternalGroup
+         // means and whether that is sufficient to allow us to do this
+         assert(agg.reader instanceof SQLReader.IntegerSQLReader);
+         SQLColumnValues<Integer> toReturn = new SQLColumnValues<Integer>(agg.reader);
+         toReturn.columns[0] = agg.columns.get(0);
+         return toReturn;
+      }
+      else if (newQuery instanceof SQLQuery.SelectFromWhere)
+      {
+         SQLQuery.SelectFromWhere<Integer> subquery = (SQLQuery.SelectFromWhere<Integer>)newQuery;
+         assert(subquery.reader instanceof SQLReader.IntegerSQLReader);
+         SQLColumnValues<Integer> toReturn = new SQLColumnValues<Integer>(subquery.reader);
+         toReturn.columns[0].add(new SQLSubstitution.ScalarSelectFromWhereSubQuery(subquery));
+         return toReturn;
+      }
+      else
+         throw new TypedValueVisitorException("Unhandled nesting of a query");
    }
 }

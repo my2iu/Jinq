@@ -23,7 +23,8 @@ public class PathAnalysis
    public PathAnalysis(TypedValue returnValue, 
                        List<TypedValue.ComparisonValue> conditions, 
                        List<MethodSignature> transformConstructorsCalled,
-                       Set<TypedValue> unresolvedDBSets)
+                       Set<TypedValue> unresolvedDBSets,
+                       Set<TypedValue> unresolvedJinqStreams)
    {
       this.returnValue = returnValue;
       this.conditions = conditions;
@@ -31,6 +32,8 @@ public class PathAnalysis
       this.transformConstructorsCalled.addAll(transformConstructorsCalled);
       this.unresolvedDBSets = new HashSet<TypedValue>();
       this.unresolvedDBSets.addAll(unresolvedDBSets);
+      this.unresolvedJinqStreams = new HashSet<TypedValue>();
+      this.unresolvedJinqStreams.addAll(unresolvedJinqStreams);
    }
    
    public TypedValue getReturnValue()
@@ -107,6 +110,10 @@ public class PathAnalysis
    {
       return unresolvedDBSets;
    }
+   public Set<TypedValue> getUnresolvedJinqStreams()
+   {
+      return unresolvedJinqStreams;
+   }
    TypedValue simplifiedIsTrueReturnValue = null;
    TypedValue simplifiedReturnValue = null;
    TypedValue isTrueReturnValue = null;
@@ -115,4 +122,5 @@ public class PathAnalysis
    List<TypedValue> simplifiedConditions = null;
    Set<MethodSignature> transformConstructorsCalled;
    Set<TypedValue> unresolvedDBSets;
+   Set<TypedValue> unresolvedJinqStreams;
 }

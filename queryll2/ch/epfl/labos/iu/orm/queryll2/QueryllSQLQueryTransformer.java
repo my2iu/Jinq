@@ -1044,6 +1044,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          int lambdaThisIndex, JinqStream.AggregateSelect<T, U> select, Object emSource)
    {
       SerializedLambda s = SerializedLambda.extractLambda(select);
+      if (s == null) return null;
       MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
       if (analysis == null) return null;
       return selectAggregates(query, lambdaThisIndex, select, analysis, emSource);
@@ -1103,8 +1104,19 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          JinqStream.AggregateGroup<U, T, V> aggregate,
          Object emSource)
    {
-      // TODO Auto-generated method stub
-      return null;
+      SerializedLambda sSelect = SerializedLambda.extractLambda(select);
+      if (sSelect == null) return null;
+      MethodAnalysisResults analysisForSelect = runtimeAnalyzer.analyzeLambda(sSelect);
+      if (analysisForSelect == null) return null;
+
+      SerializedLambda sAggregate = SerializedLambda.extractLambda(aggregate);
+      if (sAggregate == null) return null;
+      MethodAnalysisResults analysisForGroup = runtimeAnalyzer.analyzeLambda(sAggregate);
+      if (analysisForGroup == null) return null;
+      return group(query, 
+            lambdaSelectThisIndex, select, analysisForSelect, sSelect,
+            lambdaAggregateThisIndex, aggregate, analysisForGroup, sAggregate,
+            emSource);
    }
 
    public <T, U, V> SQLQuery<Pair<U, V>> group(SQLQuery<T> query,
@@ -1127,7 +1139,6 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          if (!selectAnalysis.containsKey(selectClassName)) return null;
          analysisForSelect = selectAnalysis.get(selectClassName);
       }
-      if (!doRuntimeCheckForSideEffects(analysisForSelect)) return null;
 
       SerializedLambda sAggregate = SerializedLambda.extractLambda(aggregate);
       MethodAnalysisResults analysisForGroup;
@@ -1142,6 +1153,18 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          if (!groupAnalysis.containsKey(groupClassName)) return null;
          analysisForGroup = groupAnalysis.get(groupClassName);
       }
+      return group(query, 
+            lambdaSelectThisIndex, select, analysisForSelect, sSelect,
+            lambdaAggregateThisIndex, aggregate, analysisForGroup, sAggregate,
+            emSource);
+   }
+
+   private <T, U, V> SQLQuery<Pair<U, V>> group(SQLQuery<T> query,
+         int lambdaSelectThisIndex, Object select, MethodAnalysisResults analysisForSelect, SerializedLambda sSelect,
+         int lambdaAggregateThisIndex, Object aggregate, MethodAnalysisResults analysisForGroup, SerializedLambda sAggregate,
+         Object emSource)
+   {
+      if (!doRuntimeCheckForSideEffects(analysisForSelect)) return null;
       if (!doRuntimeCheckForSideEffects(analysisForGroup)) return null;
 
       try {

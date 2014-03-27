@@ -23,6 +23,7 @@ public class ORMInformation implements QueryllEntityConfigurationInfo
    HashMap<MethodSignature, String> fieldMethods = new HashMap<MethodSignature, String>();  // maps method signature to field name
    HashMap<MethodSignature, String> allEntityMethods = new HashMap<MethodSignature, String>();  // maps method signature to entity name
    HashSet<MethodSignature> dbSetMethods = new HashSet<MethodSignature>();  // dbset methods are only safe if the dbset method being used is known. If not, there may be side-effects not accounted for
+   HashSet<MethodSignature> jinqStreamMethods = new HashSet<MethodSignature>();  // jinqStream methods are only safe if the jinq Stream method being used is known. If not, there may be side-effects not accounted for
    HashSet<MethodSignature> passThroughMethods = new HashSet<MethodSignature>();  // for the purpose of query generation, these methods have no effect
    HashSet<MethodSignature> passThroughStaticMethods = new HashSet<MethodSignature>();  // for the purpose of query generation, these methods have no effect
    HashMap<MethodSignature, N111NavigationalLink> N111Methods = new HashMap<MethodSignature, N111NavigationalLink>();  // maps method signatures for navigational queries to something
@@ -63,6 +64,10 @@ public class ORMInformation implements QueryllEntityConfigurationInfo
       fieldMethods.put(TransformationClassAnalyzer.tuple8GetSix, "Six");
       fieldMethods.put(TransformationClassAnalyzer.tuple8GetSeven, "Seven");
       fieldMethods.put(TransformationClassAnalyzer.tuple8GetEight, "Eight");
+      jinqStreamMethods.add(TransformationClassAnalyzer.streamSumInt);
+      jinqStreamMethods.add(TransformationClassAnalyzer.streamSumDouble);
+      jinqStreamMethods.add(TransformationClassAnalyzer.streamMaxInt);
+      jinqStreamMethods.add(TransformationClassAnalyzer.streamMaxDouble);
       dbSetMethods.add(TransformationClassAnalyzer.dbsetSumInt);
       dbSetMethods.add(TransformationClassAnalyzer.dbsetSumDouble);
       dbSetMethods.add(TransformationClassAnalyzer.dbsetMaxInt);

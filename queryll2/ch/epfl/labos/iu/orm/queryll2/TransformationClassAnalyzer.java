@@ -84,6 +84,10 @@ public class TransformationClassAnalyzer
    public static MethodSignature tuple8GetSix = new MethodSignature("ch/epfl/labos/iu/orm/Tuple8", "getSix", "()Ljava/lang/Object;");
    public static MethodSignature tuple8GetSeven = new MethodSignature("ch/epfl/labos/iu/orm/Tuple8", "getSeven", "()Ljava/lang/Object;");
    public static MethodSignature tuple8GetEight = new MethodSignature("ch/epfl/labos/iu/orm/Tuple8", "getEight", "()Ljava/lang/Object;");
+   public static MethodSignature streamSumInt = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumInt", "(Lorg/jinq/orm/stream/JinqStream$AggregateInteger;)I");
+   public static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumDouble", "(Lorg/jinq/orm/stream/JinqStream$AggregateDouble;)D");
+   public static MethodSignature streamMaxInt = new MethodSignature("org/jinq/orm/stream/JinqStream", "maxInt", "(Lorg/jinq/orm/stream/JinqStream$AggregateInteger;)I");
+   public static MethodSignature streamMaxDouble = new MethodSignature("org/jinq/orm/stream/JinqStream", "maxDouble", "(Lorg/jinq/orm/stream/JinqStream$AggregateDouble;)D");
    public static MethodSignature dbsetSumInt = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "sumInt", "(Lch/epfl/labos/iu/orm/DBSet$AggregateInteger;)I");
    public static MethodSignature dbsetSumDouble = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "sumDouble", "(Lch/epfl/labos/iu/orm/DBSet$AggregateDouble;)D");
    public static MethodSignature dbsetMaxInt = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "maxInt", "(Lch/epfl/labos/iu/orm/DBSet$AggregateInteger;)I");
