@@ -2,6 +2,10 @@ package ch.epfl.labos.iu.orm.queryll2;
 
 import java.util.Set;
 
+import org.jinq.orm.annotations.EntitySupplier;
+
+import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
+import ch.epfl.labos.iu.orm.query2.SQLQuery;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
@@ -26,6 +30,14 @@ public class JinqStreamSourceChecker extends TypedValueVisitor<Set<TypedValue>, 
       else if (entityInfo.allEntityMethods.containsKey(sig))
       {
          return true;  // We probably don't need to check that the em is the same as that will happen later 
+      }
+      else
+      {
+         EntitySupplier entitySupplier = Annotations.methodFindAnnotation(sig, EntitySupplier.class);
+         if (entitySupplier != null)
+         {
+            return true;
+         }
       }
       return super.virtualMethodCallValue(val, in);
    }

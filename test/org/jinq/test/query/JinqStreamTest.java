@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -12,6 +13,7 @@ import org.jinq.orm.stream.NonQueryJinqStream;
 import org.jinq.test.entities.DBManager;
 import org.jinq.test.entities.EntityManager;
 
+import ch.epfl.labos.iu.orm.DBSet;
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
 
@@ -39,12 +41,92 @@ public class JinqStreamTest
    }
 
    @Test
+   public void testSelect()
+   {
+      // Perform a simple projection operation to get the name column 
+      // from a customer table (Names of customers)
+      assertEquals("SELECT A.Name AS COL1 FROM Customers AS A",
+            em.customerStream()
+               .select(c -> c.getName())
+               .getDebugQueryString());
+   }
+   
+   @Test
+   public void testSelectCase()
+   {
+      // Conditionals inside of a projection, resulting in a CASE..WHEN (Customers from the UK or not)
+      assertEquals("SELECT CASE WHEN ((A.Country) <> ('UK')) THEN 'Not from UK' ELSE 'UK' END AS COL1 FROM Customers AS A",
+            em.customerStream()
+               .select( c -> c.getCountry().equals("UK")
+                     ? "UK" : "Not from UK")
+               .getDebugQueryString());
+   }
+   
+   @Test
+   public void testSelectIf()
+   {
+      // If statements and variables inside a projection
+      // (Customers from the US are relabelled as coming from USA)
+      assertEquals("SELECT CASE WHEN ((A.Country) <> ('US')) THEN A.Country ELSE 'USA' END AS COL1 FROM Customers AS A",
+            em.customerStream()
+               .select(c -> {
+                  String country = c.getCountry();
+                  if (country.equals("US"))
+                     return "USA";
+                  else
+                     return country;
+                  })
+               .getDebugQueryString());
+   }
+   
+   @Test
    public void testWhere()
    {
-      assertEquals("SELECT A.Name AS COL1 FROM Customers AS A",
+      // Apply a filter to get the customers from the UK (Customers from the UK)
+      assertEquals("SELECT A.CustomerId AS COL1, A.Name AS COL2, A.Country AS COL3, A.Debt AS COL4, A.Salary AS COL5 FROM Customers AS A WHERE ((A.Country) = ('UK'))",
+            em.customerStream()
+               .where(c -> c.getCountry().equals("UK"))
+               .getDebugQueryString());
+   }
+   
+   @Test
+   public void testWhereIf()
+   {
+      // Simple query that is not possible with a simple ORM. (If statements in a where())
+      assertEquals("SELECT A.CustomerId AS COL1, A.Name AS COL2, A.Country AS COL3, A.Debt AS COL4, A.Salary AS COL5 FROM Customers AS A WHERE (((A.Salary) <= (50)) AND ((A.Salary) > ((2) * (A.Debt)))) OR (((A.Salary) > (50)) AND ((A.Salary) > (A.Debt)))",
          em.customerStream()
-            .select(c -> c.getName())
+            .where( c -> {
+               if (c.getSalary() > 50)
+                  return c.getSalary() > c.getDebt();
+               else
+                  return c.getSalary() > 2 * c.getDebt();
+            })
             .getDebugQueryString());
+   }
+   
+   @Test
+   public void testWhereParameter()
+   {
+      // Filter with a parameter (Customers from a country to be specified)
+      String stringParam = "UK";
+      assertEquals("SELECT A.CustomerId AS COL1, A.Name AS COL2, A.Country AS COL3, A.Debt AS COL4, A.Salary AS COL5 FROM Customers AS A WHERE ((A.Country) = (?))",
+            em.customerStream()
+               .where(c -> c.getCountry().equals(stringParam))
+               .getDebugQueryString());
+   }
+   
+   @Test
+   public void testWhereSelectWhere()
+   {
+      // Apply a filter, project to get two columns, and filter based
+      // on those two columns (Customers named John from the UK)
+      assertEquals("SELECT A.Name AS COL1, A.Country AS COL2 FROM Customers AS A WHERE (((A.Country) = ('UK'))) AND (((A.Name) = ('John')))",
+            em.customerStream()
+               .where(c -> c.getCountry().equals("UK"))
+               .select(c -> new Pair<String, String>(c.getName(), 
+                                                     c.getCountry()))
+               .where(pair -> pair.getOne().equals("John"))
+               .getDebugQueryString());
    }
 
    @Test
@@ -73,6 +155,16 @@ public class JinqStreamTest
 //               .select(pair -> new Pair<>(pair.getOne().getName(),
 //                                       pair.getTwo().getDate()))
 //               .getDebugQueryString());
+   }
+   
+   @Test
+   public void testWhereJoinN1()
+   {
+      // Join using a N:1 navigational link (Sales made to Bob)
+      assertEquals("SELECT A.SaleId AS COL1, A.Date AS COL2, A.CustomerId AS COL3 FROM Sales AS A, Customers AS B WHERE ((A.CustomerId) = (B.CustomerId)) AND (((B.Name) = ('Bob')))",
+            em.saleStream()
+               .where(s -> s.getPurchaser().getName().equals("Bob"))
+               .getDebugQueryString());
    }
 
    @Test
@@ -127,9 +219,8 @@ public class JinqStreamTest
    public void testSubQuery()
    {
       // Basic subquery (Most recent sale)
-      // TODO: Port over support for stream sources to subqueries 
-      fail();
-      assertEquals("SELECT A.Name AS COL2 FROM Customers AS A ORDER BY A.Name ASC",
+      EntityManager em = this.em;
+      assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))",
             em.saleStream()
                   .where((s) -> em.saleStream().maxInt(ss -> ss.getSaleId())
                         == s.getSaleId())
