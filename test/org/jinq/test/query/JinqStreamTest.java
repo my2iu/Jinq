@@ -147,14 +147,12 @@ public class JinqStreamTest
    {
       // Join to another table via a navigational link
       EntityManager em = this.em;
-      fail();
-      // TODO: Implement a way to get navigational queries as a stream
-//      assertEquals("SELECT A.Name AS COL1, B.Date AS COL2 FROM Customers AS A, Sales AS B",
-//            em.customerStream()
-//               .join(c -> new NonQueryJinqStream<>(c.getPurchases().stream()))
-//               .select(pair -> new Pair<>(pair.getOne().getName(),
-//                                       pair.getTwo().getDate()))
-//               .getDebugQueryString());
+      assertEquals("SELECT A.Name AS COL1, B.Date AS COL2 FROM Customers AS A, Sales AS B",
+            em.customerStream()
+               .join(c -> new NonQueryJinqStream<>(c.getPurchases().jinqStream()))
+               .select(pair -> new Pair<>(pair.getOne().getName(),
+                                       pair.getTwo().getDate()))
+               .getDebugQueryString());
    }
    
    @Test

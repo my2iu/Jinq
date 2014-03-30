@@ -171,7 +171,7 @@ public class CodePath
                         {
                            Type t = argTypes[n];
                            if (t.getSort() != Type.OBJECT) continue;
-                           if (!t.getInternalName().equals("Lch/epfl/labos/iu/orm/DBSet;")) continue;
+                           if (!t.getInternalName().equals(TransformationClassAnalyzer.DBSET_CLASS)) continue;
                            args.get(n).visit(checkDBSets, unresolvedDBSets);
                         }
                      } catch (TypedValueVisitorException e)
@@ -189,7 +189,7 @@ public class CodePath
                         {
                            Type t = argTypes[n];
                            if (t.getSort() != Type.OBJECT) continue;
-                           if (!t.getInternalName().equals("Lorg/jinq/orm/stream/JinqStream;")) continue;
+                           if (!t.getInternalName().equals(TransformationClassAnalyzer.JINQSTREAM_CLASS)) continue;
                            args.get(n).visit(checkJinqStreams, unresolvedJinqStreams);
                         }
                      } catch (TypedValueVisitorException e)

@@ -3,6 +3,9 @@ package ch.epfl.labos.iu.orm;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.NonQueryJinqStream;
+
 public interface DBSet<T> extends Collection<T>
 {
    public T getValue();
@@ -63,4 +66,9 @@ public interface DBSet<T> extends Collection<T>
       public V aggregateSelect(W key, DBSet<U> val);
    }
    public <U, V> DBSet<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate);
+   
+   default public JinqStream<T> jinqStream() 
+   {
+      return new NonQueryJinqStream<>(stream());
+   }
 }

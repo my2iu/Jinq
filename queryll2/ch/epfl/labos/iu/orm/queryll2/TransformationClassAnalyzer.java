@@ -55,6 +55,8 @@ public class TransformationClassAnalyzer
    public static String DOUBLESORTER_METHOD = "value";
    public static String STRINGSORTER_SUPERCLASS = "ch/epfl/labos/iu/orm/StringSorter";
    public static String STRINGSORTER_METHOD = "value";
+   public static String DBSET_CLASS = "Lch/epfl/labos/iu/orm/DBSet;";
+   public static String JINQSTREAM_CLASS = "Lorg/jinq/orm/stream/JinqStream;";
    public static MethodSignature stringEquals = new MethodSignature("java/lang/String", "equals", "(Ljava/lang/Object;)Z");
    public static MethodSignature stringLike = new MethodSignature("ch/epfl/labos/iu/orm/Util", "SQLStringLike", "(Ljava/lang/String;Ljava/lang/String;)Z");
    public static MethodSignature newPair = new MethodSignature("ch/epfl/labos/iu/orm/Pair", "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
@@ -93,6 +95,7 @@ public class TransformationClassAnalyzer
    public static MethodSignature dbsetMaxInt = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "maxInt", "(Lch/epfl/labos/iu/orm/DBSet$AggregateInteger;)I");
    public static MethodSignature dbsetMaxDouble = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "maxDouble", "(Lch/epfl/labos/iu/orm/DBSet$AggregateDouble;)D");
    public static MethodSignature dbsetWhere = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "where", "(Lch/epfl/labos/iu/orm/DBSet$Where;)Lch/epfl/labos/iu/orm/DBSet;");
+   public static MethodSignature dbsetToStream = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "jinqStream", "()Lorg/jinq/orm/stream/JinqStream;");
    public static MethodSignature integerValueOf = new MethodSignature("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
    public static MethodSignature doubleValueOf = new MethodSignature("java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
    public static MethodSignature integerIntValue = new MethodSignature("java/lang/Integer", "intValue", "()I");
