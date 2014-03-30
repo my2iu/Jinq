@@ -78,7 +78,18 @@ public class JinqStreamTest
                   })
                .getDebugQueryString());
    }
-   
+
+   @Test
+   public void testSelectMath()
+   {
+      // Some math inside a select (Profit on each item)
+      assertEquals("SELECT A.ItemId AS COL1, (A.SalePrice) - (A.PurchasePrice) AS COL2 FROM Items AS A",
+            em.itemStream()
+            .select(i -> new Pair<>(i.getItemId(),
+                                    i.getSalePrice() - i.getPurchasePrice()))
+            .getDebugQueryString());
+   }
+
    @Test
    public void testWhere()
    {
@@ -147,12 +158,13 @@ public class JinqStreamTest
    {
       // Join to another table via a navigational link
       EntityManager em = this.em;
-      assertEquals("SELECT A.Name AS COL1, B.Date AS COL2 FROM Customers AS A, Sales AS B",
-            em.customerStream()
-               .join(c -> new NonQueryJinqStream<>(c.getPurchases().jinqStream()))
-               .select(pair -> new Pair<>(pair.getOne().getName(),
-                                       pair.getTwo().getDate()))
-               .getDebugQueryString());
+      fail();
+//      assertEquals("SELECT A.Name AS COL1, B.Date AS COL2 FROM Customers AS A, Sales AS B",
+//            em.customerStream()
+//               .join(c -> new NonQueryJinqStream<>(c.getPurchases().jinqStream()))
+//               .select(pair -> new Pair<>(pair.getOne().getName(),
+//                                       pair.getTwo().getDate()))
+//               .getDebugQueryString());
    }
    
    @Test
@@ -165,6 +177,19 @@ public class JinqStreamTest
                .getDebugQueryString());
    }
 
+   @Test
+   public void testWhereJoinN1Select()
+   {
+      // Simple N:1 navigational link used with filtering and projection
+      // (Sales made to Bob (some fields))
+      assertEquals("SELECT B.Name AS COL1, A.SaleId AS COL2 FROM Sales AS A, Customers AS B WHERE ((A.CustomerId) = (B.CustomerId)) AND (((B.Name) = ('Bob')))",
+            em.saleStream()
+               .where(s -> s.getPurchaser().getName().equals("Bob"))
+               .select(s -> new Pair<>(s.getPurchaser().getName(),
+                                 s.getSaleId()))
+               .getDebugQueryString());
+   }
+   
    @Test
    public void testAggregation()
    {

@@ -2,6 +2,7 @@ import ch.epfl.labos.iu.orm.*;
 import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,161 +45,134 @@ public class Main
       //         query, the size() method is called on the query to 
       //         force the query to be evaluated.
       EntityManager em = db.begin();
-      DBSet result;
+      Collection result;
 
       // Perform a simple projection operation to get the name column 
       // from a customer table
       System.out.println("Names of customers");
-      result = em.allCustomer()
-         .select(c -> c.getName());
-      result.size();
+      result = em.customerStream()
+            .select(c -> c.getName())
+            .toList();
       
       // Apply a filter to get the customers from the UK
       System.out.println("Customers from the UK");
-      result = em.allCustomer()
-         .where(c -> c.getCountry().equals("UK"));
-      result.size();
+      result = em.customerStream()
+            .where(c -> c.getCountry().equals("UK"))
+            .toList();
 
       // Filter with a parameter
       System.out.println("Customers from a country to be specified");
-      result = em.allCustomer()
-         .where( c -> c.getCountry().equals(stringParam));
-      result.size();
+      result = em.customerStream()
+            .where(c -> c.getCountry().equals(stringParam))
+            .toList();
 
       // Apply a filter, project to get two columns, and filter based
       // on those two columns
       System.out.println("Customers named John from the UK");
-      result = em.allCustomer()
-         .where(c -> c.getCountry().equals("UK"))
-         .select(c -> new Pair<String, String>(c.getName(), 
-                                               c.getCountry()))
-         .where(pair -> pair.getOne().equals("John"));
-      result.size();
+      result = em.customerStream()
+            .where(c -> c.getCountry().equals("UK"))
+            .select(c -> new Pair<String, String>(c.getName(), 
+                                                  c.getCountry()))
+            .where(pair -> pair.getOne().equals("John"))
+            .toList();
 
       // Conditionals inside of a projection, resulting in a CASE..WHEN  
       System.out.println("Customers from the UK or not");
-      result = em.allCustomer()
-         .select( c -> c.getCountry().equals("UK")
-               ? "UK" : "Not from UK");
-      result.size();
+      result = em.customerStream()
+            .select( c -> c.getCountry().equals("UK")
+                  ? "UK" : "Not from UK")
+            .toList();
 
       // If statements and variables inside a projection  
       System.out.println("Customers from the US are relabelled " +
       		"as coming from USA");
-      result = em.allCustomer()
-         .select(c -> {
-            String country = c.getCountry();
-            if (country.equals("US"))
-               return "USA";
-            else
-               return country;
-            });
-      result.size();
+      result = em.customerStream()
+            .select(c -> {
+               String country = c.getCountry();
+               if (country.equals("US"))
+                  return "USA";
+               else
+                  return country;
+               })
+            .toList();
 
       // Join to another table
       System.out.println("Join of customer and sale tables");
-      result = em.allCustomer()
-         .join(c -> em.allSale())
-         .select(pair -> new Pair<>(pair.getOne().getName(),
-                                    pair.getTwo().getDate()));
-      result.size();
+      result = em.customerStream()
+            .join(c -> em.saleStream())
+            .select(pair -> new Pair<>(pair.getOne().getName(),
+                                    pair.getTwo().getDate()))
+            .toList();
 
       // Join using a N:1 navigational link
       System.out.println("Sales made to Bob");
-      result = em.allSale()
-         .where(s -> s.getPurchaser().getName().equals("Bob"));
-      result.size();
+      result = em.saleStream()
+            .where(s -> s.getPurchaser().getName().equals("Bob"))
+            .toList();
 
       // Simple N:1 navigational link used with filtering and projection
       System.out.println("Sales made to Bob (some fields)"); 
-      result = em.allSale()
-         .where(s -> s.getPurchaser().getName().equals("Bob"))
-         .select(s -> new Pair<>(s.getPurchaser().getName(),
-                                 s.getSaleId()));
-      result.size();
+      result = em.saleStream()
+            .where(s -> s.getPurchaser().getName().equals("Bob"))
+            .select(s -> new Pair<>(s.getPurchaser().getName(),
+                                    s.getSaleId()))
+            .toList();
 
       // Aggregation operations
       System.out.println("Sum of all line order quantities");
-      int total = em.allLineOrder()
-         .sumInt(lo -> lo.getQuantity());
+      int total = em.lineOrderStream()
+            .sumInt(lo -> lo.getQuantity());
 
       // Calculate more than one aggregate
       System.out.println("Sum of all line order quantities " +
       		"and number of line orders");
-      Pair pairResult = em.allLineOrder()
-         .selectAggregates(loset ->
-            new Pair<>(loset.sumInt(lo -> lo.getQuantity()),
-                       loset.sumInt(lo -> 1)));
+      Pair pairResult = em.lineOrderStream()
+            .selectAggregates(loset ->
+               new Pair<>(loset.sumInt(lo -> lo.getQuantity()),
+                          loset.sumInt(lo -> 1)));
 
-      // Some math inside an aggregation
+      // Some math inside a select
       System.out.println("Profit on each item");
-      result = em.allItem()
-         .select(i -> new Pair<>(i.getItemId(),
-                                 i.getSalePrice() - i.getPurchasePrice()));
-      result.size();
+      result = em.itemStream()
+            .select(i -> new Pair<>(i.getItemId(),
+                                    i.getSalePrice() - i.getPurchasePrice()))
+            .toList();
 
       // Group together results
       System.out.println("Customers and the number of sales to them");
-      result = em.allSale()
-         .group(
-                s -> s.getPurchaser().getCustomerId(),
-                (key, sales) -> sales.sumInt(sale -> 1));
-      result.size();
+      result = em.saleStream()
+            .group(
+                  s -> s.getPurchaser().getCustomerId(),
+                  (key, sales) -> sales.sumInt(sale -> 1))
+            .toList();
       
       // Limited subquery support (so far)
       System.out.println("Most recent sale");
-      result = em.allSale()
-         .where((s) -> em.allSale().maxInt(ss -> ss.getSaleId())
-                          == s.getSaleId());
-      result.size();
+      result = em.saleStream()
+            .where((s) -> em.allSale().maxInt(ss -> ss.getSaleId())
+                  == s.getSaleId())
+            .toList();
  
       // Sorting of results
       System.out.println("Sorted list of customer names");
-      result = em.allCustomer()
-         .select(c -> c.getName())
-         .sortedByStringAscending(name -> name);
-      result.size();
+      result = em.customerStream()
+            .select(c -> c.getName())
+            .sortedByStringAscending(name -> name)
+            .toList();
       
       // Simple query that is not possible with a simple ORM.
       System.out.println("If statements in a where()");
-      result = em.allCustomer()
-         .where( c -> {
-            if (c.getSalary() > 50)
-               return c.getSalary() > c.getDebt();
-            else
-               return c.getSalary() > 2 * c.getDebt();
-         });
-      result.size();
-
-      // Used for testing streams.
-      List resultList;
-
-      // Experiment with streams
-      System.out.println("Streams: Names of customers");
-      resultList = em.customerStream()
-            .select(c -> c.getName())
+      result = em.customerStream()
+            .where( c -> {
+               if (c.getSalary() > 50)
+                  return c.getSalary() > c.getDebt();
+               else
+                  return c.getSalary() > 2 * c.getDebt();
+            })
             .toList();
-      System.out.println("Streams: Customers from the UK");
-      resultList = em.customerStream()
-         .where(c -> c.getCountry().equals("UK"))
-         .select(c -> c.getCustomerId())
-         .toList();
-      System.out.println("Streams: Customers from a country to be specified");
-      resultList = em.customerStream()
-         .where( c -> c.getCountry().equals(stringParam))
-         .toList();
-      result.size();
-      System.out.println("Streams: Join of customer and sale tables");
-      resultList = em.customerStream()
-         .join(c -> em.saleStream())
-         .select(pair -> new Pair<>(pair.getOne().getName(),
-                                    pair.getTwo().getDate()))
-         .toList();
-
-      
       
       // Query that cannot be translated into SQL
-//      result = em.allCustomer()
+//      result = em.customerStream()
 //         .select(o -> o.hashCode());
      
       // End things now
