@@ -3,17 +3,27 @@ package org.jinq.orm.stream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.jinq.orm.stream.JinqStream.AggregateSelect;
+
+import com.sun.xml.internal.ws.util.StreamUtils;
 
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.StringSorter;
+import ch.epfl.labos.iu.orm.Tuple3;
 
 public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
 {
@@ -228,4 +238,136 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return recordedExceptions.values();
    }
 
+   @Override
+   public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1, AggregateSelect<T, V> aggregate2)
+   {
+      AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
+            {
+               aggregate1, aggregate2
+            };
+      Object [] results = multiaggregate(aggregates);
+      return new Pair<>((U)results[0], (V)results[1]);
+   }
+
+   @Override
+   public <U, V, W> Tuple3<U, V, W> aggregate(AggregateSelect<T, U> aggregate1,
+         AggregateSelect<T, V> aggregate2, AggregateSelect<T, W> aggregate3)
+   {
+      AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
+            {
+               aggregate1, aggregate2, aggregate3
+            };
+      Object [] results = multiaggregate(aggregates);
+      return new Tuple3<>((U)results[0], (V)results[1], (W)results[2]);
+   }
+
+   Object[] multiaggregate(AggregateSelect<T, ?>[] aggregates)
+   {
+      final int MAX_QUEUE_SIZE = 100;
+      final Object DONE = new Object();
+      
+      // Make a copy of the input stream for each aggregate being calculated.
+      final JinqStream[] inputStreams = new JinqStream[aggregates.length];
+      final ArrayBlockingQueue<Object>[] inputQueues = new ArrayBlockingQueue[aggregates.length];
+      for (int n = 0; n < aggregates.length; n++)
+      {
+         inputQueues[n] = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE);
+      }
+      
+      Runnable startIterator = new Runnable() {
+         boolean isStarted = false;
+         @Override public synchronized void run()
+         {
+            if (isStarted) return;
+            isStarted = true;
+            new Thread() {
+               @Override public void run()
+               {
+                  forEach( val -> {
+                     for (int n = 0; n < inputQueues.length; n++)
+                     {
+                        try {
+                           inputQueues[n].put(val);
+                        } catch (InterruptedException e)
+                        {
+                           Thread.currentThread().interrupt();
+                        }
+                     }
+                  });
+                  try {
+                     for (int n = 0; n < inputQueues.length; n++)
+                        inputQueues[n].put(DONE);
+                  } catch (InterruptedException e)
+                  {
+                     Thread.currentThread().interrupt();
+                  }
+               }
+            }.start();
+         }};
+      
+      // Run each aggregator in a separate thread so that we can
+      // use producer-consumer queues and hence avoid using too much
+      // memory.
+      Thread [] aggregateThreads = new Thread[aggregates.length];
+      final Object [] results = new Object[aggregates.length];
+      for (int n = 0; n < aggregates.length; n++)
+      {
+         final int idx = n;
+         final AggregateSelect<T, ?> fn = aggregates[idx];
+         aggregateThreads[n] = new Thread() {
+            @Override public void run()
+            {
+               startIterator.run();
+               Iterator<T> inputIterator = new Iterator<T>()
+                     {
+                        boolean hasRead = false;
+                        boolean hasMore = true;
+                        T peek;
+                        @Override public boolean hasNext()
+                        {
+                           if (hasRead) return hasMore;
+                           hasRead = true;
+                           Object taken = DONE;
+                           try {
+                              taken = inputQueues[idx].take();
+                           } catch (InterruptedException e)
+                           {
+                              Thread.currentThread().interrupt();
+                           }
+                           if (taken == DONE)
+                              hasMore = false;
+                           else
+                              peek = (T)taken;
+                           return hasMore;
+                        }
+
+                        @Override public T next()
+                        {
+                           if (!hasNext()) throw new NoSuchElementException();
+                           hasRead = false;
+                           return peek;
+                        }
+                     };
+               JinqStream<T> stream = new NonQueryJinqStream<>(
+                     StreamSupport.stream(
+                           Spliterators.spliteratorUnknownSize(
+                                 inputIterator, 
+                                 Spliterator.CONCURRENT), 
+                           false));
+               results[idx] = fn.aggregateSelect(stream);
+            }
+         };
+         aggregateThreads[n].start();
+      }
+      for (int n = 0; n < aggregateThreads.length; n++)
+      {
+         try {
+            aggregateThreads[n].join();
+         } catch (InterruptedException e)
+         {
+            Thread.currentThread().interrupt();
+         }
+      }
+      return results;
+   }
 }

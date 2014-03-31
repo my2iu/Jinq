@@ -10,6 +10,7 @@ import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.StringSorter;
+import ch.epfl.labos.iu.orm.Tuple3;
 
 public interface JinqStream<T> extends Stream<T>
 {
@@ -53,6 +54,10 @@ public interface JinqStream<T> extends Stream<T>
    public double maxDouble(AggregateDouble<T> aggregate);
    public int maxInt(AggregateInteger<T> aggregate);
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
+   public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1,
+         AggregateSelect<T, V> aggregate2);
+   public <U, V, W> Tuple3<U, V, W> aggregate(AggregateSelect<T, U> aggregate1,
+         AggregateSelect<T, V> aggregate2, AggregateSelect<T, W> aggregate3);
 
    public JinqStream<T> sortedByIntAscending(final IntSorter<T> sorter);
    public JinqStream<T> sortedByIntDescending(final IntSorter<T> sorter);
