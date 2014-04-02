@@ -55,4 +55,6 @@ public interface QueryComposer<T>
    public Integer maxInt(JinqStream.AggregateInteger<T> aggregate);
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
    public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate);
+   
+   public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);
 }

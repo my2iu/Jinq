@@ -31,8 +31,9 @@ public interface SQLQueryTransforms
    <T> SQLQuery<Double> maxDouble(SQLQuery<T> query, int lambdaThisIndex, JinqStream.AggregateDouble<T> aggregate, Object emSource);
    <T,U> SQLQuery<Pair<T,U>> join(SQLQuery<T> query, int lambdaThisIndex, DBSet.Join<T,U> join, Object emSource);
    <T,U> SQLQuery<Pair<T,U>> join(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Join<T,U> join, Object emSource);
-   <T,U> SQLQuery<U> selectAggregates(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateSelect<T,U> join, Object emSource);
-   <T,U> SQLQuery<U> selectAggregates(SQLQuery<T> query, int lambdaThisIndex, JinqStream.AggregateSelect<T,U> join, Object emSource);
+   <T,U> SQLQuery<U> selectAggregates(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateSelect<T,U> select, Object emSource);
+   <T,U> SQLQuery<U> selectAggregates(SQLQuery<T> query, int lambdaThisIndex, JinqStream.AggregateSelect<T,U> select, Object emSource);
+   <T> SQLQuery<Object[]> multiaggregate(SQLQuery<T> query, int lambdaThisIndex, JinqStream.AggregateSelect<T,?>[] aggregates, Object emSource);
    <T,U,V> SQLQuery<Pair<U,V>> group(SQLQuery<T> query, int lambdaSelectThisIndex, DBSet.Select<T,U> select, int lambdaAggregateThisIndex, DBSet.AggregateGroup<U, T, V> aggregate, Object emSource);
    <T,U,V> SQLQuery<Pair<U,V>> group(SQLQuery<T> query, int lambdaSelectThisIndex, JinqStream.Select<T,U> select, int lambdaAggregateThisIndex, JinqStream.AggregateGroup<U, T, V> aggregate, Object emSource);
    <T> SQLQuery<T> firstN(SQLQuery<T> query, int n, Object emSource);

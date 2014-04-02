@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.JinqStream.AggregateSelect;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 
@@ -1092,6 +1093,46 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          {
             e.printStackTrace();
          }
+      }
+      return null;
+   }
+   
+   @Override
+   public <T> SQLQuery<Object[]> multiaggregate(SQLQuery<T> query,
+         int lambdaThisIndex, AggregateSelect<T, ?>[] aggregates,
+         Object emSource)
+   {
+      SerializedLambda [] s = new SerializedLambda[aggregates.length];
+      MethodAnalysisResults [] analyses = new MethodAnalysisResults[aggregates.length];
+      for (int n = 0; n < aggregates.length; n++)
+      {
+         s[n] = SerializedLambda.extractLambda(aggregates[n]);
+         if (s[n] == null) return null;
+         analyses[n] = runtimeAnalyzer.analyzeLambda(s[n]);
+         if (analyses[n] == null) return null;
+      }
+      
+      for (int n = 0; n < aggregates.length; n++)
+         if (!doRuntimeCheckForSideEffects(analyses[n])) return null;
+      if (query instanceof SQLQuery.SelectFromWhere)
+      {
+         final SQLQuery.SelectFromWhere<T> sfw = (SQLQuery.SelectFromWhere<T>)query;
+//         SymbExToSQLGenerator gen = 
+//            new SQLGeneratorWithParams<Object, T>(entityInfo, 
+//                  SelectFromWhereExtensionSelectAggregatesArg.fromSfw(sfw), 
+//                  new ParamHandler<Object>(lambdaThisIndex, select, emSource),
+//                  SelectFromWhereExtensionJoin.fromSfw(sfw, (EntityManagerBackdoor)emSource),
+//                  this);
+//
+//         try {
+//            List<SQLFragment> columns = new ArrayList<SQLFragment>();
+//            sfw.reader = generateSelect(analysis, gen, columns);
+//            sfw.columns = columns;
+//            return (SQLQuery<Object[]>)sfw;
+//         } catch(TypedValueVisitorException e)
+//         {
+//            e.printStackTrace();
+//         }
       }
       return null;
    }

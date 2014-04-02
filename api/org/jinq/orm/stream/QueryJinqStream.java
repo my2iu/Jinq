@@ -1,9 +1,14 @@
 package org.jinq.orm.stream;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import org.jinq.orm.stream.JinqStream.AggregateSelect;
 
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
@@ -186,5 +191,12 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    {
       return queryComposer.getDebugQueryString();
    }
-
+   
+   @Override
+   Object[] multiaggregate(AggregateSelect<T, ?>[] aggregates)
+   {
+      Object [] vals = queryComposer.multiaggregate(aggregates);
+      if (vals != null) return vals;
+      return super.multiaggregate(aggregates);
+   }
 }

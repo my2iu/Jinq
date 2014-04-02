@@ -225,7 +225,20 @@ public class JinqStreamTest
       assertEquals("SELECT SUM(A.Quantity) AS COL1, SUM(1) AS COL2 FROM LineOrders AS A",
             savedOutput.toString().trim());
    }
-   
+
+   @Test 
+   public void testMultipleAggregation2()
+   {
+      // Calculate more than one aggregate
+      // (Sum of all line order quantities and number of line orders)
+      Pair<Integer, Integer> pairResult = em.lineOrderStream()
+         .aggregate(
+               data -> data.sumInt(lo -> lo.getQuantity()),
+               data -> data.sumInt(lo -> 1));
+      assertEquals("SELECT SUM(A.Quantity) AS COL1, SUM(1) AS COL2 FROM LineOrders AS A",
+            savedOutput.toString().trim());
+   }
+
    @Test
    public void testGroup()
    {

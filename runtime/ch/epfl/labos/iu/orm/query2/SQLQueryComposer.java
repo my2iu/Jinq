@@ -593,6 +593,25 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
             () -> transformer.selectAggregates(query.copy(), nextLambdaParamIndex, aggregate, emSource));
    }
 
+   public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates)
+   {
+      // TODO: Implement caching for this.
+      SQLQuery<Object[]> newQuery = transformer.multiaggregate(query.copy(), nextLambdaParamIndex, aggregates, emSource);
+      if (newQuery == null) return null;
+      List<ParameterLocation> [] paramLocs = new ArrayList[aggregates.length];
+      Object[][] newParams = params;
+      try {
+         for (int n = 0; n < aggregates.length; n++)
+            paramLocs[n] = getAndStoreParamLinks(nextLambdaParamIndex + n, newQuery);
+         for (int n = 0; n < aggregates.length; n++)
+            newParams = gatherParams(newParams, paramLocs[n], aggregates[n]);
+      } catch (QueryGenerationException e)
+      {
+         return null;
+      }
+      return evaluateRowQuery(newQuery, newParams);
+   }
+   
    public QueryComposer<T> firstN(int n)
    {
       if (transformer == null) return null;
