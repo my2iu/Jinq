@@ -24,7 +24,7 @@ class CFG
    Map<Integer, List<Integer>> fromto = new HashMap<Integer, List<Integer>>();
    CFG(String internalName, MethodNode m) throws AnalyzerException
    {
-      Analyzer<BasicValue> a = new Analyzer<BasicValue>(new BasicInterpreter()){
+      Analyzer a = new Analyzer(new BasicInterpreter()){
          @Override protected void newControlFlowEdge(final int insn, final int successor) {
             if (!fromto.containsKey(insn))
                fromto.put(insn, new Vector<Integer>());

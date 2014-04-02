@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Jinq" default="RunDemo">
 
-	<property name="asm" location="lib/asm-all-5.0_BETA.jar"/>
+	<property name="asm" location="lib/asm-all-5.0.1.jar"/>
 	<property name="derby" location="lib/derby.jar"/>
 	<property name="derbytools" location="lib/derbytools.jar"/>
 	<property name="derbydata" location="bin/derby/data"/>

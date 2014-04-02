@@ -7,7 +7,7 @@ import org.objectweb.asm.tree.analysis.Value;
 // This is an extended version of the Interpreter interface that
 // allows the symbolic executor to keep track of method arguments
 
-public abstract class InterpreterWithArgs<V extends Value> extends Interpreter<V>
+public abstract class InterpreterWithArgs<V extends Value> extends Interpreter
 {
    protected InterpreterWithArgs(int api)
   {
