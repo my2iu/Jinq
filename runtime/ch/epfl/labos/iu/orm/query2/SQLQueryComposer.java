@@ -29,6 +29,7 @@ import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.QueryComposer;
 import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.VectorSet;
+import ch.epfl.labos.iu.orm.query2.SQLReader.ArrayTupleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.DoubleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.IntegerSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.PairSQLReader;
@@ -313,6 +314,8 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
                   toReturn = (U)Double.valueOf(0);
                else if (query.reader instanceof PairSQLReader)
                   toReturn = (U) new Pair(null, null);
+               else if (query.reader instanceof ArrayTupleSQLReader)
+                  toReturn = (U) new Object[((ArrayTupleSQLReader)query.reader).subreaders.length];
             }
          } catch (QueryGenerationException e)
          {

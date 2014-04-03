@@ -215,22 +215,6 @@ public class JinqStreamTest
    {
       // Calculate more than one aggregate
       // (Sum of all line order quantities and number of line orders)
-      
-      // TODO: This syntax isn't quite right because it doesn't work in Java (you can't
-      // use a stream twice like this).
-      Pair<Integer, Integer> pairResult = em.lineOrderStream()
-         .selectAggregates(loset ->
-            new Pair<>(loset.sumInt(lo -> lo.getQuantity()),
-                       loset.sumInt(lo -> 1)));
-      assertEquals("SELECT SUM(A.Quantity) AS COL1, SUM(1) AS COL2 FROM LineOrders AS A",
-            savedOutput.toString().trim());
-   }
-
-   @Test 
-   public void testMultipleAggregation2()
-   {
-      // Calculate more than one aggregate
-      // (Sum of all line order quantities and number of line orders)
       Pair<Integer, Integer> pairResult = em.lineOrderStream()
          .aggregate(
                data -> data.sumInt(lo -> lo.getQuantity()),

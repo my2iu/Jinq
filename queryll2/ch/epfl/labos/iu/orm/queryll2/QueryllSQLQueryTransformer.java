@@ -1116,23 +1116,36 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
          if (!doRuntimeCheckForSideEffects(analyses[n])) return null;
       if (query instanceof SQLQuery.SelectFromWhere)
       {
-         final SQLQuery.SelectFromWhere<T> sfw = (SQLQuery.SelectFromWhere<T>)query;
-//         SymbExToSQLGenerator gen = 
-//            new SQLGeneratorWithParams<Object, T>(entityInfo, 
-//                  SelectFromWhereExtensionSelectAggregatesArg.fromSfw(sfw), 
-//                  new ParamHandler<Object>(lambdaThisIndex, select, emSource),
-//                  SelectFromWhereExtensionJoin.fromSfw(sfw, (EntityManagerBackdoor)emSource),
-//                  this);
-//
-//         try {
-//            List<SQLFragment> columns = new ArrayList<SQLFragment>();
-//            sfw.reader = generateSelect(analysis, gen, columns);
-//            sfw.columns = columns;
-//            return (SQLQuery<Object[]>)sfw;
-//         } catch(TypedValueVisitorException e)
-//         {
-//            e.printStackTrace();
-//         }
+         final SQLQuery.SelectFromWhere sfw = (SQLQuery.SelectFromWhere<?>)query;
+         // TODO: This probably isn't quite right because it might accept some forms that
+         // it shouldn't, but I'll look at this again later when I rewrite the the query
+         // builder.
+         List<SQLFragment> [] columns = new ArrayList[aggregates.length];
+         SQLReader<?> [] readers = new SQLReader[aggregates.length];
+         for (int n = 0; n < aggregates.length; n++)
+         {
+            SymbExToSQLGenerator gen = 
+                  new SQLGeneratorWithParams<Object, T>(entityInfo, 
+                        SelectFromWhereExtensionSelectAggregatesArg.fromSfw(sfw), 
+                        new ParamHandler<Object>(lambdaThisIndex + n, aggregates[n], emSource),
+                        SelectFromWhereExtensionJoin.fromSfw(sfw, (EntityManagerBackdoor)emSource),
+                        this);
+
+            try {
+               columns[n] = new ArrayList<SQLFragment>();
+               readers[n] = generateSelect(analyses[n], gen, columns[n]);
+            } catch(TypedValueVisitorException e)
+            {
+               e.printStackTrace();
+               return null;
+            }
+         }
+         sfw.reader = new SQLReader.ArrayTupleSQLReader(readers);
+         ArrayList<SQLFragment> finalColumns = new ArrayList<>();
+         for (int n = 0; n < aggregates.length; n++)
+            finalColumns.addAll(columns[n]);
+         sfw.columns = finalColumns;
+         return (SQLQuery<Object[]>)sfw;
       }
       return null;
    }
@@ -1221,7 +1234,6 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
    
             List<SQLFragment> columnsForSelect = new ArrayList<SQLFragment>();
             SQLReader<U> readerForSelect = generateSelect(analysisForSelect, genForSelect, columnsForSelect);
-            
             
             SymbExToSQLGenerator genForGroup = 
                new SQLGeneratorWithParams<Object, T>(entityInfo, 

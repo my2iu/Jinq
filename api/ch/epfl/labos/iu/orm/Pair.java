@@ -38,7 +38,14 @@ public class Pair<T, U>
    
    public int hashCode()
    {
-      return one.hashCode() + two.hashCode();
+      if (one != null && two != null)
+         return one.hashCode() + two.hashCode();
+      else if (one != null)
+         return one.hashCode();
+      else if (two != null)
+         return one.hashCode();
+      else
+         return 0;
    }
    
    public static <V, W> Collection<Pair<V, W>> PairCollection(V one, Collection<W> twoList)

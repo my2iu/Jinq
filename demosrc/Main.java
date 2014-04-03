@@ -127,9 +127,8 @@ public class Main
       System.out.println("Sum of all line order quantities " +
       		"and number of line orders");
       Pair pairResult = em.lineOrderStream()
-            .selectAggregates(loset ->
-               new Pair<>(loset.sumInt(lo -> lo.getQuantity()),
-                          loset.sumInt(lo -> 1)));
+            .aggregate(data -> data.sumInt(lo -> lo.getQuantity()),
+                       data -> data.sumInt(lo -> 1));
 
       // Some math inside a select
       System.out.println("Profit on each item");

@@ -120,6 +120,40 @@ public abstract class SQLReader<T>
          return "java/sql/Date".equals(internalName);
       }
    }
+   public static class ArrayTupleSQLReader extends SQLReader<Object[]>
+   {
+      SQLReader[] subreaders;
+      
+      public ArrayTupleSQLReader(SQLReader[] subreaders)
+      {
+         this.subreaders = subreaders;
+      }
+
+      @Override public int getNumColumns()
+      {
+         int sum = 0;
+         for (int n = 0; n < subreaders.length; n++)
+            sum += subreaders[n].getNumColumns();
+         return sum;
+      }
+
+      @Override public Object[] readData(ResultSet result, int column) throws SQLException
+      {
+         Object []data = new Object[subreaders.length];
+         int offset = 0;
+         for (int n = 0; n < subreaders.length; n++)
+         {
+            data[n] = subreaders[n].readData(result, column + offset);
+            offset += subreaders[n].getNumColumns();
+         }
+         return data;
+      }
+
+      @Override public boolean isCastConsistent(String internalName)
+      {
+         return false;
+      }
+   }
    public static class TupleSQLReader<U> extends SQLReader<U>
    {
       SQLReader[] subreaders;
