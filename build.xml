@@ -95,8 +95,10 @@
 		<tstamp>
 			<format property="tstamp" pattern="yyyy-MM-dd-HH-mm" />
 		</tstamp>
+		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
 			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**"/>
+			<zipfileset dir="lib/lib" fullpath="Jinq/lib"/>
 		</zip>
 	</target>
 	
