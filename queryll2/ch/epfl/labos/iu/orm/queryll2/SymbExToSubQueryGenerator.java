@@ -4,6 +4,8 @@ import org.jinq.orm.annotations.EntitySupplier;
 
 import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
 import ch.epfl.labos.iu.orm.query2.SQLQuery;
+import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
+import ch.epfl.labos.iu.orm.queryll2.path.StaticMethodAnalysisStorage;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
@@ -14,9 +16,9 @@ public class SymbExToSubQueryGenerator<T> extends TypedValueVisitor<T, SQLQuery>
 {
    ORMInformation entityInfo;
    SymbExLambdaContext<T> lambdaContext;
-   QueryllSQLQueryTransformer queryMethodHandler;
+   StaticMethodAnalysisStorage queryMethodHandler;
 
-   public SymbExToSubQueryGenerator(ORMInformation entityInfo, SymbExArgHandler<T> argHandler, SymbExGetFieldHandler<T> getFieldHandler, SymbExJoinHandler<T> joinHandler, QueryllSQLQueryTransformer queryMethodHandler) 
+   public SymbExToSubQueryGenerator(ORMInformation entityInfo, SymbExArgHandler<T> argHandler, SymbExGetFieldHandler<T> getFieldHandler, SymbExJoinHandler<T> joinHandler, StaticMethodAnalysisStorage queryMethodHandler) 
    {
       this.entityInfo = entityInfo;
       this.lambdaContext = new SymbExLambdaContext<T>(argHandler, getFieldHandler, joinHandler);

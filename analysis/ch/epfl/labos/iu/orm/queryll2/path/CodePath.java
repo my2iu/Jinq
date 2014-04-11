@@ -1,7 +1,6 @@
-package ch.epfl.labos.iu.orm.queryll2;
+package ch.epfl.labos.iu.orm.queryll2.path;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.Vector;
 
 import org.jinq.orm.annotations.NoSideEffects;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.JumpInsnNode;
@@ -24,7 +22,6 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.FrameWithHelpers;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.SymbolicInterpreterWithFieldAccess;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 
 public class CodePath
@@ -120,13 +117,9 @@ public class CodePath
          return null;
       return paths;
    }
-   public PathAnalysis calculateReturnValueAndConditions(
+   public <T> PathAnalysis<T> calculateReturnValueAndConditions(
          ClassNode cl, MethodNode m,
-         final Set<MethodSignature> safeMethods, 
-         final Set<MethodSignature> safeStaticMethods,
-         final Set<Class<?>> safeMethodAnnotations,
-         final List<String> otherTransformClasses,
-         final ORMInformation entityInfo) throws AnalyzerException
+         final PathAnalysisMethodChecker<T> methodChecker) throws AnalyzerException
    {
       class ConditionRecorder implements BasicSymbolicInterpreter.BranchHandler
       {
@@ -141,84 +134,12 @@ public class CodePath
                conditions.add(ifTrueValue.inverseValue());
          }
       }
-      final List<MethodSignature> transformConstructorsCalled = new ArrayList<MethodSignature>();
-      final DBSetSourceChecker checkDBSets = new DBSetSourceChecker(entityInfo);
-      final Set<TypedValue> unresolvedDBSets = new HashSet<TypedValue>();
-      // TODO: make sure that jinq streams are handled in the same way that dbsets are handled above
-      final JinqStreamSourceChecker checkJinqStreams = new JinqStreamSourceChecker(entityInfo);
-      final Set<TypedValue> unresolvedJinqStreams = new HashSet<TypedValue>();
       ConditionRecorder pathConditions = new ConditionRecorder();
       BasicSymbolicInterpreter interpreter = new SymbolicInterpreterWithFieldAccess(Opcodes.ASM5);
       FrameWithHelpers frame = new FrameWithHelpers(cl, m, interpreter);
       interpreter.setFrameForAliasingFixups(frame);
       interpreter.setBranchHandler(pathConditions);
-      interpreter.setMethodChecker(new BasicSymbolicInterpreter.MethodChecker() {
-            public boolean isStaticMethodSafe(MethodSignature m)
-               { return safeStaticMethods.contains(m); }
-            public boolean isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args)
-               {
-                  if (m.name.equals("<init>") && otherTransformClasses.contains(m.owner))
-                  {
-                     transformConstructorsCalled.add(m);
-                     return true;
-                  }
-                  else if (entityInfo.dbSetMethods.contains(m))
-                  {
-                     Type[] argTypes = Type.getArgumentTypes(m.desc);
-                     try {
-                        base.visit(checkDBSets, unresolvedDBSets);
-                        for (int n = 0; n < argTypes.length; n++)
-                        {
-                           Type t = argTypes[n];
-                           if (t.getSort() != Type.OBJECT) continue;
-                           if (!t.getInternalName().equals(TransformationClassAnalyzer.DBSET_CLASS)) continue;
-                           args.get(n).visit(checkDBSets, unresolvedDBSets);
-                        }
-                     } catch (TypedValueVisitorException e)
-                     {
-                        return false;
-                     }
-                     return true;
-                  }
-                  else if (entityInfo.jinqStreamMethods.contains(m))
-                  {
-                     Type[] argTypes = Type.getArgumentTypes(m.desc);
-                     try {
-                        base.visit(checkJinqStreams, unresolvedJinqStreams);
-                        for (int n = 0; n < argTypes.length; n++)
-                        {
-                           Type t = argTypes[n];
-                           if (t.getSort() != Type.OBJECT) continue;
-                           if (!t.getInternalName().equals(TransformationClassAnalyzer.JINQSTREAM_CLASS)) continue;
-                           args.get(n).visit(checkJinqStreams, unresolvedJinqStreams);
-                        }
-                     } catch (TypedValueVisitorException e)
-                     {
-                        return false;
-                     }
-                     return true;
-                  }
-                  else if (safeMethods.contains(m))
-                  {
-                     return true;
-                  }
-                  else
-                  {
-                     // Use reflection to get info about the method (or would it be better
-                     // to do this through direct bytecode inspection?)
-                     try
-                     {
-                        Method reflectedMethod = Annotations.asmMethodSignatureToReflectionMethod(m);
-                        return Annotations.methodHasSomeAnnotations(reflectedMethod, safeMethodAnnotations);
-                     } catch (ClassNotFoundException|NoSuchMethodException e)
-                     {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                     }
-                     return false; 
-                     
-                  }
-               }});
+      interpreter.setMethodChecker(methodChecker);
       
       for (PathInstruction instruction: path)
       {
@@ -233,7 +154,8 @@ public class CodePath
       TypedValue returnValue = interpreter.returnValue;
       List<TypedValue.ComparisonValue> conditions = pathConditions.conditions;
       
-      return new PathAnalysis(returnValue, conditions, transformConstructorsCalled, 
-            unresolvedDBSets, unresolvedJinqStreams);
+      PathAnalysis<T> pathAnalysis = new PathAnalysis<>(returnValue, conditions);
+      pathAnalysis.setSupplementalInfo(methodChecker.getSupplementalInfo());
+      return pathAnalysis;
    }
 }

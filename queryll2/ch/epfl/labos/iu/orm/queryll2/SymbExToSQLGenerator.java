@@ -10,6 +10,7 @@ import ch.epfl.labos.iu.orm.query2.SQLFragment;
 import ch.epfl.labos.iu.orm.query2.SQLQuery;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution;
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;

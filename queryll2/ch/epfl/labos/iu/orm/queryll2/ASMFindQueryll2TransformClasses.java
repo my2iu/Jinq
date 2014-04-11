@@ -11,6 +11,8 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
+
 /**
  * Uses ASM to analyze classes.
  *

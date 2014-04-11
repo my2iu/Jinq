@@ -4,8 +4,7 @@ import java.util.Set;
 
 import org.jinq.orm.annotations.EntitySupplier;
 
-import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
-import ch.epfl.labos.iu.orm.query2.SQLQuery;
+import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ch.epfl.labos.iu.orm.queryll2;
+package ch.epfl.labos.iu.orm.queryll2.path;
 
 import java.util.HashMap;
 import java.util.List;

@@ -13,19 +13,35 @@
 		</javac>
 	</target>
 
-	<target name="Build Jinq" depends="Build Jinq API">
+	<target name="Build Jinq Analysis Framework" depends="Build Jinq API">
+		<mkdir dir="bin"/>
+		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
+			<classpath>
+				<pathelement location="${asm}"/>
+			</classpath>
+			<src path="analysis"/>
+		</javac>
+	</target>
+
+	<target name="Build Jinq Mini-ORM">
+		<mkdir dir="bin"/>
+		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
+			<src path="orm"/>
+		</javac>
+	</target>
+
+	<target name="Build Jinq" depends="Build Jinq API,Build Jinq Analysis Framework">
 		<mkdir dir="bin"/>
 		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
 			<classpath>
 				<pathelement location="${asm}"/>
 			</classpath>
 			<src path="runtime"/>
-			<src path="orm"/>
 			<src path="queryll2"/>
 		</javac>
 	</target>
 
-	<target name="Generate Demo ORM Entities" depends="Build Jinq">
+	<target name="Generate Demo ORM Entities" depends="Build Jinq Mini-ORM">
 		<mkdir dir="demogen/com/example/orm/test/entities"/>
 		<java classname="ch.epfl.labos.iu.orm.tools.EntityGenerator">
 			<classpath>
@@ -85,7 +101,7 @@
 	</target>
 
 	<target name="Clean">
-		<delete includeemptydirs="true">
+		<delete includeemptydirs="true" quiet="true">
 			<fileset dir="bin"/>
 			<fileset dir="demogen" includes="**"/>
 		</delete>

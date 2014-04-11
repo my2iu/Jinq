@@ -1,8 +1,12 @@
 package ch.epfl.labos.iu.orm.queryll2;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.objectweb.asm.tree.analysis.AnalyzerException;
+
+import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 
 import com.user00.thunk.SerializedLambda;
 
@@ -24,9 +28,10 @@ public class LambdaRuntimeTransformAnalyzer
    {
       try {
          // Open up the corresponding class to analyze
+         QueryllPathAnalysisSupplementalFactory pathAnalysisFactory = new QueryllPathAnalysisSupplementalFactory(entityInfo, new ArrayList<>()); 
          TransformationClassAnalyzer classAnalyzer = 
-               new TransformationClassAnalyzer(className, entityInfo);
-         MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature);
+               new TransformationClassAnalyzer(className);
+         MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
          return analysis;
       } catch (IOException e)
       {

@@ -1,4 +1,4 @@
-package ch.epfl.labos.iu.orm.queryll2;
+package ch.epfl.labos.iu.orm.queryll2.path;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

@@ -1,4 +1,4 @@
-package ch.epfl.labos.iu.orm.queryll2;
+package ch.epfl.labos.iu.orm.queryll2.path;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +19,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
 public class TransformationClassAnalyzer
 {
@@ -146,49 +147,21 @@ public class TransformationClassAnalyzer
    }
    
    ClassNode cl = new ClassNode();
-   ORMInformation entityInfo;
-   Set<MethodSignature> safeMethods;
-   Set<MethodSignature> safeStaticMethods;
-   List<String> allTransformClasses;
-   public TransformationClassAnalyzer(File f, ORMInformation entityInfo, List<String> otherTransformClasses) throws IOException
+   public TransformationClassAnalyzer(File f) throws IOException
    {
       FileInputStream fis = new FileInputStream(f);
       ClassReader reader = new ClassReader(fis);
       reader.accept(cl,0);
       fis.close();
-      
-      // Build up data structures and other information needed for analysis
-      safeMethods = new HashSet<MethodSignature>();
-      safeMethods.addAll(KnownSafeMethods);
-      safeMethods.addAll(entityInfo.sideEffectFreeMethods);
-      safeMethods.addAll(entityInfo.passThroughMethods);
-      safeStaticMethods = new HashSet<MethodSignature>();
-      safeStaticMethods.addAll(KnownSafeStaticMethods);
-      safeStaticMethods.addAll(entityInfo.sideEffectFreeStaticMethods);
-      safeStaticMethods.addAll(entityInfo.passThroughStaticMethods);
-      this.entityInfo = entityInfo;
-      this.allTransformClasses = otherTransformClasses;
    }
 
-   public TransformationClassAnalyzer(String className, ORMInformation entityInfo) throws IOException
+   public TransformationClassAnalyzer(String className) throws IOException
    {
       ClassReader reader = new ClassReader(className);
       reader.accept(cl,0);
-      
-      // Build up data structures and other information needed for analysis
-      safeMethods = new HashSet<MethodSignature>();
-      safeMethods.addAll(KnownSafeMethods);
-      safeMethods.addAll(entityInfo.sideEffectFreeMethods);
-      safeMethods.addAll(entityInfo.passThroughMethods);
-      safeStaticMethods = new HashSet<MethodSignature>();
-      safeStaticMethods.addAll(KnownSafeStaticMethods);
-      safeStaticMethods.addAll(entityInfo.sideEffectFreeStaticMethods);
-      safeStaticMethods.addAll(entityInfo.passThroughStaticMethods);
-      this.entityInfo = entityInfo;
-      this.allTransformClasses = new ArrayList<>();
    }
    
-   public void analyze(QueryllSQLQueryTransformer analysisResults)
+   public <T> void analyze(StaticMethodAnalysisStorage analysisResults, PathAnalysisSupplementalFactory<T> pathAnalysisFactory)
    {
       // TODO: Analyze the constructor
       
@@ -224,7 +197,7 @@ public class TransformationClassAnalyzer
          // method always passes control directly to the specific version
          try {
 //            System.out.println(specificMethod.name + " " + specificMethod.signature + " " + specificMethod.desc);
-            MethodAnalysisResults analysis = analyzeMethod(specificMethod);
+            MethodAnalysisResults analysis = analyzeMethod(specificMethod, pathAnalysisFactory);
             if (analysis != null)
             {
                analysisResults.storeMethodAnalysis(i, cl.name, analysis);
@@ -237,7 +210,7 @@ public class TransformationClassAnalyzer
       }
    }
 
-   public MethodAnalysisResults analyzeLambdaMethod(String methodName, String methodSignature) throws AnalyzerException
+   public <T> MethodAnalysisResults analyzeLambdaMethod(String methodName, String methodSignature, PathAnalysisSupplementalFactory<T> pathAnalysisFactory) throws AnalyzerException
    {
       MethodNode specificMethod = null;
       for (MethodNode m: (List<MethodNode>)cl.methods)
@@ -247,11 +220,11 @@ public class TransformationClassAnalyzer
          specificMethod = m;
       }
       if (specificMethod != null)
-         return analyzeMethod(specificMethod);
+         return analyzeMethod(specificMethod, pathAnalysisFactory);
       return null;
    }
    
-   MethodAnalysisResults analyzeMethod(MethodNode m) throws AnalyzerException
+   <T> MethodAnalysisResults<T> analyzeMethod(MethodNode m, PathAnalysisSupplementalFactory<T> pathAnalysisFactory) throws AnalyzerException
    {
       // TODO: Various checks (e.g. no try/catch blocks, exceptions, etc.)
       if (m.tryCatchBlocks.size() > 0) return null;
@@ -273,15 +246,14 @@ public class TransformationClassAnalyzer
       List<CodePath> paths = CodePath.breakIntoPaths(cfg, m, cl.name);
       
       // Symbolically execute each path to figure out what each path does
-      MethodAnalysisResults analysis = new MethodAnalysisResults();
-      List<PathAnalysis> pathResults = new Vector<PathAnalysis>();
+      MethodAnalysisResults<T> analysis = pathAnalysisFactory.createMethodAnalysisResults();
+      List<PathAnalysis<T>> pathResults = new Vector<>();
       for (CodePath path: paths)
       {
-         PathAnalysis pathAnalysis = 
-            path.calculateReturnValueAndConditions(cl, m, 
-                  safeMethods, safeStaticMethods, SafeMethodAnnotations,
-                  allTransformClasses,
-                  entityInfo);
+         PathAnalysisMethodChecker<T> methodChecker = pathAnalysisFactory.createMethodChecker();
+
+         PathAnalysis<T> pathAnalysis = 
+            path.calculateReturnValueAndConditions(cl, m, methodChecker);
          pathResults.add(pathAnalysis);
       }
       analysis.paths = pathResults;

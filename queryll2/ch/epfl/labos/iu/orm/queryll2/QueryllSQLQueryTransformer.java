@@ -37,6 +37,10 @@ import ch.epfl.labos.iu.orm.query2.SQLReader.DoubleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.IntegerSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution.FromReference;
+import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysis;
+import ch.epfl.labos.iu.orm.queryll2.path.StaticMethodAnalysisStorage;
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
@@ -50,7 +54,7 @@ import com.user00.thunk.SerializedLambda;
 //new one, so be sure to always pass in a copy of the query instead 
 //of the original
 
-public class QueryllSQLQueryTransformer implements SQLQueryTransforms
+public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMethodAnalysisStorage
 {
    ORMInformation entityInfo;
    LambdaRuntimeTransformAnalyzer runtimeAnalyzer;
@@ -60,7 +64,11 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       this.runtimeAnalyzer = runtimeAnalyzer;
    }
    
-   void storeMethodAnalysis(String interfaceName, String className, MethodAnalysisResults analysis)
+   /* (non-Javadoc)
+    * @see ch.epfl.labos.iu.orm.queryll2.StaticMethodAnalysisStorage#storeMethodAnalysis(java.lang.String, java.lang.String, ch.epfl.labos.iu.orm.queryll2.MethodAnalysisResults)
+    */
+   @Override
+   public void storeMethodAnalysis(String interfaceName, String className, MethodAnalysisResults analysis)
    {
       if (interfaceName.equals(TransformationClassAnalyzer.WHERE_INTERFACE))
          whereAnalysis.put(className, analysis);
@@ -447,7 +455,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
             SymbExArgHandler<T> argHandler,
             SymbExGetFieldHandler<T> getFieldHandler,
             SymbExJoinHandler<T> joinHandler,
-            QueryllSQLQueryTransformer queryMethodHandler)
+            StaticMethodAnalysisStorage queryMethodHandler)
       {
          super(entityInfo, argHandler, getFieldHandler, joinHandler, queryMethodHandler);
       }
@@ -497,7 +505,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
    }
    
    private <T> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex,
-         Object test, Object emSource, MethodAnalysisResults analysis,
+         Object test, Object emSource, MethodAnalysisResults<QueryllPathAnalysisSupplementalInfo> analysis,
          SerializedLambda s)
    {
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
@@ -515,7 +523,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
             SQLFragment newWhere = new SQLFragment();
             if (analysis.paths.size() > 1)
             {
-               for (PathAnalysis path: analysis.paths)
+               for (PathAnalysis<QueryllPathAnalysisSupplementalInfo> path: analysis.paths)
                {
                   TypedValue pathReturn = path.getSimplifiedIsTrueReturnValue();
                   if (pathReturn instanceof ConstantValue.IntegerConstant
@@ -659,7 +667,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       return null;
    }
 
-   private SQLReader generateSelect(MethodAnalysisResults analysis,
+   private SQLReader generateSelect(MethodAnalysisResults<QueryllPathAnalysisSupplementalInfo> analysis,
                                     SymbExToSQLGenerator gen,
                                     List<SQLFragment> columns)
          throws TypedValueVisitorException
@@ -668,7 +676,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
       SQLColumnValues[] selects = new SQLColumnValues[analysis.paths.size()];
       for (int n = 0; n < analysis.paths.size(); n++)
       {
-         PathAnalysis path = analysis.paths.get(n);
+         PathAnalysis<QueryllPathAnalysisSupplementalInfo> path = analysis.paths.get(n);
          wheres[n] = new SQLFragment();
          selects[n] = gen.generateFor(path.getSimplifiedReturnValue());
          for (TypedValue condition: path.getSimplifiedConditions())
@@ -1001,7 +1009,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
 
    private <T, U> SQLQuery<Pair<T, U>> join(SQLQuery<T> query,
          int lambdaThisIndex, Object join, Object emSource,
-         MethodAnalysisResults analysis, SerializedLambda s)
+         MethodAnalysisResults<QueryllPathAnalysisSupplementalInfo> analysis, SerializedLambda s)
    {
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
       if (query instanceof SQLQuery.SelectFromWhere)
@@ -1015,7 +1023,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms
                   this);
          try {
             if (analysis.paths.size() > 1) return null;
-            PathAnalysis path = analysis.paths.get(0);
+            PathAnalysis<QueryllPathAnalysisSupplementalInfo> path = analysis.paths.get(0);
             SQLQuery subquery = gen.generateFor(path.getSimplifiedReturnValue());
             if (subquery instanceof SQLQuery.SelectFromWhere)
             {

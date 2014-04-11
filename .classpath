@@ -7,6 +7,7 @@
 	<classpathentry kind="src" path="runtime"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="api"/>
+	<classpathentry kind="src" path="analysis"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/asm-all-5.0.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>

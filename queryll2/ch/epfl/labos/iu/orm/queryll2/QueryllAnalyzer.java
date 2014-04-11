@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
+import ch.epfl.labos.iu.orm.queryll2.path.StaticMethodAnalysisStorage;
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.runtime.ConfigureQueryll;
 
 public class QueryllAnalyzer
@@ -43,11 +45,12 @@ public class QueryllAnalyzer
       findClassFilesToAnalyze(path, foundClassFiles, foundClasses);
       
       // Now analyze them
+      QueryllPathAnalysisSupplementalFactory pathAnalysisFactory = new QueryllPathAnalysisSupplementalFactory(entityInfo, foundClasses); 
       for (String f: foundClassFiles)
       {
          TransformationClassAnalyzer classAnalyzer = 
-            new TransformationClassAnalyzer(new File(f), entityInfo, foundClasses);
-         classAnalyzer.analyze(transforms);
+            new TransformationClassAnalyzer(new File(f));
+         classAnalyzer.analyze(transforms, pathAnalysisFactory);
       }
       
       // Store analysis info somewhere
@@ -59,7 +62,7 @@ public class QueryllAnalyzer
       // Create an empty entity info for now
       ORMInformation entityInfo = new ORMInformation();
       LambdaRuntimeTransformAnalyzer runtimeAnalyzer = new LambdaRuntimeTransformAnalyzer(entityInfo);
-      QueryllSQLQueryTransformer transforms = new QueryllSQLQueryTransformer(entityInfo, runtimeAnalyzer);
+      StaticMethodAnalysisStorage transforms = new QueryllSQLQueryTransformer(entityInfo, runtimeAnalyzer);
 
       // Find transformation classes to analyze
       Vector<String> foundClassFiles = new Vector<String>();
@@ -68,11 +71,12 @@ public class QueryllAnalyzer
          findClassFilesToAnalyze(path, foundClassFiles, foundClasses);
       
       // Now analyze them
+      QueryllPathAnalysisSupplementalFactory pathAnalysisFactory = new QueryllPathAnalysisSupplementalFactory(entityInfo, foundClasses); 
       for (String f: foundClassFiles)
       {
          TransformationClassAnalyzer classAnalyzer = 
-            new TransformationClassAnalyzer(new File(f), entityInfo, foundClasses);
-         classAnalyzer.analyze(transforms);
+            new TransformationClassAnalyzer(new File(f));
+         classAnalyzer.analyze(transforms, pathAnalysisFactory);
       }
    }
    
