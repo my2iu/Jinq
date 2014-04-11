@@ -6,7 +6,8 @@ CREATE TABLE Customers
 	Name	VARCHAR(50) NOT NULL,
 	Country VARCHAR(50) NOT NULL,
 	Debt INTEGER NOT NULL,
-	Salary INTEGER NOT NULL
+	Salary INTEGER NOT NULL,
+	PRIMARY KEY (CustomerId)
 );
 
 DROP TABLE Sales;
@@ -14,7 +15,8 @@ CREATE TABLE Sales
 (
 	SaleId	INTEGER NOT NULL,
 	CustomerId  INTEGER NOT NULL,
-	Date VARCHAR(12) NOT NULL
+	Date VARCHAR(12) NOT NULL,
+	PRIMARY KEY (SaleId)
 );
 
 DROP TABLE LineOrders;
@@ -22,7 +24,8 @@ CREATE TABLE LineOrders
 (
 	SaleId  INTEGER NOT NULL,
 	ItemId  INTEGER NOT NULL,
-	Quantity  INTEGER NOT NULL
+	Quantity  INTEGER NOT NULL,
+	PRIMARY KEY (SaleId, ItemId)
 );
 
 DROP TABLE Items;
@@ -31,14 +34,16 @@ CREATE TABLE Items
 	ItemId  INTEGER NOT NULL,
 	Name  VARCHAR(50) NOT NULL,
 	SalePrice DECIMAL NOT NULL,
-	PurchasePrice DECIMAL NOT NULL
+	PurchasePrice DECIMAL NOT NULL,
+	PRIMARY KEY (ItemId)
 );
 
 DROP TABLE ItemSuppliers;
 CREATE TABLE ItemSuppliers
 (
 	ItemId  INTEGER NOT NULL,
-	SupplierId  INTEGER NOT NULL
+	SupplierId  INTEGER NOT NULL,
+	PRIMARY KEY (ItemId, SupplierId)
 );
 
 DROP TABLE Suppliers;
@@ -46,7 +51,8 @@ CREATE TABLE Suppliers
 (
 	SupplierId  INTEGER NOT NULL,
 	Name  VARCHAR(50) NOT NULL,
-	Country  VARCHAR(50) NOT NULL
+	Country  VARCHAR(50) NOT NULL,
+	PRIMARY KEY (SupplierId)
 );
 
 INSERT INTO Customers (CustomerId, Name, Country)
