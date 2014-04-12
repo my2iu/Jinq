@@ -36,7 +36,6 @@
 			<classpath>
 				<pathelement location="${asm}"/>
 			</classpath>
-			<src path="runtime"/>
 			<src path="queryll2"/>
 		</javac>
 	</target>
@@ -52,7 +51,7 @@
 		</java>
 	</target>
 
-	<target name="Build Demo" depends="Generate Demo ORM Entities">
+	<target name="Build Demo" depends="Generate Demo ORM Entities,Build Jinq">
 		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
 			<classpath>
 				<pathelement location="${asm}"/>
