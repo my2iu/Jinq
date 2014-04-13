@@ -1,14 +1,18 @@
 package ch.epfl.labos.iu.orm.tools;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -29,15 +33,15 @@ public class EntityGenerator
       String outputPath = args[1];
       
       // Get the list of entities
-      String entityListString = getXSLTResultString(filename, "orm/shared/entity_list.xslt");
+      String entityListString = getXSLTResultString(filename, "shared/entity_list.xslt");
       String [] entityList = entityListString.trim().split("\\s+");
       
       // Get package where entities are to be stuck
-      String packageName = getXSLTResultString(filename, "orm/shared/entity_package.xslt");
+      String packageName = getXSLTResultString(filename, "shared/entity_package.xslt");
       packageName = packageName.trim();
       
       // Actually generate entity Java files now
-      String variant = "orm/sql/";
+      String variant = "sql/";
       for (String entity : entityList)
       {
          createEntity(entity, packageName, filename, outputPath, variant);
@@ -88,14 +92,32 @@ public class EntityGenerator
         
         try {
            Document document = factory.newDocumentBuilder().parse(new File(xmlFile));
-           Transformer transformer = TransformerFactory.newInstance()
-              .newTransformer(new StreamSource(new File(xsltFile)));
+           TransformerFactory transformerFactory = TransformerFactory.newInstance();
+           transformerFactory.setURIResolver(new ClassLoaderURIResolver());
+           Transformer transformer = transformerFactory
+              .newTransformer(new StreamSource(getResource(xsltFile), ClassLoader.getSystemResource(xsltFile).toString()));
            transformer.transform(new DOMSource(document), new StreamResult(stringStream));
         } catch(Exception e) 
         {
            e.printStackTrace();
         }        return stringStream.toString();
     }
+   
+   static class ClassLoaderURIResolver implements URIResolver
+   {
+      @Override
+      public Source resolve(String href, String base)
+            throws TransformerException
+      {
+         if (href.startsWith("../")) href = href.substring(3);
+         return new StreamSource(getResource(href));
+      }
+   }
+   
+   static private InputStream getResource(String file)
+   {
+      return ClassLoader.getSystemResourceAsStream(file);
+   }
 
    // Applies an XSLT stylesheet to some file and write the output to some other file
    static public void applyXSLT(String destFile, String xmlFile, String xsltFile, Map params)
@@ -105,8 +127,10 @@ public class EntityGenerator
         
         try {
            Document document = factory.newDocumentBuilder().parse(new File(xmlFile));
-           Transformer transformer = TransformerFactory.newInstance()
-              .newTransformer(new StreamSource(new File(xsltFile)));
+           TransformerFactory transformerFactory = TransformerFactory.newInstance();
+           transformerFactory.setURIResolver(new ClassLoaderURIResolver());
+           Transformer transformer = transformerFactory
+              .newTransformer(new StreamSource(getResource(xsltFile), ClassLoader.getSystemResource(xsltFile).toString()));
 
            if (params != null) {
               for (Iterator it = params.entrySet().iterator(); it.hasNext();) {

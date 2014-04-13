@@ -28,6 +28,10 @@
 		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
 			<src path="orm"/>
 		</javac>
+		<jar destfile="lib/miniorm.jar">
+			<fileset dir="bin"/>
+			<fileset dir="orm" includes="**/*.xslt"/>
+		</jar>
 	</target>
 
 	<target name="Build Jinq" depends="Build Jinq API,Build Jinq Analysis Framework">
@@ -42,9 +46,9 @@
 
 	<target name="Generate Demo ORM Entities" depends="Build Jinq Mini-ORM">
 		<mkdir dir="demogen/com/example/orm/test/entities"/>
-		<java classname="ch.epfl.labos.iu.orm.tools.EntityGenerator">
+		<java classname="ch.epfl.labos.iu.orm.tools.EntityGenerator" fork="true">
 			<classpath>
-				<pathelement location="bin"/>
+				<pathelement location="lib/miniorm.jar"/>
 			</classpath>
 			<arg file="demosrc/entities.xml"/>
 			<arg path="demogen"/>
