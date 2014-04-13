@@ -117,7 +117,7 @@
 		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
 			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**"/>
-			<zipfileset file="demogen/pom.xml" prefix="Jinq"/>
+			<zipfileset file="demogen/pom.xml" prefix="Jinq/demogen"/>
 			<zipfileset dir="lib/lib" fullpath="Jinq/lib"/>
 		</zip>
 	</target>
