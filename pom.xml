@@ -10,6 +10,8 @@
   	<module>api</module>
   	<module>analysis</module>
   	<module>queryll2</module>
+  	<module>demogen</module>
+  	<module>demosrc</module>
   </modules>
   
   <build>
@@ -27,12 +29,5 @@
     </pluginManagement>
     <directory>target/jinq-all</directory>
   </build>
-<!--
-  <build>
-    <sourceDirectory>orm</sourceDirectory>
-    <sourceDirectory>api</sourceDirectory>
-    <sourceDirectory>analysis</sourceDirectory>
-    <sourceDirectory>queryll2</sourceDirectory>
-  </build>
- -->    
+
 </project>

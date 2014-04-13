@@ -106,7 +106,7 @@
 	<target name="Clean">
 		<delete includeemptydirs="true" quiet="true">
 			<fileset dir="bin"/>
-			<fileset dir="demogen" includes="**"/>
+			<fileset dir="demogen" includes="**" excludes="pom.xml"/>
 		</delete>
 	</target>
 
@@ -117,6 +117,7 @@
 		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
 			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**"/>
+			<zipfileset file="demogen/pom.xml" prefix="Jinq"/>
 			<zipfileset dir="lib/lib" fullpath="Jinq/lib"/>
 		</zip>
 	</target>

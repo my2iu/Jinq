@@ -39,7 +39,11 @@ public class EntityGenerator
       // Get package where entities are to be stuck
       String packageName = getXSLTResultString(filename, "shared/entity_package.xslt");
       packageName = packageName.trim();
-      
+
+      // Create directories for the package
+      String packagePath = outputPath + "/" + packageName.replace('.', '/');
+      new File(packagePath).mkdirs();
+
       // Actually generate entity Java files now
       String variant = "sql/";
       for (String entity : entityList)
@@ -95,7 +99,7 @@ public class EntityGenerator
            TransformerFactory transformerFactory = TransformerFactory.newInstance();
            transformerFactory.setURIResolver(new ClassLoaderURIResolver());
            Transformer transformer = transformerFactory
-              .newTransformer(new StreamSource(getResource(xsltFile), ClassLoader.getSystemResource(xsltFile).toString()));
+              .newTransformer(new StreamSource(getResource(xsltFile), getResourceSystemId(xsltFile)));
            transformer.transform(new DOMSource(document), new StreamResult(stringStream));
         } catch(Exception e) 
         {
@@ -113,10 +117,14 @@ public class EntityGenerator
          return new StreamSource(getResource(href));
       }
    }
-   
+
+   static private String getResourceSystemId(String file)
+   {
+      return new EntityGenerator().getClass().getClassLoader().getResource(file).toString();
+   }
    static private InputStream getResource(String file)
    {
-      return ClassLoader.getSystemResourceAsStream(file);
+      return new EntityGenerator().getClass().getClassLoader().getResourceAsStream(file);
    }
 
    // Applies an XSLT stylesheet to some file and write the output to some other file
@@ -130,7 +138,7 @@ public class EntityGenerator
            TransformerFactory transformerFactory = TransformerFactory.newInstance();
            transformerFactory.setURIResolver(new ClassLoaderURIResolver());
            Transformer transformer = transformerFactory
-              .newTransformer(new StreamSource(getResource(xsltFile), ClassLoader.getSystemResource(xsltFile).toString()));
+              .newTransformer(new StreamSource(getResource(xsltFile), getResourceSystemId(xsltFile)));
 
            if (params != null) {
               for (Iterator it = params.entrySet().iterator(); it.hasNext();) {

@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+	  <groupId>org.jinq</groupId>
+	  <artifactId>jinq</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>demogen</artifactId>
+  <!--  <packaging>jar</packaging>  -->
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generateCode</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>ch.epfl.labos.iu.orm.tools.EntityGenerator</mainClass>
+              <arguments>
+                <argument>demosrc/entities.xml</argument>
+                <argument>demogen</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <sourceDirectory>.</sourceDirectory>
+    <directory>../target/demogen</directory>
+  </build>
+  
+  <dependencies>
+    <dependency>
+	  <groupId>org.jinq</groupId>
+	  <artifactId>orm</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+	  <groupId>org.jinq</groupId>
+	  <artifactId>queryll2</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+  
+</project>
