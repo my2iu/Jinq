@@ -13,6 +13,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
         <executions>
           <execution>
             <id>generateCode</id>
@@ -37,9 +38,11 @@
   
   <dependencies>
     <dependency>
+      <!-- ORM only need for code generation, but not afterwards. -->
 	  <groupId>org.jinq</groupId>
 	  <artifactId>orm</artifactId>
 	  <version>0.0.1-SNAPSHOT</version>
+	  <optional>true</optional>
     </dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>
