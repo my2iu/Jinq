@@ -1,4 +1,5 @@
 CONNECT 'jdbc:derby:demoDB;create=true';
+
 DROP TABLE Customers;
 CREATE TABLE Customers
 (
@@ -55,7 +56,7 @@ CREATE TABLE Suppliers
 	PRIMARY KEY (SupplierId)
 );
 
-INSERT INTO Customers (CustomerId, Name, Country)
+INSERT INTO Customers (CustomerId, Name, Country, Debt, Salary)
 VALUES 
 	(1, 'ABB', 'Switzerland', 100, 200),
 	(2, 'Nestle', 'Switzerland', 200, 300),
@@ -109,4 +110,3 @@ VALUES
 	(4, 3),
 	(5, 1),
 	(5, 2);
-	
