@@ -35,7 +35,7 @@ public class JinqJPAStreamProvider
     */
    public <U> JinqStream<U> streamAll(EntityManager em, Class<U> entity)
    {
-      return new QueryJinqStream<>(new JPAQueryComposer<>(
+      return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
             em, metamodel.entityNameFromClass(entity)));
    }
 }

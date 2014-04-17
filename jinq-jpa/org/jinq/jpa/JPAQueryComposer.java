@@ -7,6 +7,11 @@ import java.util.function.Consumer;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.jinq.jpa.transform.JPQLQueryTransform;
+import org.jinq.jpa.transform.LambdaInfo;
+import org.jinq.jpa.transform.WhereTransform;
+import org.jinq.jpq.jpqlquery.JPQLQuery;
+
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
 import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
@@ -22,15 +27,28 @@ import ch.epfl.labos.iu.orm.QueryComposer;
 import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.VectorSet;
 
+/**
+ * Holds a query and can apply the logic for composing JPQL queries. 
+ * It mostly delegates the work to other objects, but this object 
+ * does manage caching of queries and substituting of parameters 
+ * into queries.
+ *
+ * @param <T>
+ */
 public class JPAQueryComposer<T> implements QueryComposer<T>
 {
    final EntityManager em;
    final JPQLQuery<T> query;
 
-   public JPAQueryComposer(EntityManager em, String entityName)
+   private JPAQueryComposer(EntityManager em, JPQLQuery<T> query)
    {
       this.em = em;
-      this.query = JPQLQuery.findAllEntity(entityName);
+      this.query = query;
+   }
+   
+   public static <U> JPAQueryComposer<U> findAllEntities(EntityManager em, String entityName)
+   {
+      return new JPAQueryComposer<>(em, JPQLQuery.findAllEntities(entityName));
    }
 
    @Override
@@ -55,6 +73,15 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       Query q = em.createQuery(query.getQueryString());
       List<T> results = (List<T>)q.getResultList();
       return results.iterator();
+   }
+
+   @Override
+   public QueryComposer<T> where(Where<T> test)
+   {
+      JPQLQueryTransform whereTransform = new WhereTransform(new LambdaInfo(test));
+      JPQLQuery<T> newQuery = whereTransform.apply(query);
+      if (newQuery == null) return null;
+      return new JPAQueryComposer<>(em, newQuery);
    }
 
    @Override
@@ -97,13 +124,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
 
    @Override
    public QueryComposer<T> firstN(int n)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public QueryComposer<T> where(Where<T> test)
    {
       // TODO Auto-generated method stub
       return null;

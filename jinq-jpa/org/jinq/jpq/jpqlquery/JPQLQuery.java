@@ -1,4 +1,4 @@
-package org.jinq.jpa;
+package org.jinq.jpq.jpqlquery;
 
 
 /**
@@ -9,7 +9,7 @@ public class JPQLQuery<T>
 {
    String query;
    
-   public static <U> JPQLQuery<U> findAllEntity(String entityName)
+   public static <U> JPQLQuery<U> findAllEntities(String entityName)
    {
       JPQLQuery<U> query = new JPQLQuery<>();
       query.query = "SELECT c FROM " + entityName + " c"; 
@@ -25,4 +25,11 @@ public class JPQLQuery<T>
       return query;
    }
 
+   // TODO: If I code things carefully, maybe this method isn't needed.
+   public JPQLQuery<T> copy()
+   {
+      JPQLQuery<T> newQuery = new JPQLQuery<>();
+      newQuery.query = query;
+      return newQuery;
+   }
 }
