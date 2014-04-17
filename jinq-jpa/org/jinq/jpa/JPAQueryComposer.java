@@ -1,7 +1,11 @@
 package org.jinq.jpa;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -20,6 +24,14 @@ import ch.epfl.labos.iu.orm.VectorSet;
 
 public class JPAQueryComposer<T> implements QueryComposer<T>
 {
+   final EntityManager em;
+   final JPQLQuery<T> query;
+
+   public JPAQueryComposer(EntityManager em, String entityName)
+   {
+      this.em = em;
+      this.query = JPQLQuery.findAllEntity(entityName);
+   }
 
    @Override
    public VectorSet<T> createRealizedSet()
@@ -33,15 +45,16 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public String getDebugQueryString()
    {
-      return null;
+      return query.getQueryString();
    }
 
    @Override
    public Iterator<T> executeAndReturnResultIterator(
          Consumer<Throwable> exceptionReporter)
    {
-      // TODO Auto-generated method stub
-      return null;
+      Query q = em.createQuery(query.getQueryString());
+      List<T> results = (List<T>)q.getResultList();
+      return results.iterator();
    }
 
    @Override
