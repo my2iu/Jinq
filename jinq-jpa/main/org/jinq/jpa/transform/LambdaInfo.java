@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
-import ch.epfl.labos.iu.orm.queryll2.QueryllPathAnalysisSupplementalFactory;
 import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 
