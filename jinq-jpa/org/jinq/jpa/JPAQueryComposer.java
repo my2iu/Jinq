@@ -78,7 +78,9 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public QueryComposer<T> where(Where<T> test)
    {
-      JPQLQueryTransform whereTransform = new WhereTransform(new LambdaInfo(test));
+      LambdaInfo where = LambdaInfo.analyze(test);
+      if (where == null) return null;
+      JPQLQueryTransform whereTransform = new WhereTransform(where);
       JPQLQuery<T> newQuery = whereTransform.apply(query);
       if (newQuery == null) return null;
       return new JPAQueryComposer<>(em, newQuery);
