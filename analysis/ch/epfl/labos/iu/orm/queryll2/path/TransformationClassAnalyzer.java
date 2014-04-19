@@ -18,6 +18,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
+import ch.epfl.labos.iu.orm.queryll2.path.CodePath.PathReturnValueAndConditions;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
@@ -161,7 +162,7 @@ public class TransformationClassAnalyzer
       reader.accept(cl,0);
    }
    
-   public <T> void analyze(StaticMethodAnalysisStorage analysisResults, PathAnalysisSupplementalFactory<T> pathAnalysisFactory)
+   public <T, U> void analyze(StaticMethodAnalysisStorage analysisResults, PathAnalysisSupplementalFactory<T, U> pathAnalysisFactory)
    {
       // TODO: Analyze the constructor
       
@@ -197,7 +198,7 @@ public class TransformationClassAnalyzer
          // method always passes control directly to the specific version
          try {
 //            System.out.println(specificMethod.name + " " + specificMethod.signature + " " + specificMethod.desc);
-            MethodAnalysisResults analysis = analyzeMethod(specificMethod, pathAnalysisFactory);
+            U analysis = analyzeMethod(specificMethod, pathAnalysisFactory);
             if (analysis != null)
             {
                analysisResults.storeMethodAnalysis(i, cl.name, analysis);
@@ -210,7 +211,7 @@ public class TransformationClassAnalyzer
       }
    }
 
-   public <T> MethodAnalysisResults analyzeLambdaMethod(String methodName, String methodSignature, PathAnalysisSupplementalFactory<T> pathAnalysisFactory) throws AnalyzerException
+   public <T, U> U analyzeLambdaMethod(String methodName, String methodSignature, PathAnalysisSupplementalFactory<T, U> pathAnalysisFactory) throws AnalyzerException
    {
       MethodNode specificMethod = null;
       for (MethodNode m: (List<MethodNode>)cl.methods)
@@ -224,7 +225,7 @@ public class TransformationClassAnalyzer
       return null;
    }
    
-   <T> MethodAnalysisResults<T> analyzeMethod(MethodNode m, PathAnalysisSupplementalFactory<T> pathAnalysisFactory) throws AnalyzerException
+   <T, U> U analyzeMethod(MethodNode m, PathAnalysisSupplementalFactory<T, U> pathAnalysisFactory) throws AnalyzerException
    {
       // TODO: Various checks (e.g. no try/catch blocks, exceptions, etc.)
       if (m.tryCatchBlocks.size() > 0) return null;
@@ -246,19 +247,16 @@ public class TransformationClassAnalyzer
       List<CodePath> paths = CodePath.breakIntoPaths(cfg, m, cl.name);
       
       // Symbolically execute each path to figure out what each path does
-      MethodAnalysisResults<T> analysis = pathAnalysisFactory.createMethodAnalysisResults();
-      List<PathAnalysis<T>> pathResults = new Vector<>();
+      U analysis = pathAnalysisFactory.createMethodAnalysisResults();
       for (CodePath path: paths)
       {
-         PathAnalysisMethodChecker<T> methodChecker = pathAnalysisFactory.createMethodChecker();
+         PathAnalysisMethodChecker methodChecker = pathAnalysisFactory.createMethodChecker();
 
-         PathAnalysis<T> pathAnalysis = 
+         PathReturnValueAndConditions pathResults = 
             path.calculateReturnValueAndConditions(cl, m, methodChecker);
-         pathResults.add(pathAnalysis);
+         pathAnalysisFactory.addPath(analysis, pathResults.returnValue, pathResults.conditions, methodChecker);
       }
-      analysis.paths = pathResults;
       return analysis;
-      
    }
    
    boolean hasLoops(CFG cfg, int[]visitStatus, int index)

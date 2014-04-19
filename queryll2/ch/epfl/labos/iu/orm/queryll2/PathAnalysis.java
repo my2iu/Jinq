@@ -1,10 +1,11 @@
-package ch.epfl.labos.iu.orm.queryll2.path;
+package ch.epfl.labos.iu.orm.queryll2;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import ch.epfl.labos.iu.orm.queryll2.path.SymbExSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;

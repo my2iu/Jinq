@@ -6,8 +6,8 @@ package ch.epfl.labos.iu.orm.queryll2.path;
  * 
  *
  */
-public interface StaticMethodAnalysisStorage
+public interface StaticMethodAnalysisStorage<U>
 {
    public abstract void storeMethodAnalysis(String interfaceName,
-         String className, MethodAnalysisResults analysis);
+         String className, U analysis);
 }

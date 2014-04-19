@@ -1,5 +1,6 @@
 package ch.epfl.labos.iu.orm.queryll2.path;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -7,10 +8,12 @@ import java.util.Set;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
-public class MethodAnalysisResults<T>
+public abstract class MethodAnalysisResultsHolder<T>
 {
-   public List<PathAnalysis<T>> paths;
-
+   public abstract void addPath(TypedValue returnValue, 
+               List<TypedValue.ComparisonValue> conditions,
+               PathAnalysisMethodChecker methodChecker
+         );
    // TODO: No one uses these, but they will be needed in the future for more complicated analyses
 //   public Set<MethodSignature> getAllTransformConstructorsCalled()
 //   {

@@ -15,7 +15,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-final class QueryllMethodChecker implements PathAnalysisMethodChecker<QueryllPathAnalysisSupplementalInfo>
+final class QueryllMethodChecker implements PathAnalysisMethodChecker
 {
    private final DBSetSourceChecker checkDBSets;
    private final Set<TypedValue> unresolvedJinqStreams;
@@ -126,10 +126,6 @@ final class QueryllMethodChecker implements PathAnalysisMethodChecker<QueryllPat
          }
       }
 
-   /* (non-Javadoc)
-    * @see ch.epfl.labos.iu.orm.queryll2.PathAnalysisMethodChecker#getSupplementalInfo()
-    */
-   @Override
    public QueryllPathAnalysisSupplementalInfo getSupplementalInfo()
    {
       QueryllPathAnalysisSupplementalInfo info = new QueryllPathAnalysisSupplementalInfo();

@@ -37,8 +37,7 @@ import ch.epfl.labos.iu.orm.query2.SQLReader.DoubleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.IntegerSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution.FromReference;
-import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
-import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysis;
+import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResultsHolder;
 import ch.epfl.labos.iu.orm.queryll2.path.StaticMethodAnalysisStorage;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
@@ -54,7 +53,7 @@ import com.user00.thunk.SerializedLambda;
 //new one, so be sure to always pass in a copy of the query instead 
 //of the original
 
-public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMethodAnalysisStorage
+public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMethodAnalysisStorage<MethodAnalysisResults>
 {
    ORMInformation entityInfo;
    LambdaRuntimeTransformAnalyzer runtimeAnalyzer;
@@ -68,8 +67,9 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
     * @see ch.epfl.labos.iu.orm.queryll2.StaticMethodAnalysisStorage#storeMethodAnalysis(java.lang.String, java.lang.String, ch.epfl.labos.iu.orm.queryll2.MethodAnalysisResults)
     */
    @Override
-   public void storeMethodAnalysis(String interfaceName, String className, MethodAnalysisResults analysis)
+   public void storeMethodAnalysis(String interfaceName, String className, MethodAnalysisResults methodAnalysis)
    {
+      MethodAnalysisResults analysis = (MethodAnalysisResults)methodAnalysis;
       if (interfaceName.equals(TransformationClassAnalyzer.WHERE_INTERFACE))
          whereAnalysis.put(className, analysis);
       else if (interfaceName.equals(TransformationClassAnalyzer.SELECT_INTERFACE))
@@ -505,7 +505,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    }
    
    private <T> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex,
-         Object test, Object emSource, MethodAnalysisResults<QueryllPathAnalysisSupplementalInfo> analysis,
+         Object test, Object emSource, MethodAnalysisResults analysis,
          SerializedLambda s)
    {
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
@@ -667,7 +667,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       return null;
    }
 
-   private SQLReader generateSelect(MethodAnalysisResults<QueryllPathAnalysisSupplementalInfo> analysis,
+   private SQLReader generateSelect(MethodAnalysisResults analysis,
                                     SymbExToSQLGenerator gen,
                                     List<SQLFragment> columns)
          throws TypedValueVisitorException
@@ -1009,7 +1009,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
 
    private <T, U> SQLQuery<Pair<T, U>> join(SQLQuery<T> query,
          int lambdaThisIndex, Object join, Object emSource,
-         MethodAnalysisResults<QueryllPathAnalysisSupplementalInfo> analysis, SerializedLambda s)
+         MethodAnalysisResults analysis, SerializedLambda s)
    {
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
       if (query instanceof SQLQuery.SelectFromWhere)

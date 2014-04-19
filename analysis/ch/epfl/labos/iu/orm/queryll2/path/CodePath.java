@@ -117,9 +117,16 @@ public class CodePath
          return null;
       return paths;
    }
-   public <T> PathAnalysis<T> calculateReturnValueAndConditions(
+   
+   public static class PathReturnValueAndConditions
+   {
+      TypedValue returnValue; 
+      List<TypedValue.ComparisonValue> conditions;
+   }
+   
+   public <T> PathReturnValueAndConditions calculateReturnValueAndConditions(
          ClassNode cl, MethodNode m,
-         final PathAnalysisMethodChecker<T> methodChecker) throws AnalyzerException
+         final PathAnalysisMethodChecker methodChecker) throws AnalyzerException
    {
       class ConditionRecorder implements BasicSymbolicInterpreter.BranchHandler
       {
@@ -154,8 +161,9 @@ public class CodePath
       TypedValue returnValue = interpreter.returnValue;
       List<TypedValue.ComparisonValue> conditions = pathConditions.conditions;
       
-      PathAnalysis<T> pathAnalysis = new PathAnalysis<>(returnValue, conditions);
-      pathAnalysis.setSupplementalInfo(methodChecker.getSupplementalInfo());
-      return pathAnalysis;
+      PathReturnValueAndConditions toReturn = new PathReturnValueAndConditions();
+      toReturn.returnValue = returnValue;
+      toReturn.conditions = conditions;
+      return toReturn;
    }
 }

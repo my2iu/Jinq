@@ -10,15 +10,16 @@ import java.util.Set;
 
 import org.objectweb.asm.ClassReader;
 
-import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
+import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResultsHolder;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSupplementalFactory;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue;
 
 public class QueryllPathAnalysisSupplementalFactory implements
-      PathAnalysisSupplementalFactory<QueryllPathAnalysisSupplementalInfo>
+      PathAnalysisSupplementalFactory<QueryllPathAnalysisSupplementalInfo, MethodAnalysisResults>
 {
    private final ORMInformation entityInfo;
    private final Set<Class<?>> SafeMethodAnnotations;
@@ -43,7 +44,7 @@ public class QueryllPathAnalysisSupplementalFactory implements
    }
    
    @Override
-   public PathAnalysisMethodChecker<QueryllPathAnalysisSupplementalInfo> createMethodChecker()
+   public PathAnalysisMethodChecker createMethodChecker()
    {
       final DBSetSourceChecker checkDBSets = new DBSetSourceChecker(entityInfo);
       final Set<TypedValue> unresolvedDBSets = new HashSet<TypedValue>();
@@ -60,9 +61,19 @@ public class QueryllPathAnalysisSupplementalFactory implements
    }
 
    @Override
-   public MethodAnalysisResults<QueryllPathAnalysisSupplementalInfo> createMethodAnalysisResults()
+   public MethodAnalysisResults createMethodAnalysisResults()
    {
-      return new MethodAnalysisResults<QueryllPathAnalysisSupplementalInfo>();
+      return new MethodAnalysisResults();
+   }
+
+   @Override
+   public void addPath(
+         MethodAnalysisResults resultsHolder,
+         TypedValue returnValue,
+         List<ComparisonValue> conditions,
+         PathAnalysisMethodChecker methodChecker)
+   {
+      resultsHolder.addPath(returnValue, conditions, methodChecker);
    }
 
 }
