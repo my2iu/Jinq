@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.objectweb.asm.ClassReader;
 
-import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResultsHolder;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSupplementalFactory;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;

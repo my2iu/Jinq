@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import org.jinq.orm.annotations.EntitySupplier;
 import org.jinq.orm.annotations.NoSideEffects;
@@ -20,7 +19,6 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.path.CodePath.PathReturnValueAndConditions;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
 public class TransformationClassAnalyzer
 {

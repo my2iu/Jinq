@@ -9,11 +9,10 @@ import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
-public class MethodAnalysisResults extends ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResultsHolder<QueryllPathAnalysisSupplementalInfo>
+public class MethodAnalysisResults 
 {
    public List<PathAnalysis<QueryllPathAnalysisSupplementalInfo>> paths = new ArrayList<>();
 
-   @Override
    public void addPath(TypedValue returnValue, 
                List<TypedValue.ComparisonValue> conditions,
                PathAnalysisMethodChecker methodChecker)

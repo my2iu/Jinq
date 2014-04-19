@@ -1,12 +1,9 @@
 package org.jinq.jpa.transform;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
-import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 
 import com.user00.thunk.SerializedLambda;
@@ -22,6 +19,10 @@ public class LambdaInfo
    {
       SerializedLambda s = SerializedLambda.extractLambda(lambda);
       if (s == null) return null;
+      // TODO: The part below will need to be moved to a separate method.
+      //   That way, we can used the serialized lambda info to check if
+      //   we've cached the results of this analysis already without needing
+      //   to redo all this analysis.
       MethodAnalysisResults analysis = analyzeLambda(s);
       if (analysis == null) return null;
       return new LambdaInfo(lambda);
@@ -35,24 +36,23 @@ public class LambdaInfo
    
    private static MethodAnalysisResults analyzeLambda(String className, String methodName, String methodSignature) 
    {
-      return null;
-//      try {
-//         // Open up the corresponding class to analyze
-//         QueryllPathAnalysisSupplementalFactory pathAnalysisFactory = new QueryllPathAnalysisSupplementalFactory(entityInfo, new ArrayList<>()); 
-//         TransformationClassAnalyzer classAnalyzer = 
-//               new TransformationClassAnalyzer(className);
-//         MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-//         return analysis;
-//      } catch (IOException e)
-//      {
-//         e.printStackTrace();
-//         return null;
-//      }
-//      catch (AnalyzerException e)
-//      {
-//         e.printStackTrace();
-//         return null;
-//      }
+      try {
+         // Open up the corresponding class to analyze
+         PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(); 
+         TransformationClassAnalyzer classAnalyzer = 
+               new TransformationClassAnalyzer(className);
+         MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
+         return analysis;
+      } catch (IOException e)
+      {
+         e.printStackTrace();
+         return null;
+      }
+      catch (AnalyzerException e)
+      {
+         e.printStackTrace();
+         return null;
+      }
    }
 
    

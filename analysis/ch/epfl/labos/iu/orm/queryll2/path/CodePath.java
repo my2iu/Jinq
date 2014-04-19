@@ -1,13 +1,8 @@
 package ch.epfl.labos.iu.orm.queryll2.path;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
-import org.jinq.orm.annotations.NoSideEffects;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -19,7 +14,6 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.FrameWithHelpers;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.SymbolicInterpreterWithFieldAccess;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 

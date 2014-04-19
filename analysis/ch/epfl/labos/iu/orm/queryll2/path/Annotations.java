@@ -3,7 +3,6 @@ package ch.epfl.labos.iu.orm.queryll2.path;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Set;
 
 import org.objectweb.asm.Type;
 

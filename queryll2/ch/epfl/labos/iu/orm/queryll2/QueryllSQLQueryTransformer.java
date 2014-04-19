@@ -37,7 +37,6 @@ import ch.epfl.labos.iu.orm.query2.SQLReader.DoubleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.IntegerSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution.FromReference;
-import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResultsHolder;
 import ch.epfl.labos.iu.orm.queryll2.path.StaticMethodAnalysisStorage;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
