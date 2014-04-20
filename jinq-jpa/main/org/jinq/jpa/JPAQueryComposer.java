@@ -37,18 +37,20 @@ import ch.epfl.labos.iu.orm.VectorSet;
  */
 public class JPAQueryComposer<T> implements QueryComposer<T>
 {
+   final MetamodelUtil metamodel;
    final EntityManager em;
    final JPQLQuery<T> query;
 
-   private JPAQueryComposer(EntityManager em, JPQLQuery<T> query)
+   private JPAQueryComposer(MetamodelUtil metamodel, EntityManager em, JPQLQuery<T> query)
    {
+      this.metamodel = metamodel;
       this.em = em;
       this.query = query;
    }
    
-   public static <U> JPAQueryComposer<U> findAllEntities(EntityManager em, String entityName)
+   public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, EntityManager em, String entityName)
    {
-      return new JPAQueryComposer<>(em, JPQLQuery.findAllEntities(entityName));
+      return new JPAQueryComposer<>(metamodel, em, JPQLQuery.findAllEntities(entityName));
    }
 
    @Override
@@ -78,12 +80,18 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public QueryComposer<T> where(Where<T> test)
    {
-      LambdaInfo where = LambdaInfo.analyze(test);
-      if (where == null) return null;
-      JPQLQueryTransform whereTransform = new WhereTransform(where);
-      JPQLQuery<T> newQuery = whereTransform.apply(query);
-      if (newQuery == null) return null;
-      return new JPAQueryComposer<>(em, newQuery);
+	   return null;
+   }
+
+   @Override
+   public QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T> test)
+   {
+	   LambdaInfo where = LambdaInfo.analyze(metamodel, test);
+	   if (where == null) return null;
+	   JPQLQueryTransform whereTransform = new WhereTransform(where);
+	   JPQLQuery<T> newQuery = whereTransform.apply(query);
+	   if (newQuery == null) return null;
+	   return new JPAQueryComposer<>(metamodel, em, newQuery);
    }
 
    @Override
@@ -126,13 +134,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
 
    @Override
    public QueryComposer<T> firstN(int n)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T> test)
    {
       // TODO Auto-generated method stub
       return null;

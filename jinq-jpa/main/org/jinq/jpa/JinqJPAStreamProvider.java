@@ -2,7 +2,6 @@ package org.jinq.jpa;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jinq.orm.stream.JinqStream;
@@ -36,6 +35,6 @@ public class JinqJPAStreamProvider
    public <U> JinqStream<U> streamAll(EntityManager em, Class<U> entity)
    {
       return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
-            em, metamodel.entityNameFromClass(entity)));
+            metamodel, em, metamodel.entityNameFromClass(entity)));
    }
 }

@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import java.io.IOException;
 
+import org.jinq.jpa.MetamodelUtil;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
@@ -15,7 +16,7 @@ import com.user00.thunk.SerializedLambda;
 public class LambdaInfo
 {
    Object Lambda;
-   public static LambdaInfo analyze(Object lambda)
+   public static LambdaInfo analyze(MetamodelUtil metamodel, Object lambda)
    {
       SerializedLambda s = SerializedLambda.extractLambda(lambda);
       if (s == null) return null;
@@ -23,22 +24,22 @@ public class LambdaInfo
       //   That way, we can used the serialized lambda info to check if
       //   we've cached the results of this analysis already without needing
       //   to redo all this analysis.
-      MethodAnalysisResults analysis = analyzeLambda(s);
+      MethodAnalysisResults analysis = analyzeLambda(metamodel, s);
       if (analysis == null) return null;
       return new LambdaInfo(lambda);
    }
    
-   private static MethodAnalysisResults analyzeLambda(SerializedLambda lambda) 
+   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, SerializedLambda lambda) 
    {
       if (lambda == null) return null;
-      return analyzeLambda(lambda.implClass, lambda.implMethodName, lambda.implMethodSignature);
+      return analyzeLambda(metamodel, lambda.implClass, lambda.implMethodName, lambda.implMethodSignature);
    }
    
-   private static MethodAnalysisResults analyzeLambda(String className, String methodName, String methodSignature) 
+   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, String className, String methodName, String methodSignature) 
    {
       try {
          // Open up the corresponding class to analyze
-         PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(); 
+         PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(metamodel); 
          TransformationClassAnalyzer classAnalyzer = 
                new TransformationClassAnalyzer(className);
          MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
