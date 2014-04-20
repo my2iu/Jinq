@@ -9,7 +9,7 @@
 		<class>org.jinq.jpa.test.entities.LineorderPK</class>
 		<properties>
 			<property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
-			<property name="javax.persistence.jdbc.url" value="jdbc:derby:bin/derby/data/demoDB"/>
+			<property name="javax.persistence.jdbc.url" value="jdbc:derby:../bin/derby/data/demoDB"/>
 			<property name="javax.persistence.jdbc.user" value=""/>
 			<property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
 			<property name="javax.persistence.jdbc.password" value=""/>

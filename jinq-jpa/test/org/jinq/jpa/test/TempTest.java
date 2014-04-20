@@ -1,12 +1,8 @@
 package org.jinq.jpa.test;
 
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 import org.jinq.jpa.JinqJPAStreamProvider;
 import org.jinq.jpa.test.entities.Customer;
@@ -28,5 +24,7 @@ public class TempTest
       JinqStream<Item> items = streams.streamAll(em, Item.class);
       items.forEach(item -> System.out.println(item.getName()));
 
+      customers = streams.streamAll(em, Customer.class)
+    		  .where(customer -> customer.getDebt() > 100);
    }
 }
