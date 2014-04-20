@@ -10,6 +10,7 @@
 
   <build>
     <sourceDirectory>main</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
     <directory>target</directory>
   </build>
   
@@ -23,6 +24,7 @@
 	  <groupId>org.eclipse.persistence</groupId>
 	  <artifactId>eclipselink</artifactId>
 	  <version>2.5.1</version>
+	  <optional>true</optional>
 	</dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>
@@ -33,6 +35,25 @@
 	  <groupId>org.jinq</groupId>
 	  <artifactId>analysis</artifactId>
 	  <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    
+	<dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit-dep</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+	<dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.10.1.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>eclipselink</artifactId>
+      <version>2.5.1</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   
