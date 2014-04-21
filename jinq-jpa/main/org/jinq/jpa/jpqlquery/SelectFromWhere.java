@@ -1,4 +1,4 @@
-package org.jinq.jpq.jpqlquery;
+package org.jinq.jpa.jpqlquery;
 
 import java.util.ArrayList;
 import java.util.List;

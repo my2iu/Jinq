@@ -1,6 +1,6 @@
 package org.jinq.jpa.transform;
 
-import org.jinq.jpq.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.JPQLQuery;
 
 public class WhereTransform extends JPQLQueryTransform
 {

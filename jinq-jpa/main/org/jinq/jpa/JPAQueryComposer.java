@@ -7,10 +7,10 @@ import java.util.function.Consumer;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.WhereTransform;
-import org.jinq.jpq.jpqlquery.JPQLQuery;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;

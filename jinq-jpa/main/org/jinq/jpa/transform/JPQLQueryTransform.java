@@ -1,6 +1,6 @@
 package org.jinq.jpa.transform;
 
-import org.jinq.jpq.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.JPQLQuery;
 
 /**
  * Subclasses of this class are used to hold the logic for applying
