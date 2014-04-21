@@ -5,6 +5,7 @@ import java.util.List;
 
 public class SelectFromWhere<T> extends JPQLQuery<T>
 {
+   List<Expression> cols = new ArrayList<>();
    List<From> froms = new ArrayList<>();
 
    public String getQueryString()
@@ -18,14 +19,23 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
       }
       
       // Now generate the query
-      String query = "SELECT ";
-      if (froms.size() > 0)
+      String query = "";
+      if (cols.size() > 0)
       {
-         query += queryState.getFromAlias(froms.get(0)) + " ";
+         query += "SELECT ";
+         boolean isFirst = true;
+         for (Expression col: cols)
+         {
+            if (!isFirst) query += ", ";
+            isFirst = false;
+            queryState.queryString = "";
+            col.generateQuery(queryState);
+            query += queryState.queryString;
+         }
       }
       if (froms.size() > 0)
       {
-         query += "FROM ";
+         query += " FROM ";
          boolean isFirst = true;
          for (From from: froms)
          {

@@ -12,7 +12,9 @@ public class JPQLQuery<T> implements JPQLFragment
    public static <U> JPQLQuery<U> findAllEntities(String entityName)
    {
       SelectFromWhere<U> query = new SelectFromWhere<>();
-      query.froms.add(From.forEntity(entityName));
+      From from = From.forEntity(entityName);
+      query.cols.add(new FromAliasExpression(from));
+      query.froms.add(from);
       return query;
    }
    

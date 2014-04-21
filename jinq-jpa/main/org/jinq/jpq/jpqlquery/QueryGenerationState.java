@@ -5,6 +5,7 @@ import java.util.Map;
 
 class QueryGenerationState
 {
+   String queryString = "";
    Map<From, String> fromAliases = new IdentityHashMap<>();
    
    /**
@@ -29,6 +30,16 @@ class QueryGenerationState
    public String getFromAlias(From from)
    {
       return fromAliases.get(from);
+   }
+   
+   /**
+    * Adds some text to the current part of the query string being assembled.
+    * @param str
+    */
+   public void appendQuery(String str)
+   {
+      // TODO: Perhaps this shouldn't be in QueryGenerationState but in a separate object just for holding query output.
+      queryString += str;
    }
    
    // For assigning from and column aliases to queries
