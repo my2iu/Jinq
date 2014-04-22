@@ -35,7 +35,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
    
    @Override
-   public JinqStream<T> where(final Where<T> test)
+   public <E extends Exception> JinqStream<T> where(final Where<T, E> test)
    {
       QueryComposer<T> newComposer = queryComposer.where(test);
       if (newComposer != null) return new QueryJinqStream<T>(newComposer);

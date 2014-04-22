@@ -523,7 +523,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
             null, () -> transformer.where(query.copy(), nextLambdaParamIndex, test, emSource));
    }
 
-   public QueryComposer<T> where(JinqStream.Where<T> test)
+   public <E extends Exception> QueryComposer<T> where(JinqStream.Where<T, E> test)
    {
       return composeQuery("where", test,
             null, () -> transformer.where(query.copy(), nextLambdaParamIndex, test, emSource));

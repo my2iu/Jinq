@@ -35,7 +35,7 @@ public interface QueryComposer<T>
    
    // New stuff for Queryll2
    public QueryComposer<T> where(Where<T> test);
-   public QueryComposer<T> where(JinqStream.Where<T> test);
+   public <E extends Exception> QueryComposer<T> where(JinqStream.Where<T, E> test);
    public <U> QueryComposer<U> select(Select<T, U> select);
    public <U> QueryComposer<U> select(JinqStream.Select<T, U> select);
    public <U> QueryComposer<Pair<T, U>> join(Join<T,U> join);

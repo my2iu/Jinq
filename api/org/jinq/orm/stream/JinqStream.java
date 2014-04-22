@@ -14,10 +14,10 @@ import ch.epfl.labos.iu.orm.Tuple3;
 
 public interface JinqStream<T> extends Stream<T>
 {
-   public static interface Where<U> extends Serializable {
-      public boolean where(U obj);
+   public static interface Where<U, E extends Exception> extends Serializable {
+      public boolean where(U obj) throws E;
    }
-   public JinqStream<T> where(Where<T> test);
+   public <E extends Exception> JinqStream<T> where(Where<T, E> test);
    public static interface Select<U, V> extends Serializable {
       public V select(U val);
    }

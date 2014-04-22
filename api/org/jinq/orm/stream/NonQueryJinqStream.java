@@ -40,9 +40,17 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
 
    
    @Override
-   public JinqStream<T> where(Where<T> test)
+   public <E extends Exception> JinqStream<T> where(Where<T, E> test)
    {
-      return new NonQueryJinqStream<>(filter( val -> test.where(val) ));
+      return new NonQueryJinqStream<>(filter(val -> { 
+            try { 
+               return test.where(val); 
+            } catch (Exception e) {
+               // Record that an exception occurred
+               propagateException(test, e);
+               // Throw a runtime exception to try and kill the stream?
+               throw new RuntimeException(e);
+            }} ));
    }
 
    @Override

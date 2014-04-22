@@ -18,7 +18,7 @@ import ch.epfl.labos.iu.orm.StringSorter;
 public interface SQLQueryTransforms
 {
    <T> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex, DBSet.Where<T> test, Object emSource);
-   <T> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Where<T> test, Object emSource);
+   <T, E extends Exception> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Where<T, E> test, Object emSource);
    <T,U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex, DBSet.Select<T,U> select, Object emSource);
    <T,U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Select<T,U> select, Object emSource);
    <T> SQLQuery<Integer> sumInt(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateInteger<T> aggregate, Object emSource);

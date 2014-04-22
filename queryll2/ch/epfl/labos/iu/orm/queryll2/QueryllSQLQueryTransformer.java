@@ -494,7 +494,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    }
 
    // Version of where analysis used by JinqStream.where()
-   public <T> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Where<T> test, Object emSource)
+   public <T, E extends Exception> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Where<T, E> test, Object emSource)
    {
       SerializedLambda s = SerializedLambda.extractLambda(test);
       if (s == null) return null;
