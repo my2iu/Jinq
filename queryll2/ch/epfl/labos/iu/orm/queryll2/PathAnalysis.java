@@ -48,14 +48,8 @@ public class PathAnalysis<T>
    {
       if (simplifiedReturnValue == null)
       {
-         try {
-            simplifiedReturnValue = getReturnValue()
-               .visit(new TypedValueRewriterWalker<Object>(new SymbExSimplifier<Object>()), null);
-         } catch (TypedValueVisitorException e)
-         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
+         simplifiedReturnValue = getReturnValue()
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
       }
       return simplifiedReturnValue;
    }
@@ -74,14 +68,8 @@ public class PathAnalysis<T>
    {
       if (simplifiedIsTrueReturnValue == null)
       {
-         try {
-            simplifiedIsTrueReturnValue = getIsTrueReturnValue()
-               .visit(new TypedValueRewriterWalker<Object>(new SymbExSimplifier<Object>()), null);
-         } catch (TypedValueVisitorException e)
-         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
+         simplifiedIsTrueReturnValue = getIsTrueReturnValue()
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
       }
       return simplifiedIsTrueReturnValue; 
    }
@@ -93,16 +81,10 @@ public class PathAnalysis<T>
    {
       if (simplifiedConditions == null)
       {
-         try {
-            List<TypedValue> newConditions = new Vector<TypedValue>();
-            for (TypedValue.ComparisonValue cond: getConditions())
-               newConditions.add(cond.visit(new TypedValueRewriterWalker<Object>(new SymbExSimplifier<Object>()), null));
-            simplifiedConditions = newConditions;
-         } catch (TypedValueVisitorException e)
-         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
+         List<TypedValue> newConditions = new Vector<TypedValue>();
+         for (TypedValue.ComparisonValue cond: getConditions())
+            newConditions.add(cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null));
+         simplifiedConditions = newConditions;
       }
       return simplifiedConditions; 
    }

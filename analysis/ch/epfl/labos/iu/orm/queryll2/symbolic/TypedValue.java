@@ -32,7 +32,7 @@ public class TypedValue implements Value
       return type.getSize();
    }
    
-   public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+   public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
    {
       return visitor.unknownValue(this, input);
    }
@@ -52,7 +52,7 @@ public class TypedValue implements Value
          return "this";
       }
       
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O, E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.thisValue(this, input);
       }
@@ -71,7 +71,7 @@ public class TypedValue implements Value
       {
          return "@arg" + index;
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.argValue(this, input);
       }
@@ -87,7 +87,7 @@ public class TypedValue implements Value
       {
          return "new " + type.getClassName();
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.newValue(this, input);
       }
@@ -105,7 +105,7 @@ public class TypedValue implements Value
 //      { 
 //         return "(" + left.toString() + " " + operation + " " + right.toString() + ")";
 //      }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.unaryOpValue(this, input);
       }
@@ -124,7 +124,7 @@ public class TypedValue implements Value
       { 
          return "(NOT " + operand.toString() + ")";
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.notOpValue(this, input);
       }
@@ -149,7 +149,7 @@ public class TypedValue implements Value
       {
          return "(" + operand + "." + name + ")";
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.getFieldValue(this, input);
       }
@@ -168,7 +168,7 @@ public class TypedValue implements Value
       {
          return "((" + type.getClassName() + ")" + operand + ")";
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.castValue(this, input);
       }
@@ -194,7 +194,7 @@ public class TypedValue implements Value
       { 
          return "(" + left.toString() + " " + operation + " " + right.toString() + ")";
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.binaryOpValue(this, input);
       }
@@ -229,7 +229,7 @@ public class TypedValue implements Value
          super(left.type, opToString(op), left, right);
          this.op = op;
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.mathOpValue(this, input);
       }
@@ -291,7 +291,7 @@ public class TypedValue implements Value
          }
          return new ComparisonValue(notOp, left, right);
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.comparisonOpValue(this, input);
       }

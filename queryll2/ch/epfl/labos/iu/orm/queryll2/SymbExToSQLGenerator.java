@@ -2,6 +2,7 @@ package ch.epfl.labos.iu.orm.queryll2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.Type;
 
@@ -18,7 +19,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class SymbExToSQLGenerator<T> extends TypedValueVisitor<T, SQLColumnValues>
+public class SymbExToSQLGenerator<T> extends TypedValueVisitor<T, SQLColumnValues, TypedValueVisitorException>
 {
    ORMInformation entityInfo;
    SymbExLambdaContext<T> lambdaContext;
@@ -35,6 +36,11 @@ public class SymbExToSQLGenerator<T> extends TypedValueVisitor<T, SQLColumnValue
    public SQLColumnValues generateFor(TypedValue val) throws TypedValueVisitorException
    {
       return val.visit(this, null);
+   }
+
+   @Override public SQLColumnValues defaultValue(TypedValue val, T in) throws TypedValueVisitorException
+   {
+      throw new TypedValueVisitorException("Unhandled symbolic execution operation: " + val);
    }
 
    @Override public SQLColumnValues argValue(TypedValue.ArgValue val, T in) throws TypedValueVisitorException

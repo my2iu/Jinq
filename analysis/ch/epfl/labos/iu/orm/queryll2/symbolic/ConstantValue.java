@@ -11,7 +11,7 @@ public class ConstantValue extends TypedValue
    {
       super(t);
    }
-   @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+   @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
    {
       return visitor.constantValue(this, input);
    }
@@ -26,7 +26,7 @@ public class ConstantValue extends TypedValue
          this.val = val;
       }
       public String toString() { return Byte.toString(val); }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.byteConstantValue(this, input);
       }
@@ -41,7 +41,7 @@ public class ConstantValue extends TypedValue
          this.val = val;
       }
       public String toString() { return Short.toString(val); }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.shortConstantValue(this, input);
       }
@@ -56,7 +56,7 @@ public class ConstantValue extends TypedValue
          this.val = val;
       }
       public String toString() { return Integer.toString(val); }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.integerConstantValue(this, input);
       }
@@ -71,7 +71,7 @@ public class ConstantValue extends TypedValue
          this.val = val;
       }
       public String toString() { return Long.toString(val); }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.longConstantValue(this, input);
       }
@@ -86,7 +86,7 @@ public class ConstantValue extends TypedValue
          this.val = val;
       }
       public String toString() { return Float.toString(val); }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.floatConstantValue(this, input);
       }
@@ -101,7 +101,7 @@ public class ConstantValue extends TypedValue
          this.val = val;
       }
       public String toString() { return Double.toString(val); }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.doubleConstantValue(this, input);
       }
@@ -114,7 +114,7 @@ public class ConstantValue extends TypedValue
          super(Type.getObjectType("null"));
       }
       public String toString() { return "null"; }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.nullConstantValue(this, input);
       }
@@ -130,7 +130,7 @@ public class ConstantValue extends TypedValue
          this.val = val;
       }
       public String toString() { return "\"" + val + "\""; }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.stringConstantValue(this, input);
       }

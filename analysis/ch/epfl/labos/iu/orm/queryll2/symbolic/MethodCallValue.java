@@ -38,7 +38,7 @@ public class MethodCallValue extends TypedValue
       return str;
    }
    
-   @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+   @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O, E> visitor, I input) throws E
    {
       return visitor.methodCallValue(this, input);
    }
@@ -61,7 +61,7 @@ public class MethodCallValue extends TypedValue
       {
          super(owner, name, desc, args);
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.staticMethodCallValue(this, input);
       }
@@ -89,7 +89,7 @@ public class MethodCallValue extends TypedValue
       {
          return base.toString() + "." + super.toString();
       }
-      @Override public <I,O> O visit(TypedValueVisitor<I,O> visitor, I input) throws TypedValueVisitorException
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.virtualMethodCallValue(this, input);
       }

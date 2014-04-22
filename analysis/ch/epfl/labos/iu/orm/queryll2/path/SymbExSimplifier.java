@@ -8,13 +8,13 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue>
+public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, RuntimeException>
 {
-   public TypedValue defaultValue(TypedValue val, I in) throws TypedValueVisitorException
+   public TypedValue defaultValue(TypedValue val, I in) 
    {
       return val;
    }
-   public TypedValue comparisonOpValue(TypedValue.ComparisonValue val, I in) throws TypedValueVisitorException
+   public TypedValue comparisonOpValue(TypedValue.ComparisonValue val, I in) 
    {
       // Check for comparison of two integer constants
       if (val.left instanceof ConstantValue.IntegerConstant
@@ -82,7 +82,7 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue>
       return binaryOpValue(val, in);
    }
 
-   public TypedValue virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, I in) throws TypedValueVisitorException
+   public TypedValue virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, I in) 
    {
       if (val.getSignature().equals(TransformationClassAnalyzer.stringEquals))
       {

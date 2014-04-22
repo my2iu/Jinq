@@ -12,7 +12,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class SymbExToSubQueryGenerator<T> extends TypedValueVisitor<T, SQLQuery>
+public class SymbExToSubQueryGenerator<T> extends TypedValueVisitor<T, SQLQuery, TypedValueVisitorException>
 {
    ORMInformation entityInfo;
    SymbExLambdaContext<T> lambdaContext;
@@ -27,6 +27,11 @@ public class SymbExToSubQueryGenerator<T> extends TypedValueVisitor<T, SQLQuery>
    public SQLQuery generateFor(TypedValue val) throws TypedValueVisitorException
    {
       return val.visit(this, null);
+   }
+
+   @Override public SQLQuery defaultValue(TypedValue val, T in) throws TypedValueVisitorException
+   {
+      throw new TypedValueVisitorException("Unhandled symbolic execution operation: " + val);
    }
 
    @Override public SQLQuery argValue(TypedValue.ArgValue val, T in) throws TypedValueVisitorException

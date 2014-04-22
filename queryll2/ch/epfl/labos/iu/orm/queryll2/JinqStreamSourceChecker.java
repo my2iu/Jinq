@@ -11,14 +11,19 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class JinqStreamSourceChecker extends TypedValueVisitor<Set<TypedValue>, Boolean>
+public class JinqStreamSourceChecker extends TypedValueVisitor<Set<TypedValue>, Boolean, TypedValueVisitorException>
 {
    ORMInformation entityInfo;
    public JinqStreamSourceChecker(ORMInformation entityInfo)
    {
       this.entityInfo = entityInfo;
    }
-   
+
+   @Override public Boolean defaultValue(TypedValue val, Set<TypedValue> in) throws TypedValueVisitorException
+   {
+      throw new TypedValueVisitorException("Unhandled symbolic execution operation: " + val);
+   }
+
    @Override public Boolean virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, Set<TypedValue> in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
