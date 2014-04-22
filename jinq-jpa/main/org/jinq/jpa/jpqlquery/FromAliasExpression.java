@@ -11,6 +11,6 @@ public class FromAliasExpression extends Expression
    @Override
    public void generateQuery(QueryGenerationState queryState)
    {
-      queryState.appendQuery(" " + queryState.getFromAlias(from));
+      queryState.appendQuery(queryState.getFromAlias(from));
    }
 }

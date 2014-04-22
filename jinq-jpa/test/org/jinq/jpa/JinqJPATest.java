@@ -89,7 +89,7 @@ public class JinqJPATest
    {
       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
     		  .where((c) -> c.getCountry().equals("UK"));
-      assertEquals("", customers.getDebugQueryString());
+      assertEquals("SELECT A FROM Customer A WHERE ((A.country)='UK')", customers.getDebugQueryString());
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Dave", results.get(0).getName());

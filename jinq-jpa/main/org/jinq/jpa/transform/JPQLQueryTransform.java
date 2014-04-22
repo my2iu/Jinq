@@ -1,5 +1,6 @@
 package org.jinq.jpa.transform;
 
+import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 
 /**
@@ -9,6 +10,12 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
  */
 public class JPQLQueryTransform
 {
+   final MetamodelUtil metamodel;
+   JPQLQueryTransform(MetamodelUtil metamodel)
+   {
+      this.metamodel = metamodel;
+   }
+   
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query)
    {
       return null;

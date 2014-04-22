@@ -5,8 +5,9 @@ import java.util.List;
 
 public class SelectFromWhere<T> extends JPQLQuery<T>
 {
-   List<Expression> cols = new ArrayList<>();
-   List<From> froms = new ArrayList<>();
+   public List<Expression> cols = new ArrayList<>();
+   public List<From> froms = new ArrayList<>();
+   public Expression where;
 
    public String getQueryString()
    {
@@ -43,6 +44,13 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
             isFirst = false;
             query += from.entityName + " " + queryState.getFromAlias(froms.get(0));
          }
+      }
+      if (where != null)
+      {
+         query += " WHERE ";
+         queryState.queryString = "";
+         where.generateQuery(queryState);
+         query += queryState.queryString;
       }
       return query;
    }

@@ -88,7 +88,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    {
 	   LambdaInfo where = LambdaInfo.analyze(metamodel, test);
 	   if (where == null) return null;
-	   JPQLQueryTransform whereTransform = new WhereTransform(where);
+	   JPQLQueryTransform whereTransform = new WhereTransform(metamodel, where);
 	   JPQLQuery<T> newQuery = whereTransform.apply(query);
 	   if (newQuery == null) return null;
 	   return new JPAQueryComposer<>(metamodel, em, newQuery);
