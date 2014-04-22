@@ -84,7 +84,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T> test)
+   public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
 	   LambdaInfo where = LambdaInfo.analyze(metamodel, test);
 	   if (where == null) return null;

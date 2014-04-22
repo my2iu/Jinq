@@ -16,6 +16,8 @@ import com.user00.thunk.SerializedLambda;
 public class LambdaInfo
 {
    Object Lambda;
+   MethodAnalysisResults symbolicAnalysis;
+   
    public static LambdaInfo analyze(MetamodelUtil metamodel, Object lambda)
    {
       SerializedLambda s = SerializedLambda.extractLambda(lambda);
@@ -26,7 +28,7 @@ public class LambdaInfo
       //   to redo all this analysis.
       MethodAnalysisResults analysis = analyzeLambda(metamodel, s);
       if (analysis == null) return null;
-      return new LambdaInfo(lambda);
+      return new LambdaInfo(lambda, analysis);
    }
    
    private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, SerializedLambda lambda) 
@@ -56,9 +58,9 @@ public class LambdaInfo
       }
    }
 
-   
-   LambdaInfo(Object lambda)
+   LambdaInfo(Object lambda, MethodAnalysisResults symbolicAnalysis)
    {
       this.Lambda = lambda;
+      this.symbolicAnalysis = symbolicAnalysis;
    }
 }
