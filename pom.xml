@@ -17,6 +17,16 @@
   </modules>
   
   <build>
+    <extensions>
+      <!-- So that we can deploy artifacts to a local file system for later upload to the cloud -->
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-file</artifactId>
+        <version>2.6</version>
+      </extension>
+    </extensions>
+  
+    <!-- Should default to compiling things using Java 8 -->
     <pluginManagement>
       <plugins>
         <plugin>
@@ -29,7 +39,14 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    
     <directory>target/jinq-all</directory>
   </build>
 
+  <distributionManagement>
+    <repository>
+      <id>file-repository</id>
+      <url>file:target/repo</url>
+    </repository>
+  </distributionManagement>
 </project>
