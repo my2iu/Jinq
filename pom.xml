@@ -46,7 +46,7 @@
   <distributionManagement>
     <repository>
       <id>file-repository</id>
-      <url>file:target/repo</url>
+      <url>file:../../../Jinq/mavenrepo</url>
     </repository>
   </distributionManagement>
 </project>
