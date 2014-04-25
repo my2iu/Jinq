@@ -11,6 +11,12 @@
   <build>
     <sourceDirectory>main</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <targetPath>META-INF</targetPath>
+        <directory>test/META-INF</directory>
+      </testResource>
+    </testResources>
     <directory>target</directory>
   </build>
   
@@ -22,9 +28,9 @@
     </dependency>
 	<dependency>
 	  <groupId>org.eclipse.persistence</groupId>
-	  <artifactId>eclipselink</artifactId>
-	  <version>2.5.1</version>
-	  <optional>true</optional>
+	  <artifactId>javax.persistence</artifactId>
+	  <version>2.1.0</version>
+	  <scope>provided</scope>
 	</dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>
