@@ -1,6 +1,5 @@
 package org.jinq.jpa.transform;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -8,7 +7,6 @@ import org.jinq.jpa.MetamodelUtil;
 
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSupplementalFactory;
-import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue;

@@ -7,7 +7,6 @@ import ch.epfl.labos.iu.orm.queryll2.path.SymbExSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueRewriterWalker;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class PathAnalysis
 {
