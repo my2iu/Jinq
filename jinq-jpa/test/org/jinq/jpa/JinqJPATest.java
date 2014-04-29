@@ -89,9 +89,33 @@ public class JinqJPATest
    {
       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
     		  .where((c) -> c.getCountry().equals("UK"));
-      assertEquals("SELECT A FROM Customer A WHERE ((A.country)='UK')", customers.getDebugQueryString());
+      assertEquals("SELECT A FROM Customer A WHERE ((A.country) = 'UK')", customers.getDebugQueryString());
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Dave", results.get(0).getName());
    }
+
+   @Test
+   public void testWherePaths()
+   {
+      JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+           .where((c) -> c.getCountry().equals("UK") ? c.getName().equals("Bob") : c.getName().equals("Alice"));
+      assertEquals("SELECT A FROM Customer A WHERE ((((A.name) = 'Alice') AND ((A.country) <> 'UK')) OR (((A.name) = 'Bob') AND ((A.country) = 'UK')))", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Alice", results.get(0).getName());
+   }
+   
+   @Test
+   public void testWhereChained()
+   {
+      JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+           .where((c) -> c.getCountry().equals("Switzerland"))
+           .where((c) -> c.getName().equals("Bob"));
+      assertEquals("SELECT A FROM Customer A WHERE (((A.country) = 'Switzerland') AND ((A.name) = 'Bob'))", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Bob", results.get(0).getName());
+   }
+
 }

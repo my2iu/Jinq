@@ -17,7 +17,7 @@ public class BinaryExpression extends Expression
    {
       queryState.appendQuery("(");
       left.generateQuery(queryState);
-      queryState.appendQuery(operator);
+      queryState.appendQuery(" " + operator + " ");
       right.generateQuery(queryState);
       queryState.appendQuery(")");
    }
