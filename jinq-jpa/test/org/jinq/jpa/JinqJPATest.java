@@ -2,6 +2,7 @@ package org.jinq.jpa;
 
 import static org.junit.Assert.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -118,4 +119,15 @@ public class JinqJPATest
       assertEquals("Bob", results.get(0).getName());
    }
 
+   @Test
+   public void testSelect()
+   {
+      JinqStream<String> customers = streams.streamAll(em, Customer.class)
+            .select((c) -> c.getCountry());
+      assertEquals("SELECT (A.country) FROM Customer A", customers.getDebugQueryString());
+      List<String> results = customers.toList();
+      assertEquals(5, results.size());
+      Collections.sort(results);
+      assertEquals("Canada", results.get(0));
+   }
 }

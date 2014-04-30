@@ -10,6 +10,7 @@ import javax.persistence.Query;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.LambdaInfo;
+import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.WhereTransform;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
@@ -148,10 +149,14 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
 
    @Override
    public <U> QueryComposer<U> select(
-         org.jinq.orm.stream.JinqStream.Select<T, U> select)
+         org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
-      // TODO Auto-generated method stub
-      return null;
+      LambdaInfo select = LambdaInfo.analyze(metamodel, selectLambda);
+      if (select == null) return null;
+      JPQLQueryTransform selectTransform = new SelectTransform(metamodel, select);
+      JPQLQuery<U> newQuery = selectTransform.apply(query);
+      if (newQuery == null) return null;
+      return new JPAQueryComposer<>(metamodel, em, newQuery);
    }
 
    @Override
