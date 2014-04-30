@@ -2,11 +2,13 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
+import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
+import org.jinq.jpa.jpqlquery.SimpleRowReader;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
@@ -15,44 +17,46 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class SymbExToExpression extends TypedValueVisitor<Void, Expression, TypedValueVisitorException>
+public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?>, TypedValueVisitorException>
 {
    // TODO: This is temporary
    final From from;
    
    final MetamodelUtil metamodel;
    
-   SymbExToExpression(MetamodelUtil metamodel, From from)
+   SymbExToColumns(MetamodelUtil metamodel, From from)
    {
       this.metamodel = metamodel;
       this.from = from;
    }
    
-   Expression transform(TypedValue val) throws TypedValueVisitorException
+   ColumnExpressions<?> transform(TypedValue val) throws TypedValueVisitorException
    {
       return val.visit(this, null);
    }
 
-   @Override public Expression defaultValue(TypedValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> defaultValue(TypedValue val, Void in) throws TypedValueVisitorException
    {
       throw new TypedValueVisitorException("Unhandled symbolic execution operation: " + val);
    }
 
-   @Override public Expression argValue(TypedValue.ArgValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> argValue(TypedValue.ArgValue val, Void in) throws TypedValueVisitorException
    {
       // TODO: This is just temporary
-      return new FromAliasExpression(from); 
+      return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+            new FromAliasExpression(from)); 
    }
 
-   @Override public Expression stringConstantValue(ConstantValue.StringConstant val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> stringConstantValue(ConstantValue.StringConstant val, Void in) throws TypedValueVisitorException
    {
-      return new ConstantExpression("'"+ val.val.replaceAll("'", "''") +"'");
+      return ColumnExpressions.singleColumn(new SimpleRowReader<String>(),
+            new ConstantExpression("'"+ val.val.replaceAll("'", "''") +"'")); 
    }
 
-   @Override public Expression comparisonOpValue(TypedValue.ComparisonValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> comparisonOpValue(TypedValue.ComparisonValue val, Void in) throws TypedValueVisitorException
    {
-      Expression left = val.left.visit(this, in);
-      Expression right = val.right.visit(this, in);
+      ColumnExpressions<?> left = val.left.visit(this, in);
+      ColumnExpressions<?> right = val.right.visit(this, in);
 //      if (val.left.getType() == Type.BOOLEAN_TYPE
 //            || val.right.getType() == Type.BOOLEAN_TYPE)
 //      {
@@ -71,10 +75,13 @@ public class SymbExToExpression extends TypedValueVisitor<Void, Expression, Type
 //            right.columns[0] = new SQLFragment("FALSE");
 //         }
 //      }
-      return new BinaryExpression(val.sqlOpString(), left, right);
+      if (!left.isSingleColumn() || !right.isSingleColumn())
+         throw new TypedValueVisitorException("Do not know how to add multiple columns together");
+      return ColumnExpressions.singleColumn(left.reader,
+            new BinaryExpression(val.sqlOpString(), left.getOnlyColumn(), right.getOnlyColumn())); 
    }
    
-   @Override public Expression virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, Void in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
 //      if (TransformationClassAnalyzer.stringEquals.equals(sig))
@@ -119,8 +126,9 @@ public class SymbExToExpression extends TypedValueVisitor<Void, Expression, Type
       if (metamodel.isSingularAttributeFieldMethod(sig))
       {
          String fieldName = metamodel.fieldMethodToFieldName(sig);
-         Expression base = val.base.visit(this, in);
-         return new ReadFieldExpression(base, fieldName);
+         ColumnExpressions<?> base = val.base.visit(this, in);
+         return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+               new ReadFieldExpression(base.getOnlyColumn(), fieldName)); 
 //         SQLColumnValues sql = new SQLColumnValues(base.reader.getReaderForField(fieldName));
 //         for (int n = 0; n < sql.reader.getNumColumns(); n++)
 //            sql.columns[n] = base.columns[base.reader.getColumnForField(fieldName) + n];

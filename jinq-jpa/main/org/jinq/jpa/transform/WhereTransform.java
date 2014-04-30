@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
+import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
@@ -26,19 +27,23 @@ public class WhereTransform extends JPQLQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             // TODO: froms.get(0) is temporary 
-            SymbExToExpression translator = new SymbExToExpression(metamodel, sfw.froms.get(0));
+            SymbExToColumns translator = new SymbExToColumns(metamodel, sfw.froms.get(0));
             Expression methodExpr = null;
             for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
             {
                PathAnalysis path = where.symbolicAnalysis.paths.get(n);
                
-               Expression returnExpr = translator.transform(path.getSimplifiedReturnValue());
+               ColumnExpressions<?> returnColumns = translator.transform(path.getSimplifiedReturnValue());
+               if (!returnColumns.isSingleColumn()) return null;
+               Expression returnExpr = returnColumns.getOnlyColumn(); 
                
                // Handle where path conditions
                Expression conditionExpr = null;
                for (TypedValue cmp: path.getSimplifiedConditions())
                {
-                  Expression expr = translator.transform(cmp);
+                  ColumnExpressions<?> col = translator.transform(cmp);
+                  if (!col.isSingleColumn()) return null;
+                  Expression expr = col.getOnlyColumn();
                   if (conditionExpr != null)
                      conditionExpr = new BinaryExpression("AND", conditionExpr, expr);
                   else
@@ -60,7 +65,7 @@ public class WhereTransform extends JPQLQueryTransform
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = new SelectFromWhere<U>();
             toReturn.froms.addAll(sfw.froms);
-            toReturn.cols.addAll(sfw.cols);
+            toReturn.cols = (ColumnExpressions<U>) sfw.cols;
             if (sfw.where == null)
                toReturn.where = methodExpr;
             else

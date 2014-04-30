@@ -13,7 +13,8 @@ public class JPQLQuery<T> implements JPQLFragment
    {
       SelectFromWhere<U> query = new SelectFromWhere<>();
       From from = From.forEntity(entityName);
-      query.cols.add(new FromAliasExpression(from));
+      query.cols = ColumnExpressions.singleColumn(
+            new SimpleRowReader<>(), new FromAliasExpression(from));
       query.froms.add(from);
       return query;
    }
