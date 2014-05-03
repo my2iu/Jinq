@@ -3,6 +3,7 @@ package org.jinq.jpa.transform;
 import java.util.List;
 import java.util.Vector;
 
+import ch.epfl.labos.iu.orm.queryll2.path.SymbExBooleanRewriter;
 import ch.epfl.labos.iu.orm.queryll2.path.SymbExSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
@@ -48,6 +49,16 @@ public class PathAnalysis
       }
       return isTrueReturnValue; 
    }
+   public TypedValue getSimplifiedBooleanReturnValue()
+   {
+      if (simplifiedBooleanReturnValue == null)
+      {
+         simplifiedBooleanReturnValue = getReturnValue()
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
+         simplifiedBooleanReturnValue = simplifiedBooleanReturnValue.visit(new SymbExBooleanRewriter(), true); 
+      }
+      return simplifiedBooleanReturnValue;
+   }
    public TypedValue getSimplifiedIsTrueReturnValue()
    {
       if (simplifiedIsTrueReturnValue == null)
@@ -72,10 +83,33 @@ public class PathAnalysis
       }
       return simplifiedConditions; 
    }
+   public List<TypedValue> getSimplifiedBooleanConditions()
+   {
+      if (simplifiedBooleanConditions == null)
+      {
+         List<TypedValue> newConditions = new Vector<TypedValue>();
+         for (TypedValue.ComparisonValue cond: getConditions())
+         {
+            TypedValue simpcond = cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
+            simpcond = simpcond.visit(new SymbExBooleanRewriter(), true);
+            newConditions.add(simpcond);
+         }
+         simplifiedBooleanConditions = newConditions;
+      }
+      return simplifiedBooleanConditions; 
+   }
    TypedValue simplifiedIsTrueReturnValue = null;
    TypedValue simplifiedReturnValue = null;
+   TypedValue simplifiedBooleanReturnValue = null;
    TypedValue isTrueReturnValue = null;
    TypedValue returnValue;
    List<TypedValue.ComparisonValue> conditions;
    List<TypedValue> simplifiedConditions = null;
+   List<TypedValue> simplifiedBooleanConditions = null;
+   public void removeConditionIndex(int i)
+   {
+      conditions.remove(i);
+      simplifiedConditions = null;
+      simplifiedBooleanConditions = null;
+   }
 }

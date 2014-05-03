@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.orm.stream.JinqStream;
@@ -106,13 +107,24 @@ public class JinqJPATest
       assertEquals(1, results.size());
       assertEquals("Alice", results.get(0).getName());
    }
-   
+
+   @Test
+   public void testWhereIntegerComparison()
+   {
+      JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+           .where(c -> c.getDebt() < 90);
+      assertEquals("SELECT A FROM Customer A WHERE ((A.debt) < 90)", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Eve", results.get(0).getName());
+   }
+
    @Test
    public void testWhereChained()
    {
       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
-           .where((c) -> c.getCountry().equals("Switzerland"))
-           .where((c) -> c.getName().equals("Bob"));
+           .where(c -> c.getCountry().equals("Switzerland"))
+           .where(c -> c.getName().equals("Bob"));
       assertEquals("SELECT A FROM Customer A WHERE (((A.country) = 'Switzerland') AND ((A.name) = 'Bob'))", customers.getDebugQueryString());
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
@@ -123,11 +135,20 @@ public class JinqJPATest
    public void testSelect()
    {
       JinqStream<String> customers = streams.streamAll(em, Customer.class)
-            .select((c) -> c.getCountry());
+            .select(c -> c.getCountry());
       assertEquals("SELECT (A.country) FROM Customer A", customers.getDebugQueryString());
       List<String> results = customers.toList();
       assertEquals(5, results.size());
       Collections.sort(results);
       assertEquals("Canada", results.get(0));
    }
+
+//   @Test
+//   public void testJPQL()
+//   {
+//      Query q = em.createQuery("SELECT A FROM Customer A WHERE ((FALSE AND ((A.debt) >= 90)) OR (TRUE AND ((A.debt) < 90)))");
+//      List results = q.getResultList();
+//      for (Object o : results)
+//         System.out.println(o);
+//   }
 }

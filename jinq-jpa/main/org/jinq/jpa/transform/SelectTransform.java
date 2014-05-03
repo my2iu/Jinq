@@ -2,7 +2,6 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
-import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 
@@ -30,13 +29,13 @@ public class SelectTransform extends JPQLQueryTransform
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) return null;
             
-            ColumnExpressions<V> returnExpr = (ColumnExpressions<V>)translator.transform(lambda.symbolicAnalysis.paths.get(0).getSimplifiedReturnValue());
+            ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)translator.transform(lambda.symbolicAnalysis.paths.get(0).getSimplifiedReturnValue());
 
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = new SelectFromWhere<U>();
             toReturn.froms.addAll(sfw.froms);
             // TODO: translator.transform() should return multiple columns, not just one thing
-            toReturn.cols = (ColumnExpressions<U>) returnExpr;
+            toReturn.cols = returnExpr;
             toReturn.where = sfw.where;
             return toReturn;
          }

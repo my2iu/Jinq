@@ -7,6 +7,7 @@ import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 
+import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
@@ -32,14 +33,30 @@ public class WhereTransform extends JPQLQueryTransform
             for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
             {
                PathAnalysis path = where.symbolicAnalysis.paths.get(n);
-               
-               ColumnExpressions<?> returnColumns = translator.transform(path.getSimplifiedReturnValue());
+
+               TypedValue returnVal = path.getSimplifiedBooleanReturnValue();
+               ColumnExpressions<?> returnColumns = translator.transform(returnVal);
                if (!returnColumns.isSingleColumn()) return null;
-               Expression returnExpr = returnColumns.getOnlyColumn(); 
+               Expression returnExpr = returnColumns.getOnlyColumn();
+
+               if (returnVal instanceof ConstantValue.BooleanConstant)
+               {
+                  if (((ConstantValue.BooleanConstant)returnVal).val)
+                  {
+                     // This path returns true, so it's redundant to actually
+                     // put true into the final code.
+                     returnExpr = null;
+                  }
+                  else
+                  {
+                     // This path returns false, so we can ignore it
+                     continue;
+                  }
+               }
                
                // Handle where path conditions
                Expression conditionExpr = null;
-               for (TypedValue cmp: path.getSimplifiedConditions())
+               for (TypedValue cmp: path.getSimplifiedBooleanConditions())
                {
                   ColumnExpressions<?> col = translator.transform(cmp);
                   if (!col.isSingleColumn()) return null;
@@ -53,7 +70,12 @@ public class WhereTransform extends JPQLQueryTransform
                // Merge path conditions and return value to create a value for the path
                Expression pathExpr = returnExpr;
                if (conditionExpr != null)
-                  pathExpr = new BinaryExpression("AND", pathExpr, conditionExpr);
+               {
+                  if (pathExpr == null)
+                     pathExpr = conditionExpr;
+                  else
+                     pathExpr = new BinaryExpression("AND", pathExpr, conditionExpr);
+               }
                
                // Merge into new expression summarizing the method
                if (methodExpr != null)

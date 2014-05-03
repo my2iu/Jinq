@@ -45,6 +45,7 @@ public class LambdaInfo
          TransformationClassAnalyzer classAnalyzer = 
                new TransformationClassAnalyzer(className);
          MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
+         analysis.cleanPaths();
          return analysis;
       } catch (IOException e)
       {

@@ -17,6 +17,25 @@ public class ConstantValue extends TypedValue
    }
    public Object getConstant() { return null; }
 
+   /**
+    * Boolean constants don't appear naturally in the code. They are inferred
+    * by the SymbExBooleanRewriter
+    */
+   public static class BooleanConstant extends ConstantValue
+   {
+      public boolean val;
+      public BooleanConstant(boolean val)
+      {
+         super(Type.BOOLEAN_TYPE);
+         this.val = val;
+      }
+      public String toString() { return Boolean.toString(val); }
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
+      {
+         return visitor.booleanConstantValue(this, input);
+      }
+      @Override public Boolean getConstant() { return val; }
+   }
    public static class ByteConstant extends ConstantValue
    {
       public byte val;

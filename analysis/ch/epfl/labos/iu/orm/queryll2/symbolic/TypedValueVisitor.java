@@ -31,6 +31,10 @@ public abstract class TypedValueVisitor<I, O, E extends Exception>
    {
       return varValue(val, in);
    }
+   public O booleanConstantValue(ConstantValue.BooleanConstant val, I in) throws E
+   {
+      return constantValue(val, in);
+   }
    public O byteConstantValue(ConstantValue.ByteConstant val, I in) throws E
    {
       return constantValue(val, in);

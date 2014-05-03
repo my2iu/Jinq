@@ -4,7 +4,6 @@ import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
-import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
@@ -46,11 +45,34 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
             new FromAliasExpression(from)); 
    }
+   
+   @Override public ColumnExpressions<?> booleanConstantValue(ConstantValue.BooleanConstant val, Void in) throws TypedValueVisitorException
+   {
+      // TODO: Explore deeper into why EclipseLink doesn't seem to like boolean 
+      // literals like TRUE and FALSE
+      return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
+            new ConstantExpression(val.val ? "(1=1)" : "(1!=1)")); 
+   }
+
+   @Override public ColumnExpressions<?> integerConstantValue(ConstantValue.IntegerConstant val, Void in) throws TypedValueVisitorException
+   {
+      return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
+            new ConstantExpression(Integer.toString(val.val))); 
+   }
 
    @Override public ColumnExpressions<?> stringConstantValue(ConstantValue.StringConstant val, Void in) throws TypedValueVisitorException
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<String>(),
             new ConstantExpression("'"+ val.val.replaceAll("'", "''") +"'")); 
+   }
+
+   @Override public ColumnExpressions<?> castValue(TypedValue.CastValue val, Void in) throws TypedValueVisitorException
+   {
+      // TODO: Check if cast is consistent with the reader
+//      SQLColumnValues toReturn = val.operand.visit(this, in);
+//      if (!toReturn.reader.isCastConsistent(val.getType().getInternalName()))
+//         throw new TypedValueVisitorException("Attempting to cast to an inconsistent type");
+      return val.operand.visit(this, in);
    }
 
    @Override public ColumnExpressions<?> comparisonOpValue(TypedValue.ComparisonValue val, Void in) throws TypedValueVisitorException
