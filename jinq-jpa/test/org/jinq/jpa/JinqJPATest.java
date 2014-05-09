@@ -143,6 +143,18 @@ public class JinqJPATest
       assertEquals("Canada", results.get(0));
    }
 
+   @Test
+   public void testSelectMath()
+   {
+      JinqStream<Integer> customers = streams.streamAll(em, Customer.class)
+            .select(c -> c.getDebt() + c.getSalary() * 2);
+      assertEquals("SELECT ((A.debt) + ((A.salary) * 2)) FROM Customer A", customers.getDebugQueryString());
+      List<Integer> results = customers.toList();
+      assertEquals(5, results.size());
+      Collections.sort(results);
+      assertEquals(70, (int)results.get(0));
+   }
+
 //   @Test
 //   public void testJPQL()
 //   {

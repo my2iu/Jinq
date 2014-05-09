@@ -9,6 +9,7 @@ import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
@@ -73,6 +74,14 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
 //      if (!toReturn.reader.isCastConsistent(val.getType().getInternalName()))
 //         throw new TypedValueVisitorException("Attempting to cast to an inconsistent type");
       return val.operand.visit(this, in);
+   }
+
+   @Override public ColumnExpressions<?> mathOpValue(TypedValue.MathOpValue val, Void in) throws TypedValueVisitorException
+   {
+      ColumnExpressions<?> left = val.left.visit(this, in);
+      ColumnExpressions<?> right = val.right.visit(this, in);
+      return ColumnExpressions.singleColumn(left.reader,
+            new BinaryExpression(val.sqlOpString(), left.getOnlyColumn(), right.getOnlyColumn())); 
    }
 
    @Override public ColumnExpressions<?> comparisonOpValue(TypedValue.ComparisonValue val, Void in) throws TypedValueVisitorException
@@ -254,6 +263,32 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
 //      }
       else
          return super.virtualMethodCallValue(val, in);
+   }
+
+   @Override public ColumnExpressions<?> staticMethodCallValue(MethodCallValue.StaticMethodCallValue val, Void in) throws TypedValueVisitorException 
+   {
+      MethodSignature sig = val.getSignature();
+      if (sig.equals(TransformationClassAnalyzer.integerValueOf)
+            || sig.equals(TransformationClassAnalyzer.doubleValueOf))
+      {
+         // Integer.valueOf() to be like a cast and assume it's correct
+         ColumnExpressions<?> base = val.args.get(0).visit(this, in);
+         return base;
+      }
+//      else if (TransformationClassAnalyzer.stringLike.equals(sig))
+//      {
+//         SQLColumnValues sql = new SQLColumnValues(new SQLReader.BooleanSQLReader());
+//         sql.add("(");
+//         sql.add(val.args.get(0).visit(this, in));
+//         sql.add(")");
+//         sql.add(" LIKE ");
+//         sql.add("(");
+//         sql.add(val.args.get(1).visit(this, in));
+//         sql.add(")");
+//         return sql;
+//      }
+      else
+         return super.staticMethodCallValue(val, in);
    }
 
 }
