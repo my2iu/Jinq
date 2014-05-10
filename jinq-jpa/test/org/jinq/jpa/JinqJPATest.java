@@ -182,6 +182,31 @@ public class JinqJPATest
       assertEquals(100, (int)results.get(0).getTwo());
    }
 
+   @Test
+   public void testSelectChained()
+   {
+      JinqStream<Integer> customers = streams.streamAll(em, Customer.class)
+            .select(c -> c.getDebt())
+            .select(d -> d * 2);
+      assertEquals("SELECT ((A.debt) * 2) FROM Customer A", customers.getDebugQueryString());
+      List<Integer> results = customers.toList();
+      assertEquals(5, results.size());
+      Collections.sort(results);
+      assertEquals(20, (int)results.get(0));
+   }
+
+   @Test
+   public void testSelectChainedPair()
+   {
+      JinqStream<Pair<String, Integer>> customers = streams.streamAll(em, Customer.class)
+            .select(c -> new Pair<>(c.getName(), c.getDebt()))
+            .where(p -> p.getTwo() > 250);
+      assertEquals("SELECT (A.name), (A.debt) FROM Customer A WHERE ((A.debt) > 250)", customers.getDebugQueryString());
+      List<Pair<String, Integer>> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Carol", results.get(0).getOne());
+   }
+
 //   @Test
 //   public void testJPQL()
 //   {

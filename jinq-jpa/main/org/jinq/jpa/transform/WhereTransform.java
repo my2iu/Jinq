@@ -27,8 +27,8 @@ public class WhereTransform extends JPQLQueryTransform
          if (query instanceof SelectFromWhere)
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            // TODO: froms.get(0) is temporary 
-            SymbExToColumns translator = new SymbExToColumns(metamodel, sfw.froms.get(0));
+            SymbExToColumns translator = new SymbExToColumns(metamodel, 
+                  new SelectFromWhereLambdaArgumentHandler(sfw));
             Expression methodExpr = null;
             for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
             {

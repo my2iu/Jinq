@@ -1,11 +1,11 @@
 package org.jinq.jpa.transform;
 
+import java.util.function.Function;
+
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
-import org.jinq.jpa.jpqlquery.From;
-import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
@@ -21,15 +21,13 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?>, TypedValueVisitorException>
 {
-   // TODO: This is temporary
-   final From from;
-   
    final MetamodelUtil metamodel;
+   final Function<Integer, ColumnExpressions<?>> argHandler;
    
-   SymbExToColumns(MetamodelUtil metamodel, From from)
+   SymbExToColumns(MetamodelUtil metamodel, Function<Integer, ColumnExpressions<?>> argumentHandler)
    {
       this.metamodel = metamodel;
-      this.from = from;
+      this.argHandler = argumentHandler;
    }
    
    ColumnExpressions<?> transform(TypedValue val) throws TypedValueVisitorException
@@ -42,11 +40,15 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       throw new TypedValueVisitorException("Unhandled symbolic execution operation: " + val);
    }
 
+   public ColumnExpressions<?> lookupArg(int index, Void in) throws TypedValueVisitorException
+   {
+      return argHandler.apply(index);
+   }
+   
    @Override public ColumnExpressions<?> argValue(TypedValue.ArgValue val, Void in) throws TypedValueVisitorException
    {
-      // TODO: This is just temporary
-      return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
-            new FromAliasExpression(from)); 
+      int index = val.getIndex();
+      return lookupArg(index, in);
    }
    
    @Override public ColumnExpressions<?> booleanConstantValue(ConstantValue.BooleanConstant val, Void in) throws TypedValueVisitorException
@@ -140,7 +142,7 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
          ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];
          for (int n = 0; n < vals.length; n++)
             vals[n] = val.args.get(n).visit(this, in);
-         RowReader [] valReaders = new RowReader[vals.length];
+         RowReader<?> [] valReaders = new RowReader[vals.length];
          for (int n = 0; n < vals.length; n++)
             valReaders[n] = vals[n].reader;
 
@@ -159,11 +161,12 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
 //         for (int n = 0; n < sql.reader.getNumColumns(); n++)
 //            sql.columns[n] = base.columns[base.reader.getColumnForField(fieldName) + n];
       }
-//      else if (entityInfo.passThroughMethods.contains(sig))
-//      {
-//         SQLColumnValues base = val.base.visit(this, in);
-//         return base;
-//      }
+      else if (sig.equals(TransformationClassAnalyzer.integerIntValue)
+            || sig.equals(TransformationClassAnalyzer.doubleDoubleValue))
+      {
+         ColumnExpressions<?> base = val.base.visit(this, in);
+         return base;
+      }
 //      else if (entityInfo.dbSetMethods.contains(sig))
 //      {
 //         if (lambdaContext.joins == null)
