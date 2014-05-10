@@ -5,7 +5,7 @@ package org.jinq.jpa.jpqlquery;
  * Data structure used to represent JPQL queries and the conversions
  * needed to parse results into a form usable by Jinq.
  */
-public class JPQLQuery<T> implements JPQLFragment
+public abstract class JPQLQuery<T> implements JPQLFragment
 {
    String query;
    
@@ -28,6 +28,8 @@ public class JPQLQuery<T> implements JPQLFragment
       return query;
    }
 
+   public abstract RowReader<T> getRowReader();
+   
    // TODO: If I code things carefully, maybe this method isn't needed.
 //   public JPQLQuery<T> copy()
 //   {

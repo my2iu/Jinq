@@ -9,4 +9,16 @@ public class SimpleRowReader<T> implements RowReader<T>
       return (T)result;
    }
 
+   @SuppressWarnings("unchecked")
+   @Override
+   public T readResult(Object[] results, int offset)
+   {
+      return (T)results[offset];
+   }
+
+   @Override 
+   public int getNumColumns()
+   {
+      return 1;
+   }
 }

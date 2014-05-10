@@ -55,6 +55,11 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
       return query;
    }
 
+   @Override
+   public RowReader<T> getRowReader()
+   {
+      return cols.reader;
+   }
    
 //   @Override
 //   public JPQLQuery<T> copy()

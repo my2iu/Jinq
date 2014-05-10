@@ -19,6 +19,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ch.epfl.labos.iu.orm.Pair;
+
 public class JinqJPATest
 {
    static EntityManagerFactory entityManagerFactory;
@@ -153,6 +155,31 @@ public class JinqJPATest
       assertEquals(5, results.size());
       Collections.sort(results);
       assertEquals(70, (int)results.get(0));
+   }
+
+   @Test
+   public void testSelectPair()
+   {
+      JinqStream<Pair<String, String>> customers = streams.streamAll(em, Customer.class)
+            .select(c -> new Pair<>(c.getName(), c.getCountry()));
+      assertEquals("SELECT (A.name), (A.country) FROM Customer A", customers.getDebugQueryString());
+      List<Pair<String, String>> results = customers.toList();
+      assertEquals(5, results.size());
+      Collections.sort(results, (p1, p2) -> p1.getOne().compareTo(p2.getOne()));
+      assertEquals("Alice", results.get(0).getOne());
+   }
+
+   @Test
+   public void testSelectPairOfPair()
+   {
+      JinqStream<Pair<Pair<String, String>, Integer>> customers = streams.streamAll(em, Customer.class)
+            .select(c -> new Pair<>(new Pair<>(c.getName(), c.getCountry()), c.getDebt()));
+      assertEquals("SELECT (A.name), (A.country), (A.debt) FROM Customer A", customers.getDebugQueryString());
+      List<Pair<Pair<String, String>, Integer>> results = customers.toList();
+      assertEquals(5, results.size());
+      Collections.sort(results, (p1, p2) -> p1.getOne().getOne().compareTo(p2.getOne().getOne()));
+      assertEquals("Alice", results.get(0).getOne().getOne());
+      assertEquals(100, (int)results.get(0).getTwo());
    }
 
 //   @Test

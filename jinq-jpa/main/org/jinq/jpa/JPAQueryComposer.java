@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.jinq.jpa.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.SelectTransform;
@@ -74,8 +75,22 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          Consumer<Throwable> exceptionReporter)
    {
       Query q = em.createQuery(query.getQueryString());
-      List<T> results = (List<T>)q.getResultList();
-      return results.iterator();
+      List<Object> results = q.getResultList();
+      final RowReader<T> reader = query.getRowReader();
+      final Iterator<Object> iterator = results.iterator();
+      return new Iterator<T>() {
+         @Override
+         public boolean hasNext()
+         {
+            return iterator.hasNext();
+         }
+
+         @Override
+         public T next()
+         {
+            return reader.readResult(iterator.next()); 
+         }
+      };
    }
 
    @Override

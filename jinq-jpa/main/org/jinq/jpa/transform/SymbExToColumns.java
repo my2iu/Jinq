@@ -7,7 +7,9 @@ import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
+import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
+import org.jinq.jpa.jpqlquery.TupleRowReader;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
@@ -128,33 +130,26 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
 //         sql.add(")");
 //         return sql;
 //      }
-//      else if (TransformationClassAnalyzer.newPair.equals(sig)
-//            || TransformationClassAnalyzer.newTuple3.equals(sig)
-//            || TransformationClassAnalyzer.newTuple4.equals(sig)
-//            || TransformationClassAnalyzer.newTuple5.equals(sig)
-//            || TransformationClassAnalyzer.newTuple8.equals(sig))
-//      {
-//         SQLColumnValues [] vals = new SQLColumnValues[val.args.size()];
-//         for (int n = 0; n < vals.length; n++)
-//            vals[n] = val.args.get(n).visit(this, in);
-//         SQLReader [] valReaders = new SQLReader[vals.length];
-//         for (int n = 0; n < vals.length; n++)
-//            valReaders[n] = vals[n].reader; 
-//         
-//         SQLColumnValues sql = new SQLColumnValues(SQLReader.TupleSQLReader.createReaderForTuple(sig.owner, valReaders));
-//         int offset = 0;
-//         for (int n = 0; n < vals.length; n++)
-//         {
-//            for (int col = 0; col < vals[n].columns.length; col++)
-//            {
-//               sql.columns[offset] = vals[n].columns[col];
-//               offset++;
-//            }
-//         }
-//         return sql;
-//      }
 //      else 
-      if (metamodel.isSingularAttributeFieldMethod(sig))
+      if (TransformationClassAnalyzer.newPair.equals(sig)
+            || TransformationClassAnalyzer.newTuple3.equals(sig)
+            || TransformationClassAnalyzer.newTuple4.equals(sig)
+            || TransformationClassAnalyzer.newTuple5.equals(sig)
+            || TransformationClassAnalyzer.newTuple8.equals(sig))
+      {
+         ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];
+         for (int n = 0; n < vals.length; n++)
+            vals[n] = val.args.get(n).visit(this, in);
+         RowReader [] valReaders = new RowReader[vals.length];
+         for (int n = 0; n < vals.length; n++)
+            valReaders[n] = vals[n].reader;
+
+         ColumnExpressions<?> toReturn = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(sig.owner, valReaders));
+         for (int n = 0; n < vals.length; n++)
+            toReturn.columns.addAll(vals[n].columns);
+         return toReturn;
+      }
+      else if (metamodel.isSingularAttributeFieldMethod(sig))
       {
          String fieldName = metamodel.fieldMethodToFieldName(sig);
          ColumnExpressions<?> base = val.base.visit(this, in);
