@@ -72,25 +72,22 @@ public class TupleRowReader<T> implements RowReader<T>
 //         return -1;
 //   }
 
-//   @Override public int getColumnForField(String field)
-//   {
-//      int index = getFieldIndex(field); 
-//      if (index < 0 || index >= subreaders.length) return -1;
-//      int offset = 0;
-//      for (int n = 0; n < index; n++)
-//         offset += subreaders[n].getNumColumns();
-//      return offset;
-//   }
+   public int getColumnForIndex(int index)
+   {
+      if (index < 0 || index >= subreaders.length) return -1;
+      int offset = 0;
+      for (int n = 0; n < index; n++)
+         offset += subreaders[n].getNumColumns();
+      return offset;
+   }
 
+   public RowReader<?> getReaderForIndex(int index)
+   {
+      if (index < 0 || index >= subreaders.length) return null;
+      return subreaders[index];
+   }
 
-//   @Override public SQLReader getReaderForField(String field)
-//   {
-//      int index = getFieldIndex(field); 
-//      if (index < 0 || index >= subreaders.length) return null;
-//      return subreaders[index];
-//   }
-
-   T createTuple(Object[] data)
+   private T createTuple(Object[] data)
    {
       switch(subreaders.length)
       {

@@ -40,15 +40,10 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       throw new TypedValueVisitorException("Unhandled symbolic execution operation: " + val);
    }
 
-   public ColumnExpressions<?> lookupArg(int index, Void in) throws TypedValueVisitorException
-   {
-      return argHandler.apply(index);
-   }
-   
    @Override public ColumnExpressions<?> argValue(TypedValue.ArgValue val, Void in) throws TypedValueVisitorException
    {
       int index = val.getIndex();
-      return lookupArg(index, in);
+      return argHandler.apply(index);
    }
    
    @Override public ColumnExpressions<?> booleanConstantValue(ConstantValue.BooleanConstant val, Void in) throws TypedValueVisitorException
@@ -160,6 +155,17 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
 //         SQLColumnValues sql = new SQLColumnValues(base.reader.getReaderForField(fieldName));
 //         for (int n = 0; n < sql.reader.getNumColumns(); n++)
 //            sql.columns[n] = base.columns[base.reader.getColumnForField(fieldName) + n];
+      }
+      else if (MetamodelUtil.TUPLE_ACCESSORS.containsKey(sig))
+      {
+         int idx = MetamodelUtil.TUPLE_ACCESSORS.get(sig) - 1;
+         ColumnExpressions<?> base = val.base.visit(this, in);
+         RowReader<?> subreader = ((TupleRowReader<?>)base.reader).getReaderForIndex(idx);
+         ColumnExpressions<?> toReturn = new ColumnExpressions<>(subreader);
+         int baseOffset = ((TupleRowReader<?>)base.reader).getColumnForIndex(idx);
+         for (int n = 0; n < subreader.getNumColumns(); n++)
+            toReturn.columns.add(base.columns.get(n + baseOffset));
+         return toReturn;
       }
       else if (sig.equals(TransformationClassAnalyzer.integerIntValue)
             || sig.equals(TransformationClassAnalyzer.doubleDoubleValue))

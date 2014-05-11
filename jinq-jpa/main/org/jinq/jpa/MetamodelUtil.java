@@ -25,6 +25,32 @@ public class MetamodelUtil
    public final Set<MethodSignature> safeMethods;
    public final Set<MethodSignature> safeStaticMethods;
 
+   public static final Map<MethodSignature, Integer> TUPLE_ACCESSORS = new HashMap<>();
+   static {
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.pairGetOne, 1);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.pairGetTwo, 2);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple3GetOne, 1);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple3GetTwo, 2);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple3GetThree, 3);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple4GetOne, 1);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple4GetTwo, 2);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple4GetThree, 3);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple4GetFour, 4);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple5GetOne, 1);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple5GetTwo, 2);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple5GetThree, 3);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple5GetFour, 4);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple5GetFive, 5);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetOne, 1);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetTwo, 2);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetThree, 3);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetFour, 4);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetFive, 5);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetSix, 6);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetSeven, 7);
+      TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetEight, 8);
+   }
+
    public MetamodelUtil(Metamodel metamodel)
    {
       this.metamodel = metamodel;

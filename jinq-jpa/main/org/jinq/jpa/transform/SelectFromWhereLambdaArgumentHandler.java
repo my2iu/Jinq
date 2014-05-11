@@ -5,6 +5,12 @@ import java.util.function.Function;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 
+/**
+ * Handles the lookup of parameters passed to a lambda. Parameters can
+ * be used to represent query parameters or references to the data stream.
+ * This class handles the lookup of a data stream of the result of a 
+ * Select..From..Where query.
+ */
 public class SelectFromWhereLambdaArgumentHandler implements Function<Integer, ColumnExpressions<?>>
 {
    SelectFromWhere<?> sfw;
@@ -14,6 +20,7 @@ public class SelectFromWhereLambdaArgumentHandler implements Function<Integer, C
       this.sfw = sfw;
    }
    
+   // TODO: Should this possibly throw an exception
    @Override
    public ColumnExpressions<?> apply(Integer t)
    {
