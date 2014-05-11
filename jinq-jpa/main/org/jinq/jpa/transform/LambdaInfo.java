@@ -16,9 +16,17 @@ import com.user00.thunk.SerializedLambda;
 public class LambdaInfo
 {
    Object Lambda;
+   SerializedLambda serializedLambda;
    MethodAnalysisResults symbolicAnalysis;
    
-   public static LambdaInfo analyze(MetamodelUtil metamodel, Object lambda)
+   /**
+    * JPAQueryComposer stores the lambdas that are chained together to create a query in a list.
+    * The lambdaIndex refers to the index of this lambda in the list of lambdas used to create
+    * the resulting query.
+    */
+   int lambdaIndex;
+   
+   public static LambdaInfo analyze(MetamodelUtil metamodel, Object lambda, int lambdaIndex)
    {
       SerializedLambda s = SerializedLambda.extractLambda(lambda);
       if (s == null) return null;
@@ -28,7 +36,7 @@ public class LambdaInfo
       //   to redo all this analysis.
       MethodAnalysisResults analysis = analyzeLambda(metamodel, s);
       if (analysis == null) return null;
-      return new LambdaInfo(lambda, analysis);
+      return new LambdaInfo(lambda, s, analysis, lambdaIndex);
    }
    
    private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, SerializedLambda lambda) 
@@ -59,9 +67,11 @@ public class LambdaInfo
       }
    }
 
-   LambdaInfo(Object lambda, MethodAnalysisResults symbolicAnalysis)
+   LambdaInfo(Object lambda, SerializedLambda serializedLambda, MethodAnalysisResults symbolicAnalysis, int lambdaIndex)
    {
       this.Lambda = lambda;
+      this.serializedLambda = serializedLambda;
       this.symbolicAnalysis = symbolicAnalysis;
+      this.lambdaIndex = lambdaIndex;
    }
 }

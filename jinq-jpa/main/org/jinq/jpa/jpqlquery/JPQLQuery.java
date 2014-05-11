@@ -7,8 +7,6 @@ package org.jinq.jpa.jpqlquery;
  */
 public abstract class JPQLQuery<T> implements JPQLFragment
 {
-   String query;
-   
    public static <U> JPQLQuery<U> findAllEntities(String entityName)
    {
       SelectFromWhere<U> query = new SelectFromWhere<>();
@@ -23,10 +21,7 @@ public abstract class JPQLQuery<T> implements JPQLFragment
    {
    }
 
-   public String getQueryString()
-   {
-      return query;
-   }
+   public abstract String getQueryString();
 
    public abstract RowReader<T> getRowReader();
    

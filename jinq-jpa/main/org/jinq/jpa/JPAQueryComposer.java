@@ -1,5 +1,6 @@
 package org.jinq.jpa;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -13,6 +14,8 @@ import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.WhereTransform;
+
+import com.user00.thunk.SerializedLambda;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -42,17 +45,28 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    final MetamodelUtil metamodel;
    final EntityManager em;
    final JPQLQuery<T> query;
+   
+   /**
+    * Holds the chain of lambdas that were used to create this query. This is needed
+    * because query parameters (which are stored in the lambda objects) are only
+    * substituted into the query during query execution, which occurs much later
+    * than query generation.
+    */
+   List<LambdaInfo> lambdas = new ArrayList<>();
 
-   private JPAQueryComposer(MetamodelUtil metamodel, EntityManager em, JPQLQuery<T> query)
+   private JPAQueryComposer(MetamodelUtil metamodel, EntityManager em, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
       this.metamodel = metamodel;
       this.em = em;
       this.query = query;
+      lambdas.addAll(chainedLambdas);
+      for (LambdaInfo newLambda: additionalLambdas)
+         lambdas.add(newLambda);
    }
-   
+
    public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, EntityManager em, String entityName)
    {
-      return new JPAQueryComposer<>(metamodel, em, JPQLQuery.findAllEntities(entityName));
+      return new JPAQueryComposer<>(metamodel, em, JPQLQuery.findAllEntities(entityName), new ArrayList<>());
    }
 
    @Override
@@ -102,12 +116,12 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
-	   LambdaInfo where = LambdaInfo.analyze(metamodel, test);
+	   LambdaInfo where = LambdaInfo.analyze(metamodel, test, lambdas.size());
 	   if (where == null) return null;
 	   JPQLQueryTransform whereTransform = new WhereTransform(metamodel, where);
 	   JPQLQuery<T> newQuery = whereTransform.apply(query);
 	   if (newQuery == null) return null;
-	   return new JPAQueryComposer<>(metamodel, em, newQuery);
+	   return new JPAQueryComposer<>(metamodel, em, newQuery, lambdas, where);
    }
 
    @Override
@@ -166,12 +180,12 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <U> QueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
-      LambdaInfo select = LambdaInfo.analyze(metamodel, selectLambda);
+      LambdaInfo select = LambdaInfo.analyze(metamodel, selectLambda, lambdas.size());
       if (select == null) return null;
       JPQLQueryTransform selectTransform = new SelectTransform(metamodel, select);
       JPQLQuery<U> newQuery = selectTransform.apply(query);
       if (newQuery == null) return null;
-      return new JPAQueryComposer<>(metamodel, em, newQuery);
+      return new JPAQueryComposer<>(metamodel, em, newQuery, lambdas, select);
    }
 
    @Override

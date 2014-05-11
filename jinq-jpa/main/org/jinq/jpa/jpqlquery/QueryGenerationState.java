@@ -1,12 +1,16 @@
 package org.jinq.jpa.jpqlquery;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 class QueryGenerationState
 {
    String queryString = "";
    Map<From, String> fromAliases = new IdentityHashMap<>();
+   Map<Object, String> parameterNames = new IdentityHashMap<>();
+   List<GeneratedQueryParameter> parameters = new ArrayList<>();
    
    /**
     * Gives a text label that can be used to identify an entry in the FROM section
@@ -33,6 +37,21 @@ class QueryGenerationState
    }
    
    /**
+    * Returns the parameter name that should be used to represent the parameter
+    * in a query string.
+    */
+   public String registerParameter(Object paramNode, int lambdaIndex, int argIndex)
+   {
+      if (!parameterNames.containsKey(paramNode))
+      {
+         String paramName = nextParamIndex();
+         parameterNames.put(paramNode, paramName);
+         parameters.add(new GeneratedQueryParameter(paramName, lambdaIndex, argIndex));
+      }
+      return parameterNames.get(paramNode);
+   }
+   
+   /**
     * Adds some text to the current part of the query string being assembled.
     * @param str
     */
@@ -43,6 +62,7 @@ class QueryGenerationState
    }
    
    // For assigning from and column aliases to queries
+   int nextParam = 0;
    int nextCol = 1;
    int nextTable = 0;
    private String nextTableAlias()
@@ -56,6 +76,12 @@ class QueryGenerationState
       int toReturn = nextCol;
       nextCol++;
       return "COL" + toReturn;
+   }
+   private String nextParamIndex()
+   {
+      int toReturn = nextParam;
+      nextParam++;
+      return ":param" + toReturn;
    }
    
    

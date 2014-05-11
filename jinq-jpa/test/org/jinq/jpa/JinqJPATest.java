@@ -134,6 +134,18 @@ public class JinqJPATest
    }
 
    @Test
+   public void testWhereParameter()
+   {
+      int param = 90;
+      JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+           .where(c -> c.getDebt() < param);
+      assertEquals("SELECT A FROM Customer A WHERE ((A.debt) < :param0)", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Eve", results.get(0).getName());
+   }
+
+   @Test
    public void testSelect()
    {
       JinqStream<String> customers = streams.streamAll(em, Customer.class)

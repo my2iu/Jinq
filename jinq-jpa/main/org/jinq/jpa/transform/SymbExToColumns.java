@@ -22,9 +22,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?>, TypedValueVisitorException>
 {
    final MetamodelUtil metamodel;
-   final Function<Integer, ColumnExpressions<?>> argHandler;
+   final SymbExArgumentHandler argHandler;
    
-   SymbExToColumns(MetamodelUtil metamodel, Function<Integer, ColumnExpressions<?>> argumentHandler)
+   SymbExToColumns(MetamodelUtil metamodel, SymbExArgumentHandler argumentHandler)
    {
       this.metamodel = metamodel;
       this.argHandler = argumentHandler;
@@ -43,7 +43,7 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
    @Override public ColumnExpressions<?> argValue(TypedValue.ArgValue val, Void in) throws TypedValueVisitorException
    {
       int index = val.getIndex();
-      return argHandler.apply(index);
+      return argHandler.handleArg(index, val.getType());
    }
    
    @Override public ColumnExpressions<?> booleanConstantValue(ConstantValue.BooleanConstant val, Void in) throws TypedValueVisitorException

@@ -1,9 +1,16 @@
 package org.jinq.jpa.transform;
 
-import java.util.function.Function;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
+import org.jinq.jpa.jpqlquery.ConstantExpression;
+import org.jinq.jpa.jpqlquery.ParameterExpression;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
+import org.jinq.jpa.jpqlquery.SimpleRowReader;
+import org.objectweb.asm.Type;
+
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 /**
  * Handles the lookup of parameters passed to a lambda. Parameters can
@@ -11,21 +18,40 @@ import org.jinq.jpa.jpqlquery.SelectFromWhere;
  * This class handles the lookup of a data stream of the result of a 
  * Select..From..Where query.
  */
-public class SelectFromWhereLambdaArgumentHandler implements Function<Integer, ColumnExpressions<?>>
+public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandler
 {
    SelectFromWhere<?> sfw;
+   LambdaInfo lambda;
+   final int numLambdaCapturedArgs;
+
+   public final static Set<Type> ALLOWED_QUERY_PARAMETER_TYPES = new HashSet<>();
+   static {
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.INT_TYPE);
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.DOUBLE_TYPE);
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/Integer"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/Double"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/String"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/sql/Date"));
+//    allowedQueryParameterTypes.put(Type.INT_TYPE, new SQLReader.IntegerSQLReader());
+//    allowedQueryParameterTypes.put(Type.DOUBLE_TYPE, new SQLReader.DoubleSQLReader());
+//    allowedQueryParameterTypes.put(Type.getObjectType("java/lang/Integer"), new SQLReader.IntegerSQLReader());
+//    allowedQueryParameterTypes.put(Type.getObjectType("java/lang/Double"), new SQLReader.DoubleSQLReader());
+//    allowedQueryParameterTypes.put(Type.getObjectType("java/lang/String"), new SQLReader.StringSQLReader());
+//    allowedQueryParameterTypes.put(Type.getObjectType("java/sql/Date"), new SQLReader.DateSQLReader());
+ }
+
    
-   public SelectFromWhereLambdaArgumentHandler(SelectFromWhere<?> sfw)
+   public SelectFromWhereLambdaArgumentHandler(SelectFromWhere<?> sfw, LambdaInfo lambda)
    {
       this.sfw = sfw;
+      this.lambda = lambda;
+      numLambdaCapturedArgs = lambda.serializedLambda.capturedArgs.length;
    }
    
-   // TODO: Should this possibly throw an exception
    @Override
-   public ColumnExpressions<?> apply(Integer t)
+   public ColumnExpressions<?> handleArg(int argIndex, Type argType) throws TypedValueVisitorException
    {
-/*
-      if (java8LambdaParams != null && val.getIndex() < java8LambdaParams.getNumCapturedArgs())
+      if (argIndex < numLambdaCapturedArgs)
       {
          // Currently, we only support parameters of a few small simple types.
          // We should also support more complex types (e.g. entities) and allow
@@ -33,10 +59,13 @@ public class SelectFromWhereLambdaArgumentHandler implements Function<Integer, C
          // motion will be used to push those field accesses or method calls
          // outside the query where they will be evaluated and then passed in
          // as a parameter)
-         Type t = val.getType();
-         if (!allowedQueryParameterTypes.containsKey(t))
+         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType))
             throw new TypedValueVisitorException("Accessing a field with unhandled type");
-         
+
+         return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+               new ParameterExpression(lambda.lambdaIndex, argIndex)); 
+
+/*         
          try
          {
             // TODO: Careful here. ParameterLocation is relative to the base
@@ -53,9 +82,9 @@ public class SelectFromWhereLambdaArgumentHandler implements Function<Integer, C
          {
             throw new TypedValueVisitorException(e); 
          } 
+*/
       }
       else
-*/
       // TODO: For JPQL queries, I don't think it's necessary to make a copy of the columns
       //    because I think JPQL lets you substitute the same parameter into multiple locations
       //    in a query (unlike JDBC), which means we don't need separate state for query fragments
