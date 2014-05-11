@@ -146,6 +146,33 @@ public class JinqJPATest
    }
 
    @Test
+   public void testWhereParameterChainedString()
+   {
+      String param = "UK";
+      JinqStream<String> customers = streams.streamAll(em, Customer.class)
+            .select(c -> new Pair<String, String>(c.getName(), c.getCountry()))
+            .where(p -> p.getTwo().equals(param))
+            .select(p -> p.getOne());
+      assertEquals("SELECT (A.name) FROM Customer A WHERE ((A.country) = :param0)", customers.getDebugQueryString());
+      List<String> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Dave", results.get(0));
+   }
+
+   @Test
+   public void testWhereParameters()
+   {
+      int paramLower = 150;
+      int paramUpper = 250;
+      JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+           .where(c -> c.getDebt() > paramLower && c.getDebt() < paramUpper);
+      assertEquals("SELECT A FROM Customer A WHERE (((A.debt) > :param0) AND ((A.debt) < :param1))", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Bob", results.get(0).getName());
+   }
+
+   @Test
    public void testSelect()
    {
       JinqStream<String> customers = streams.streamAll(em, Customer.class)
