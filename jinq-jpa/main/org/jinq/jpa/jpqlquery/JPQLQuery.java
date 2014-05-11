@@ -1,5 +1,7 @@
 package org.jinq.jpa.jpqlquery;
 
+import java.util.List;
+
 
 /**
  * Data structure used to represent JPQL queries and the conversions
@@ -22,6 +24,7 @@ public abstract class JPQLQuery<T> implements JPQLFragment
    }
 
    public abstract String getQueryString();
+   public abstract List<GeneratedQueryParameter> getQueryParameters();
 
    public abstract RowReader<T> getRowReader();
    

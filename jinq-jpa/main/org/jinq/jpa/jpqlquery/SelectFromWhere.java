@@ -9,7 +9,17 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
    public List<From> froms = new ArrayList<>();
    public Expression where;
 
-   public String getQueryString()
+   /**
+    * After a JPQL query is generated, this stores the resulting query string.  
+    */
+   private String queryString;
+   /**
+    * After a JPQL query is generated, this stores parameters that need to be 
+    * filled-in, in the query  
+    */
+   private List<GeneratedQueryParameter> queryParameters;
+   
+   private void generateQuery()
    {
       QueryGenerationState queryState = new QueryGenerationState();
       
@@ -52,9 +62,26 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
          where.generateQuery(queryState);
          query += queryState.queryString;
       }
-      return query;
+      queryString = query;
+      queryParameters = queryState.parameters;
+   }
+   
+   @Override
+   public String getQueryString()
+   {
+      if (queryString == null)
+         generateQuery();
+      return queryString;
    }
 
+   @Override
+   public List<GeneratedQueryParameter> getQueryParameters()
+   {
+      if (queryParameters == null)
+         generateQuery();
+      return queryParameters;
+   }
+   
    @Override
    public RowReader<T> getRowReader()
    {

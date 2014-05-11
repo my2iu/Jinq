@@ -81,7 +81,7 @@ class QueryGenerationState
    {
       int toReturn = nextParam;
       nextParam++;
-      return ":param" + toReturn;
+      return "param" + toReturn;
    }
    
    

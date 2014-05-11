@@ -8,14 +8,13 @@ import java.util.function.Consumer;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.jinq.jpa.jpqlquery.GeneratedQueryParameter;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.WhereTransform;
-
-import com.user00.thunk.SerializedLambda;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -84,23 +83,28 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       return query.getQueryString();
    }
 
+   private void fillQueryParameters(Query q, List<GeneratedQueryParameter> parameters)
+   {
+      for (GeneratedQueryParameter param: parameters)
+         q.setParameter(param.paramName, lambdas.get(param.lambdaIndex).getCapturedArg(param.argIndex));
+   }
+   
    @Override
    public Iterator<T> executeAndReturnResultIterator(
          Consumer<Throwable> exceptionReporter)
    {
       Query q = em.createQuery(query.getQueryString());
+      fillQueryParameters(q, query.getQueryParameters());
       List<Object> results = q.getResultList();
       final RowReader<T> reader = query.getRowReader();
       final Iterator<Object> iterator = results.iterator();
       return new Iterator<T>() {
-         @Override
-         public boolean hasNext()
+         @Override public boolean hasNext()
          {
             return iterator.hasNext();
          }
 
-         @Override
-         public T next()
+         @Override public T next()
          {
             return reader.readResult(iterator.next()); 
          }

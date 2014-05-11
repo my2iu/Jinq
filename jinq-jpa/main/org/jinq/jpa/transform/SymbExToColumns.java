@@ -1,7 +1,5 @@
 package org.jinq.jpa.transform;
 
-import java.util.function.Function;
-
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;

@@ -74,4 +74,9 @@ public class LambdaInfo
       this.symbolicAnalysis = symbolicAnalysis;
       this.lambdaIndex = lambdaIndex;
    }
+   
+   public Object getCapturedArg(int argIndex)
+   {
+      return serializedLambda.capturedArgs[argIndex];
+   }
 }

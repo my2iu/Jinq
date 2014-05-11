@@ -7,13 +7,17 @@ package org.jinq.jpa.jpqlquery;
  */
 public class GeneratedQueryParameter
 {
+   // TODO: It doesn't feel right to make these public, but using these parameters
+   //    requires knowledge of LambdaInfo, and I don't want this package to depend
+   //    on the LambdaInfo package.
+   public String paramName;
+   public int lambdaIndex;
+   public int argIndex;
+   
    public GeneratedQueryParameter(String paramName, int lambdaIndex, int argIndex)
    {
       this.paramName = paramName;
       this.lambdaIndex = lambdaIndex;
       this.argIndex = argIndex;
    }
-   public String paramName;
-   public int lambdaIndex;
-   public int argIndex;
 }

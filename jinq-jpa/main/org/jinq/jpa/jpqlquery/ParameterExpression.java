@@ -15,6 +15,6 @@ public class ParameterExpression extends Expression
    public void generateQuery(QueryGenerationState queryState)
    {
       String paramName = queryState.registerParameter(this, lambdaIndex, argIndex);
-      queryState.appendQuery(paramName);
+      queryState.appendQuery(":" + paramName);
    }
 }
