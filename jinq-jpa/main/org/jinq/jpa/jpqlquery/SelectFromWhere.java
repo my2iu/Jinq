@@ -40,7 +40,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
             if (!isFirst) query += ", ";
             isFirst = false;
             queryState.queryString = "";
-            col.generateQuery(queryState);
+            col.generateQuery(queryState, Expression.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
             query += queryState.queryString;
          }
       }
@@ -59,7 +59,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
       {
          query += " WHERE ";
          queryState.queryString = "";
-         where.generateQuery(queryState);
+         where.generateQuery(queryState, Expression.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
          query += queryState.queryString;
       }
       queryString = query;

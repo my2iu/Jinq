@@ -12,7 +12,7 @@ public class ParameterExpression extends Expression
    }
    
    @Override
-   public void generateQuery(QueryGenerationState queryState)
+   public void generateQuery(QueryGenerationState queryState, String operatorPrecedenceScope)
    {
       String paramName = queryState.registerParameter(this, lambdaIndex, argIndex);
       queryState.appendQuery(":" + paramName);

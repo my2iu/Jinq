@@ -13,12 +13,12 @@ public class BinaryExpression extends Expression
    }
 
    @Override
-   public void generateQuery(QueryGenerationState queryState)
+   public void generateQuery(QueryGenerationState queryState, String operatorPrecedenceScope)
    {
       queryState.appendQuery("(");
-      left.generateQuery(queryState);
+      left.generateQuery(queryState, null);
       queryState.appendQuery(" " + operator + " ");
-      right.generateQuery(queryState);
+      right.generateQuery(queryState, null);
       queryState.appendQuery(")");
    }
 

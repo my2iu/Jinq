@@ -11,12 +11,14 @@ public class ReadFieldExpression extends Expression
    }
    
    @Override
-   public void generateQuery(QueryGenerationState queryState)
+   public void generateQuery(QueryGenerationState queryState, String operatorPrecedenceScope)
    {
-      queryState.appendQuery("(");
-      base.generateQuery(queryState);
+      if (!Expression.doesOperatorHaveJPQLPrecedence(".", operatorPrecedenceScope))
+         queryState.appendQuery("(");
+      base.generateQuery(queryState, ".");
       queryState.appendQuery(".");
       queryState.appendQuery(field);
-      queryState.appendQuery(")");
+      if (!Expression.doesOperatorHaveJPQLPrecedence(".", operatorPrecedenceScope))
+         queryState.appendQuery(")");
    }
 }

@@ -12,6 +12,7 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 import org.jinq.jpa.test.entities.Customer;
+import org.jinq.jpa.test.entities.Sale;
 import org.jinq.orm.stream.JinqStream;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -153,7 +154,7 @@ public class JinqJPATest
             .select(c -> new Pair<String, String>(c.getName(), c.getCountry()))
             .where(p -> p.getTwo().equals(param))
             .select(p -> p.getOne());
-      assertEquals("SELECT (A.name) FROM Customer A WHERE ((A.country) = :param0)", customers.getDebugQueryString());
+      assertEquals("SELECT A.name FROM Customer A WHERE ((A.country) = :param0)", customers.getDebugQueryString());
       List<String> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Dave", results.get(0));
@@ -171,13 +172,24 @@ public class JinqJPATest
       assertEquals(1, results.size());
       assertEquals("Bob", results.get(0).getName());
    }
+   
+   @Test
+   public void testWhereN1Link()
+   {
+      JinqStream<Sale> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getCustomer().getName().equals("Alice"));
+      assertEquals("SELECT A FROM Sale A WHERE ((A.customer.name) = 'Alice')", sales.getDebugQueryString());
+      List<Sale> results = sales.toList();
+      assertEquals(1, results.size());
+      assertEquals("Alice", results.get(0).getCustomer().getName());
+   }
 
    @Test
    public void testSelect()
    {
       JinqStream<String> customers = streams.streamAll(em, Customer.class)
             .select(c -> c.getCountry());
-      assertEquals("SELECT (A.country) FROM Customer A", customers.getDebugQueryString());
+      assertEquals("SELECT A.country FROM Customer A", customers.getDebugQueryString());
       List<String> results = customers.toList();
       assertEquals(5, results.size());
       Collections.sort(results);
@@ -201,7 +213,7 @@ public class JinqJPATest
    {
       JinqStream<Pair<String, String>> customers = streams.streamAll(em, Customer.class)
             .select(c -> new Pair<>(c.getName(), c.getCountry()));
-      assertEquals("SELECT (A.name), (A.country) FROM Customer A", customers.getDebugQueryString());
+      assertEquals("SELECT A.name, A.country FROM Customer A", customers.getDebugQueryString());
       List<Pair<String, String>> results = customers.toList();
       assertEquals(5, results.size());
       Collections.sort(results, (p1, p2) -> p1.getOne().compareTo(p2.getOne()));
@@ -213,7 +225,7 @@ public class JinqJPATest
    {
       JinqStream<Pair<Pair<String, String>, Integer>> customers = streams.streamAll(em, Customer.class)
             .select(c -> new Pair<>(new Pair<>(c.getName(), c.getCountry()), c.getDebt()));
-      assertEquals("SELECT (A.name), (A.country), (A.debt) FROM Customer A", customers.getDebugQueryString());
+      assertEquals("SELECT A.name, A.country, A.debt FROM Customer A", customers.getDebugQueryString());
       List<Pair<Pair<String, String>, Integer>> results = customers.toList();
       assertEquals(5, results.size());
       Collections.sort(results, (p1, p2) -> p1.getOne().getOne().compareTo(p2.getOne().getOne()));
@@ -240,7 +252,7 @@ public class JinqJPATest
       JinqStream<Pair<String, Integer>> customers = streams.streamAll(em, Customer.class)
             .select(c -> new Pair<>(c.getName(), c.getDebt()))
             .where(p -> p.getTwo() > 250);
-      assertEquals("SELECT (A.name), (A.debt) FROM Customer A WHERE ((A.debt) > 250)", customers.getDebugQueryString());
+      assertEquals("SELECT A.name, A.debt FROM Customer A WHERE ((A.debt) > 250)", customers.getDebugQueryString());
       List<Pair<String, Integer>> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Carol", results.get(0).getOne());
@@ -257,12 +269,15 @@ public class JinqJPATest
       assertEquals("I didn't know \\''", results.get(0));
    }
 
-//   @Test
-//   public void testJPQL()
-//   {
-//      Query q = em.createQuery("SELECT A FROM Customer A WHERE ((FALSE AND ((A.debt) >= 90)) OR (TRUE AND ((A.debt) < 90)))");
-//      List results = q.getResultList();
-//      for (Object o : results)
-//         System.out.println(o);
-//   }
+   @Test
+   public void testJPQL()
+   {
+      // These  queries do not parse properly by JPQL:
+      // Query q = em.createQuery("SELECT A FROM Customer A WHERE ((FALSE AND ((A.debt) >= 90)) OR (TRUE AND ((A.debt) < 90)))");
+      // Query q = em.createQuery("SELECT A FROM Sale A WHERE (((A.customer).name) = 'Alice')");
+      Query q = em.createQuery("SELECT A FROM Sale A WHERE ((A.customer.name) = 'Alice')");
+      List results = q.getResultList();
+      for (Object o : results)
+         System.out.println(o);
+   }
 }
