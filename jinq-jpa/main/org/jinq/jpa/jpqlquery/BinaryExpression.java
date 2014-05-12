@@ -15,11 +15,14 @@ public class BinaryExpression extends Expression
    @Override
    public void generateQuery(QueryGenerationState queryState, String operatorPrecedenceScope)
    {
-      queryState.appendQuery("(");
-      left.generateQuery(queryState, null);
+      if (!Expression.doesOperatorHaveJPQLPrecedence(operator, operatorPrecedenceScope))
+         queryState.appendQuery("(");
+      left.generateQuery(queryState, operator);
       queryState.appendQuery(" " + operator + " ");
+      // Don't do any operator precedence on the right for now since it requires a more complicated precedence framework
       right.generateQuery(queryState, null);
-      queryState.appendQuery(")");
+      if (!Expression.doesOperatorHaveJPQLPrecedence(operator, operatorPrecedenceScope))
+         queryState.appendQuery(")");
    }
 
 }
