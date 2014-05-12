@@ -37,28 +37,10 @@ public class JinqJPATest
       createDatabase();
    }
 
-   static Customer createCustomer(String name, String country, int debt, int salary)
-   {
-	   Customer c = new Customer();
-	   c.setName(name);
-	   c.setDebt(debt);
-	   c.setSalary(salary);
-	   c.setCountry(country);
-	   return c;
-   }
-   
    static void createDatabase()
    {
 	   EntityManager em = entityManagerFactory.createEntityManager();
-	   em.getTransaction().begin();
-
-	   em.persist(createCustomer("Alice", "Switzerland", 100, 200));
-	   em.persist(createCustomer("Bob", "Switzerland", 200, 300));
-	   em.persist(createCustomer("Carol", "USA", 300, 250));
-	   em.persist(createCustomer("Dave", "UK", 100, 500));
-	   em.persist(createCustomer("Eve", "Canada", 10, 30));
-
-	   em.getTransaction().commit();
+	   new CreateJpaDb(em).createDatabase();
    }
 
    @AfterClass
@@ -180,7 +162,7 @@ public class JinqJPATest
             .where(s -> s.getCustomer().getName().equals("Alice"));
       assertEquals("SELECT A FROM Sale A WHERE A.customer.name = 'Alice'", sales.getDebugQueryString());
       List<Sale> results = sales.toList();
-      assertEquals(1, results.size());
+      assertEquals(2, results.size());
       assertEquals("Alice", results.get(0).getCustomer().getName());
    }
 
@@ -277,7 +259,7 @@ public class JinqJPATest
       // Query q = em.createQuery("SELECT A FROM Sale A WHERE (((A.customer).name) = 'Alice')");
       Query q = em.createQuery("SELECT A FROM Sale A WHERE ((A.customer.name) = 'Alice')");
       List results = q.getResultList();
-      for (Object o : results)
-         System.out.println(o);
+//      for (Object o : results)
+//         System.out.println(o);
    }
 }

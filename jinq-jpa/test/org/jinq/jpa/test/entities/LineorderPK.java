@@ -11,24 +11,24 @@ import javax.persistence.*;
 public class LineorderPK implements Serializable {
 	//default serial version id, required for serializable classes.
 	private static final long serialVersionUID = 1L;
-	private int saleid;
-	private int itemid;
+	private int sale;
+	private int item;
 
 	public LineorderPK() {
 	}
 
-	public int getSaleid() {
-		return this.saleid;
+	public int getSale() {
+		return this.sale;
 	}
-	public void setSaleid(int saleid) {
-		this.saleid = saleid;
+	public void setSale(int sale) {
+		this.sale = sale;
 	}
 
-	public int getItemid() {
-		return this.itemid;
+	public int getItem() {
+		return this.item;
 	}
-	public void setItemid(int itemid) {
-		this.itemid = itemid;
+	public void setItem(int item) {
+		this.item = item;
 	}
 
 	public boolean equals(Object other) {
@@ -40,15 +40,15 @@ public class LineorderPK implements Serializable {
 		}
 		LineorderPK castOther = (LineorderPK)other;
 		return 
-			(this.saleid == castOther.saleid)
-			&& (this.itemid == castOther.itemid);
+			(this.sale == castOther.sale)
+			&& (this.item == castOther.item);
 	}
 
 	public int hashCode() {
 		final int prime = 31;
 		int hash = 17;
-		hash = hash * prime + this.saleid;
-		hash = hash * prime + this.itemid;
+		hash = hash * prime + this.sale;
+		hash = hash * prime + this.item;
 		
 		return hash;
 	}

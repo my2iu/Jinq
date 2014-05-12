@@ -10,10 +10,10 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name="LINEORDERS")
+@IdClass(LineorderPK.class)
 @NamedQuery(name="Lineorder.findAll", query="SELECT l FROM Lineorder l")
 public class Lineorder implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private LineorderPK id;
 	private int quantity;
 	private Item item;
 	private Sale sale;
@@ -21,17 +21,7 @@ public class Lineorder implements Serializable {
 	public Lineorder() {
 	}
 
-
-	@EmbeddedId
-	public LineorderPK getId() {
-		return this.id;
-	}
-
-	public void setId(LineorderPK id) {
-		this.id = id;
-	}
-
-
+	
 	public int getQuantity() {
 		return this.quantity;
 	}
@@ -42,8 +32,8 @@ public class Lineorder implements Serializable {
 
 
 	//bi-directional many-to-one association to Item
-	@ManyToOne
-	@JoinColumn(name="ITEMID",updatable=false,insertable=false)
+	@ManyToOne @Id
+	@JoinColumn(name="ITEMID")
 	public Item getItem() {
 		return this.item;
 	}
@@ -54,8 +44,8 @@ public class Lineorder implements Serializable {
 
 
 	//bi-directional many-to-one association to Sale
-	@ManyToOne
-	@JoinColumn(name="SALEID",updatable=false,insertable=false)
+	@ManyToOne @Id
+	@JoinColumn(name="SALEID")
 	public Sale getSale() {
 		return this.sale;
 	}
