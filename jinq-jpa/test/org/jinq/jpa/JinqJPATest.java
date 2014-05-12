@@ -246,6 +246,17 @@ public class JinqJPATest
       assertEquals("Carol", results.get(0).getOne());
    }
 
+   @Test
+   public void testStringEscape()
+   {
+      JinqStream<String> customers = streams.streamAll(em, Customer.class)
+            .select(c -> "I didn't know \\''");
+      assertEquals("SELECT 'I didn''t know \\''''' FROM Customer A", customers.getDebugQueryString());
+      List<String> results = customers.toList();
+      assertEquals(5, results.size());
+      assertEquals("I didn't know \\''", results.get(0));
+   }
+
 //   @Test
 //   public void testJPQL()
 //   {
