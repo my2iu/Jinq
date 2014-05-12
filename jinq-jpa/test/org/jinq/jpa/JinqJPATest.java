@@ -34,13 +34,9 @@ public class JinqJPATest
    {
       entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
       streams = new JinqJPAStreamProvider(entityManagerFactory);
-      createDatabase();
-   }
-
-   static void createDatabase()
-   {
-	   EntityManager em = entityManagerFactory.createEntityManager();
-	   new CreateJpaDb(em).createDatabase();
+      EntityManager em = entityManagerFactory.createEntityManager();
+      new CreateJpaDb(em).createDatabase();
+      em.close();
    }
 
    @AfterClass
@@ -165,6 +161,19 @@ public class JinqJPATest
       assertEquals(2, results.size());
       assertEquals("Alice", results.get(0).getCustomer().getName());
    }
+   
+   @Test
+   public void testWhereN1Links()
+   {
+      JinqStream<Pair<String, String>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getCustomer().getCountry().equals("Switzerland"))
+            .where(s -> s.getCustomer().getDebt() < 150)
+            .select(s -> new Pair<>(s.getCustomer().getName(), s.getDate()));
+      assertEquals("SELECT A.customer.name, A.date FROM Sale A WHERE A.customer.country = 'Switzerland' AND (A.customer.debt < 150)", sales.getDebugQueryString());
+      List<Pair<String, String>> results = sales.toList();
+      assertEquals(2, results.size());
+      assertEquals("Alice", results.get(0).getOne());
+   }
 
    @Test
    public void testSelect()
@@ -238,6 +247,18 @@ public class JinqJPATest
       List<Pair<String, Integer>> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Carol", results.get(0).getOne());
+   }
+   
+   @Test
+   public void testSelectN1Link()
+   {
+      JinqStream<Customer> customers = streams.streamAll(em, Sale.class)
+            .select(s -> s.getCustomer());
+      assertEquals("SELECT A.customer FROM Sale A", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      Collections.sort(results, (c1, c2) -> c1.getName().compareTo(c2.getName()));
+      assertEquals(6, results.size());
+      assertEquals("Alice", results.get(0).getName());
    }
 
    @Test
