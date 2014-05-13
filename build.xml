@@ -5,6 +5,7 @@
 	<property name="derby" location="lib/derby.jar"/>
 	<property name="derbytools" location="lib/derbytools.jar"/>
 	<property name="derbydata" location="bin/derby/data"/>
+	<property name="javax.persistence" location="lib/javax.persistence.jar"/>
 
 	<target name="Build Jinq API">
 		<mkdir dir="bin"/>
@@ -106,19 +107,38 @@
 	<target name="Clean">
 		<delete includeemptydirs="true" quiet="true">
 			<fileset dir="bin"/>
+			<fileset dir="jarbin"/>
 			<fileset dir="demogen" includes="**" excludes="pom.xml"/>
 		</delete>
 	</target>
 
-	<target name="Zip">
+	<target name="Jinq Jar">
+		<mkdir dir="jarbin"/>
+		<javac destdir="jarbin" fork="true" includeantruntime="false">
+			<classpath>
+				<pathelement location="${asm}"/>
+				<pathelement location="${javax.persistence}"/>
+			</classpath>
+			<src path="analysis"/>
+			<src path="api"/>
+			<src path="queryll2"/>
+			<src path="orm"/>
+			<src path="jinq-jpa/main"/>
+		</javac>
+		<jar destfile="lib/jinq-all.jar">
+			<fileset dir="jarbin"/>
+			<fileset dir="orm" includes="**/*.xslt"/>
+		</jar>
+	</target>
+	
+	<target name="Zip" depends="Jinq Jar">
 		<tstamp>
 			<format property="tstamp" pattern="yyyy-MM-dd-HH-mm" />
 		</tstamp>
-		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
 			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**"/>
 			<zipfileset file="demogen/pom.xml" prefix="Jinq/demogen"/>
-			<zipfileset dir="lib/lib" fullpath="Jinq/lib"/>
+			<zipfileset file="lib/jinq-all.jar" prefix="Jinq/lib"/>
 		</zip>
 	</target>
 	
