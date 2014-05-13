@@ -3,3 +3,4 @@
 !/demogen/pom.xml
 /lib/*
 /target
+/jarbin
