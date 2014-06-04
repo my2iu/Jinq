@@ -28,8 +28,8 @@ public class LazyWrappedStream<T> implements Stream<T>
 {
    Stream<T> wrappedStream;
    
-   LazyWrappedStream() {}
-   LazyWrappedStream(Stream<T> wrappedStream)
+   protected LazyWrappedStream() {}
+   protected LazyWrappedStream(Stream<T> wrappedStream)
    {
       this.wrappedStream = wrappedStream;
    }
