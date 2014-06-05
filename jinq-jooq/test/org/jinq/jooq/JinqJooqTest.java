@@ -5,10 +5,10 @@ import static org.junit.Assert.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
 
+import org.jinq.jooq.test.generated.App;
 import org.jinq.jooq.test.generated.tables.records.CustomersRecord;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -45,7 +45,7 @@ public class JinqJooqTest
    {
       con = DriverManager.getConnection("jdbc:derby:memory:jinqjooqDB");
       context = DSL.using(con, SQLDialect.DERBY);
-      jinq = new JinqJooqContext(context);
+      jinq = JinqJooqContext.using(context, App.APP);
    }
 
    @After
@@ -64,7 +64,17 @@ public class JinqJooqTest
       assertEquals(1, (int)results.get(0).getCustomerid());
       assertEquals("Alice", results.get(0).getName());
    }
-   
+
+   @Test
+   public void testWhereBasic()
+   {
+      List<CustomersRecord> results = jinq.from(CUSTOMERS)
+            .where( c -> c.getCountry().equals("UK"))
+            .selectAll().toList();
+      assertEquals(1, results.size());
+      assertEquals("Dave", results.get(0).getName());
+   }
+
    @Test
    public void testJooq() 
    {
