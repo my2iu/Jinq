@@ -8,6 +8,7 @@ import java.util.List;
 import org.jinq.jooq.querygen.RowReader;
 import org.jinq.jooq.querygen.TableRowReader;
 import org.jinq.jooq.transform.LambdaInfo;
+import org.jinq.jooq.transform.WhereTransform;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.TableImpl;
@@ -33,8 +34,9 @@ public class JinqJooqQuery<T extends Record>
    public <E extends Exception> JinqJooqQuery<T> where(Where<T, E> test)
    {
       LambdaInfo where = LambdaInfo.analyze(context.metamodel, test);
-      if (where == null) return null;
-//      JPQLQueryTransform whereTransform = new WhereTransform(metamodel, where);
+      if (where == null) throw new IllegalArgumentException("Could not create convert Lambda into a query");
+      WhereTransform whereTransform = new WhereTransform(context.metamodel, where);
+      whereTransform.apply();
 //      JPQLQuery<T> newQuery = whereTransform.apply(query);
 //      if (newQuery == null) return null;
 //      return new JPAQueryComposer<>(metamodel, em, newQuery, lambdas, where);
