@@ -109,23 +109,23 @@ public class MetamodelUtil
 //   }
    
    /**
-    * Returns true if a method is used to get a singular attribute field from an entity
+    * Returns true if a method is used as a getter for reading a field of a table
     * @param sig
     * @return
     */
-//   public boolean isSingularAttributeFieldMethod(MethodSignature sig)
-//   {
-//      return fieldMethods.containsKey(sig);
-//   }
+   public boolean isFieldGetterMethod(MethodSignature sig)
+   {
+      return fieldMethods.containsKey(sig);
+   }
    
    /**
     * Given a method used to read a field of an entity, this returns the actual
-    * field name on the entity.
+    * jOOQ field object needed to read the data.
     * @param sig
     * @return
     */
-//   public String fieldMethodToFieldName(MethodSignature sig)
-//   {
-//      return fieldMethods.get(sig).getName();
-//   }
+   public Field<?> fieldMethodToField(MethodSignature sig)
+   {
+      return fieldMethods.get(sig);
+   }
 }
