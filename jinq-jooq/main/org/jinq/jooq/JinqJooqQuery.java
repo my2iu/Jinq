@@ -6,12 +6,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jinq.jooq.querygen.ColumnExpressions;
 import org.jinq.jooq.querygen.RowReader;
 import org.jinq.jooq.querygen.TableRowReader;
 import org.jinq.jooq.transform.LambdaInfo;
+import org.jinq.jooq.transform.SelectTransform;
 import org.jinq.jooq.transform.WhereTransform;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.QueryPart;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.impl.TableImpl;
@@ -66,5 +70,33 @@ public class JinqJooqQuery<T extends Record>
       else
          result = context.dsl.select().from(from).fetch();
       return new ResultStream<>(result.stream().map(r -> reader.readResult(r)));
+   }
+   
+   public static interface Select<U, V> extends Serializable {
+      public V select(U val);
+   }
+   public <U> ResultStream<U> select(Select<T,U> lambda)
+   {
+      // Figure out which columns to return
+      LambdaInfo select = LambdaInfo.analyze(context.metamodel, lambda);
+      if (select == null) throw new IllegalArgumentException("Could not create convert Lambda into a query");
+      SelectTransform transform = new SelectTransform(context.metamodel, select);
+      List<Table<?>> fromTables = new ArrayList<>();
+      fromTables.add(from);
+      ColumnExpressions<U> columns = transform.apply(fromTables);
+
+      // Run the query now
+      List<Field<?>> selectColumns = new ArrayList<>();
+      for (QueryPart col: columns.columns)
+      {
+         selectColumns.add((Field<?>)col);
+      }
+      
+      List<Record> result;
+      if (whereConditions != null)
+         result = context.dsl.select(selectColumns).from(from).where(whereConditions).fetch();
+      else
+         result = context.dsl.select(selectColumns).from(from).fetch();
+      return new ResultStream<>(result.stream().map(r -> columns.reader.readResult(r)));
    }
 }
