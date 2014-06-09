@@ -2,7 +2,9 @@ package org.jinq.jooq.transform;
 
 import org.jinq.jooq.querygen.ColumnExpressions;
 import org.jinq.jooq.querygen.SimpleRowReader;
+import org.jooq.Condition;
 import org.jooq.Field;
+import org.jooq.Table;
 import org.jooq.impl.DSL;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
@@ -10,6 +12,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
@@ -40,19 +43,17 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       return argHandler.handleArg(index, val.getType());
    }
    
-//   @Override public ColumnExpressions<?> booleanConstantValue(ConstantValue.BooleanConstant val, Void in) throws TypedValueVisitorException
-//   {
-//      // TODO: Explore deeper into why EclipseLink doesn't seem to like boolean 
-//      // literals like TRUE and FALSE
-//      return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
-//            new ConstantExpression(val.val ? "(1=1)" : "(1!=1)")); 
-//   }
-//
-//   @Override public ColumnExpressions<?> integerConstantValue(ConstantValue.IntegerConstant val, Void in) throws TypedValueVisitorException
-//   {
-//      return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
-//            new ConstantExpression(Integer.toString(val.val))); 
-//   }
+   @Override public ColumnExpressions<?> booleanConstantValue(ConstantValue.BooleanConstant val, Void in) throws TypedValueVisitorException
+   {
+      return ColumnExpressions.singleColumn(new SimpleRowReader<Boolean>(),
+            DSL.val(val.val));
+   }
+
+   @Override public ColumnExpressions<?> integerConstantValue(ConstantValue.IntegerConstant val, Void in) throws TypedValueVisitorException
+   {
+      return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
+            DSL.val(val.val)); 
+   }
 
    @Override public ColumnExpressions<?> stringConstantValue(ConstantValue.StringConstant val, Void in) throws TypedValueVisitorException
    {
@@ -101,7 +102,33 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
 //      }
       if (!left.isSingleColumn() || !right.isSingleColumn())
          throw new TypedValueVisitorException("Do not know how to compare multiple columns together");
-      return ColumnExpressions.singleColumn(left.reader, ((Field)left.getOnlyColumn()).eq((Field)right.getOnlyColumn()));
+      Field leftField = (Field)left.getOnlyColumn();
+      Field rightField = (Field)right.getOnlyColumn();
+      Condition result = null;
+      switch (val.compOp)
+      {
+         case eq:
+            result = leftField.eq(rightField);
+            break;
+         case ge:
+            result = leftField.ge(rightField);
+            break;
+         case gt:
+            result = leftField.gt(rightField);
+            break;
+         case le:
+            result = leftField.le(rightField);
+            break;
+         case lt:
+            result = leftField.lt(rightField);
+            break;
+         case ne:
+            result = leftField.ne(rightField);
+            break;
+         default:
+            throw new TypedValueVisitorException("Unknown comparison operator");
+      }
+      return ColumnExpressions.singleColumn(left.reader, result);
    }
    
    @Override public ColumnExpressions<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, Void in) throws TypedValueVisitorException
@@ -130,8 +157,10 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       {
          Field<?> field = metamodel.fieldMethodToField(sig);
          ColumnExpressions<?> base = val.base.visit(this, in);
-         // TODO: Check that base refers to a from parameter for the lambda
-         
+         if (!(base.getOnlyColumn() instanceof Table))
+            throw new TypedValueVisitorException("Expecting a table");
+         // TODO: Do some sort of error checking here that the base is actually a proper
+         // table for the field access.
          return ColumnExpressions.singleColumn(new SimpleRowReader<>(), field); 
 //         SQLColumnValues sql = new SQLColumnValues(base.reader.getReaderForField(fieldName));
 //         for (int n = 0; n < sql.reader.getNumColumns(); n++)

@@ -1,8 +1,11 @@
 package org.jinq.jooq.transform;
 
+import java.util.List;
+
 import org.jinq.jooq.querygen.ColumnExpressions;
 import org.jooq.Condition;
 import org.jooq.QueryPart;
+import org.jooq.Table;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
@@ -18,14 +21,14 @@ public class WhereTransform
       this.where = where;
    }
    
-   public Condition apply()
+   public Condition apply(List<Table<?>> fromList)
    {
       try  {
 //         if (query instanceof SelectFromWhere)
 //         {
 //            SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, 
-                  new SelectFromWhereLambdaArgumentHandler(where));
+                  new SelectFromWhereLambdaArgumentHandler(where, fromList));
             Condition methodExpr = null;
             for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
             {

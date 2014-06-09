@@ -3,6 +3,7 @@ package org.jinq.jooq;
 import static org.jinq.jooq.test.generated.Tables.CUSTOMERS;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jinq.jooq.querygen.RowReader;
@@ -12,6 +13,7 @@ import org.jinq.jooq.transform.WhereTransform;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Table;
 import org.jooq.impl.TableImpl;
 
 import ch.epfl.labos.iu.orm.QueryComposer;
@@ -45,7 +47,9 @@ public class JinqJooqQuery<T extends Record>
       LambdaInfo where = LambdaInfo.analyze(context.metamodel, test);
       if (where == null) throw new IllegalArgumentException("Could not create convert Lambda into a query");
       WhereTransform whereTransform = new WhereTransform(context.metamodel, where);
-      Condition cond = whereTransform.apply();
+      List<Table<?>> fromTables = new ArrayList<>();
+      fromTables.add(from);
+      Condition cond = whereTransform.apply(fromTables);
       return new JinqJooqQuery<>(context, from, cond);
 //      JPQLQuery<T> newQuery = whereTransform.apply(query);
 //      if (newQuery == null) return null;

@@ -5,14 +5,15 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Table;
 import org.jooq.impl.TableImpl;
 
 public class TableRowReader<T extends Record> implements RowReader<T>
 {
    private Constructor<? extends T> constructor;
-   private TableImpl<T> table;
+   private Table<T> table;
    
-   public TableRowReader(TableImpl<T> table)
+   public TableRowReader(Table<T> table)
    {
       this.table = table;
       try {

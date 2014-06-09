@@ -1,9 +1,13 @@
 package org.jinq.jooq.transform;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.jinq.jooq.querygen.ColumnExpressions;
+import org.jinq.jooq.querygen.TableRowReader;
+import org.jooq.Table;
+import org.jooq.impl.TableImpl;
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -16,7 +20,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
  */
 public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandler
 {
-//   SelectFromWhere<?> sfw;
+   List<Table<?>> fromList;
    LambdaInfo lambda;
    final int numLambdaCapturedArgs;
 
@@ -37,11 +41,11 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
  }
 
    
-   public SelectFromWhereLambdaArgumentHandler(LambdaInfo lambda)
+   public SelectFromWhereLambdaArgumentHandler(LambdaInfo lambda, List<Table<?>> fromTables)
    {
-//      this.sfw = sfw;
       this.lambda = lambda;
       numLambdaCapturedArgs = lambda.serializedLambda.capturedArgs.length;
+      this.fromList = fromTables;
    }
    
    @Override
@@ -64,12 +68,13 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
 
       }
       else
-         return null;
-//      // TODO: For JPQL queries, I don't think it's necessary to make a copy of the columns
-//      //    because I think JPQL lets you substitute the same parameter into multiple locations
-//      //    in a query (unlike JDBC), which means we don't need separate state for query fragments
-//      //    that appear multiple times in the query tree.
-//      return sfw.cols;
+      {
+         Table<?> table = fromList.get(argIndex - numLambdaCapturedArgs);
+         // TODO: Should this return a single column or all the columns of the table?
+         return ColumnExpressions.singleColumn(
+               new TableRowReader<>(table),
+               table);
+      }
    }
 
 }

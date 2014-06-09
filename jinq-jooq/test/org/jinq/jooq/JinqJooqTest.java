@@ -76,6 +76,26 @@ public class JinqJooqTest
    }
 
    @Test
+   public void testWhereBasic2()
+   {
+      List<CustomersRecord> results = jinq.from(CUSTOMERS)
+            .where( c -> c.getDebt() > c.getSalary())
+            .selectAll().toList();
+      assertEquals(1, results.size());
+      assertEquals("Carol", results.get(0).getName());
+   }
+
+   @Test
+   public void testWhereBasic3()
+   {
+      List<CustomersRecord> results = jinq.from(CUSTOMERS)
+            .where( c -> c.getDebt() <= 10 )
+            .selectAll().toList();
+      assertEquals(1, results.size());
+      assertEquals("Eve", results.get(0).getName());
+   }
+
+   @Test
    public void testJooq() 
    {
       Result<Record> result = context.select().from(CUSTOMERS).fetch();
