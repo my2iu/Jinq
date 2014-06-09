@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.jinq.jooq.querygen.ColumnExpressions;
+import org.jinq.jooq.querygen.SimpleRowReader;
 import org.jinq.jooq.querygen.TableRowReader;
 import org.jooq.Table;
+import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
 import org.objectweb.asm.Type;
 
@@ -53,19 +55,16 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
    {
       if (argIndex < numLambdaCapturedArgs)
       {
-         throw new TypedValueVisitorException("Parameters not handled yet.");
-//         // Currently, we only support parameters of a few small simple types.
-//         // We should also support more complex types (e.g. entities) and allow
-//         // fields/methods of those entities to be called in the query (code
-//         // motion will be used to push those field accesses or method calls
-//         // outside the query where they will be evaluated and then passed in
-//         // as a parameter)
-//         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType))
-//            throw new TypedValueVisitorException("Accessing a field with unhandled type");
-//
-//         return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
-//               new ParameterExpression(lambda.lambdaIndex, argIndex)); 
+         // Currently, we only support parameters of a few small simple types.
+         // We should also support more complex types (e.g. entities) and allow
+         // fields/methods of those entities to be called in the query (code
+         // motion will be used to push those field accesses or method calls
+         // outside the query where they will be evaluated and then passed in
+         // as a parameter)
+         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType))
+            throw new TypedValueVisitorException("Accessing a field with unhandled type");
 
+         return ColumnExpressions.singleColumn(new SimpleRowReader<>(), DSL.val(lambda.getCapturedArg(argIndex)));
       }
       else
       {

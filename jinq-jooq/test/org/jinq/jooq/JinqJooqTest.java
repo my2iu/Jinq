@@ -96,6 +96,17 @@ public class JinqJooqTest
    }
 
    @Test
+   public void testWhereParameter()
+   {
+      int amount = 10;
+      List<CustomersRecord> results = jinq.from(CUSTOMERS)
+            .where( c -> c.getDebt() <= amount )
+            .selectAll().toList();
+      assertEquals(1, results.size());
+      assertEquals("Eve", results.get(0).getName());
+   }
+
+   @Test
    public void testJooq() 
    {
       Result<Record> result = context.select().from(CUSTOMERS).fetch();
