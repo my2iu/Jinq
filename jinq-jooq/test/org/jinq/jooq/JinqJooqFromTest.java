@@ -28,10 +28,12 @@ public class JinqJooqFromTest
    DSLContext context;
    JinqJooqContext jinq;
    
+   static String dbName = JinqJooqFromTest.class.getName(); 
+
    @BeforeClass
    public static void setUpBeforeClass() throws Exception
    {
-      Connection con = DriverManager.getConnection("jdbc:derby:memory:jinqjooqDB;create=true");
+      Connection con = DriverManager.getConnection("jdbc:derby:memory:" + dbName + ";create=true");
       new CreateJdbcDb(con).createDatabase();
       con.close();
    }
@@ -44,7 +46,7 @@ public class JinqJooqFromTest
    @Before
    public void setUp() throws Exception
    {
-      con = DriverManager.getConnection("jdbc:derby:memory:jinqjooqDB");
+      con = DriverManager.getConnection("jdbc:derby:memory:" + dbName);
       context = DSL.using(con, SQLDialect.DERBY);
       jinq = JinqJooqContext.using(context, App.APP);
    }
