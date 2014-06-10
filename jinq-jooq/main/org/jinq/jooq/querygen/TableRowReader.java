@@ -1,12 +1,10 @@
 package org.jinq.jooq.querygen;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Table;
-import org.jooq.impl.TableImpl;
 
 public class TableRowReader<T extends Record> implements RowReader<T>
 {

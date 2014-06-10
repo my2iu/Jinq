@@ -26,6 +26,17 @@ public class CreateJdbcDb
       stmt.close();
    }
    
+   private void createSale(int saleId, int customerId, String date) throws SQLException
+   {
+      PreparedStatement stmt = con.prepareStatement("INSERT INTO Sales (SaleId, CustomerId, Date) "
+            + "VALUES (?, ?, ?)");
+      stmt.setInt(1, saleId);
+      stmt.setInt(2, customerId);
+      stmt.setString(3, date);
+      stmt.executeUpdate();
+      stmt.close();
+   }
+   
    private void createTables(Statement stmt) throws SQLException
    {
       stmt.executeUpdate("create table Customers (" 
@@ -72,6 +83,13 @@ public class CreateJdbcDb
       createCustomer(3, "Carol", "USA", 300, 250);
       createCustomer(4, "Dave", "UK", 100, 500);
       createCustomer(5, "Eve", "Canada", 10, 30); 
+
+      createSale(1, 1, "2005");
+      createSale(2, 1, "2004");
+      createSale(3, 3, "2003");
+      createSale(4, 3, "2004");
+      createSale(5, 4, "2001");
+      createSale(6, 5, "2005");
 
    }
 }

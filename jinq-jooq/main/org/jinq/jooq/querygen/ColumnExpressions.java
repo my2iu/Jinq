@@ -3,7 +3,6 @@ package org.jinq.jooq.querygen;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jooq.Field;
 import org.jooq.QueryPart;
 
 /**

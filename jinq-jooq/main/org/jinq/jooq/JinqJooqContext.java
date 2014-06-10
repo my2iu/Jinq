@@ -26,4 +26,24 @@ public class JinqJooqContext
    {
       return new JinqJooqQuery<>(this, from); 
    }
+   public <T extends Record, U extends Record> 
+   JinqJooqQuery2<T, U> from(TableImpl<T> from1, TableImpl<U> from2)
+   {
+      return new JinqJooqQuery2<>(this, from1, from2); 
+   }
+   public <T extends Record, U extends Record, V extends Record> 
+   JinqJooqQuery3<T, U, V> from(TableImpl<T> from1, TableImpl<U> from2, TableImpl<V> from3)
+   {
+      return new JinqJooqQuery3<>(this, from1, from2, from3); 
+   }
+   public <T extends Record, U extends Record, V extends Record, W extends Record> 
+   JinqJooqQuery4<T, U, V, W> from(TableImpl<T> from1, TableImpl<U> from2, TableImpl<V> from3, TableImpl<W> from4)
+   {
+      return new JinqJooqQuery4<>(this, from1, from2, from3, from4); 
+   }
+   public <T extends Record, U extends Record, V extends Record, W extends Record, X extends Record> 
+   JinqJooqQuery5<T, U, V, W, X> from(TableImpl<T> from1, TableImpl<U> from2, TableImpl<V> from3, TableImpl<W> from4, TableImpl<X> from5)
+   {
+      return new JinqJooqQuery5<>(this, from1, from2, from3, from4, from5); 
+   }
 }

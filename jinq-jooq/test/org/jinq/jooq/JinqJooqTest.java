@@ -1,7 +1,7 @@
 package org.jinq.jooq;
 
 import static org.jinq.jooq.test.generated.Tables.CUSTOMERS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -148,7 +148,7 @@ public class JinqJooqTest
       assertEquals(1, results.size());
       assertEquals("Alice", results.get(0).getName());
    }
-
+   
    @Test
    public void testJooq() 
    {

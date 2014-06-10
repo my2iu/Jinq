@@ -18,7 +18,7 @@ public class TupleRowReader<T> implements RowReader<T>
    
    RowReader<?>[] subreaders;
    
-   TupleRowReader(RowReader<?>[] subreaders)
+   public TupleRowReader(RowReader<?>[] subreaders)
    {
       this.subreaders = subreaders;
    }

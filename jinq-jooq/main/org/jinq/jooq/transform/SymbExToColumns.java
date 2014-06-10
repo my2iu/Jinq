@@ -7,7 +7,6 @@ import org.jinq.jooq.querygen.TableRowReader;
 import org.jinq.jooq.querygen.TupleRowReader;
 import org.jooq.Condition;
 import org.jooq.Field;
-import org.jooq.Table;
 import org.jooq.impl.DSL;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
