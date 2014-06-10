@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ch.epfl.labos.iu.orm.Pair;
+
 public class JinqJooqTest
 {
    Connection con;
@@ -124,6 +126,17 @@ public class JinqJooqTest
             .select( c -> c.getDebt() * 2 + 5 ).toList();
       assertEquals(1, results.size());
       assertEquals(205, (int)results.get(0));
+   }
+
+   @Test
+   public void testSelectTuple()
+   {
+      List<Pair<String, Integer>> results = jinq.from(CUSTOMERS)
+            .where( c -> c.getName().equals("Alice") )
+            .select( c -> new Pair<>(c.getName(), c.getDebt())).toList();
+      assertEquals(1, results.size());
+      assertEquals("Alice", results.get(0).getOne());
+      assertEquals(100, (int)results.get(0).getTwo());
    }
 
    @Test

@@ -4,6 +4,7 @@ import org.jinq.jooq.querygen.ColumnExpressions;
 import org.jinq.jooq.querygen.RowReader;
 import org.jinq.jooq.querygen.SimpleRowReader;
 import org.jinq.jooq.querygen.TableRowReader;
+import org.jinq.jooq.querygen.TupleRowReader;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.Table;
@@ -151,18 +152,17 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
             || TransformationClassAnalyzer.newTuple5.equals(sig)
             || TransformationClassAnalyzer.newTuple8.equals(sig))
       {
-         return super.virtualMethodCallValue(val, in);
-//         ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];
-//         for (int n = 0; n < vals.length; n++)
-//            vals[n] = val.args.get(n).visit(this, in);
-//         RowReader<?> [] valReaders = new RowReader[vals.length];
-//         for (int n = 0; n < vals.length; n++)
-//            valReaders[n] = vals[n].reader;
-//
-//         ColumnExpressions<?> toReturn = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(sig.owner, valReaders));
-//         for (int n = 0; n < vals.length; n++)
-//            toReturn.columns.addAll(vals[n].columns);
-//         return toReturn;
+         ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];
+         for (int n = 0; n < vals.length; n++)
+            vals[n] = val.args.get(n).visit(this, in);
+         RowReader<?> [] valReaders = new RowReader[vals.length];
+         for (int n = 0; n < vals.length; n++)
+            valReaders[n] = vals[n].reader;
+
+         ColumnExpressions<?> toReturn = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(sig.owner, valReaders));
+         for (int n = 0; n < vals.length; n++)
+            toReturn.columns.addAll(vals[n].columns);
+         return toReturn;
       }
       else if (metamodel.isFieldGetterMethod(sig))
       {
@@ -180,15 +180,14 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       }
       else if (MetamodelUtil.TUPLE_ACCESSORS.containsKey(sig))
       {
-         return super.virtualMethodCallValue(val, in);
-//         int idx = MetamodelUtil.TUPLE_ACCESSORS.get(sig) - 1;
-//         ColumnExpressions<?> base = val.base.visit(this, in);
-//         RowReader<?> subreader = ((TupleRowReader<?>)base.reader).getReaderForIndex(idx);
-//         ColumnExpressions<?> toReturn = new ColumnExpressions<>(subreader);
-//         int baseOffset = ((TupleRowReader<?>)base.reader).getColumnForIndex(idx);
-//         for (int n = 0; n < subreader.getNumColumns(); n++)
-//            toReturn.columns.add(base.columns.get(n + baseOffset));
-//         return toReturn;
+         int idx = MetamodelUtil.TUPLE_ACCESSORS.get(sig) - 1;
+         ColumnExpressions<?> base = val.base.visit(this, in);
+         RowReader<?> subreader = ((TupleRowReader<?>)base.reader).getReaderForIndex(idx);
+         ColumnExpressions<?> toReturn = new ColumnExpressions<>(subreader);
+         int baseOffset = ((TupleRowReader<?>)base.reader).getColumnForIndex(idx);
+         for (int n = 0; n < subreader.getNumColumns(); n++)
+            toReturn.columns.add(base.columns.get(n + baseOffset));
+         return toReturn;
       }
       else if (sig.equals(TransformationClassAnalyzer.integerIntValue)
             || sig.equals(TransformationClassAnalyzer.doubleDoubleValue))

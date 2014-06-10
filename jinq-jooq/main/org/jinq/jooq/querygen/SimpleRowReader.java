@@ -4,7 +4,6 @@ import org.jooq.Record;
 
 public class SimpleRowReader<T> implements RowReader<T>
 {
-   @SuppressWarnings("unchecked")
    @Override
    public T readResult(Record result)
    {
