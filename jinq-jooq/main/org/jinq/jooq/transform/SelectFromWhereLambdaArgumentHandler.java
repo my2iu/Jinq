@@ -7,9 +7,9 @@ import java.util.Set;
 import org.jinq.jooq.querygen.ColumnExpressions;
 import org.jinq.jooq.querygen.SimpleRowReader;
 import org.jinq.jooq.querygen.TableRowReader;
+import org.jooq.Field;
 import org.jooq.Table;
 import org.jooq.impl.DSL;
-import org.jooq.impl.TableImpl;
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -70,9 +70,10 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
       {
          Table<?> table = fromList.get(argIndex - numLambdaCapturedArgs);
          // TODO: Should this return a single column or all the columns of the table?
-         return ColumnExpressions.singleColumn(
-               new TableRowReader<>(table),
-               table);
+         ColumnExpressions<?> columns = new ColumnExpressions<>(new TableRowReader<>(table));
+         for (Field<?> field: table.fields())
+            columns.columns.add(field);
+         return columns;
       }
    }
 

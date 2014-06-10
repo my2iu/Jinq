@@ -1,7 +1,5 @@
 package org.jinq.jooq;
 
-import static org.jinq.jooq.test.generated.Tables.CUSTOMERS;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,14 +11,11 @@ import org.jinq.jooq.transform.LambdaInfo;
 import org.jinq.jooq.transform.SelectTransform;
 import org.jinq.jooq.transform.WhereTransform;
 import org.jooq.Condition;
-import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.QueryPart;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.impl.TableImpl;
-
-import ch.epfl.labos.iu.orm.QueryComposer;
 
 public class JinqJooqQuery<T extends Record>
 {

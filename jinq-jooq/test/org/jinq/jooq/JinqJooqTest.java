@@ -117,6 +117,16 @@ public class JinqJooqTest
    }
 
    @Test
+   public void testSelectMath()
+   {
+      List<Integer> results = jinq.from(CUSTOMERS)
+            .where( c -> c.getName().equals("Alice") )
+            .select( c -> c.getDebt() * 2 + 5 ).toList();
+      assertEquals(1, results.size());
+      assertEquals(205, (int)results.get(0));
+   }
+
+   @Test
    public void testSelectTable()
    {
       List<CustomersRecord> results = jinq.from(CUSTOMERS)

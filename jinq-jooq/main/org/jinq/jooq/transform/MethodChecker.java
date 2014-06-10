@@ -2,7 +2,6 @@ package org.jinq.jooq.transform;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Set;
 
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;

@@ -1,8 +1,5 @@
 package org.jinq.jooq;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.jinq.jooq.transform.MetamodelUtil;
 import org.jooq.DSLContext;
 import org.jooq.Record;

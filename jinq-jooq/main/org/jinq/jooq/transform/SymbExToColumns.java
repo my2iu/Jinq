@@ -1,7 +1,9 @@
 package org.jinq.jooq.transform;
 
 import org.jinq.jooq.querygen.ColumnExpressions;
+import org.jinq.jooq.querygen.RowReader;
 import org.jinq.jooq.querygen.SimpleRowReader;
+import org.jinq.jooq.querygen.TableRowReader;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.Table;
@@ -12,7 +14,6 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
@@ -70,13 +71,23 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       return val.operand.visit(this, in);
    }
 
-//   @Override public ColumnExpressions<?> mathOpValue(TypedValue.MathOpValue val, Void in) throws TypedValueVisitorException
-//   {
-//      ColumnExpressions<?> left = val.left.visit(this, in);
-//      ColumnExpressions<?> right = val.right.visit(this, in);
-//      return ColumnExpressions.singleColumn(left.reader,
-//            new BinaryExpression(val.sqlOpString(), left.getOnlyColumn(), right.getOnlyColumn())); 
-//   }
+   @Override public ColumnExpressions<?> mathOpValue(TypedValue.MathOpValue val, Void in) throws TypedValueVisitorException
+   {
+      ColumnExpressions<?> left = val.left.visit(this, in);
+      ColumnExpressions<?> right = val.right.visit(this, in);
+      Field leftField = (Field)left.getOnlyColumn();
+      Field rightField = (Field)right.getOnlyColumn();
+      Field resultField;
+      switch(val.op)
+      {
+      case minus: resultField = leftField.minus(rightField); break;
+      case plus: resultField = leftField.plus(rightField); break;
+      case mul: resultField = leftField.mul(rightField); break;
+      default:
+         throw new TypedValueVisitorException("Unknown math operator");
+      }
+      return ColumnExpressions.singleColumn(left.reader, resultField); 
+   }
 
    @Override public ColumnExpressions<?> comparisonOpValue(TypedValue.ComparisonValue val, Void in) throws TypedValueVisitorException
    {
@@ -157,14 +168,15 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       {
          Field<?> field = metamodel.fieldMethodToField(sig);
          ColumnExpressions<?> base = val.base.visit(this, in);
-         if (!(base.getOnlyColumn() instanceof Table))
+         if (!(base.reader instanceof TableRowReader))
             throw new TypedValueVisitorException("Expecting a table");
-         // TODO: Do some sort of error checking here that the base is actually a proper
-         // table for the field access.
-         return ColumnExpressions.singleColumn(new SimpleRowReader<>(), field); 
-//         SQLColumnValues sql = new SQLColumnValues(base.reader.getReaderForField(fieldName));
-//         for (int n = 0; n < sql.reader.getNumColumns(); n++)
-//            sql.columns[n] = base.columns[base.reader.getColumnForField(fieldName) + n];
+         TableRowReader<?> tableReader = (TableRowReader<?>)base.reader;
+         RowReader<?> columnReader = tableReader.getReaderForField(field);
+         ColumnExpressions<?> newColumns = new ColumnExpressions<>(columnReader);
+         int idx = tableReader.getIndexForField(field);
+         for (int n = 0; n < columnReader.getNumColumns(); n++)
+            newColumns.columns.add(base.columns.get(n + idx));
+         return newColumns;
       }
       else if (MetamodelUtil.TUPLE_ACCESSORS.containsKey(sig))
       {
@@ -280,30 +292,30 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
          return super.virtualMethodCallValue(val, in);
    }
 
-//   @Override public ColumnExpressions<?> staticMethodCallValue(MethodCallValue.StaticMethodCallValue val, Void in) throws TypedValueVisitorException 
-//   {
-//      MethodSignature sig = val.getSignature();
-//      if (sig.equals(TransformationClassAnalyzer.integerValueOf)
-//            || sig.equals(TransformationClassAnalyzer.doubleValueOf))
+   @Override public ColumnExpressions<?> staticMethodCallValue(MethodCallValue.StaticMethodCallValue val, Void in) throws TypedValueVisitorException 
+   {
+      MethodSignature sig = val.getSignature();
+      if (sig.equals(TransformationClassAnalyzer.integerValueOf)
+            || sig.equals(TransformationClassAnalyzer.doubleValueOf))
+      {
+         // Integer.valueOf() to be like a cast and assume it's correct
+         ColumnExpressions<?> base = val.args.get(0).visit(this, in);
+         return base;
+      }
+//      else if (TransformationClassAnalyzer.stringLike.equals(sig))
 //      {
-//         // Integer.valueOf() to be like a cast and assume it's correct
-//         ColumnExpressions<?> base = val.args.get(0).visit(this, in);
-//         return base;
+//         SQLColumnValues sql = new SQLColumnValues(new SQLReader.BooleanSQLReader());
+//         sql.add("(");
+//         sql.add(val.args.get(0).visit(this, in));
+//         sql.add(")");
+//         sql.add(" LIKE ");
+//         sql.add("(");
+//         sql.add(val.args.get(1).visit(this, in));
+//         sql.add(")");
+//         return sql;
 //      }
-////      else if (TransformationClassAnalyzer.stringLike.equals(sig))
-////      {
-////         SQLColumnValues sql = new SQLColumnValues(new SQLReader.BooleanSQLReader());
-////         sql.add("(");
-////         sql.add(val.args.get(0).visit(this, in));
-////         sql.add(")");
-////         sql.add(" LIKE ");
-////         sql.add("(");
-////         sql.add(val.args.get(1).visit(this, in));
-////         sql.add(")");
-////         return sql;
-////      }
-//      else
-//         return super.staticMethodCallValue(val, in);
-//   }
+      else
+         return super.staticMethodCallValue(val, in);
+   }
 
 }

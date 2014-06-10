@@ -8,7 +8,6 @@ import java.util.Set;
 import org.jooq.Field;
 import org.jooq.Schema;
 import org.jooq.Table;
-import org.jooq.impl.TableImpl;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;

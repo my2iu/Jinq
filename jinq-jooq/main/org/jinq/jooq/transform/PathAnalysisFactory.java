@@ -1,11 +1,9 @@
 package org.jinq.jooq.transform;
 
 import java.util.List;
-import java.util.Set;
 
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSupplementalFactory;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue;
 

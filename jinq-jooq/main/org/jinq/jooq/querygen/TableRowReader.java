@@ -58,4 +58,29 @@ public class TableRowReader<T extends Record> implements RowReader<T>
       return table.fields().length;
    }
 
+   public <U> RowReader<U> getReaderForField(Field<?> field)
+   {
+      Field<?>[] fields = table.fields(); 
+      for (int idx = 0; idx < fields.length; idx++)
+      {
+         Field<?> f = fields[idx];
+         if (f == field)
+            return new SimpleRowReader<>();
+      }
+      throw new IllegalArgumentException("Unknown field");
+   }
+   
+   public int getIndexForField(Field<?> field)
+   {
+      Field<?>[] fields = table.fields();
+      int colIndex = 0;
+      for (int idx = 0; idx < fields.length; idx++)
+      {
+         Field<?> f = fields[idx];
+         if (f == field)
+            return colIndex;
+         colIndex += getReaderForField(field).getNumColumns();
+      }
+      throw new IllegalArgumentException("Unknown field");
+   }
 }
