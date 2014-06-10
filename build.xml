@@ -6,6 +6,7 @@
 	<property name="derbytools" location="lib/derbytools.jar"/>
 	<property name="derbydata" location="bin/derby/data"/>
 	<property name="javax.persistence" location="lib/javax.persistence.jar"/>
+	<property name="jooq" location="lib/jooq-3.3.2.jar"/>
 
 	<target name="Build Jinq API">
 		<mkdir dir="bin"/>
@@ -117,6 +118,7 @@
 		<javac destdir="jarbin" fork="true" includeantruntime="false">
 			<classpath>
 				<pathelement location="${asm}"/>
+				<pathelement location="${jooq}"/>
 				<pathelement location="${javax.persistence}"/>
 			</classpath>
 			<src path="analysis"/>
@@ -124,6 +126,7 @@
 			<src path="queryll2"/>
 			<src path="orm"/>
 			<src path="jinq-jpa/main"/>
+			<src path="jinq-jooq/main"/>
 		</javac>
 		<jar destfile="lib/jinq-all.jar">
 			<fileset dir="jarbin"/>
@@ -136,8 +139,9 @@
 			<format property="tstamp" pattern="yyyy-MM-dd-HH-mm" />
 		</tstamp>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
+			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
 			<zipfileset file="demogen/pom.xml" prefix="Jinq/demogen"/>
 			<zipfileset file="lib/jinq-all.jar" prefix="Jinq/lib"/>
 		</zip>
