@@ -5,7 +5,32 @@
   <artifactId>jinq</artifactId>
   <version>0.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-
+  
+  <name>Jinq</name>
+  <description>Jinq project for providing support for functional-style queries to Java 8</description>
+  <url>http://www.jinq.org</url>
+  
+  <licenses>
+    <license>
+      <name>BSD 2-Clause License</name>
+      <url>http://opensource.org/licenses/BSD-2-Clause</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  
+  <scm>
+  	<url>https://github.com/my2iu/Jinq</url>
+  	<connection>scm:git:https://github.com/my2iu/Jinq.git</connection>
+  </scm>
+  
+  <developers>
+    <developer>
+      <name>Ming-Yee Iu</name>
+      <email>maven@jinq.org</email>
+      <id>my2iu</id>
+    </developer>
+  </developers>
+	
   <modules>
   	<module>orm</module>
   	<module>api</module>
@@ -40,9 +65,41 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <!-- For building the source packages -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+       <!-- For generating packages of JavaDoc -->        
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
     
+
     <directory>target/jinq-all</directory>
   </build>
+
 
   <distributionManagement>
     <repository>
