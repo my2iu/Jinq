@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
   <groupId>org.jinq</groupId>
   <artifactId>jinq</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.2.0</version>
   <packaging>pom</packaging>
   
   <name>Jinq</name>
@@ -21,6 +27,7 @@
   <scm>
   	<url>https://github.com/my2iu/Jinq</url>
   	<connection>scm:git:https://github.com/my2iu/Jinq.git</connection>
+  	<developerConnection>scm:git:https://my2iu@github.com/my2iu/Jinq.git</developerConnection>
   </scm>
   
   <developers>
@@ -43,15 +50,16 @@
   </modules>
   
   <build>
+  <!-- 
     <extensions>
-      <!-- So that we can deploy artifacts to a local file system for later upload to the cloud -->
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-file</artifactId>
         <version>2.6</version>
       </extension>
     </extensions>
-  
+  -->
+   
     <!-- Should default to compiling things using Java 8 -->
     <pluginManagement>
       <plugins>
@@ -81,7 +89,7 @@
         </executions>
       </plugin>
 
-       <!-- For generating packages of JavaDoc -->        
+      <!-- For generating packages of JavaDoc -->        
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -94,17 +102,33 @@
           </execution>
         </executions>
       </plugin>
+      
+      <!-- For signing the resulting .jar artifacts -->        
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>   
     </plugins>
     
 
     <directory>target/jinq-all</directory>
   </build>
 
-
+  <!-- 
   <distributionManagement>
     <repository>
       <id>file-repository</id>
       <url>file:../../../Jinq/mavenrepo</url>
     </repository>
   </distributionManagement>
+  -->
 </project>

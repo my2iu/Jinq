@@ -3,10 +3,10 @@
   <parent>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq</artifactId>
-	  <version>0.2.0-SNAPSHOT</version>
+	  <version>0.2.0</version>
   </parent>
   <artifactId>demogen</artifactId>
-  <!--  <packaging>jar</packaging>  -->
+  <packaging>jar</packaging>
 
   <build>
     <plugins>
@@ -41,13 +41,13 @@
       <!-- ORM only need for code generation, but not afterwards. -->
 	  <groupId>org.jinq</groupId>
 	  <artifactId>orm</artifactId>
-	  <version>0.2.0-SNAPSHOT</version>
+	  <version>0.2.0</version>
 	  <optional>true</optional>
     </dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>queryll2</artifactId>
-	  <version>0.2.0-SNAPSHOT</version>
+	  <version>0.2.0</version>
     </dependency>
   </dependencies>
   
