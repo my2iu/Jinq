@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="demogen"/>
-	<classpathentry kind="src" path="demosrc"/>
-	<classpathentry kind="src" path="orm"/>
-	<classpathentry kind="src" path="queryll2"/>
+	<classpathentry kind="src" path="demosrc/src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="api"/>
-	<classpathentry kind="src" path="analysis"/>
+	<classpathentry kind="src" path="orm/src"/>
+	<classpathentry kind="src" path="analysis/src"/>
+	<classpathentry kind="src" path="api/src"/>
+	<classpathentry kind="src" path="queryll2/src"/>
+	<classpathentry kind="src" path="demogen/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/asm-all-5.0.1.jar"/>
+	<classpathentry kind="lib" path="/home/my2iu/eclipse/git/Jinq/lib/asm-all-5.0.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

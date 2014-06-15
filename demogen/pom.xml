@@ -24,16 +24,15 @@
             <configuration>
               <mainClass>ch.epfl.labos.iu.orm.tools.EntityGenerator</mainClass>
               <arguments>
-                <argument>demosrc/entities.xml</argument>
-                <argument>demogen</argument>
+                <argument>demosrc/src/entities.xml</argument>
+                <argument>demogen/src</argument>
               </arguments>
             </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
-    <sourceDirectory>.</sourceDirectory>
-    <directory>../target/demogen</directory>
+    <sourceDirectory>src</sourceDirectory>
   </build>
   
   <dependencies>

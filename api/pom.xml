@@ -9,7 +9,6 @@
   <packaging>jar</packaging>
 
   <build>
-    <sourceDirectory>.</sourceDirectory>
-    <directory>../target/api</directory>
+    <sourceDirectory>src</sourceDirectory>
   </build>
 </project>

@@ -9,15 +9,14 @@
   <packaging>jar</packaging>
 
   <build>
-    <sourceDirectory>.</sourceDirectory>
-    <directory>../target/orm</directory>
+    <sourceDirectory>src</sourceDirectory>
     <resources>
  	  <resource>
- 	    <directory>sql</directory>
+ 	    <directory>src/sql</directory>
  	    <targetPath>sql</targetPath>
  	  </resource>
  	  <resource>
- 	    <directory>shared</directory>
+ 	    <directory>src/shared</directory>
  	    <targetPath>shared</targetPath>
  	  </resource>
     </resources>
