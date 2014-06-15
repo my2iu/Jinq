@@ -11,7 +11,7 @@
 	<target name="Build Jinq API">
 		<mkdir dir="bin"/>
 		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
-			<src path="api"/>
+			<src path="api/src"/>
 		</javac>
 	</target>
 
@@ -21,18 +21,18 @@
 			<classpath>
 				<pathelement location="${asm}"/>
 			</classpath>
-			<src path="analysis"/>
+			<src path="analysis/src"/>
 		</javac>
 	</target>
 
 	<target name="Build Jinq Mini-ORM">
 		<mkdir dir="bin"/>
 		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
-			<src path="orm"/>
+			<src path="orm/src"/>
 		</javac>
 		<jar destfile="lib/miniorm.jar">
 			<fileset dir="bin"/>
-			<fileset dir="orm" includes="**/*.xslt"/>
+			<fileset dir="orm/src" includes="**/*.xslt"/>
 		</jar>
 	</target>
 
@@ -42,18 +42,18 @@
 			<classpath>
 				<pathelement location="${asm}"/>
 			</classpath>
-			<src path="queryll2"/>
+			<src path="queryll2/src"/>
 		</javac>
 	</target>
 
 	<target name="Generate Demo ORM Entities" depends="Build Jinq Mini-ORM">
-		<mkdir dir="demogen/com/example/orm/test/entities"/>
+		<mkdir dir="demogen/src/com/example/orm/test/entities"/>
 		<java classname="ch.epfl.labos.iu.orm.tools.EntityGenerator" fork="true">
 			<classpath>
 				<pathelement location="lib/miniorm.jar"/>
 			</classpath>
-			<arg file="demosrc/entities.xml"/>
-			<arg path="demogen"/>
+			<arg file="demosrc/src/entities.xml"/>
+			<arg path="demogen/src"/>
 		</java>
 	</target>
 
@@ -63,8 +63,8 @@
 				<pathelement location="${asm}"/>
 				<pathelement location="bin"/>
 			</classpath>
-			<src path="demogen"/>
-			<src path="demosrc"/>
+			<src path="demogen/src"/>
+			<src path="demosrc/src"/>
 		</javac>
 	</target>
 
@@ -76,7 +76,7 @@
 				<pathelement location="${derbytools}"/>
 			</classpath>
 			<jvmarg value="-Dij.driver=org.apache.derby.jdbc.EmbeddedDriver"/>
-			<arg file="demosrc/entities.sql"/>
+			<arg file="demosrc/src/entities.sql"/>
 			<jvmarg value="-Dij.user=APP"/>
 			<jvmarg value="-Dij.password=APP"/>
 		</java>
@@ -109,7 +109,7 @@
 		<delete includeemptydirs="true" quiet="true">
 			<fileset dir="bin"/>
 			<fileset dir="jarbin"/>
-			<fileset dir="demogen" includes="**" excludes="pom.xml"/>
+			<fileset dir="demogen/src"/>
 		</delete>
 	</target>
 
@@ -121,16 +121,16 @@
 				<pathelement location="${jooq}"/>
 				<pathelement location="${javax.persistence}"/>
 			</classpath>
-			<src path="analysis"/>
-			<src path="api"/>
-			<src path="queryll2"/>
-			<src path="orm"/>
+			<src path="analysis/src"/>
+			<src path="api/src"/>
+			<src path="queryll2/src"/>
+			<src path="orm/src"/>
 			<src path="jinq-jpa/main"/>
 			<src path="jinq-jooq/main"/>
 		</javac>
 		<jar destfile="lib/jinq-all.jar">
 			<fileset dir="jarbin"/>
-			<fileset dir="orm" includes="**/*.xslt"/>
+			<fileset dir="orm/src" includes="**/*.xslt"/>
 		</jar>
 	</target>
 	
@@ -139,7 +139,7 @@
 			<format property="tstamp" pattern="yyyy-MM-dd-HH-mm" />
 		</tstamp>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**,*/target/**"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
 			<zipfileset file="demogen/pom.xml" prefix="Jinq/demogen"/>
