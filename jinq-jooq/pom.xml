@@ -3,7 +3,7 @@
   <parent>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq</artifactId>
-	  <version>0.2.0</version>
+	  <version>0.2.1-SNAPSHOT</version>
   </parent>
   <artifactId>jinq-jooq</artifactId>
   <packaging>jar</packaging>
@@ -23,12 +23,12 @@
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>api</artifactId>
-	  <version>0.2.0</version>
+	  <version>0.2.1-SNAPSHOT</version>
     </dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>analysis</artifactId>
-	  <version>0.2.0</version>
+	  <version>0.2.1-SNAPSHOT</version>
     </dependency>
     
 	<dependency>
