@@ -8,7 +8,7 @@
 	<classpathentry kind="src" path="queryll2/src"/>
 	<classpathentry kind="src" path="demogen/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/my2iu/eclipse/git/Jinq/lib/asm-all-5.0.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/asm-all-5.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
