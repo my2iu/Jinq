@@ -158,7 +158,6 @@ public class JinqStreamTest
    {
       // Join to another table via a navigational link
       EntityManager em = this.em;
-      fail();
 //      assertEquals("SELECT A.Name AS COL1, B.Date AS COL2 FROM Customers AS A, Sales AS B",
 //            em.customerStream()
 //               .join(c -> new NonQueryJinqStream<>(c.getPurchases().jinqStream()))
