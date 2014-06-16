@@ -3,14 +3,14 @@ package ch.epfl.labos.iu.orm;
 public class QueryList<T> extends LazySet<T>
 {
    public QueryList() {}
-   public QueryList(QueryComposer<T> composer)
+   public QueryList(QueryComposerWithLists<T> composer)
    {
       queryComposer = composer;
    }
    
-   QueryComposer<T> queryComposer = null;
+   QueryComposerWithLists<T> queryComposer = null;
 
-   public void setQueryComposer(QueryComposer<T> queryComposer)
+   public void setQueryComposer(QueryComposerWithLists<T> queryComposer)
    {
       this.queryComposer = queryComposer;
    }
@@ -184,7 +184,7 @@ public class QueryList<T> extends LazySet<T>
       // type to put there)
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.with(toAdd);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.with(toAdd);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.with(toAdd);
@@ -194,7 +194,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.sortedByInt(sorter, true);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.sortedByInt(sorter, true);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.sortedByIntAscending(sorter);
@@ -203,7 +203,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.sortedByInt(sorter, false);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.sortedByInt(sorter, false);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.sortedByIntAscending(sorter);
@@ -212,7 +212,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.sortedByDouble(sorter, true);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.sortedByDouble(sorter, true);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.sortedByDoubleAscending(sorter);
@@ -221,7 +221,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.sortedByDouble(sorter, false);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.sortedByDouble(sorter, false);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.sortedByDoubleDescending(sorter);
@@ -230,7 +230,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.sortedByString(sorter, true);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.sortedByString(sorter, true);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.sortedByStringAscending(sorter);
@@ -239,7 +239,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.sortedByString(sorter, false);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.sortedByString(sorter, false);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.sortedByStringDescending(sorter);
@@ -248,7 +248,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.sortedByDate(sorter, true);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.sortedByDate(sorter, true);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.sortedByDateAscending(sorter);
@@ -257,7 +257,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.sortedByDate(sorter, false);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.sortedByDate(sorter, false);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.sortedByDateDescending(sorter);
@@ -267,7 +267,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.firstN(n);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.firstN(n);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.firstN(n);
@@ -277,7 +277,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.where(test);
+         QueryComposerWithLists<T> newComposer = queryComposer.where(test);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.where(test);
@@ -286,7 +286,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<U> newComposer = queryComposer.select(select);
+         QueryComposerWithLists<U> newComposer = queryComposer.select(select);
          if (newComposer != null) return new QueryList<U>(newComposer);
       }
       return super.select(select);
@@ -295,7 +295,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<Pair<T, U>> newComposer = queryComposer.join(join);
+         QueryComposerWithLists<Pair<T, U>> newComposer = queryComposer.join(join);
          if (newComposer != null) return new QueryList<Pair<T, U>>(newComposer);
       }
       return super.join(join);
@@ -304,7 +304,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<T> newComposer = queryComposer.unique();
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.unique();
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.unique();
@@ -313,7 +313,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposer<Pair<U, V>> newComposer = queryComposer.group(select, aggregate);
+         QueryComposerWithLists<Pair<U, V>> newComposer = queryComposer.group(select, aggregate);
          if (newComposer != null) return new QueryList<Pair<U, V>>(newComposer);
       }
       return super.group(select, aggregate);

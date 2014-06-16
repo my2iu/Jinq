@@ -27,6 +27,7 @@ import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.QueryComposer;
+import ch.epfl.labos.iu.orm.QueryComposerWithLists;
 import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.VectorSet;
 import ch.epfl.labos.iu.orm.query2.SQLReader.ArrayTupleSQLReader;
@@ -34,7 +35,7 @@ import ch.epfl.labos.iu.orm.query2.SQLReader.DoubleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.IntegerSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.PairSQLReader;
 
-public class SQLQueryComposer<T> implements QueryComposer<T>
+public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
 {
    SQLQueryComposer() {}
    SQLQueryComposer(Object emSource, JDBCConnectionInfo jdbc, SQLQueryTransforms transformer, SQLQuery<T> query, int nextLambdaParamIndex, Object[][]params)
@@ -367,7 +368,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       return newParams;
    }
 
-   private <U> QueryComposer<U> lookupQueryCache(String context, Object lambda1, Object lambda2)
+   private <U> QueryComposerWithLists<U> lookupQueryCache(String context, Object lambda1, Object lambda2)
    {
       CachedQuery lookup = findQueryInCache(context, lambda1, lambda2);
       if (lookup == null) return null;
@@ -428,7 +429,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       } catch(QueryGenerationException e) {return null;}
    }
    
-   private <U> QueryComposer<U> cacheQueryAndNewComposer(String context, 
+   private <U> QueryComposerWithLists<U> cacheQueryAndNewComposer(String context, 
          Object lambda1,
          Object lambda2,
          SQLQuery<U> newQuery, int lambdaParamIndex) 
@@ -452,10 +453,10 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       } catch(QueryGenerationException e) {return null;}
    }
 
-   private <U, V, W> QueryComposer<U> composeQuery(String context, V lambda1, W lambda2, Supplier<SQLQuery<U>> transform)
+   private <U, V, W> QueryComposerWithLists<U> composeQuery(String context, V lambda1, W lambda2, Supplier<SQLQuery<U>> transform)
    {
       if (transformer == null) return null;
-      QueryComposer<U> cached = lookupQueryCache(context, lambda1, null);
+      QueryComposerWithLists<U> cached = lookupQueryCache(context, lambda1, null);
       if (cached != null) return cached;
       SQLQuery<U> newQuery = transform.get();
       if (newQuery == null) return null;
@@ -472,7 +473,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       return cacheQueryAndEvaluateRow(context, lambda, newQuery, nextLambdaParamIndex);
    }
 
-   public <U, V> QueryComposer<Pair<U, V>> group(Select<T, U> select,
+   public <U, V> QueryComposerWithLists<Pair<U, V>> group(Select<T, U> select,
                                                  AggregateGroup<U, T, V> aggregate) 
    {
       return composeQuery("group", select, aggregate, 
@@ -486,7 +487,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
             () -> transformer.group(query.copy(), nextLambdaParamIndex, select, nextLambdaParamIndex + 1, aggregate, emSource));
    }
 
-   public <U> QueryComposer<Pair<T, U>> join(Join<T,U> join)
+   public <U> QueryComposerWithLists<Pair<T, U>> join(Join<T,U> join)
    {
       return composeQuery("join", join,
             null, () -> transformer.join(query.copy(), nextLambdaParamIndex, join, emSource));
@@ -498,7 +499,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
             null, () -> transformer.join(query.copy(), nextLambdaParamIndex, join, emSource));
    }
 
-   public <U> QueryComposer<U> select(Select<T, U> select)
+   public <U> QueryComposerWithLists<U> select(Select<T, U> select)
    {
       return composeQuery("select", select,
             null, () -> transformer.select(query.copy(), nextLambdaParamIndex, select, emSource));
@@ -517,7 +518,7 @@ public class SQLQueryComposer<T> implements QueryComposer<T>
       return null;
    }
 
-   public QueryComposer<T> where(Where<T> test)
+   public QueryComposerWithLists<T> where(Where<T> test)
    {
       return composeQuery("where", test,
             null, () -> transformer.where(query.copy(), nextLambdaParamIndex, test, emSource));

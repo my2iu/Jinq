@@ -53,6 +53,11 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
     */
    List<LambdaInfo> lambdas = new ArrayList<>();
 
+   private JPAQueryComposer(JPAQueryComposer<?> base, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
+   {
+      this(base.metamodel, base.em, query, chainedLambdas, additionalLambdas);
+   }
+
    private JPAQueryComposer(MetamodelUtil metamodel, EntityManager em, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
       this.metamodel = metamodel;
@@ -66,15 +71,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, EntityManager em, String entityName)
    {
       return new JPAQueryComposer<>(metamodel, em, JPQLQuery.findAllEntities(entityName), new ArrayList<>());
-   }
-
-   @Override
-   public VectorSet<T> createRealizedSet()
-   {
-      VectorSet<T> toReturn = new VectorSet<T>();
-      Iterator<T> it = executeAndReturnResultIterator(exception -> {});
-      while (it.hasNext()) toReturn.add(it.next());
-      return toReturn;
    }
 
    @Override
@@ -112,12 +108,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public QueryComposer<T> where(Where<T> test)
-   {
-	   return null;
-   }
-
-   @Override
    public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
 	   LambdaInfo where = LambdaInfo.analyze(metamodel, test, lambdas.size());
@@ -125,7 +115,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
 	   JPQLQueryTransform whereTransform = new WhereTransform(metamodel, where);
 	   JPQLQuery<T> newQuery = whereTransform.apply(query);
 	   if (newQuery == null) return null;
-	   return new JPAQueryComposer<>(metamodel, em, newQuery, lambdas, where);
+	   return new JPAQueryComposer<>(this, newQuery, lambdas, where);
    }
 
    @Override
@@ -174,13 +164,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <U> QueryComposer<U> select(Select<T, U> select)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
    public <U> QueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
@@ -189,14 +172,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       JPQLQueryTransform selectTransform = new SelectTransform(metamodel, select);
       JPQLQuery<U> newQuery = selectTransform.apply(query);
       if (newQuery == null) return null;
-      return new JPAQueryComposer<>(metamodel, em, newQuery, lambdas, select);
-   }
-
-   @Override
-   public <U> QueryComposer<Pair<T, U>> join(Join<T, U> join)
-   {
-      // TODO Auto-generated method stub
-      return null;
+      return new JPAQueryComposer<>(this, newQuery, lambdas, select);
    }
 
    @Override
@@ -215,24 +191,9 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <U, V> QueryComposer<Pair<U, V>> group(Select<T, U> select,
-         AggregateGroup<U, T, V> aggregate)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
    public <U, V> QueryComposer<Pair<U, V>> group(
          org.jinq.orm.stream.JinqStream.Select<T, U> select,
          org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, V> aggregate)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public Double sumDouble(AggregateDouble<T> aggregate)
    {
       // TODO Auto-generated method stub
       return null;
@@ -247,22 +208,8 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public Integer sumInt(AggregateInteger<T> aggregate)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
    public Integer sumInt(
          org.jinq.orm.stream.JinqStream.AggregateInteger<T> aggregate)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public Double maxDouble(AggregateDouble<T> aggregate)
    {
       // TODO Auto-generated method stub
       return null;
@@ -277,22 +224,8 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public Integer maxInt(AggregateInteger<T> aggregate)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
    public Integer maxInt(
          org.jinq.orm.stream.JinqStream.AggregateInteger<T> aggregate)
-   {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
-   public <U> U selectAggregates(AggregateSelect<T, U> aggregate)
    {
       // TODO Auto-generated method stub
       return null;
@@ -313,5 +246,4 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       // TODO Auto-generated method stub
       return null;
    }
-
 }
