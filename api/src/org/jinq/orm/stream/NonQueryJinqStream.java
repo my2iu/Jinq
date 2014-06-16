@@ -374,4 +374,11 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       }
       return results;
    }
+
+   @Override
+   public JinqStream<T> setHint(String name, Object value)
+   {
+      return this;
+   }
+
 }

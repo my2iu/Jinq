@@ -45,6 +45,8 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    final EntityManager em;
    final JPQLQuery<T> query;
    
+   int automaticPageSize = 0;
+   
    /**
     * Holds the chain of lambdas that were used to create this query. This is needed
     * because query parameters (which are stored in the lambda objects) are only
@@ -56,6 +58,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    private JPAQueryComposer(JPAQueryComposer<?> base, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
       this(base.metamodel, base.em, query, chainedLambdas, additionalLambdas);
+      automaticPageSize = base.automaticPageSize;
    }
 
    private JPAQueryComposer(MetamodelUtil metamodel, EntityManager em, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
@@ -246,4 +249,12 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       // TODO Auto-generated method stub
       return null;
    }
+   
+   @Override
+   public void setHint(String name, Object val)
+   {
+      if ("automaticPageSize".equals(name))
+         automaticPageSize = (int)val;
+   }
+
 }

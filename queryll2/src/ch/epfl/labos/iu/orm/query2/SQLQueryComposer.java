@@ -655,4 +655,10 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
       return composeQuery(isAscending ? "sortedByStringAscending" : "sortedByStringDescending", sorter, 
             null, () -> transformer.sortedByString(query.copy(), nextLambdaParamIndex, sorter, isAscending, emSource));
    }
+   
+   public void setHint(String name, Object val)
+   {
+      // No hints
+   }
+
 }

@@ -199,4 +199,11 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       if (vals != null) return vals;
       return super.multiaggregate(aggregates);
    }
+   
+   @Override
+   public JinqStream<T> setHint(String name, Object value)
+   {
+      queryComposer.setHint(name, value);
+      return this;
+   }
 }

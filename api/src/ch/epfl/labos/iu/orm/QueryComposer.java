@@ -45,4 +45,6 @@ public interface QueryComposer<T>
    public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate);
    
    public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);
+   
+   public void setHint(String name, Object val);
 }

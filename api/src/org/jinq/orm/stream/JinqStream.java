@@ -90,4 +90,12 @@ public interface JinqStream<T> extends Stream<T>
    public void propagateException(Object source, Throwable exception);
    
    public Collection<Throwable> getExceptions();
+   
+   /**
+    * Sets a hint on the stream for how the query should be executed
+    * @param name
+    * @param value
+    * @return this
+    */
+   public JinqStream<T> setHint(String name, Object value);
 }
