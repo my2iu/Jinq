@@ -1,7 +1,11 @@
 package org.jinq.jooq;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 
 import org.jinq.jooq.querygen.ColumnExpressions;
 import org.jinq.jooq.querygen.RowReader;
@@ -10,7 +14,9 @@ import org.jinq.jooq.querygen.TupleRowReader;
 import org.jinq.jooq.transform.LambdaInfo;
 import org.jinq.jooq.transform.SelectTransform;
 import org.jinq.jooq.transform.WhereTransform;
+import org.jinq.orm.stream.NextOnlyIterator;
 import org.jooq.Condition;
+import org.jooq.Cursor;
 import org.jooq.Field;
 import org.jooq.QueryPart;
 import org.jooq.Record;
@@ -56,16 +62,16 @@ public class JinqJooqQueryN
    {
       // TODO: Decide between defaulting to using cursors or defaulting
       // to using lists.
-      List<Record> result;
+      Cursor<Record> cursor;
       if (whereConditions != null)
-         result = context.dsl.select().from(fromTables).where(whereConditions).fetch();
+         cursor = context.dsl.select().from(fromTables).where(whereConditions).fetchLazy();
       else
-         result = context.dsl.select().from(fromTables).fetch();
+         cursor = context.dsl.select().from(fromTables).fetchLazy();
       RowReader<?>[] readerArray = tableReaders.toArray(new RowReader[tableReaders.size()]);
       RowReader<U> reader = tableReaders.size() == 1 ? 
             (RowReader<U>)tableReaders.get(0)
-            :new TupleRowReader<>(readerArray);
-      return new ResultStream<>(result.stream().map(r -> reader.readResult(r)));
+            : new TupleRowReader<>(readerArray);
+      return makeCursorStream(cursor, reader);
    }
    
    public <U> ResultStream<U> select(Object lambda)
@@ -83,11 +89,31 @@ public class JinqJooqQueryN
       for (QueryPart col: columns.columns)
          selectColumns.add((Field<?>)col);
       
-      List<Record> result;
+      Cursor<Record> cursor;
       if (whereConditions != null)
-         result = context.dsl.select(selectColumns).from(froms).where(whereConditions).fetch();
+         cursor = context.dsl.select(selectColumns).from(froms).where(whereConditions).fetchLazy();
       else
-         result = context.dsl.select(selectColumns).from(froms).fetch();
-      return new ResultStream<>(result.stream().map(r -> columns.reader.readResult(r)));
+         cursor = context.dsl.select(selectColumns).from(froms).fetchLazy();
+      return makeCursorStream(cursor, columns.reader);
+   }
+   
+   private <U> ResultStream<U> makeCursorStream(Cursor<Record> cursor, RowReader<U> reader)
+   {
+      Iterator<U> iterator = new NextOnlyIterator<U>() {
+         @Override protected void generateNext()
+         {
+            if (!cursor.hasNext())
+            {
+               noMoreElements();
+               return;
+            }
+            nextElement(reader.readResult(cursor.fetchOne()));
+         }
+      };
+      return new ResultStream<>(StreamSupport.stream(
+            Spliterators.spliteratorUnknownSize(
+                  iterator, 
+                  Spliterator.CONCURRENT), 
+            false));
    }
 }

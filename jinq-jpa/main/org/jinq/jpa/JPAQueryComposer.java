@@ -292,7 +292,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public void setHint(String name, Object val)
    {
-      if ("automaticPageSize".equals(name))
+      if ("automaticPageSize".equals(name) && val instanceof Integer)
          automaticPageSize = (int)val;
    }
 
