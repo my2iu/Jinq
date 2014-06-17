@@ -3,12 +3,12 @@ package ch.epfl.labos.iu.orm.query2;
 import java.util.function.Predicate;
 
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DBSet;
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.StringSorter;
 
 // These methods will clobber the query passed into it when making a 

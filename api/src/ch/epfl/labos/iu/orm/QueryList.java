@@ -1,5 +1,7 @@
 package ch.epfl.labos.iu.orm;
 
+import org.jinq.tuples.Pair;
+
 public class QueryList<T> extends LazySet<T>
 {
    public QueryList() {}

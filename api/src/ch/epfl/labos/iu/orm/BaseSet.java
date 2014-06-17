@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
+import org.jinq.tuples.Pair;
+
 abstract public class BaseSet<T> implements DBSet<T>
 {
    abstract public int size();

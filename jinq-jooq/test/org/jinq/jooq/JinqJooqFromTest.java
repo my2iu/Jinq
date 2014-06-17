@@ -11,6 +11,7 @@ import java.util.List;
 import org.jinq.jooq.test.generated.App;
 import org.jinq.jooq.test.generated.tables.records.CustomersRecord;
 import org.jinq.jooq.test.generated.tables.records.SalesRecord;
+import org.jinq.tuples.Pair;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -19,8 +20,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import ch.epfl.labos.iu.orm.Pair;
 
 public class JinqJooqFromTest
 {

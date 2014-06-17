@@ -14,12 +14,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple3;
+
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.StringSorter;
-import ch.epfl.labos.iu.orm.Tuple3;
 
 public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
 {

@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -25,7 +26,6 @@ import ch.epfl.labos.iu.orm.DBSet.Where;
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.QueryComposer;
 import ch.epfl.labos.iu.orm.QueryComposerWithLists;
 import ch.epfl.labos.iu.orm.StringSorter;

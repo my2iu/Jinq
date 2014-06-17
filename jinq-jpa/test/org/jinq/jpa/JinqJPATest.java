@@ -14,13 +14,12 @@ import javax.persistence.Query;
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.tuples.Pair;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import ch.epfl.labos.iu.orm.Pair;
 
 public class JinqJPATest
 {

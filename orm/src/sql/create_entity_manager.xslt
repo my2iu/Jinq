@@ -15,10 +15,10 @@ package <xsl:value-of select="$package"/>;
 import ch.epfl.labos.iu.orm.DBSet;
 import ch.epfl.labos.iu.orm.LazySet;
 import ch.epfl.labos.iu.orm.VectorSet;
-import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.Triple;
-import ch.epfl.labos.iu.orm.Quartic;
-import ch.epfl.labos.iu.orm.Quintic;
+import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple3;
+import org.jinq.tuples.Tuple4;
+import org.jinq.tuples.Tuple5;
 import ch.epfl.labos.iu.orm.QueryList;
 import ch.epfl.labos.iu.orm.query.RowReader;
 import ch.epfl.labos.iu.orm.query.SelectFromWhere;
@@ -1019,9 +1019,9 @@ public class EntityManager implements EntityManagerBackdoor, Serializable
   <xsl:param name="size"/>
   <xsl:choose>
     <xsl:when test="$size=2"><xsl:value-of select="'Pair'"/></xsl:when>
-    <xsl:when test="$size=3"><xsl:value-of select="'Triple'"/></xsl:when>
-    <xsl:when test="$size=4"><xsl:value-of select="'Quartic'"/></xsl:when>
-    <xsl:when test="$size=5"><xsl:value-of select="'Quintic'"/></xsl:when>
+    <xsl:when test="$size=3"><xsl:value-of select="'Tuple3'"/></xsl:when>
+    <xsl:when test="$size=4"><xsl:value-of select="'Tuple4'"/></xsl:when>
+    <xsl:when test="$size=5"><xsl:value-of select="'Tuple5'"/></xsl:when>
     <xsl:otherwise><xsl:value-of select="'Tuple'"/></xsl:otherwise>
   </xsl:choose>
 </xsl:template>

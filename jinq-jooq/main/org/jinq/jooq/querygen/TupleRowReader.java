@@ -1,12 +1,11 @@
 package org.jinq.jooq.querygen;
 
+import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple3;
+import org.jinq.tuples.Tuple4;
+import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple8;
 import org.jooq.Record;
-
-import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.Tuple3;
-import ch.epfl.labos.iu.orm.Tuple4;
-import ch.epfl.labos.iu.orm.Tuple5;
-import ch.epfl.labos.iu.orm.Tuple8;
 
 public class TupleRowReader<T> implements RowReader<T>
 {

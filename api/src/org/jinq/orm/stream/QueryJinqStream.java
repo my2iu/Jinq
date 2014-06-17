@@ -9,11 +9,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.jinq.orm.stream.JinqStream.AggregateSelect;
+import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.QueryComposer;
 import ch.epfl.labos.iu.orm.StringSorter;
 

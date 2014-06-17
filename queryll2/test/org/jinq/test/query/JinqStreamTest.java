@@ -12,9 +12,9 @@ import org.junit.Test;
 import org.jinq.orm.stream.NonQueryJinqStream;
 import org.jinq.test.entities.DBManager;
 import org.jinq.test.entities.EntityManager;
+import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DBSet;
-import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
 
 public class JinqStreamTest

@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.NonQueryJinqStream;
+import org.jinq.tuples.Pair;
 
 public interface DBSet<T> extends Collection<T>
 {

@@ -14,10 +14,10 @@ import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.NonQueryJinqStream;
 import org.jinq.test.entities.DBManager;
 import org.jinq.test.entities.EntityManager;
+import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple3;
 
 import ch.epfl.labos.iu.orm.DBSet;
-import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.Tuple3;
 import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
 
 public class NonQueryJinqStreamTest

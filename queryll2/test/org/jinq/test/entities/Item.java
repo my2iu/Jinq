@@ -11,7 +11,8 @@ import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import ch.epfl.labos.iu.orm.Pair;
+import org.jinq.tuples.Pair;
+
 import ch.epfl.labos.iu.orm.Triple;
 import ch.epfl.labos.iu.orm.Quartic;
 import ch.epfl.labos.iu.orm.Quintic;

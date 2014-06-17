@@ -16,6 +16,7 @@ import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.WhereTransform;
 import org.jinq.orm.stream.NextOnlyIterator;
+import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -27,7 +28,6 @@ import ch.epfl.labos.iu.orm.DBSet.Where;
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.QueryComposer;
 import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.VectorSet;

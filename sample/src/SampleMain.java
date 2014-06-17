@@ -10,11 +10,10 @@ import javax.persistence.Persistence;
 
 import org.jinq.jpa.JinqJPAStreamProvider;
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.tuples.Pair;
 
 import com.example.jinq.sample.jpa.entities.Customer;
 import com.example.jinq.sample.jpa.entities.Sale;
-
-import ch.epfl.labos.iu.orm.Pair;
 
 public class SampleMain
 {

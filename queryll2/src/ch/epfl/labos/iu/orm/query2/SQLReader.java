@@ -4,11 +4,11 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.Tuple3;
-import ch.epfl.labos.iu.orm.Tuple4;
-import ch.epfl.labos.iu.orm.Tuple5;
-import ch.epfl.labos.iu.orm.Tuple8;
+import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple3;
+import org.jinq.tuples.Tuple4;
+import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple8;
 
 public abstract class SQLReader<T> 
 {
@@ -242,11 +242,11 @@ public abstract class SQLReader<T>
       {
          switch(subreaders.length)
          {
-            case 2: return "ch/epfl/labos/iu/orm/Pair"; 
-            case 3: return "ch/epfl/labos/iu/orm/Tuple3"; 
-            case 4: return "ch/epfl/labos/iu/orm/Tuple4"; 
-            case 5: return "ch/epfl/labos/iu/orm/Tuple5"; 
-            case 8: return "ch/epfl/labos/iu/orm/Tuple8"; 
+            case 2: return "org/jinq/tuples/Pair"; 
+            case 3: return "org/jinq/tuples/Tuple3"; 
+            case 4: return "org/jinq/tuples/Tuple4"; 
+            case 5: return "org/jinq/tuples/Tuple5"; 
+            case 8: return "org/jinq/tuples/Tuple8"; 
             default:
                throw new IllegalArgumentException("Creating a tuple with a SQLReader with unknown size " + subreaders.length);
          }
@@ -258,15 +258,15 @@ public abstract class SQLReader<T>
       }
       public static <T> TupleSQLReader<T> createReaderForTuple(String tupleInternalName, SQLReader...subreaders)
       {
-         if ("ch/epfl/labos/iu/orm/Pair".equals(tupleInternalName))
+         if ("org/jinq/tuples/Pair".equals(tupleInternalName))
             return new PairSQLReader(subreaders[0], subreaders[1]);
-         else if ("ch/epfl/labos/iu/orm/Tuple3".equals(tupleInternalName))
+         else if ("org/jinq/tuples/Tuple3".equals(tupleInternalName))
             return new Tuple3SQLReader(subreaders[0], subreaders[1], subreaders[2]);
-         else if ("ch/epfl/labos/iu/orm/Tuple4".equals(tupleInternalName))
+         else if ("org/jinq/tuples/Tuple4".equals(tupleInternalName))
             return new Tuple4SQLReader(subreaders[0], subreaders[1], subreaders[2], subreaders[3]);
-         else if ("ch/epfl/labos/iu/orm/Tuple5".equals(tupleInternalName))
+         else if ("org/jinq/tuples/Tuple5".equals(tupleInternalName))
             return new Tuple5SQLReader(subreaders[0], subreaders[1], subreaders[2], subreaders[3], subreaders[4]);
-         else if ("ch/epfl/labos/iu/orm/Tuple8".equals(tupleInternalName))
+         else if ("org/jinq/tuples/Tuple8".equals(tupleInternalName))
             return new Tuple8SQLReader(subreaders[0], subreaders[1], subreaders[2], subreaders[3], subreaders[4], subreaders[5], subreaders[6], subreaders[7]);
          else
             throw new IllegalArgumentException("Creating a tuple with a SQLReader with unknown size " + subreaders.length);

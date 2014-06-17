@@ -4,11 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jinq.tuples.Tuple3;
 import org.jooq.Condition;
 import org.jooq.Record;
 import org.jooq.impl.TableImpl;
-
-import ch.epfl.labos.iu.orm.Tuple3;
 
 public class JinqJooqQuery3<T extends Record, U extends Record, V extends Record>
 {

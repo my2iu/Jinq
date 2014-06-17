@@ -4,7 +4,6 @@ package org.jinq.test.entities;
 import ch.epfl.labos.iu.orm.DBSet;
 import ch.epfl.labos.iu.orm.LazySet;
 import ch.epfl.labos.iu.orm.VectorSet;
-import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.Triple;
 import ch.epfl.labos.iu.orm.Quartic;
 import ch.epfl.labos.iu.orm.Quintic;
@@ -16,10 +15,13 @@ import ch.epfl.labos.iu.orm.query2.SQLQueryComposer;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReaderColumnDescription;
 import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
+
 import org.jinq.orm.annotations.EntitySupplier;
 import org.jinq.orm.annotations.NoSideEffects;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.QueryJinqStream;
+import org.jinq.tuples.Pair;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;

@@ -20,10 +20,10 @@ package <xsl:value-of select="$package"/>;
 import ch.epfl.labos.iu.orm.DBSet;
 import ch.epfl.labos.iu.orm.VectorSet;
 import ch.epfl.labos.iu.orm.LazySet;
-import ch.epfl.labos.iu.orm.Pair;
-import ch.epfl.labos.iu.orm.Triple;
-import ch.epfl.labos.iu.orm.Quartic;
-import ch.epfl.labos.iu.orm.Quintic;
+import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple3;
+import org.jinq.tuples.Tuple4;
+import org.jinq.tuples.Tuple5;
 import org.jinq.orm.annotations.NoSideEffects;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -1498,7 +1498,7 @@ public class <xsl:value-of select="@name"/> implements Cloneable
         <xsl:when test="position()=1"><xsl:call-template name="FirstLower"><xsl:with-param name="name" select="@name"/></xsl:call-template></xsl:when>
         <xsl:otherwise>, <xsl:call-template name="FirstLower"><xsl:with-param name="name" select="@name"/></xsl:call-template></xsl:otherwise>
       </xsl:choose></xsl:for-each>)</xsl:when>
-    <xsl:when test="$num_keys=3">new Triple&lt;<xsl:for-each select="$entity/field[@key='true']">
+    <xsl:when test="$num_keys=3">new Tuple3&lt;<xsl:for-each select="$entity/field[@key='true']">
       <xsl:choose>
         <xsl:when test="position()=1"><xsl:call-template name="NonPrimitive"><xsl:with-param name="type" select="@type"/></xsl:call-template></xsl:when>
         <xsl:otherwise>, <xsl:call-template name="NonPrimitive"><xsl:with-param name="type" select="@type"/></xsl:call-template></xsl:otherwise>
@@ -1507,7 +1507,7 @@ public class <xsl:value-of select="@name"/> implements Cloneable
         <xsl:when test="position()=1"><xsl:call-template name="FirstLower"><xsl:with-param name="name" select="@name"/></xsl:call-template></xsl:when>
         <xsl:otherwise>, <xsl:call-template name="FirstLower"><xsl:with-param name="name" select="@name"/></xsl:call-template></xsl:otherwise>
       </xsl:choose></xsl:for-each>)</xsl:when>
-    <xsl:when test="$num_keys=4">new Quartic&lt;<xsl:for-each select="$entity/field[@key='true']">
+    <xsl:when test="$num_keys=4">new Tuple4&lt;<xsl:for-each select="$entity/field[@key='true']">
       <xsl:choose>
         <xsl:when test="position()=1"><xsl:call-template name="NonPrimitive"><xsl:with-param name="type" select="@type"/></xsl:call-template></xsl:when>
         <xsl:otherwise>, <xsl:call-template name="NonPrimitive"><xsl:with-param name="type" select="@type"/></xsl:call-template></xsl:otherwise>
@@ -1516,7 +1516,7 @@ public class <xsl:value-of select="@name"/> implements Cloneable
         <xsl:when test="position()=1"><xsl:call-template name="FirstLower"><xsl:with-param name="name" select="@name"/></xsl:call-template></xsl:when>
         <xsl:otherwise>, <xsl:call-template name="FirstLower"><xsl:with-param name="name" select="@name"/></xsl:call-template></xsl:otherwise>
       </xsl:choose></xsl:for-each>)</xsl:when>
-    <xsl:when test="$num_keys=5">new Quintic&lt;<xsl:for-each select="$entity/field[@key='true']">
+    <xsl:when test="$num_keys=5">new Tuple5&lt;<xsl:for-each select="$entity/field[@key='true']">
       <xsl:choose>
         <xsl:when test="position()=1"><xsl:call-template name="NonPrimitive"><xsl:with-param name="type" select="@type"/></xsl:call-template></xsl:when>
         <xsl:otherwise>, <xsl:call-template name="NonPrimitive"><xsl:with-param name="type" select="@type"/></xsl:call-template></xsl:otherwise>

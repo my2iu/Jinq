@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.AggregateSelect;
+import org.jinq.tuples.Pair;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 
@@ -23,7 +24,6 @@ import ch.epfl.labos.iu.orm.DBSet.Where;
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.Pair;
 import ch.epfl.labos.iu.orm.StringSorter;
 import ch.epfl.labos.iu.orm.query2.EntityManagerBackdoor;
 import ch.epfl.labos.iu.orm.query2.ParameterLocation;

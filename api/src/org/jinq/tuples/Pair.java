@@ -1,4 +1,4 @@
-package ch.epfl.labos.iu.orm;
+package org.jinq.tuples;
 
 import java.util.Collection;
 import java.util.Vector;

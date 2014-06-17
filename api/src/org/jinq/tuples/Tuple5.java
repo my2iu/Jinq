@@ -1,4 +1,4 @@
-package ch.epfl.labos.iu.orm;
+package org.jinq.tuples;
 
 public class Tuple5<A, B, C, D, E>
 {

@@ -1,7 +1,8 @@
 package ch.epfl.labos.iu.orm.query;
 
 import java.sql.ResultSet;
-import ch.epfl.labos.iu.orm.Pair;
+
+import org.jinq.tuples.Pair;
 
 public class PairRowReader <T, U> implements RowReader<Pair<T, U>>, TupleRowReaderGet1<T>, TupleRowReaderGet2<U>
 {

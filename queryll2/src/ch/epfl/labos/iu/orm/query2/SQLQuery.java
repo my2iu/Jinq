@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import ch.epfl.labos.iu.orm.Pair;
+import org.jinq.tuples.Pair;
 
 public abstract class SQLQuery<T> implements SQLComponent
 {
