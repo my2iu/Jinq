@@ -1,0 +1,13 @@
+This directory contains library packages from other open source 
+projects. The packages can be linked with the sample code to demonstrate
+the usage of Jinq. The licenses and notices for these packages are 
+described in the corresponding files for each jar library.
+
+INCLUDED JAR PACKAGES
+
+  jinq - BSD, 2-clause
+  derby - Apache License 2.0
+  asm - BSD, 3-clause
+  eclipselink - EPL/EDL 1.0
+  javax.persistence - EPL/EDL 1.0
+  openjpa - Apache License 2.0

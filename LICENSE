@@ -1,1 +1,8 @@
 This code is made available under the BSD 2-clause open source license.
+
+The sample directory contains some sample code that demonstrates the
+usage of Jinq. To make it easier to try out the sample code, the
+libraries of some open source projects have been placed in the 
+sample/lib directory. These libraries can be linked with the sample
+code to test how it works. The licenses and notices for these libraries
+are included in the sample/lib directory.
