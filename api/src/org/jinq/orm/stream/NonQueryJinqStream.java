@@ -322,15 +322,11 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
             @Override public void run()
             {
                startIterator.run();
-               Iterator<T> inputIterator = new Iterator<T>()
+               Iterator<T> inputIterator = new NextOnlyIterator<T>()
                      {
-                        boolean hasRead = false;
-                        boolean hasMore = true;
-                        T peek;
-                        @Override public boolean hasNext()
+                        @Override
+                        protected void generateNext()
                         {
-                           if (hasRead) return hasMore;
-                           hasRead = true;
                            Object taken = DONE;
                            try {
                               taken = inputQueues[idx].take();
@@ -339,17 +335,9 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
                               Thread.currentThread().interrupt();
                            }
                            if (taken == DONE)
-                              hasMore = false;
+                              noMoreElements();
                            else
-                              peek = (T)taken;
-                           return hasMore;
-                        }
-
-                        @Override public T next()
-                        {
-                           if (!hasNext()) throw new NoSuchElementException();
-                           hasRead = false;
-                           return peek;
+                              nextElement((T)taken);
                         }
                      };
                JinqStream<T> stream = new NonQueryJinqStream<>(

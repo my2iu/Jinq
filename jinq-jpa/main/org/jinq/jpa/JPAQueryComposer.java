@@ -15,6 +15,7 @@ import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.WhereTransform;
+import org.jinq.orm.stream.NextOnlyIterator;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -45,7 +46,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    final EntityManager em;
    final JPQLQuery<T> query;
    
-   int automaticPageSize = 0;
+   int automaticPageSize = 10000;
    
    /**
     * Holds the chain of lambdas that were used to create this query. This is needed
@@ -92,20 +93,58 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public Iterator<T> executeAndReturnResultIterator(
          Consumer<Throwable> exceptionReporter)
    {
-      Query q = em.createQuery(query.getQueryString());
+      final Query q = em.createQuery(query.getQueryString());
       fillQueryParameters(q, query.getQueryParameters());
-      List<Object> results = q.getResultList();
       final RowReader<T> reader = query.getRowReader();
-      final Iterator<Object> iterator = results.iterator();
-      return new Iterator<T>() {
-         @Override public boolean hasNext()
+      // To handle the streaming of giant result sets, we will break
+      // them down into pages. Technically, this is not really correct
+      // because a database can return the results in different orders
+      // and this is potentially slow depending on the underlying 
+      // database, but it helps us avoid running out of memory.
+      return new NextOnlyIterator<T>() {
+         boolean hasNextPage = false;
+         Iterator<Object> resultIterator;
+         int offset = 0;
+         @Override protected void generateNext()
          {
-            return iterator.hasNext();
-         }
-
-         @Override public T next()
-         {
-            return reader.readResult(iterator.next()); 
+            if (resultIterator == null)
+            {
+               if (automaticPageSize > 0)
+               {
+                  q.setFirstResult(offset);
+                  q.setMaxResults(automaticPageSize + 1);
+                  List<Object> results = q.getResultList();
+                  if (results.size() > automaticPageSize)
+                  {
+                     hasNextPage = true;
+                     offset += automaticPageSize;
+                     results.remove(automaticPageSize);
+                  }
+                  resultIterator = results.iterator();
+               }
+               else
+               {
+                  List<Object> results = q.getResultList();
+                  resultIterator = results.iterator();
+               }
+            }
+            if (resultIterator.hasNext())
+            {
+               nextElement(reader.readResult(resultIterator.next()));
+            }
+            else 
+            {
+               if (hasNextPage)
+               {
+                  hasNextPage = false;
+                  resultIterator = null;
+                  generateNext();
+               }
+               else
+               {
+                  noMoreElements();
+               }
+            }
          }
       };
    }

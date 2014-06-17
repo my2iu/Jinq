@@ -68,6 +68,22 @@ public class JinqJPATest
    }
 
    @Test
+   public void testStreamPages()
+   {
+      List<String> names = streams.streamAll(em, Customer.class)
+            .setHint("automaticPageSize", 1)
+            .select(c -> c.getName() )
+            .toList();
+      names = names.stream().sorted().collect(Collectors.toList());
+      assertEquals(5, names.size());
+      assertEquals("Alice", names.get(0));
+      assertEquals("Bob", names.get(1));
+      assertEquals("Carol", names.get(2));
+      assertEquals("Dave", names.get(3));
+      assertEquals("Eve", names.get(4));
+   }
+
+   @Test
    public void testWhere()
    {
       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
