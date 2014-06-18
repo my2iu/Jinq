@@ -2,12 +2,14 @@
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.jinq.jpa.JPAQueryLogger;
 import org.jinq.jpa.JinqJPAStreamProvider;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
@@ -25,11 +27,16 @@ public class SampleMain
    public static void main(String[] args)
    {
       entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
+      SampleDbCreator.createDatabase(entityManagerFactory);
       streams = new JinqJPAStreamProvider(entityManagerFactory);
-      EntityManager em = entityManagerFactory.createEntityManager();
-      new CreateJpaDb(em).createDatabase();
-      em.close();
-      
+      streams.setHint("queryLogger", new JPAQueryLogger() {
+         @Override public void logQuery(String query, Map<Integer, Object> positionParameters,
+               Map<String, Object> namedParameters)
+         {
+            System.out.println(query);
+         }
+      });
+
       new SampleMain().go();
    }
 

@@ -3,6 +3,7 @@
 import java.util.Arrays;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 import com.example.jinq.sample.jpa.entities.Customer;
 import com.example.jinq.sample.jpa.entities.Item;
@@ -10,11 +11,11 @@ import com.example.jinq.sample.jpa.entities.Lineorder;
 import com.example.jinq.sample.jpa.entities.Sale;
 import com.example.jinq.sample.jpa.entities.Supplier;
 
-public class CreateJpaDb
+public class SampleDbCreator
 {
    EntityManager em;
 
-   public CreateJpaDb(EntityManager em)
+   public SampleDbCreator(EntityManager em)
    {
       this.em = em;
    }
@@ -63,7 +64,19 @@ public class CreateJpaDb
       return s;
    }
    
-   void createDatabase()
+   static void createDatabase(EntityManagerFactory entityManagerFactory)
+   {
+      EntityManager em = entityManagerFactory.createEntityManager();
+      try {
+         new SampleDbCreator(em).go();
+      } 
+      finally 
+      {
+         em.close();
+      }
+      
+   }
+   void go()
    {
       em.getTransaction().begin();
 

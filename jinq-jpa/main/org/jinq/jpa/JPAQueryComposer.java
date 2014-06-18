@@ -1,11 +1,14 @@
 package org.jinq.jpa;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Parameter;
 import javax.persistence.Query;
 
 import org.jinq.jpa.jpqlquery.GeneratedQueryParameter;
@@ -18,19 +21,11 @@ import org.jinq.jpa.transform.WhereTransform;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
 
-import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
-import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
-import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
-import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
-import ch.epfl.labos.iu.orm.DBSet.Join;
-import ch.epfl.labos.iu.orm.DBSet.Select;
-import ch.epfl.labos.iu.orm.DBSet.Where;
 import ch.epfl.labos.iu.orm.DateSorter;
 import ch.epfl.labos.iu.orm.DoubleSorter;
 import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.QueryComposer;
 import ch.epfl.labos.iu.orm.StringSorter;
-import ch.epfl.labos.iu.orm.VectorSet;
 
 /**
  * Holds a query and can apply the logic for composing JPQL queries. 
@@ -45,8 +40,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    final MetamodelUtil metamodel;
    final EntityManager em;
    final JPQLQuery<T> query;
-   
-   int automaticPageSize = 10000;
+   final JinqJPAHints hints = new JinqJPAHints();
    
    /**
     * Holds the chain of lambdas that were used to create this query. This is needed
@@ -58,11 +52,10 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
 
    private JPAQueryComposer(JPAQueryComposer<?> base, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
-      this(base.metamodel, base.em, query, chainedLambdas, additionalLambdas);
-      automaticPageSize = base.automaticPageSize;
+      this(base.metamodel, base.em, base.hints, query, chainedLambdas, additionalLambdas);
    }
 
-   private JPAQueryComposer(MetamodelUtil metamodel, EntityManager em, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
+   private JPAQueryComposer(MetamodelUtil metamodel, EntityManager em, JinqJPAHints hints, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
       this.metamodel = metamodel;
       this.em = em;
@@ -70,11 +63,13 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       lambdas.addAll(chainedLambdas);
       for (LambdaInfo newLambda: additionalLambdas)
          lambdas.add(newLambda);
+      this.hints.automaticResultsPagingSize = hints.automaticResultsPagingSize;
+      this.hints.queryLogger = hints.queryLogger;
    }
 
-   public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, EntityManager em, String entityName)
+   public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, EntityManager em, JinqJPAHints hints, String entityName)
    {
-      return new JPAQueryComposer<>(metamodel, em, JPQLQuery.findAllEntities(entityName), new ArrayList<>());
+      return new JPAQueryComposer<>(metamodel, em, hints, JPQLQuery.findAllEntities(entityName), new ArrayList<>());
    }
 
    @Override
@@ -89,11 +84,27 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          q.setParameter(param.paramName, lambdas.get(param.lambdaIndex).getCapturedArg(param.argIndex));
    }
    
+   private void logQuery(String queryString, Query q)
+   {
+      if (hints.queryLogger == null) return;
+      Map<Integer, Object> positionParams = new HashMap<Integer, Object>();
+      Map<String, Object> namedParams = new HashMap<String, Object>();
+      for (Parameter<?> param: q.getParameters())
+      {
+         if (param.getName() != null)
+            namedParams.put(param.getName(), q.getParameterValue(param));
+         if (param.getPosition() != null)
+            positionParams.put(param.getPosition(), q.getParameterValue(param));
+      }
+      hints.queryLogger.logQuery(queryString, positionParams, namedParams);
+   }
+   
    @Override
    public Iterator<T> executeAndReturnResultIterator(
          Consumer<Throwable> exceptionReporter)
    {
-      final Query q = em.createQuery(query.getQueryString());
+      final String queryString = query.getQueryString();
+      final Query q = em.createQuery(queryString);
       fillQueryParameters(q, query.getQueryParameters());
       final RowReader<T> reader = query.getRowReader();
       // To handle the streaming of giant result sets, we will break
@@ -109,21 +120,23 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          {
             if (resultIterator == null)
             {
-               if (automaticPageSize > 0)
+               if (hints.automaticResultsPagingSize > 0)
                {
                   q.setFirstResult(offset);
-                  q.setMaxResults(automaticPageSize + 1);
+                  q.setMaxResults(hints.automaticResultsPagingSize + 1);
+                  logQuery(queryString, q);
                   List<Object> results = q.getResultList();
-                  if (results.size() > automaticPageSize)
+                  if (results.size() > hints.automaticResultsPagingSize)
                   {
                      hasNextPage = true;
-                     offset += automaticPageSize;
-                     results.remove(automaticPageSize);
+                     offset += hints.automaticResultsPagingSize;
+                     results.remove(hints.automaticResultsPagingSize);
                   }
                   resultIterator = results.iterator();
                }
                else
                {
+                  logQuery(queryString, q);
                   List<Object> results = q.getResultList();
                   resultIterator = results.iterator();
                }
@@ -292,8 +305,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public void setHint(String name, Object val)
    {
-      if ("automaticPageSize".equals(name) && val instanceof Integer)
-         automaticPageSize = (int)val;
+      hints.setHint(name, val);
    }
-
 }

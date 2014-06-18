@@ -13,6 +13,7 @@ import org.jinq.orm.stream.QueryJinqStream;
 public class JinqJPAStreamProvider
 {
    MetamodelUtil metamodel;
+   JinqJPAHints hints = new JinqJPAHints();
    
    public JinqJPAStreamProvider(EntityManagerFactory factory)
    {
@@ -35,6 +36,16 @@ public class JinqJPAStreamProvider
    public <U> JinqStream<U> streamAll(EntityManager em, Class<U> entity)
    {
       return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
-            metamodel, em, metamodel.entityNameFromClass(entity)));
+            metamodel, em, hints, metamodel.entityNameFromClass(entity)));
+   }
+
+   /**
+    * Sets a hint for how queries should be executed by Jinq
+    * @param name 
+    * @param val
+    */
+   public void setHint(String name, Object val)
+   {
+      hints.setHint(name, val);
    }
 }
