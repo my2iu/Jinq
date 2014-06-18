@@ -2,8 +2,6 @@ package org.jinq.test.query;
 
 import static org.junit.Assert.*;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -12,13 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.NonQueryJinqStream;
-import org.jinq.test.entities.DBManager;
-import org.jinq.test.entities.EntityManager;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
-
-import ch.epfl.labos.iu.orm.DBSet;
-import ch.epfl.labos.iu.orm.queryll2.QueryllAnalyzer;
 
 public class NonQueryJinqStreamTest
 {
