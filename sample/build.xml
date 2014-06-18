@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<project name="Jinq Sample Program" default="Run Sample Program">
+
+	<property name="asm" location="lib/asm-all-5.0.1.jar"/>
+	<property name="derby" location="lib/derby-10.10.1.1.jar"/>
+	<property name="eclipselink" location="lib/eclipselink-2.5.1.jar"/>
+	<property name="javax.persistence" location="lib/javax.persistence_2.1.0.v201304241213.jar"/>
+	<property name="jinq" location="lib/jinq-all.jar"/>
+
+	<target name="Build Sample Program">
+		<mkdir dir="bin"/>
+		<javac destdir="bin" debug="true" fork="true" target="1.8" includeantruntime="false">
+			<classpath>
+				<pathelement location="${asm}"/>
+				<pathelement location="${derby}"/>
+				<pathelement location="${eclipselink}"/>
+				<pathelement location="${javax.persistence}"/>
+				<pathelement location="${jinq}"/>
+			</classpath>
+			<src path="src"/>
+		</javac>
+		<copy todir="bin">
+			<fileset dir="src" includes="META-INF/**"/>
+		</copy>
+	</target>
+
+	<target name="Run Sample Program" depends="Build Sample Program">
+		<java classname="SampleMain" dir="bin" fork="true">
+			<classpath>
+				<pathelement location="${asm}"/>
+				<pathelement location="${derby}"/>
+				<pathelement location="${eclipselink}"/>
+				<pathelement location="${javax.persistence}"/>
+				<pathelement location="${jinq}"/>
+				<pathelement location="bin"/>
+			</classpath>
+		</java>
+	</target>
+</project>

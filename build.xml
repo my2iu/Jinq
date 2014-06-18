@@ -110,6 +110,8 @@
 			<fileset dir="bin"/>
 			<fileset dir="jarbin"/>
 			<fileset dir="demogen/src"/>
+			<fileset dir="sample/bin"/>
+			<fileset dir="sample/target"/>
 		</delete>
 	</target>
 
@@ -128,7 +130,7 @@
 			<src path="jinq-jpa/main"/>
 			<src path="jinq-jooq/main"/>
 		</javac>
-		<jar destfile="lib/jinq-all.jar">
+		<jar destfile="sample/lib/jinq-all.jar">
 			<fileset dir="jarbin"/>
 			<fileset dir="orm/src" includes="**/*.xslt"/>
 		</jar>
@@ -143,7 +145,7 @@
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
 			<zipfileset file="demogen/pom.xml" prefix="Jinq/demogen"/>
-			<zipfileset file="lib/jinq-all.jar" prefix="Jinq/lib"/>
+			<zipfileset file="sample/lib/jinq-all.jar" prefix="Jinq/sample/lib"/>
 		</zip>
 	</target>
 	

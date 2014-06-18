@@ -38,7 +38,7 @@ public class SampleDbCreator
       return s;
    }
    
-   private Item createItem(String name, int salePrice, int purchasePrice)
+   private Item createItem(String name, int purchasePrice, int salePrice)
    {
       Item i = new Item();
       i.setName(name);

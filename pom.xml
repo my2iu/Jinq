@@ -43,10 +43,15 @@
   	<module>api</module>
   	<module>analysis</module>
   	<module>queryll2</module>
-  	<module>demogen</module>
-  	<module>demosrc</module>
     <module>jinq-jpa</module>
     <module>jinq-jooq</module>
+    <!--
+    The modules below are being phased out in favour of the JPA version
+    of Jinq (plus, the code generator just doesn't work well with Maven
+    anyway) 
+  	<module>demogen</module>
+  	<module>demosrc</module>
+  	-->
   </modules>
   
   <build>

@@ -11,7 +11,6 @@
   <build>
     <sourceDirectory>main</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
-    <directory>target</directory>
   </build>
   
   <dependencies>

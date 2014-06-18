@@ -1,9 +1,8 @@
 
 
-import java.util.Collections;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -15,38 +14,121 @@ import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 
 import com.example.jinq.sample.jpa.entities.Customer;
-import com.example.jinq.sample.jpa.entities.Sale;
+import com.example.jinq.sample.jpa.entities.Lineorder;
 
 public class SampleMain
 {
-   static EntityManagerFactory entityManagerFactory;
-   static JinqJPAStreamProvider streams;
+   private static EntityManagerFactory entityManagerFactory;
+   private static JinqJPAStreamProvider streams;
 
-   EntityManager em;
+   private EntityManager em;
 
    public static void main(String[] args)
    {
+      // Configure Jinq for the given JPA database connection
       entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
       SampleDbCreator.createDatabase(entityManagerFactory);
       streams = new JinqJPAStreamProvider(entityManagerFactory);
+      
+      // Configure Jinq to output the queries it executes
       streams.setHint("queryLogger", new JPAQueryLogger() {
          @Override public void logQuery(String query, Map<Integer, Object> positionParameters,
                Map<String, Object> namedParameters)
          {
-            System.out.println(query);
+            System.out.println("  " + query);
          }
       });
 
-      new SampleMain().go();
+      // Start running some queries
+      new SampleMain().runSampleQueries();
    }
 
-   public void go()
+   // Helper accessor methods
+   
+   private JinqStream<Customer> customers() { return streams.streamAll(em, Customer.class); }  
+   private JinqStream<Lineorder> lineorders() { return streams.streamAll(em, Lineorder.class); }  
+   
+   // Actual queries to run
+   
+   public void runSampleQueries()
    {
+      PrintStream out = System.out;
       em = entityManagerFactory.createEntityManager();
-      JinqStream<Customer> customers = streams.streamAll(em, Customer.class);
-      List<Customer> customerList = customers.toList();
-      for (Customer c: customerList)
-         System.out.println(c.getName());
+
+      // Table scan
+      out.println("LIST OF CUSTOMERS");
+      customers()
+         .forEach( c -> out.println(c.getName() + " " + c.getCountry() + " " + c.getSalary()));
+      out.println();
+      
+      // Simple filtering based on a field
+      out.println("CUSTOMERS FROM THE UK");
+      customers()
+         .where(c -> c.getCountry().equals("UK"))
+         .forEach( c -> out.println(c.getName() + " " + c.getCountry()));
+      out.println();
+
+      // Example using lists 
+      out.println("CUSTOMERS FROM SWITZERLAND");
+      List<Customer> swiss = customers()
+         .where(c -> c.getCountry().equals("Switzerland"))
+         .toList();
+      for (Customer c: swiss)
+         out.println(c.getName() + " " + c.getCountry());
+      out.println();
+      
+      // Simple filtering with a parameter
+      // (the parameter must be a basic type and a local variable)
+      int param = 200;
+      out.println("CUSTOMERS WITH DEBT < 200");
+      customers()
+         .where(c -> c.getDebt() < param)
+         .forEach( c -> out.println(c.getName() + " " + c.getDebt()));
+      out.println();
+
+      // More complex filtering involving multiple fields
+      out.println("CUSTOMERS WITH DEBT < SALARY");
+      customers()
+         .where(c -> c.getDebt() < c.getSalary())
+         .forEach( c -> out.println(c.getName() + " " + c.getDebt() + " " + c.getSalary()));
+      out.println();
+
+      // Projection where only a single field is used and a calculation performed
+      out.println("HOW MUCH BIGGER IS A CUSTOMER'S DEBT THAN THEIR SALARY");
+      customers()
+         .select(c -> new Pair<>(c.getName(), c.getDebt() - c.getSalary()))
+         .forEach(pair -> out.println(pair.getOne() + " " + pair.getTwo()));
+      out.println();
+
+      // Mix of projection and filtering
+      out.println("CUSTOMERS WITH A SALARY > 200 AND DEBT < SALARY");
+      customers()
+         .where(c -> c.getSalary() > 200)
+         .select(c -> new Pair<>(c.getName(), c.getDebt() - c.getSalary()))
+         .where(pair -> pair.getTwo() < 0)
+         .forEach(pair -> out.println(pair.getOne() + " " + pair.getTwo()));
+      out.println();
+
+      // More complex filtering using imperative code
+      out.println("CUSTOMERS FROM SWITZERLAND WITH SALARY > 250 OR CUSTOMERS FROM USA");
+      customers()
+         .where(c -> {
+            if (c.getCountry().equals("Switzerland"))
+               return c.getSalary() > 250;
+            else
+               return c.getCountry().equals("USA");
+         })
+         .forEach(c -> out.println(c.getName() + " " + c.getCountry() + " " + c.getSalary()));
+      out.println();
+
+      // Join across multiple tables using N:1 and 1:1 navigational links
+      out.println("CUSTOMERS WHO HAVE PURCHASED WIDGETS IN THE PAST");
+      lineorders()
+         .where(lo -> lo.getItem().getName().equals("Widgets"))
+         .select(lo -> lo.getSale().getCustomer().getName())
+         .forEach(name -> out.println(name));
+      out.println();
+      
       em.close();
    }
 }
