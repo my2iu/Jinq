@@ -77,8 +77,6 @@
         <version>2.5</version>
         <configuration>
           <autoVersionSubmodules>true</autoVersionSubmodules>
-          <!-- Enable the release profile when releasing to Maven Central -->
-          <!-- <releaseProfiles>release</releaseProfiles> -->
         </configuration>
       </plugin> 
       
@@ -99,53 +97,4 @@
     </plugins>
   </build>
 
-  <profiles>
-    <!-- 
-    Only do these things during a release. There's no need to install
-    gpg on a dev box if not doing a release.
-    -->
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-        
-          <!-- For generating packages of JavaDoc -->
-          <!-- 
-          TODO: Is this necessary? The FAQ says the release process automatically 
-          generates source and javadoc. Maybe it's useful as a double-check when
-          preparing the release anyway.
-          -->        
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <!-- For signing the resulting .jar artifacts -->        
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>   
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
