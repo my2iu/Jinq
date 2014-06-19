@@ -3,7 +3,7 @@
   <parent>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq</artifactId>
-	  <version>0.3</version>
+	  <version>0.3.1-SNAPSHOT</version>
   </parent>
   <artifactId>api</artifactId>
   <packaging>jar</packaging>
