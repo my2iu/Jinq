@@ -67,19 +67,19 @@
             <target>1.8</target>
           </configuration>
         </plugin>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5</version>
+          <configuration>
+            <autoversionsubmodules>true</autoversionsubmodules>
+            <!-- Enable the release profile when releasing to Maven Central -->
+            <!-- <releaseProfiles>release</releaseProfiles> -->
+          </configuration>
+        </plugin> 
       </plugins>
     </pluginManagement>
 
     <plugins>
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <autoversionsubmodules>true</autoversionsubmodules>
-          <!-- Enable the release profile when releasing to Maven Central -->
-          <!-- <releaseProfiles>release</releaseProfiles> -->
-        </configuration>
-      </plugin> 
       
       <!-- For building the source packages -->
       <plugin>
