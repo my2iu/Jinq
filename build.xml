@@ -141,11 +141,10 @@
 			<format property="tstamp" pattern="yyyy-MM-dd-HH-mm" />
 		</tstamp>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**,*/target/**"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**,*/target/**,sample/bin/**"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
 			<zipfileset file="demogen/pom.xml" prefix="Jinq/demogen"/>
-			<zipfileset file="sample/lib/jinq-all.jar" prefix="Jinq/sample/lib"/>
 		</zip>
 	</target>
 	
