@@ -71,14 +71,15 @@
     </pluginManagement>
 
     <plugins>
-      <!-- Enable the release profile when releasing to Maven Central -->
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <version>2.5</version>
         <configuration>
-          <releaseProfiles>release</releaseProfiles>
+          <autoversionsubmodules>true</autoversionsubmodules>
+          <!-- Enable the release profile when releasing to Maven Central -->
+          <!-- <releaseProfiles>release</releaseProfiles> -->
         </configuration>
-      </plugin>
+      </plugin> 
       
       <!-- For building the source packages -->
       <plugin>
@@ -95,11 +96,9 @@
         </executions>
       </plugin>
     </plugins>
-
-    <directory>target/jinq-all</directory>
   </build>
 
- <profiles>
+  <profiles>
     <!-- 
     Only do these things during a release. There's no need to install
     gpg on a dev box if not doing a release.
