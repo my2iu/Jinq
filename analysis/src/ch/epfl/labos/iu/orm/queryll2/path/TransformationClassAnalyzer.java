@@ -156,7 +156,19 @@ public class TransformationClassAnalyzer
 
    public TransformationClassAnalyzer(String className) throws IOException
    {
-      ClassReader reader = new ClassReader(className);
+      ClassReader reader = null;
+      try {
+         reader = new ClassReader(className);
+      } 
+      catch (IOException e)
+      {
+         // The system class loader didn't work. Try using our own 
+         // class loader to load the class instead
+         String classFileName = className.replace(".", "/") + ".class";
+         reader = new ClassReader(this.getClass().getClassLoader().getResourceAsStream(classFileName));
+         // TODO: Ideally, we should find the classloader of the lambda itself,
+         // and use that to load the class file of the lambda.
+      }
       reader.accept(cl,0);
    }
    
