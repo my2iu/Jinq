@@ -140,11 +140,13 @@
 		<tstamp>
 			<format property="tstamp" pattern="yyyy-MM-dd-HH-mm" />
 		</tstamp>
+		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**,*/target/**,sample/bin/**"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**,*/target/**,sample/bin/**,**/derby.log"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
 			<zipfileset file="demogen/pom.xml" prefix="Jinq/demogen"/>
+			<zipfileset dir="lib/lib" fullpath="Jinq/lib"/>
 		</zip>
 	</target>
 	
