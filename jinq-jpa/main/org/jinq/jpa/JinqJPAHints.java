@@ -4,6 +4,7 @@ class JinqJPAHints
 {
    public int automaticResultsPagingSize = 10000;
    public JPAQueryLogger queryLogger = null;
+   public ClassLoader lambdaClassLoader = null;
    
    public void setHint(String name, Object val)
    {
@@ -11,5 +12,7 @@ class JinqJPAHints
          automaticResultsPagingSize = (int)val;
       if ("queryLogger".equals(name) && val instanceof JPAQueryLogger)
          queryLogger = (JPAQueryLogger)val;
+      if ("lambdaClassLoader".equals(name) && val instanceof ClassLoader)
+         lambdaClassLoader = (ClassLoader)val;
    }
 }
