@@ -14,10 +14,10 @@ public class MethodAnalysisResults
    public List<PathAnalysis<QueryllPathAnalysisSupplementalInfo>> paths = new ArrayList<>();
 
    public void addPath(TypedValue returnValue, 
-               List<TypedValue.ComparisonValue> conditions,
+               List<? extends TypedValue> conditions,
                PathAnalysisMethodChecker methodChecker)
    {
-      PathAnalysis<QueryllPathAnalysisSupplementalInfo> pathAnalysis = new PathAnalysis<>(returnValue, conditions);
+      PathAnalysis<QueryllPathAnalysisSupplementalInfo> pathAnalysis = new PathAnalysis<>(returnValue, new ArrayList<>(conditions));
       pathAnalysis.setSupplementalInfo(((QueryllMethodChecker)methodChecker).getSupplementalInfo());
       paths.add(pathAnalysis);
    }

@@ -10,6 +10,6 @@ public interface PathAnalysisSupplementalFactory<T, U>
    U createMethodAnalysisResults();
    void addPath(U resultsHolder, 
          TypedValue returnValue, 
-         List<TypedValue.ComparisonValue> conditions,
+         List<? extends TypedValue> conditions,
          PathAnalysisMethodChecker methodChecker);
 }

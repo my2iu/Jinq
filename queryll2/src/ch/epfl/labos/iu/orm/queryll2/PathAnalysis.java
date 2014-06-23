@@ -22,7 +22,7 @@ public class PathAnalysis<T>
 
    
    public PathAnalysis(TypedValue returnValue, 
-                       List<TypedValue.ComparisonValue> conditions)
+                       List<TypedValue> conditions)
    {
       this.returnValue = returnValue;
       this.conditions = conditions;
@@ -73,7 +73,7 @@ public class PathAnalysis<T>
       }
       return simplifiedIsTrueReturnValue; 
    }
-   public List<TypedValue.ComparisonValue> getConditions()
+   public List<TypedValue> getConditions()
    {
       return conditions;
    }
@@ -82,7 +82,7 @@ public class PathAnalysis<T>
       if (simplifiedConditions == null)
       {
          List<TypedValue> newConditions = new Vector<TypedValue>();
-         for (TypedValue.ComparisonValue cond: getConditions())
+         for (TypedValue cond: getConditions())
             newConditions.add(cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null));
          simplifiedConditions = newConditions;
       }
@@ -92,6 +92,6 @@ public class PathAnalysis<T>
    TypedValue simplifiedReturnValue = null;
    TypedValue isTrueReturnValue = null;
    TypedValue returnValue;
-   List<TypedValue.ComparisonValue> conditions;
+   List<TypedValue> conditions;
    List<TypedValue> simplifiedConditions = null;
 }

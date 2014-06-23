@@ -1,27 +1,25 @@
-package org.jinq.jooq.transform;
+package ch.epfl.labos.iu.orm.queryll2.path;
 
 import java.util.List;
+import java.util.function.Supplier;
 
-import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
-import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSupplementalFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue;
 
 public class PathAnalysisFactory implements
       PathAnalysisSupplementalFactory<Void, MethodAnalysisResults>
 {
-   MetamodelUtil metamodel;
+   Supplier<PathAnalysisMethodChecker> methodCheckerFactory;
 
-   public PathAnalysisFactory(MetamodelUtil metamodel)
+   public PathAnalysisFactory(Supplier<PathAnalysisMethodChecker> methodCheckerFactory)
    {
       // Build up data structures and other information needed for analysis
-      this.metamodel = metamodel;
+      this.methodCheckerFactory = methodCheckerFactory;
    }
    
    @Override
    public PathAnalysisMethodChecker createMethodChecker()
    {
-      return new MethodChecker(metamodel);
+      return methodCheckerFactory.get();
    }
 
    @Override
@@ -32,7 +30,7 @@ public class PathAnalysisFactory implements
 
    @Override
    public void addPath(MethodAnalysisResults methodAnalysisResults,
-		   TypedValue returnValue, List<ComparisonValue> conditions,
+		   TypedValue returnValue, List<? extends TypedValue> conditions,
 		   PathAnalysisMethodChecker methodChecker) {
 	   methodAnalysisResults.addPath(returnValue, conditions);
    }

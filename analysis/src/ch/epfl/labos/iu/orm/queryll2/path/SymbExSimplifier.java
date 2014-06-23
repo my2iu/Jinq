@@ -6,7 +6,6 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, RuntimeException>
 {

@@ -7,6 +7,8 @@ import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysis;
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -34,7 +36,7 @@ public class WhereTransform extends JPQLQueryTransform
             {
                PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
-               TypedValue returnVal = path.getSimplifiedBooleanReturnValue();
+               TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue());
                ColumnExpressions<?> returnColumns = translator.transform(returnVal);
                if (!returnColumns.isSingleColumn()) return null;
                Expression returnExpr = returnColumns.getOnlyColumn();
@@ -56,7 +58,7 @@ public class WhereTransform extends JPQLQueryTransform
                
                // Handle where path conditions
                Expression conditionExpr = null;
-               for (TypedValue cmp: path.getSimplifiedBooleanConditions())
+               for (TypedValue cmp: path.getConditions())
                {
                   ColumnExpressions<?> col = translator.transform(cmp);
                   if (!col.isSingleColumn()) return null;

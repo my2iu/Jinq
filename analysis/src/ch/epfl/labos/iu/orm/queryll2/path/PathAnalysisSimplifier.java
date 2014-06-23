@@ -1,0 +1,100 @@
+package ch.epfl.labos.iu.orm.queryll2.path;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueRewriterWalker;
+
+public class PathAnalysisSimplifier
+{
+   public static TypedValue simplify(TypedValue value)
+   {
+      return value.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
+   }
+//   public TypedValue getIsTrueReturnValue()
+//   {
+//      if (isTrueReturnValue == null)
+//      {
+//         isTrueReturnValue = new TypedValue.ComparisonValue(
+//               TypedValue.ComparisonValue.ComparisonOp.ne, 
+//               returnValue, 
+//               new ConstantValue.IntegerConstant(0));
+//      }
+//      return isTrueReturnValue; 
+//   }
+   public static TypedValue simplifyBoolean(TypedValue value)
+   {
+      TypedValue simplifiedBooleanReturnValue = value
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
+      simplifiedBooleanReturnValue = simplifiedBooleanReturnValue.visit(new SymbExBooleanRewriter(), true);
+      return simplifiedBooleanReturnValue;
+   }
+//   public TypedValue getSimplifiedIsTrueReturnValue()
+//   {
+//      if (simplifiedIsTrueReturnValue == null)
+//      {
+//         simplifiedIsTrueReturnValue = getIsTrueReturnValue()
+//               .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
+//      }
+//      return simplifiedIsTrueReturnValue; 
+//   }
+
+   
+// public List<TypedValue> getSimplifiedConditions()
+// {
+//    if (simplifiedConditions == null)
+//    {
+//       List<TypedValue> newConditions = new Vector<TypedValue>();
+//       for (TypedValue.ComparisonValue cond: getConditions())
+//          newConditions.add(cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null));
+//       simplifiedConditions = newConditions;
+//    }
+//    return simplifiedConditions; 
+// }
+   public static List<TypedValue> simplifyBooleans(List<TypedValue> conditions)
+   {
+      List<TypedValue> newConditions = new ArrayList<TypedValue>();
+      for (TypedValue cond: conditions)
+      {
+         TypedValue simpcond = cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
+         simpcond = simpcond.visit(new SymbExBooleanRewriter(), true);
+         newConditions.add(simpcond);
+      }
+      return newConditions;
+   }
+   
+   /**
+    * Sometimes paths have weird conditions on them, so they can be pruned out.
+    * (e.g. paths where the only condition is TRUE or FALSE)
+    */
+   public static void cleanAndSimplify(MethodAnalysisResults method)
+   {
+      List<PathAnalysis> pathsToDelete = new ArrayList<>();
+      for (PathAnalysis path: method.paths)
+      {
+         List<TypedValue> simplifiedConditions = new ArrayList<>();
+         for (TypedValue val: PathAnalysisSimplifier.simplifyBooleans(path.getConditions()))
+         {
+            if (val instanceof ConstantValue.BooleanConstant)
+            {
+               if (((ConstantValue.BooleanConstant)val).getConstant())
+               {
+                  // This part of the path condition is always TRUE, so it's
+                  // redundant and can remove it as a path condition
+               }
+               else
+               {
+                  // One part of the path condition is FALSE, so the path condition
+                  // can never hold. Prune out the whole path
+                  pathsToDelete.add(path);
+               }
+            }
+            simplifiedConditions.add(val);
+         }
+         path.conditions = simplifiedConditions;
+      }
+      method.paths.removeAll(pathsToDelete);
+   }
+}

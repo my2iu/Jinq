@@ -5,6 +5,9 @@ import java.io.IOException;
 import org.jinq.jpa.MetamodelUtil;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
+import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisFactory;
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 
 import com.user00.thunk.SerializedLambda;
@@ -49,11 +52,14 @@ public class LambdaInfo
    {
       try {
          // Open up the corresponding class to analyze
-         PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(metamodel); 
+         PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
+               () -> new MethodChecker(
+                           metamodel.safeMethodAnnotations, 
+                           metamodel.safeMethods, metamodel.safeStaticMethods));
          TransformationClassAnalyzer classAnalyzer = 
                new TransformationClassAnalyzer(className);
          MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-         analysis.cleanPaths();
+         PathAnalysisSimplifier.cleanAndSimplify(analysis);
          return analysis;
       } catch (IOException e)
       {

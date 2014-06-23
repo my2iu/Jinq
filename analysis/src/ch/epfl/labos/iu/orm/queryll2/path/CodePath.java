@@ -1,7 +1,7 @@
 package ch.epfl.labos.iu.orm.queryll2.path;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -23,7 +23,7 @@ public class CodePath
    List<PathInstruction> path;
    public CodePath(List<PathInstruction> path)
    {
-      this.path = new Vector<PathInstruction>(path);
+      this.path = new ArrayList<PathInstruction>(path);
    }
    
    // Path instructions contain a bytecode instruction, plus any annotations
@@ -105,8 +105,8 @@ public class CodePath
    }
    static List<CodePath> breakIntoPaths(CFG cfg, MethodNode m, String name)
    {
-      List<CodePath> paths = new Vector<CodePath>();
-      List<PathInstruction> instructions = new Vector<PathInstruction>();
+      List<CodePath> paths = new ArrayList<CodePath>();
+      List<PathInstruction> instructions = new ArrayList<PathInstruction>();
       if (!breakIntoPaths(paths, instructions, 0, cfg, m))
          return null;
       return paths;
@@ -124,7 +124,7 @@ public class CodePath
    {
       class ConditionRecorder implements BasicSymbolicInterpreter.BranchHandler
       {
-         List<TypedValue.ComparisonValue> conditions = new Vector<TypedValue.ComparisonValue>();
+         List<TypedValue.ComparisonValue> conditions = new ArrayList<TypedValue.ComparisonValue>();
          boolean isBranchTaken = false;
          public void ifInstruction(AbstractInsnNode insn,
                                    TypedValue.ComparisonValue ifTrueValue)

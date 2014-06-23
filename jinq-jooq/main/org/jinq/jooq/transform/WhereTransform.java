@@ -7,6 +7,8 @@ import org.jooq.Condition;
 import org.jooq.QueryPart;
 import org.jooq.Table;
 
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysis;
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -34,7 +36,7 @@ public class WhereTransform
             {
                PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
-               TypedValue returnVal = path.getSimplifiedBooleanReturnValue();
+               TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue());
                ColumnExpressions<?> returnColumns = translator.transform(returnVal);
                if (!returnColumns.isSingleColumn()) throw new IllegalArgumentException("Where lambda should only return a single column of data");
                QueryPart returnExpr = returnColumns.getOnlyColumn();
@@ -56,7 +58,7 @@ public class WhereTransform
                
                // Handle where path conditions
                Condition conditionExpr = null;
-               for (TypedValue cmp: path.getSimplifiedBooleanConditions())
+               for (TypedValue cmp: path.getConditions())
                {
                   ColumnExpressions<?> col = translator.transform(cmp);
                   if (!col.isSingleColumn()) throw new IllegalArgumentException("Expecting a single column");

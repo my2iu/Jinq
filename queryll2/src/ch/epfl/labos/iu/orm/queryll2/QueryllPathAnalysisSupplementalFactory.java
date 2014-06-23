@@ -69,7 +69,7 @@ public class QueryllPathAnalysisSupplementalFactory implements
    public void addPath(
          MethodAnalysisResults resultsHolder,
          TypedValue returnValue,
-         List<ComparisonValue> conditions,
+         List<? extends TypedValue> conditions,
          PathAnalysisMethodChecker methodChecker)
    {
       resultsHolder.addPath(returnValue, conditions, methodChecker);

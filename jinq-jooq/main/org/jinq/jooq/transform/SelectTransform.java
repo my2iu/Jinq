@@ -5,6 +5,7 @@ import java.util.List;
 import org.jinq.jooq.querygen.ColumnExpressions;
 import org.jooq.Table;
 
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SelectTransform
@@ -26,7 +27,7 @@ public class SelectTransform
          // TODO: Handle this case by translating things to use SELECT CASE 
          if (lambda.symbolicAnalysis.paths.size() > 1) return null;
          
-         ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)translator.transform(lambda.symbolicAnalysis.paths.get(0).getSimplifiedReturnValue());
+         ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)translator.transform(PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue()));
 
          return returnExpr;
       } catch (TypedValueVisitorException e)
