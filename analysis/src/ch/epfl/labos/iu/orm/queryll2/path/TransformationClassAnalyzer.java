@@ -98,8 +98,10 @@ public class TransformationClassAnalyzer
    public static MethodSignature dbsetWhere = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "where", "(Lch/epfl/labos/iu/orm/DBSet$Where;)Lch/epfl/labos/iu/orm/DBSet;");
    public static MethodSignature dbsetToStream = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "jinqStream", "()Lorg/jinq/orm/stream/JinqStream;");
    public static MethodSignature integerValueOf = new MethodSignature("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+   public static MethodSignature longValueOf = new MethodSignature("java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
    public static MethodSignature doubleValueOf = new MethodSignature("java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
    public static MethodSignature integerIntValue = new MethodSignature("java/lang/Integer", "intValue", "()I");
+   public static MethodSignature longLongValue = new MethodSignature("java/lang/Long", "longValue", "()J");
    public static MethodSignature doubleDoubleValue = new MethodSignature("java/lang/Double", "doubleValue", "()D");
    static {
       TransformationClassMethods.put(GROUP_INTERFACE, GROUP_METHOD);

@@ -27,8 +27,10 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
    static {
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.INT_TYPE);
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.DOUBLE_TYPE);
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.LONG_TYPE);
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/Integer"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/Double"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/Long"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/String"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/sql/Date"));
 //    allowedQueryParameterTypes.put(Type.INT_TYPE, new SQLReader.IntegerSQLReader());

@@ -76,8 +76,10 @@ public class ORMInformation implements QueryllEntityConfigurationInfo
       dbSetMethods.add(TransformationClassAnalyzer.dbsetWhere);
       dbSetMethods.add(TransformationClassAnalyzer.dbsetToStream);
       passThroughMethods.add(TransformationClassAnalyzer.integerIntValue);
+      passThroughMethods.add(TransformationClassAnalyzer.longLongValue);
       passThroughMethods.add(TransformationClassAnalyzer.doubleDoubleValue);
       passThroughStaticMethods.add(TransformationClassAnalyzer.integerValueOf);
+      passThroughStaticMethods.add(TransformationClassAnalyzer.longValueOf);
       passThroughStaticMethods.add(TransformationClassAnalyzer.doubleValueOf);
    }
    

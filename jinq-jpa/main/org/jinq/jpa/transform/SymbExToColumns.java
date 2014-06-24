@@ -174,6 +174,7 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
          return toReturn;
       }
       else if (sig.equals(TransformationClassAnalyzer.integerIntValue)
+            || sig.equals(TransformationClassAnalyzer.longLongValue)
             || sig.equals(TransformationClassAnalyzer.doubleDoubleValue))
       {
          ColumnExpressions<?> base = val.base.visit(this, in);
@@ -279,6 +280,7 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
    {
       MethodSignature sig = val.getSignature();
       if (sig.equals(TransformationClassAnalyzer.integerValueOf)
+            || sig.equals(TransformationClassAnalyzer.longValueOf)
             || sig.equals(TransformationClassAnalyzer.doubleValueOf))
       {
          // Integer.valueOf() to be like a cast and assume it's correct

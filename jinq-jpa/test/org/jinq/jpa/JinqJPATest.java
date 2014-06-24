@@ -96,14 +96,17 @@ public class JinqJPATest
    @Test
    public void testLong()
    {
-      List<Supplier> suppliers = streams.streamAll(em, Supplier.class)
-            .where(s -> s.getRevenue() + 1000 < 10000000L)
+      long val = 5;
+      List<Pair<Supplier, Long>> suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> s.getRevenue() + 1000 + val < 10000000L)
+            .select(s -> new Pair<>(s, s.getRevenue()))
             .toList();
-      List<String> names = suppliers.stream().map(s -> s.getName()).sorted().collect(Collectors.toList());
-      assertEquals("SELECT A FROM Supplier A WHERE A.revenue + 1000 < 10000000", query);
-      assertEquals(2, names.size());
-      assertEquals("HW Supplier", names.get(0));
-      assertEquals("Talent Agency", names.get(1));
+      suppliers = suppliers.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
+      assertEquals("SELECT A, A.revenue FROM Supplier A WHERE A.revenue + 1000 + :param0 < 10000000", query);
+      assertEquals(2, suppliers.size());
+      assertEquals("HW Supplier", suppliers.get(0).getOne().getName());
+      assertEquals(500, (long)suppliers.get(0).getTwo());
+      assertEquals("Talent Agency", suppliers.get(1).getOne().getName());
    }
 
    @Test
