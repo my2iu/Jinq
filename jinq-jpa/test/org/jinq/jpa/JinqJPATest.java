@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -14,6 +15,7 @@ import javax.persistence.Query;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Sale;
+import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.After;
@@ -28,6 +30,7 @@ public class JinqJPATest
    static JinqJPAStreamProvider streams;
 
    EntityManager em;
+   String query;
    
    @BeforeClass
    public static void setUpBeforeClass() throws Exception
@@ -48,6 +51,13 @@ public class JinqJPATest
    public void setUp() throws Exception
    {
       em = entityManagerFactory.createEntityManager();
+      streams.setHint("queryLogger", new JPAQueryLogger() {
+         @Override public void logQuery(String q,
+               Map<Integer, Object> positionParameters,
+               Map<String, Object> namedParameters)
+         {
+            query = q;
+         }});
    }
 
    @After
@@ -81,6 +91,19 @@ public class JinqJPATest
       assertEquals("Carol", names.get(2));
       assertEquals("Dave", names.get(3));
       assertEquals("Eve", names.get(4));
+   }
+
+   @Test
+   public void testLong()
+   {
+      List<Supplier> suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> s.getRevenue() + 1000 < 10000000L)
+            .toList();
+      List<String> names = suppliers.stream().map(s -> s.getName()).sorted().collect(Collectors.toList());
+      assertEquals("SELECT A FROM Supplier A WHERE A.revenue + 1000 < 10000000", query);
+      assertEquals(2, names.size());
+      assertEquals("HW Supplier", names.get(0));
+      assertEquals("Talent Agency", names.get(1));
    }
 
    @Test

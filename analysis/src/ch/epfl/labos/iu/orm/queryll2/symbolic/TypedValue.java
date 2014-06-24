@@ -207,7 +207,7 @@ public class TypedValue implements Value
    {
       public enum Op
       {
-         plus, minus, mul;
+         plus, minus, mul, cmp;
       }
       static String opToString(Op op)
       {
@@ -216,6 +216,7 @@ public class TypedValue implements Value
          case plus:  return "+";
          case minus:  return "-";
          case mul: return "*";
+         case cmp: return "cmp";
          default:  return "??";
          }
       }
@@ -224,10 +225,14 @@ public class TypedValue implements Value
          return opToString(op);
       }
       public Op op;
+      public MathOpValue (Op op, Type returnType, TypedValue left, TypedValue right)
+      {
+         super(returnType, opToString(op), left, right);
+         this.op = op;
+      }
       public MathOpValue (Op op, TypedValue left, TypedValue right)
       {
-         super(left.type, opToString(op), left, right);
-         this.op = op;
+         this(op, left.type, left, right);
       }
       @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {

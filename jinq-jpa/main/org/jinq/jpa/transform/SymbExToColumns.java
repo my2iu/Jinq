@@ -57,6 +57,12 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
             new ConstantExpression(Integer.toString(val.val))); 
    }
+   
+   @Override public ColumnExpressions<?> longConstantValue(ConstantValue.LongConstant val, Void in) throws TypedValueVisitorException
+   {
+      return ColumnExpressions.singleColumn(new SimpleRowReader<Long>(),
+            new ConstantExpression(Long.toString(val.val))); 
+   }
 
    @Override public ColumnExpressions<?> stringConstantValue(ConstantValue.StringConstant val, Void in) throws TypedValueVisitorException
    {
@@ -75,6 +81,8 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
 
    @Override public ColumnExpressions<?> mathOpValue(TypedValue.MathOpValue val, Void in) throws TypedValueVisitorException
    {
+      if (val.op == TypedValue.MathOpValue.Op.cmp)
+         throw new TypedValueVisitorException("cmp operator was not converted to a boolean operator");
       ColumnExpressions<?> left = val.left.visit(this, in);
       ColumnExpressions<?> right = val.right.visit(this, in);
       return ColumnExpressions.singleColumn(left.reader,

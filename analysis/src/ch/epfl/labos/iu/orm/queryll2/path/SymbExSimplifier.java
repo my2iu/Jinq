@@ -5,6 +5,7 @@ import org.objectweb.asm.Type;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue.ComparisonOp;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 
 public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, RuntimeException>
@@ -13,6 +14,51 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
    {
       return val;
    }
+   
+   /**
+    * Helper for handling comparisons to zero. Returns val if nothing is
+    * rewritten.
+    */
+   private TypedValue comparisonOpValueWithZero(TypedValue.ComparisonValue val, 
+         TypedValue.ComparisonValue.ComparisonOp op, TypedValue other)
+   {
+      // Check for a comparison that is treated as an integer and used in a further comparison
+      // (happens with methods that return true/false like String.equals())
+      if ((op == TypedValue.ComparisonValue.ComparisonOp.eq 
+               || op == TypedValue.ComparisonValue.ComparisonOp.ne)
+            && other instanceof TypedValue.ComparisonValue)
+      {
+         if (op != TypedValue.ComparisonValue.ComparisonOp.eq)
+            return other;
+         else
+            return ((TypedValue.ComparisonValue)other).inverseValue();
+      }
+
+      // Need to handle things like Util.SQLStringLike() differently,
+      // so we check for things that return booleans and which are treated
+      // like integers in a comparison
+      if ((op == TypedValue.ComparisonValue.ComparisonOp.eq 
+               || op == TypedValue.ComparisonValue.ComparisonOp.ne)
+            && other.getType() == Type.BOOLEAN_TYPE)
+      {
+         if (op != TypedValue.ComparisonValue.ComparisonOp.eq)
+            return other;
+         else
+            return new TypedValue.NotValue(other);
+      }
+      
+      // Check for a cmp operator, and convert it to a direct comparison operator
+      if (other instanceof TypedValue.MathOpValue
+            && ((TypedValue.MathOpValue)other).op == TypedValue.MathOpValue.Op.cmp)
+      {
+         TypedValue newLeft = ((TypedValue.MathOpValue)other).left;
+         TypedValue newRight = ((TypedValue.MathOpValue)other).right;
+         return new TypedValue.ComparisonValue(op, newLeft, newRight);
+      }
+      
+      return val;
+   }
+   
    public TypedValue comparisonOpValue(TypedValue.ComparisonValue val, I in) 
    {
       // Check for comparison of two integer constants
@@ -28,57 +74,36 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
             default: break;
          }
       }
-      // Check for a comparison that is treated as an integer and used in a further comparison
-      // (happens with methods that return true/false like String.equals())
+      
+      // Handle comparison where one side is 0 because that pattern 
+      // usually occurs when using the cmp operator or when using integers
+      // as booleans
       if (val.left instanceof ConstantValue.IntegerConstant
-            && ((ConstantValue.IntegerConstant)val.left).val == 0
-            && (val.compOp == TypedValue.ComparisonValue.ComparisonOp.eq 
-                  || val.compOp == TypedValue.ComparisonValue.ComparisonOp.ne)
-            && val.right instanceof TypedValue.ComparisonValue)
+            && ((ConstantValue.IntegerConstant)val.left).val == 0)
       {
-         if (val.compOp != TypedValue.ComparisonValue.ComparisonOp.eq)
-            return val.right;
-         else
-            return ((TypedValue.ComparisonValue)val.right).inverseValue();
+         ComparisonOp newOp;
+         switch(val.compOp)
+         {
+         case eq: newOp = ComparisonOp.eq; break;
+         case ne: newOp = ComparisonOp.ne; break;
+         case ge: newOp = ComparisonOp.le; break;
+         case gt: newOp = ComparisonOp.lt; break;
+         case le: newOp = ComparisonOp.ge; break;
+         case lt: newOp = ComparisonOp.gt; break;
+         default:
+            throw new IllegalArgumentException("Unknown comparison operator");
+         }
+         TypedValue toReturn = comparisonOpValueWithZero(val, newOp, val.right);
+         if (toReturn != val) return toReturn;
       }
       if (val.right instanceof ConstantValue.IntegerConstant
-            && ((ConstantValue.IntegerConstant)val.right).val == 0
-            && (val.compOp == TypedValue.ComparisonValue.ComparisonOp.eq 
-                  || val.compOp == TypedValue.ComparisonValue.ComparisonOp.ne)
-            && val.left instanceof TypedValue.ComparisonValue)
+            && ((ConstantValue.IntegerConstant)val.right).val == 0)
       {
-         if (val.compOp != TypedValue.ComparisonValue.ComparisonOp.eq)
-            return val.left;
-         else
-            return ((TypedValue.ComparisonValue)val.left).inverseValue();
-      }
-      // Need to handle things like Util.SQLStringLike() differently,
-      // so we check for things that return booleans and which are treated
-      // like integers in a comparison
-      if (val.right instanceof ConstantValue.IntegerConstant
-            && ((ConstantValue.IntegerConstant)val.right).val == 0
-            && (val.compOp == TypedValue.ComparisonValue.ComparisonOp.eq 
-                  || val.compOp == TypedValue.ComparisonValue.ComparisonOp.ne)
-            && val.left.getType() == Type.BOOLEAN_TYPE)
-      {
-         if (val.compOp != TypedValue.ComparisonValue.ComparisonOp.eq)
-            return val.left;
-         else
-            return new TypedValue.NotValue(val.left);
-      }
-      if (val.left instanceof ConstantValue.IntegerConstant
-            && ((ConstantValue.IntegerConstant)val.left).val == 0
-            && (val.compOp == TypedValue.ComparisonValue.ComparisonOp.eq 
-                  || val.compOp == TypedValue.ComparisonValue.ComparisonOp.ne)
-            && val.right.getType() == Type.BOOLEAN_TYPE)
-      {
-         if (val.compOp != TypedValue.ComparisonValue.ComparisonOp.eq)
-            return val.right;
-         else
-            return new TypedValue.NotValue(val.right);
+         TypedValue toReturn = comparisonOpValueWithZero(val, val.compOp, val.left);
+         if (toReturn != val) return toReturn;
       }
       
-      return binaryOpValue(val, in);
+      return super.comparisonOpValue(val, in);
    }
 
    public TypedValue virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, I in) 

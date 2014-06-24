@@ -243,7 +243,10 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case DADD: 
             return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.plus, (TypedValue)value1, (TypedValue)value2);
          case IMUL:
+         case LMUL: 
             return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.mul, (TypedValue)value1, (TypedValue)value2);
+         case LCMP: 
+            return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.cmp, Type.INT_TYPE, (TypedValue)value1, (TypedValue)value2);
          case IALOAD:
          case LALOAD: 
          case FALOAD: 
@@ -252,7 +255,6 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case BALOAD: 
          case CALOAD: 
          case SALOAD: 
-         case LMUL: 
          case FMUL: 
          case DMUL: 
          case IDIV:
@@ -275,7 +277,6 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case LOR: 
          case IXOR: 
          case LXOR: 
-         case LCMP: 
          case FCMPL: 
          case FCMPG: 
          case DCMPL:

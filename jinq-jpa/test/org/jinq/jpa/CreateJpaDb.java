@@ -140,7 +140,7 @@ public class CreateJpaDb
       s = createSupplier("Talent Agency", "USA", 1000, true);
       s.setItems(Arrays.asList(talent));
       em.persist(s);
-      s = createSupplier("Conglomerate", "Switzerland", 1000000L, false);
+      s = createSupplier("Conglomerate", "Switzerland", 10000000L, false);
       s.setItems(Arrays.asList(widgets, lawnmowers));
       em.persist(s);
       
