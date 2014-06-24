@@ -3,6 +3,7 @@ package ch.epfl.labos.iu.orm.queryll2.path;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -156,6 +157,11 @@ public class TransformationClassAnalyzer
 
    public TransformationClassAnalyzer(String className) throws IOException
    {
+      this(className, null);
+   }
+
+   public TransformationClassAnalyzer(String className, ClassLoader alternateClassLoader) throws IOException
+   {
       ClassReader reader = null;
       try {
          reader = new ClassReader(className);
@@ -165,7 +171,11 @@ public class TransformationClassAnalyzer
          // The system class loader didn't work. Try using our own 
          // class loader to load the class instead
          String classFileName = className.replace(".", "/") + ".class";
-         reader = new ClassReader(this.getClass().getClassLoader().getResourceAsStream(classFileName));
+         InputStream classStream = this.getClass().getClassLoader().getResourceAsStream(classFileName);
+         // Try the alternate class loader if the user supplied one.
+         if (classStream == null && alternateClassLoader != null)
+            classStream = alternateClassLoader.getResourceAsStream(classFileName);
+         reader = new ClassReader(classStream);
          // TODO: Ideally, we should find the classloader of the lambda itself,
          // and use that to load the class file of the lambda.
       }

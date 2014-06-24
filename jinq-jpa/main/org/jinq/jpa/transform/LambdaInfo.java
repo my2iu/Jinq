@@ -29,7 +29,7 @@ public class LambdaInfo
     */
    int lambdaIndex;
    
-   public static LambdaInfo analyze(MetamodelUtil metamodel, Object lambda, int lambdaIndex)
+   public static LambdaInfo analyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, Object lambda, int lambdaIndex)
    {
       SerializedLambda s = SerializedLambda.extractLambda(lambda);
       if (s == null) return null;
@@ -37,18 +37,18 @@ public class LambdaInfo
       //   That way, we can used the serialized lambda info to check if
       //   we've cached the results of this analysis already without needing
       //   to redo all this analysis.
-      MethodAnalysisResults analysis = analyzeLambda(metamodel, s);
+      MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, s);
       if (analysis == null) return null;
       return new LambdaInfo(lambda, s, analysis, lambdaIndex);
    }
    
-   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, SerializedLambda lambda) 
+   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SerializedLambda lambda) 
    {
       if (lambda == null) return null;
-      return analyzeLambda(metamodel, lambda.implClass, lambda.implMethodName, lambda.implMethodSignature);
+      return analyzeLambda(metamodel, alternateClassLoader, lambda.implClass, lambda.implMethodName, lambda.implMethodSignature);
    }
    
-   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, String className, String methodName, String methodSignature) 
+   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, String className, String methodName, String methodSignature) 
    {
       try {
          // Open up the corresponding class to analyze
@@ -57,7 +57,7 @@ public class LambdaInfo
                            metamodel.safeMethodAnnotations, 
                            metamodel.safeMethods, metamodel.safeStaticMethods));
          TransformationClassAnalyzer classAnalyzer = 
-               new TransformationClassAnalyzer(className);
+               new TransformationClassAnalyzer(className, alternateClassLoader);
          MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
          PathAnalysisSimplifier.cleanAndSimplify(analysis);
          return analysis;
