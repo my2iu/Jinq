@@ -3,6 +3,7 @@ package org.jinq.jpa;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -180,12 +181,12 @@ public class JinqJPATest
    @Test
    public void testWhereN1Links()
    {
-      JinqStream<Pair<String, String>> sales = streams.streamAll(em, Sale.class)
+      JinqStream<Pair<String, Date>> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getCustomer().getCountry().equals("Switzerland"))
             .where(s -> s.getCustomer().getDebt() < 150)
             .select(s -> new Pair<>(s.getCustomer().getName(), s.getDate()));
       assertEquals("SELECT A.customer.name, A.date FROM Sale A WHERE A.customer.country = 'Switzerland' AND (A.customer.debt < 150)", sales.getDebugQueryString());
-      List<Pair<String, String>> results = sales.toList();
+      List<Pair<String, Date>> results = sales.toList();
       assertEquals(2, results.size());
       assertEquals("Alice", results.get(0).getOne());
    }

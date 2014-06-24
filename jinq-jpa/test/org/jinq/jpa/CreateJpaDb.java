@@ -1,6 +1,11 @@
 package org.jinq.jpa;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.EntityManager;
 
@@ -29,10 +34,19 @@ public class CreateJpaDb
       return c;
    }
    
-   private Sale createSale(Customer customer, String date)
+   private Sale createSale(Customer customer, int year)
    {
+      Instant instant = LocalDateTime.of(year, 1, 1, 0, 0).toInstant(ZoneOffset.UTC);
+      Date date = Date.from(instant);
+      Calendar cal = Calendar.getInstance();
+      cal.setTime(date);
+      
       Sale s = new Sale();
       s.setDate(date);
+      s.setCalendar(cal);
+      s.setSqlDate(new java.sql.Date(date.getTime()));
+      s.setSqlTime(new java.sql.Time(date.getTime()));
+      s.setSqlTimestamp(new java.sql.Timestamp(date.getTime()));
       s.setCustomer(customer);
       return s;
    }
@@ -55,11 +69,13 @@ public class CreateJpaDb
       return lo;
    }
    
-   private Supplier createSupplier(String name, String country)
+   private Supplier createSupplier(String name, String country, long revenue, boolean hasFreeShipping)
    {
       Supplier s = new Supplier();
       s.setName(name);
       s.setCountry(country);
+      s.setRevenue(revenue);
+      s.setHasFreeShipping(hasFreeShipping);
       return s;
    }
    
@@ -91,12 +107,12 @@ public class CreateJpaDb
 
       em.flush();
       
-      Sale s1 = createSale(alice, "2005");
-      Sale s2 = createSale(alice, "2004");
-      Sale s3 = createSale(carol, "2003");
-      Sale s4 = createSale(carol, "2004");
-      Sale s5 = createSale(dave, "2001");
-      Sale s6 = createSale(eve, "2005");
+      Sale s1 = createSale(alice, 2005);
+      Sale s2 = createSale(alice, 2004);
+      Sale s3 = createSale(carol, 2003);
+      Sale s4 = createSale(carol, 2004);
+      Sale s5 = createSale(dave, 2001);
+      Sale s6 = createSale(eve, 2005);
       em.persist(s1);
       em.persist(s2);
       em.persist(s3);
@@ -118,13 +134,13 @@ public class CreateJpaDb
       em.persist(addLineorder(s6, lawnmowers, 2));
       em.persist(addLineorder(s6, screws, 7));
       
-      Supplier s = createSupplier("HW Supplier", "Canada");
+      Supplier s = createSupplier("HW Supplier", "Canada", 500, false);
       s.setItems(Arrays.asList(widgets, wudgets, screws));
       em.persist(s);
-      s = createSupplier("Talent Agency", "USA");
+      s = createSupplier("Talent Agency", "USA", 1000, true);
       s.setItems(Arrays.asList(talent));
       em.persist(s);
-      s = createSupplier("Conglomerate", "Switzerland");
+      s = createSupplier("Conglomerate", "Switzerland", 1000000L, false);
       s.setItems(Arrays.asList(widgets, lawnmowers));
       em.persist(s);
       

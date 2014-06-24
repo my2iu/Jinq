@@ -1,7 +1,11 @@
 package org.jinq.jpa.test.entities;
 
 import java.io.Serializable;
+
 import javax.persistence.*;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -15,9 +19,13 @@ import java.util.List;
 public class Sale implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int saleid;
-	private String date;
 	private List<Lineorder> lineorders;
 	private Customer customer;
+	private java.sql.Date sqlDate;
+	private java.sql.Time sqlTime;
+	private java.sql.Timestamp sqlTimestamp;
+	private Date date;
+   private Calendar calendar;
 
 	public Sale() {
 	}
@@ -34,14 +42,47 @@ public class Sale implements Serializable {
 		this.saleid = saleid;
 	}
 
-
-	public String getDate() {
+	@Temporal(TemporalType.DATE)
+	public Date getDate() {
 		return this.date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
+
+	@Temporal(TemporalType.DATE)
+	public Calendar getCalendar() {
+	   return this.calendar;
+	}
+
+	public void setCalendar(Calendar cal) {
+	   this.calendar = cal;
+	}
+
+   public java.sql.Date getSqlDate() {
+      return this.sqlDate;
+   }
+
+   public void setSqlDate(java.sql.Date date) {
+      this.sqlDate = date;
+   }
+
+   public java.sql.Time getSqlTime() {
+      return this.sqlTime;
+   }
+
+   public void setSqlTime(java.sql.Time time) {
+      this.sqlTime = time;
+   }
+
+   public java.sql.Timestamp getSqlTimestamp() {
+      return this.sqlTimestamp;
+   }
+
+   public void setSqlTimestamp(java.sql.Timestamp timestamp) {
+      this.sqlTimestamp = timestamp;
+   }
 
 
 	//bi-directional many-to-one association to Lineorder

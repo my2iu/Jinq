@@ -18,6 +18,8 @@ public class Supplier implements Serializable {
 	private String country;
 	private String name;
 	private List<Item> items;
+	private long revenue;
+	private boolean hasFreeShipping;
 
 	public Supplier() {
 	}
@@ -31,9 +33,24 @@ public class Supplier implements Serializable {
 	}
 
 	public void setSupplierid(int supplierid) {
-		this.supplierid = supplierid;
+	   this.supplierid = supplierid;
 	}
 
+	public boolean getHasFreeShipping() {
+	   return this.hasFreeShipping;
+	}
+
+	public void setHasFreeShipping(boolean shipping) {
+	   this.hasFreeShipping = shipping;
+	}
+
+	public long getRevenue() {
+	   return this.revenue;
+	}
+
+	public void setRevenue(long revenue) {
+	   this.revenue = revenue;
+	}
 
 	public String getCountry() {
 		return this.country;
