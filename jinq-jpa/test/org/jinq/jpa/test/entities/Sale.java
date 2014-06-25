@@ -42,7 +42,7 @@ public class Sale implements Serializable {
 		this.saleid = saleid;
 	}
 
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDate() {
 		return this.date;
 	}

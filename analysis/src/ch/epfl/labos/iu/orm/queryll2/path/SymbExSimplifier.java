@@ -1,9 +1,13 @@
 package ch.epfl.labos.iu.orm.queryll2.path;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue.ComparisonOp;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
@@ -106,13 +110,38 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
       return super.comparisonOpValue(val, in);
    }
 
+   static Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods;
+   static {
+      comparisonMethods = new HashMap<>();
+      
+      // TODO: This changes the semantics of things a little bit
+      comparisonMethods.put(TransformationClassAnalyzer.stringEquals, ComparisonOp.eq);
+      
+      comparisonMethods.put(TransformationClassAnalyzer.dateEquals, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.dateBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.dateAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.calendarEquals, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.calendarBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.calendarAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlDateEquals, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlDateBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlDateAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlTimeEquals, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlTimeBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlTimeAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampEquals, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampAfter, ComparisonOp.gt);
+   }
+   
    public TypedValue virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, I in) 
    {
-      if (val.getSignature().equals(TransformationClassAnalyzer.stringEquals))
+      // TODO: This changes the semantics of things a little bit
+      if (comparisonMethods.containsKey(val.getSignature()))
       {
-         // TODO: This changes the semantics of things a little bit
-         return new TypedValue.ComparisonValue(TypedValue.ComparisonValue.ComparisonOp.eq, val.base, val.args.get(0));
+         return new TypedValue.ComparisonValue(comparisonMethods.get(val.getSignature()), val.base, val.args.get(0));
       }
+      
       return methodCallValue(val, in);
    }
 

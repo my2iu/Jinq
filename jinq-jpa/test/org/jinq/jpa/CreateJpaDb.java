@@ -36,21 +36,32 @@ public class CreateJpaDb
    
    private Sale createSale(Customer customer, int year)
    {
-      Instant instant = LocalDateTime.of(year, 1, 1, 0, 0).toInstant(ZoneOffset.UTC);
+      return createSale(customer, year, 1, 1, 1);
+   }
+
+   private Sale createSale(Customer customer, int year, int month, int day, int hour)
+   {
+      Instant instant = LocalDateTime.of(year, month, day, hour, 0).toInstant(ZoneOffset.UTC);
       Date date = Date.from(instant);
       Calendar cal = Calendar.getInstance();
       cal.setTime(date);
+      // SQL and JPA has some issues with timezones, so we'll manually
+      // set the years and stuff for dates using deprecated methods to 
+      // ensure we consistently get certain values in the database.
+      java.sql.Date sqlDate = new java.sql.Date(year, month, day);
+      java.sql.Time sqlTime = new java.sql.Time(hour, 0, 0);
+      java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(year, month, day, hour, 0, 0, 0);
       
       Sale s = new Sale();
       s.setDate(date);
       s.setCalendar(cal);
-      s.setSqlDate(new java.sql.Date(date.getTime()));
-      s.setSqlTime(new java.sql.Time(date.getTime()));
-      s.setSqlTimestamp(new java.sql.Timestamp(date.getTime()));
+      s.setSqlDate(sqlDate);
+      s.setSqlTime(sqlTime);
+      s.setSqlTimestamp(sqlTimestamp);
       s.setCustomer(customer);
       return s;
    }
-   
+
    private Item createItem(String name, int purchasePrice, int salePrice)
    {
       Item i = new Item();
@@ -107,10 +118,10 @@ public class CreateJpaDb
 
       em.flush();
       
-      Sale s1 = createSale(alice, 2005);
+      Sale s1 = createSale(alice, 2005, 2, 2, 10);
       Sale s2 = createSale(alice, 2004);
       Sale s3 = createSale(carol, 2003);
-      Sale s4 = createSale(carol, 2004);
+      Sale s4 = createSale(carol, 2004, 2, 2, 5);
       Sale s5 = createSale(dave, 2001);
       Sale s6 = createSale(eve, 2005);
       em.persist(s1);

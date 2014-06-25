@@ -4,9 +4,14 @@ import static org.junit.Assert.*;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -130,6 +135,100 @@ public class JinqJPATest
       assertEquals("Widgets", items.get(1).getOne().getName());
       assertTrue(Math.abs((double)items.get(1).getTwo() - 10) < 0.1);
    }
+
+   @Test
+   public void testDate()
+   {
+      Date val = Date.from(LocalDateTime.of(2002, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
+      List<Pair<Customer, Date>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getDate().before(val))
+            .select(s -> new Pair<>(s.getCustomer(), s.getDate()))
+            .toList();
+      assertEquals("SELECT A.customer, A.date FROM Sale A WHERE A.date < :param0", query);
+      assertEquals(1, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals(2001, LocalDateTime.ofInstant(sales.get(0).getTwo().toInstant(), ZoneOffset.UTC).getYear());
+   }
+
+   @Test
+   public void testDateEquals()
+   {
+      Date val = Date.from(LocalDateTime.of(2001, 1, 1, 1, 0).toInstant(ZoneOffset.UTC));
+      List<String> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getDate().equals(val))
+            .select(s -> s.getCustomer().getName())
+            .toList();
+      assertEquals("SELECT A.customer.name FROM Sale A WHERE A.date = :param0", query);
+      assertEquals(1, sales.size());
+      assertEquals("Dave", sales.get(0));
+   }
+
+   @Test
+   public void testCalendar()
+   {
+      Calendar val = Calendar.getInstance();
+      val.setTime(Date.from(LocalDateTime.of(2002, 1, 1, 0, 0).toInstant(ZoneOffset.UTC)));
+      Calendar val2 = Calendar.getInstance();
+      val2.setTime(Date.from(LocalDateTime.of(2003, 1, 1, 1, 0).toInstant(ZoneOffset.UTC)));
+      List<Pair<Customer, Calendar>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getCalendar().before(val) || s.getCalendar().equals(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getCalendar()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.calendar FROM Sale A WHERE A.calendar < :param0 OR (A.calendar >= :param1 AND (A.calendar = :param2))", query);
+      assertEquals(2, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testSqlDate()
+   {
+      java.sql.Date val = new java.sql.Date(2002, 1, 1);
+      java.sql.Date val2 = new java.sql.Date(2003, 1, 1);
+      List<Pair<Customer, java.sql.Date>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getSqlDate().before(val) || s.getSqlDate().equals(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getSqlDate()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.sqlDate FROM Sale A WHERE A.sqlDate < :param0 OR (A.sqlDate >= :param1 AND (A.sqlDate = :param2))", query);
+      assertEquals(2, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testSqlTime()
+   {
+      java.sql.Time val = new java.sql.Time(6, 0, 0);
+      java.sql.Time val2 = new java.sql.Time(5, 0, 0);
+      List<Pair<Customer, java.sql.Time>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getSqlTime().after(val) || s.getSqlTime().equals(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getSqlTime()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.sqlTime FROM Sale A WHERE A.sqlTime > :param0 OR (A.sqlTime <= :param1 AND (A.sqlTime = :param2))", query);
+      assertEquals(2, sales.size());
+      assertEquals("Carol", sales.get(0).getOne().getName());
+      assertEquals("Alice", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testSqlTimestamp()
+   {
+      java.sql.Timestamp val = new java.sql.Timestamp(2002, 1, 1, 1, 0, 0, 0);
+      java.sql.Timestamp val2 = new java.sql.Timestamp(2003, 1, 1, 1, 0, 0, 0);
+      List<Pair<Customer, java.sql.Timestamp>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getSqlTimestamp().before(val) || s.getSqlTimestamp().equals(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getSqlTimestamp()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.sqlTimestamp FROM Sale A WHERE A.sqlTimestamp < :param0 OR (A.sqlTimestamp >= :param1 AND (A.sqlTimestamp = :param2))", query);
+      assertEquals(2, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+
 
    @Test
    public void testSelect()

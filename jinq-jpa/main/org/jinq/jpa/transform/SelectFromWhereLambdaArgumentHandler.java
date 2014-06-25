@@ -33,13 +33,11 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/Long"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/lang/String"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/sql/Date"));
-//    allowedQueryParameterTypes.put(Type.INT_TYPE, new SQLReader.IntegerSQLReader());
-//    allowedQueryParameterTypes.put(Type.DOUBLE_TYPE, new SQLReader.DoubleSQLReader());
-//    allowedQueryParameterTypes.put(Type.getObjectType("java/lang/Integer"), new SQLReader.IntegerSQLReader());
-//    allowedQueryParameterTypes.put(Type.getObjectType("java/lang/Double"), new SQLReader.DoubleSQLReader());
-//    allowedQueryParameterTypes.put(Type.getObjectType("java/lang/String"), new SQLReader.StringSQLReader());
-//    allowedQueryParameterTypes.put(Type.getObjectType("java/sql/Date"), new SQLReader.DateSQLReader());
- }
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/sql/Time"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/sql/Timestamp"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Date"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Calendar"));
+   }
 
    
    public SelectFromWhereLambdaArgumentHandler(SelectFromWhere<?> sfw, LambdaInfo lambda)
