@@ -246,6 +246,10 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case LMUL: 
             return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.mul, (TypedValue)value1, (TypedValue)value2);
          case LCMP: 
+         case FCMPL: 
+         case FCMPG: 
+         case DCMPL:
+         case DCMPG: 
             return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.cmp, Type.INT_TYPE, (TypedValue)value1, (TypedValue)value2);
          case IALOAD:
          case LALOAD: 
@@ -277,10 +281,6 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case LOR: 
          case IXOR: 
          case LXOR: 
-         case FCMPL: 
-         case FCMPG: 
-         case DCMPL:
-         case DCMPG: 
          case PUTFIELD:
          default:
             throw new AnalyzerException(insn, "Unhandled bytecode instruction");

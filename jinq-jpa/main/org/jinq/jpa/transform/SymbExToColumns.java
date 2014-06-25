@@ -64,6 +64,12 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
             new ConstantExpression(Long.toString(val.val))); 
    }
 
+   @Override public ColumnExpressions<?> doubleConstantValue(ConstantValue.DoubleConstant val, Void in) throws TypedValueVisitorException
+   {
+      return ColumnExpressions.singleColumn(new SimpleRowReader<Double>(),
+            new ConstantExpression(Double.toString(val.val))); 
+   }
+
    @Override public ColumnExpressions<?> stringConstantValue(ConstantValue.StringConstant val, Void in) throws TypedValueVisitorException
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<String>(),
