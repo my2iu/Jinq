@@ -169,7 +169,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
-	   LambdaInfo where = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, test, lambdas.size());
+	   LambdaInfo where = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, test, lambdas.size(), hints.dieOnError);
 	   if (where == null) { translationFail(); return null; }
 	   JPQLQueryTransform whereTransform = new WhereTransform(metamodel, where);
 	   JPQLQuery<T> newQuery = whereTransform.apply(query);
@@ -232,7 +232,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <U> QueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
-      LambdaInfo select = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, selectLambda, lambdas.size());
+      LambdaInfo select = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, selectLambda, lambdas.size(), hints.dieOnError);
       if (select == null) { translationFail(); return null; }
       JPQLQueryTransform selectTransform = new SelectTransform(metamodel, select);
       JPQLQuery<U> newQuery = selectTransform.apply(query);

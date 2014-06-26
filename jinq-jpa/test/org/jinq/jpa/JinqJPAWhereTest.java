@@ -53,6 +53,7 @@ public class JinqJPAWhereTest
    public void setUp() throws Exception
    {
       em = entityManagerFactory.createEntityManager();
+      streams.setHint("exceptionOnTranslationFail", true);
       streams.setHint("queryLogger", new JPAQueryLogger() {
          @Override public void logQuery(String q,
                Map<Integer, Object> positionParameters,

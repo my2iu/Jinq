@@ -29,48 +29,52 @@ public class LambdaInfo
     */
    int lambdaIndex;
    
-   public static LambdaInfo analyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, Object lambda, int lambdaIndex)
+   public static LambdaInfo analyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, Object lambda, int lambdaIndex, boolean throwExceptionOnFailure)
    {
       SerializedLambda s = SerializedLambda.extractLambda(lambda);
-      if (s == null) return null;
+      if (s == null) 
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda");
+         return null;
+      }
       // TODO: The part below will need to be moved to a separate method.
       //   That way, we can used the serialized lambda info to check if
       //   we've cached the results of this analysis already without needing
       //   to redo all this analysis.
-      MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, s);
-      if (analysis == null) return null;
-      return new LambdaInfo(lambda, s, analysis, lambdaIndex);
+      try {
+         MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, s);
+         if (analysis == null) 
+         {
+            if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
+            return null;
+         }
+         return new LambdaInfo(lambda, s, analysis, lambdaIndex);
+      } 
+      catch (Exception e)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code", e);
+         return null;
+      }
    }
    
-   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SerializedLambda lambda) 
+   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SerializedLambda lambda) throws IOException, AnalyzerException 
    {
       if (lambda == null) return null;
       return analyzeLambda(metamodel, alternateClassLoader, lambda.implClass, lambda.implMethodName, lambda.implMethodSignature);
    }
    
-   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, String className, String methodName, String methodSignature) 
+   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, String className, String methodName, String methodSignature) throws IOException, AnalyzerException 
    {
-      try {
-         // Open up the corresponding class to analyze
-         PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-               () -> new MethodChecker(
-                           metamodel.safeMethodAnnotations, 
-                           metamodel.safeMethods, metamodel.safeStaticMethods));
-         TransformationClassAnalyzer classAnalyzer = 
-               new TransformationClassAnalyzer(className, alternateClassLoader);
-         MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-         PathAnalysisSimplifier.cleanAndSimplify(analysis);
-         return analysis;
-      } catch (IOException e)
-      {
-         e.printStackTrace();
-         return null;
-      }
-      catch (AnalyzerException e)
-      {
-         e.printStackTrace();
-         return null;
-      }
+      // Open up the corresponding class to analyze
+      PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
+            () -> new MethodChecker(
+                        metamodel.safeMethodAnnotations, 
+                        metamodel.safeMethods, metamodel.safeStaticMethods));
+      TransformationClassAnalyzer classAnalyzer = 
+            new TransformationClassAnalyzer(className, alternateClassLoader);
+      MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
+      PathAnalysisSimplifier.cleanAndSimplify(analysis);
+      return analysis;
    }
 
    LambdaInfo(Object lambda, SerializedLambda serializedLambda, MethodAnalysisResults symbolicAnalysis, int lambdaIndex)
