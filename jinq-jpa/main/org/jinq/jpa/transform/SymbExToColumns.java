@@ -8,6 +8,7 @@ import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
+import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
@@ -17,7 +18,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?>, TypedValueVisitorException>
+public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExpressions<?>, TypedValueVisitorException>
 {
    final MetamodelUtil metamodel;
    final SymbExArgumentHandler argHandler;
@@ -28,77 +29,80 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       this.argHandler = argumentHandler;
    }
    
-   ColumnExpressions<?> transform(TypedValue val) throws TypedValueVisitorException
-   {
-      return val.visit(this, null);
-   }
-
-   @Override public ColumnExpressions<?> defaultValue(TypedValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> defaultValue(TypedValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       throw new TypedValueVisitorException("Unhandled symbolic execution operation: " + val);
    }
 
-   @Override public ColumnExpressions<?> argValue(TypedValue.ArgValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> argValue(TypedValue.ArgValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       int index = val.getIndex();
       return argHandler.handleArg(index, val.getType());
    }
    
-   @Override public ColumnExpressions<?> booleanConstantValue(ConstantValue.BooleanConstant val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> booleanConstantValue(ConstantValue.BooleanConstant val, SymbExPassDown in) throws TypedValueVisitorException
    {
-      // TODO: Explore deeper into why EclipseLink doesn't seem to like boolean 
-      // literals like TRUE and FALSE
-      return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
-            new ConstantExpression(val.val ? "(1=1)" : "(1!=1)")); 
+      if (in.isExpectingConditional)
+      {
+         return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
+               new ConstantExpression(val.val ? "(1=1)" : "(1!=1)")); 
+      }
+      else
+      {
+         return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
+               new ConstantExpression(val.val ? "TRUE" : "FALSE")); 
+      }
    }
 
-   @Override public ColumnExpressions<?> integerConstantValue(ConstantValue.IntegerConstant val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> integerConstantValue(ConstantValue.IntegerConstant val, SymbExPassDown in) throws TypedValueVisitorException
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
             new ConstantExpression(Integer.toString(val.val))); 
    }
    
-   @Override public ColumnExpressions<?> longConstantValue(ConstantValue.LongConstant val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> longConstantValue(ConstantValue.LongConstant val, SymbExPassDown in) throws TypedValueVisitorException
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<Long>(),
             new ConstantExpression(Long.toString(val.val))); 
    }
 
-   @Override public ColumnExpressions<?> doubleConstantValue(ConstantValue.DoubleConstant val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> doubleConstantValue(ConstantValue.DoubleConstant val, SymbExPassDown in) throws TypedValueVisitorException
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<Double>(),
             new ConstantExpression(Double.toString(val.val))); 
    }
 
-   @Override public ColumnExpressions<?> stringConstantValue(ConstantValue.StringConstant val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> stringConstantValue(ConstantValue.StringConstant val, SymbExPassDown in) throws TypedValueVisitorException
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<String>(),
             new ConstantExpression("'"+ val.val.replaceAll("'", "''") +"'")); 
    }
 
-   @Override public ColumnExpressions<?> castValue(TypedValue.CastValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> castValue(TypedValue.CastValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       // TODO: Check if cast is consistent with the reader
 //      SQLColumnValues toReturn = val.operand.visit(this, in);
 //      if (!toReturn.reader.isCastConsistent(val.getType().getInternalName()))
 //         throw new TypedValueVisitorException("Attempting to cast to an inconsistent type");
-      return val.operand.visit(this, in);
+      return val.operand.visit(this, SymbExPassDown.with(val, in.isExpectingConditional));
    }
 
-   @Override public ColumnExpressions<?> mathOpValue(TypedValue.MathOpValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> mathOpValue(TypedValue.MathOpValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       if (val.op == TypedValue.MathOpValue.Op.cmp)
          throw new TypedValueVisitorException("cmp operator was not converted to a boolean operator");
-      ColumnExpressions<?> left = val.left.visit(this, in);
-      ColumnExpressions<?> right = val.right.visit(this, in);
+      SymbExPassDown passdown = SymbExPassDown.with(val, false);
+      ColumnExpressions<?> left = val.left.visit(this, passdown);
+      ColumnExpressions<?> right = val.right.visit(this, passdown);
       return ColumnExpressions.singleColumn(left.reader,
             new BinaryExpression(val.sqlOpString(), left.getOnlyColumn(), right.getOnlyColumn())); 
    }
 
-   @Override public ColumnExpressions<?> comparisonOpValue(TypedValue.ComparisonValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> comparisonOpValue(TypedValue.ComparisonValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
-      ColumnExpressions<?> left = val.left.visit(this, in);
-      ColumnExpressions<?> right = val.right.visit(this, in);
+      SymbExPassDown passdown = SymbExPassDown.with(val, false);
+      ColumnExpressions<?> left = val.left.visit(this, passdown);
+      ColumnExpressions<?> right = val.right.visit(this, passdown);
 //      if (val.left.getType() == Type.BOOLEAN_TYPE
 //            || val.right.getType() == Type.BOOLEAN_TYPE)
 //      {
@@ -119,11 +123,11 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
 //      }
       if (!left.isSingleColumn() || !right.isSingleColumn())
          throw new TypedValueVisitorException("Do not know how to add multiple columns together");
-      return ColumnExpressions.singleColumn(left.reader,
+      return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
             new BinaryExpression(val.sqlOpString(), left.getOnlyColumn(), right.getOnlyColumn())); 
    }
    
-   @Override public ColumnExpressions<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, Void in) throws TypedValueVisitorException
+   @Override public ColumnExpressions<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
 //      if (TransformationClassAnalyzer.stringEquals.equals(sig))
@@ -147,8 +151,10 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
             || TransformationClassAnalyzer.newTuple8.equals(sig))
       {
          ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];
+         // TODO: This is a little wonky passing down isExpectingConditional, but I think it's right for those times you create a tuple with booleans and then extract the booleans later
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
          for (int n = 0; n < vals.length; n++)
-            vals[n] = val.args.get(n).visit(this, in);
+            vals[n] = val.args.get(n).visit(this, passdown);
          RowReader<?> [] valReaders = new RowReader[vals.length];
          for (int n = 0; n < vals.length; n++)
             valReaders[n] = vals[n].reader;
@@ -161,7 +167,15 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       else if (metamodel.isSingularAttributeFieldMethod(sig))
       {
          String fieldName = metamodel.fieldMethodToFieldName(sig);
-         ColumnExpressions<?> base = val.base.visit(this, in);
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+         ColumnExpressions<?> base = val.base.visit(this, passdown);
+         if (in.isExpectingConditional &&
+               (sig.getReturnType().equals(Type.BOOLEAN_TYPE) 
+               || sig.getReturnType().equals(Type.getObjectType("java/lang/Boolean"))))
+         {
+            return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+                  new BinaryExpression("=", new ReadFieldExpression(base.getOnlyColumn(), fieldName), new ConstantExpression("TRUE"))); 
+         }
          return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
                new ReadFieldExpression(base.getOnlyColumn(), fieldName)); 
 //         SQLColumnValues sql = new SQLColumnValues(base.reader.getReaderForField(fieldName));
@@ -171,7 +185,9 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       else if (MetamodelUtil.TUPLE_ACCESSORS.containsKey(sig))
       {
          int idx = MetamodelUtil.TUPLE_ACCESSORS.get(sig) - 1;
-         ColumnExpressions<?> base = val.base.visit(this, in);
+         // TODO: This is a little wonky passing down isExpectingConditional, but I think it's right for those times you create a tuple with booleans and then extract the booleans later
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+         ColumnExpressions<?> base = val.base.visit(this, passdown);
          RowReader<?> subreader = ((TupleRowReader<?>)base.reader).getReaderForIndex(idx);
          ColumnExpressions<?> toReturn = new ColumnExpressions<>(subreader);
          int baseOffset = ((TupleRowReader<?>)base.reader).getColumnForIndex(idx);
@@ -181,9 +197,11 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
       }
       else if (sig.equals(TransformationClassAnalyzer.integerIntValue)
             || sig.equals(TransformationClassAnalyzer.longLongValue)
-            || sig.equals(TransformationClassAnalyzer.doubleDoubleValue))
+            || sig.equals(TransformationClassAnalyzer.doubleDoubleValue)
+            || sig.equals(TransformationClassAnalyzer.booleanBooleanValue))
       {
-         ColumnExpressions<?> base = val.base.visit(this, in);
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+         ColumnExpressions<?> base = val.base.visit(this, passdown);
          return base;
       }
 //      else if (entityInfo.dbSetMethods.contains(sig))
@@ -282,15 +300,17 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
          return super.virtualMethodCallValue(val, in);
    }
 
-   @Override public ColumnExpressions<?> staticMethodCallValue(MethodCallValue.StaticMethodCallValue val, Void in) throws TypedValueVisitorException 
+   @Override public ColumnExpressions<?> staticMethodCallValue(MethodCallValue.StaticMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException 
    {
       MethodSignature sig = val.getSignature();
       if (sig.equals(TransformationClassAnalyzer.integerValueOf)
             || sig.equals(TransformationClassAnalyzer.longValueOf)
-            || sig.equals(TransformationClassAnalyzer.doubleValueOf))
+            || sig.equals(TransformationClassAnalyzer.doubleValueOf)
+            || sig.equals(TransformationClassAnalyzer.booleanValueOf))
       {
          // Integer.valueOf() to be like a cast and assume it's correct
-         ColumnExpressions<?> base = val.args.get(0).visit(this, in);
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+         ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
          return base;
       }
 //      else if (TransformationClassAnalyzer.stringLike.equals(sig))

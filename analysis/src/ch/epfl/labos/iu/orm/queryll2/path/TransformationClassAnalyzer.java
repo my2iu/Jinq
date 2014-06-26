@@ -115,9 +115,11 @@ public class TransformationClassAnalyzer
    public static MethodSignature integerValueOf = new MethodSignature("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
    public static MethodSignature longValueOf = new MethodSignature("java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
    public static MethodSignature doubleValueOf = new MethodSignature("java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+   public static MethodSignature booleanValueOf = new MethodSignature("java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
    public static MethodSignature integerIntValue = new MethodSignature("java/lang/Integer", "intValue", "()I");
    public static MethodSignature longLongValue = new MethodSignature("java/lang/Long", "longValue", "()J");
    public static MethodSignature doubleDoubleValue = new MethodSignature("java/lang/Double", "doubleValue", "()D");
+   public static MethodSignature booleanBooleanValue = new MethodSignature("java/lang/Boolean", "booleanValue", "()Z");
    static {
       TransformationClassMethods.put(GROUP_INTERFACE, GROUP_METHOD);
       TransformationClassMethods.put(JOIN_INTERFACE, JOIN_METHOD);

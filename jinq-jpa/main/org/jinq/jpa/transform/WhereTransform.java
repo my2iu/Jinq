@@ -37,7 +37,8 @@ public class WhereTransform extends JPQLQueryTransform
                PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
                TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue());
-               ColumnExpressions<?> returnColumns = translator.transform(returnVal);
+               SymbExPassDown returnPassdown = SymbExPassDown.with(null, true);
+               ColumnExpressions<?> returnColumns = returnVal.visit(translator, returnPassdown);
                if (!returnColumns.isSingleColumn()) return null;
                Expression returnExpr = returnColumns.getOnlyColumn();
 
@@ -60,7 +61,8 @@ public class WhereTransform extends JPQLQueryTransform
                Expression conditionExpr = null;
                for (TypedValue cmp: path.getConditions())
                {
-                  ColumnExpressions<?> col = translator.transform(cmp);
+                  SymbExPassDown passdown = SymbExPassDown.with(null, true);
+                  ColumnExpressions<?> col = cmp.visit(translator, passdown);
                   if (!col.isSingleColumn()) return null;
                   Expression expr = col.getOnlyColumn();
                   if (conditionExpr != null)

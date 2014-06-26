@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -253,6 +252,49 @@ public class JinqJPATest
       assertEquals("Carol", sales.get(1).getOne().getName());
    }
 
+   @Test
+   public void testBoolean()
+   {
+      boolean val = false;
+      // Direct access to boolean variables in a WHERE must be converted to a comparison 
+      List<Pair<Supplier, Boolean>> suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> s.getHasFreeShipping())
+            .select(s -> new Pair<>(s, s.getHasFreeShipping()))
+            .toList();
+      assertEquals("SELECT A, A.hasFreeShipping FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
+      assertEquals(1, suppliers.size());
+      assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
+      assertTrue(suppliers.get(0).getTwo());
+      
+      // Boolean parameters 
+      suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> s.getHasFreeShipping() == val)
+            .select(s -> new Pair<>(s, s.getHasFreeShipping()))
+            .toList();
+      suppliers = suppliers.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
+      assertEquals("SELECT A, A.hasFreeShipping FROM Supplier A WHERE A.hasFreeShipping = :param0", query);
+      assertEquals(2, suppliers.size());
+      assertEquals("Conglomerate", suppliers.get(0).getOne().getName());
+      assertEquals("HW Supplier", suppliers.get(1).getOne().getName());
+
+      // Comparisons in a SELECT must be converted to a CASE...WHEN... or something
+      // TODO: Handle this case
+      try {
+         suppliers = streams.streamAll(em, Supplier.class)
+               .where(s -> s.getHasFreeShipping())
+               .select(s -> new Pair<>(s, s.getHasFreeShipping() != true))
+               .toList();
+         assertEquals("SELECT A, A.hasFreeShipping FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
+         assertEquals(1, suppliers.size());
+         assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
+         assertTrue(suppliers.get(0).getTwo());
+      }
+      catch (RuntimeException e)
+      {
+         // Expected: This case isn't handled yet
+      }
+
+   }
 
    @Test
    public void testSelect()
@@ -357,7 +399,11 @@ public class JinqJPATest
       // These  queries do not parse properly by JPQL:
       // Query q = em.createQuery("SELECT A FROM Customer A WHERE ((FALSE AND ((A.debt) >= 90)) OR (TRUE AND ((A.debt) < 90)))");
       // Query q = em.createQuery("SELECT A FROM Sale A WHERE (((A.customer).name) = 'Alice')");
-      Query q = em.createQuery("SELECT A FROM Sale A WHERE ((A.customer.name) = 'Alice')");
+      // Query q = em.createQuery("SELECT A FROM Sale A WHERE ((A.customer.name) = 'Alice')");
+      // Query q = em.createQuery("SELECT TRUE FROM Supplier A WHERE A.hasFreeShipping");  // A.hasFreeShipping doesn't work
+      // Query q = em.createQuery("SELECT TRUE=TRUE FROM Supplier A WHERE A.hasFreeShipping = TRUE");  // TRUE = TRUE doesn't work
+      // Query q = em.createQuery("SELECT (1 = 1) FROM Supplier A WHERE A.hasFreeShipping = TRUE");  // 1=1 doesn't work
+      Query q = em.createQuery("SELECT A.hasFreeShipping FROM Supplier A WHERE 1=1");  // 1=1 works as a conditional, A.hasFreeShipping is ok if you return it
       List results = q.getResultList();
 //      for (Object o : results)
 //         System.out.println(o);

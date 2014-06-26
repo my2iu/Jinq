@@ -31,7 +31,8 @@ public class SelectTransform extends JPQLQueryTransform
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) return null;
             
-            ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)translator.transform(PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue()));
+            SymbExPassDown passdown = SymbExPassDown.with(null, false);
+            ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue()).visit(translator, passdown);
 
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = new SelectFromWhere<U>();

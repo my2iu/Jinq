@@ -61,11 +61,13 @@ public class MetamodelUtil
       safeMethods.add(TransformationClassAnalyzer.integerIntValue);
       safeMethods.add(TransformationClassAnalyzer.longLongValue);
       safeMethods.add(TransformationClassAnalyzer.doubleDoubleValue);
+      safeMethods.add(TransformationClassAnalyzer.booleanBooleanValue);
       safeStaticMethods = new HashSet<MethodSignature>();
       safeStaticMethods.addAll(TransformationClassAnalyzer.KnownSafeStaticMethods);
       safeStaticMethods.add(TransformationClassAnalyzer.integerValueOf);
       safeStaticMethods.add(TransformationClassAnalyzer.longValueOf);
       safeStaticMethods.add(TransformationClassAnalyzer.doubleValueOf);
+      safeStaticMethods.add(TransformationClassAnalyzer.booleanValueOf);
       fieldMethods = new HashMap<MethodSignature, SingularAttribute<?,?>>();
       
       findMetamodelGetters();
