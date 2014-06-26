@@ -40,7 +40,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    final MetamodelUtil metamodel;
    final EntityManager em;
    final JPQLQuery<T> query;
-   final JinqJPAHints hints = new JinqJPAHints();
+   final JinqJPAHints hints;
    
    /**
     * Holds the chain of lambdas that were used to create this query. This is needed
@@ -63,8 +63,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       lambdas.addAll(chainedLambdas);
       for (LambdaInfo newLambda: additionalLambdas)
          lambdas.add(newLambda);
-      this.hints.automaticResultsPagingSize = hints.automaticResultsPagingSize;
-      this.hints.queryLogger = hints.queryLogger;
+      this.hints = new JinqJPAHints(hints);
    }
 
    public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, EntityManager em, JinqJPAHints hints, String entityName)
@@ -78,6 +77,11 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       return query.getQueryString();
    }
 
+   private void translationFail()
+   {
+      if (hints.dieOnError) throw new IllegalArgumentException("Could not translate code to a query"); 
+   }
+   
    private void fillQueryParameters(Query q, List<GeneratedQueryParameter> parameters)
    {
       for (GeneratedQueryParameter param: parameters)
@@ -166,10 +170,10 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
 	   LambdaInfo where = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, test, lambdas.size());
-	   if (where == null) return null;
+	   if (where == null) { translationFail(); return null; }
 	   JPQLQueryTransform whereTransform = new WhereTransform(metamodel, where);
 	   JPQLQuery<T> newQuery = whereTransform.apply(query);
-	   if (newQuery == null) return null;
+	   if (newQuery == null) { translationFail(); return null; }
 	   return new JPAQueryComposer<>(this, newQuery, lambdas, where);
    }
 
@@ -177,6 +181,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public QueryComposer<T> with(T toAdd)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -184,6 +189,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public QueryComposer<T> sortedByInt(IntSorter<T> sorter, boolean isAscending)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -192,6 +198,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          boolean isAscending)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -200,6 +207,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          boolean isAscending)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -208,6 +216,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          boolean isAscending)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -215,6 +224,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public QueryComposer<T> firstN(int n)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -223,10 +233,10 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
       LambdaInfo select = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, selectLambda, lambdas.size());
-      if (select == null) return null;
+      if (select == null) { translationFail(); return null; }
       JPQLQueryTransform selectTransform = new SelectTransform(metamodel, select);
       JPQLQuery<U> newQuery = selectTransform.apply(query);
-      if (newQuery == null) return null;
+      if (newQuery == null) { translationFail(); return null; }
       return new JPAQueryComposer<>(this, newQuery, lambdas, select);
    }
 
@@ -235,6 +245,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.Join<T, U> join)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -242,6 +253,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public QueryComposer<T> unique()
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -251,6 +263,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, V> aggregate)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -259,6 +272,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.AggregateDouble<T> aggregate)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -267,6 +281,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.AggregateInteger<T> aggregate)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -275,6 +290,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.AggregateDouble<T> aggregate)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -283,6 +299,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.AggregateInteger<T> aggregate)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -291,6 +308,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.AggregateSelect<T, U> aggregate)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
 
@@ -299,6 +317,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.AggregateSelect<T, ?>[] aggregates)
    {
       // TODO Auto-generated method stub
+      translationFail(); 
       return null;
    }
    

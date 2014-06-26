@@ -104,6 +104,29 @@ public class JinqJPATest
       assertEquals("Eve", names.get(4));
    }
 
+   private static void externalMethod() {}
+   
+   @Test
+   public void testExceptionOnFail()
+   {
+      streams.streamAll(em, Customer.class)
+            .setHint("exceptionOnTranslationFail", false)
+            .select(c -> {externalMethod(); return "blank";} )
+            .toList();
+      try {
+         streams.streamAll(em, Customer.class)
+               .setHint("exceptionOnTranslationFail", true)
+               .select(c -> {externalMethod(); return "blank";} )
+               .toList();
+      } 
+      catch (RuntimeException e)
+      {
+         // Expected
+         return;
+      }
+      fail();
+   }
+
    @Test
    public void testLong()
    {
