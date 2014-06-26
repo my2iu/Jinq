@@ -18,7 +18,7 @@ public class SelectTransform extends JPQLQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query)
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
    {
       try  {
          if (query instanceof SelectFromWhere)
@@ -29,7 +29,8 @@ public class SelectTransform extends JPQLQueryTransform
                   new SelectFromWhereLambdaArgumentHandler(sfw, lambda));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
-            if (lambda.symbolicAnalysis.paths.size() > 1) return null;
+            if (lambda.symbolicAnalysis.paths.size() > 1) 
+               throw new QueryTransformException("Can only handle a single path in a SELECT at the moment");
             
             SymbExPassDown passdown = SymbExPassDown.with(null, false);
             ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue()).visit(translator, passdown);
@@ -42,11 +43,10 @@ public class SelectTransform extends JPQLQueryTransform
             toReturn.where = sfw.where;
             return toReturn;
          }
-         return null;
+         throw new QueryTransformException("Existing query cannot be transformed further");
       } catch (TypedValueVisitorException e)
       {
-         e.printStackTrace();
-         return null;
+         throw new QueryTransformException(e);
       }
    }
 

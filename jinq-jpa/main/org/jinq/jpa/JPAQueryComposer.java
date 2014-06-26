@@ -16,6 +16,7 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.LambdaInfo;
+import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.WhereTransform;
 import org.jinq.orm.stream.NextOnlyIterator;
@@ -80,6 +81,11 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    private void translationFail()
    {
       if (hints.dieOnError) throw new IllegalArgumentException("Could not translate code to a query"); 
+   }
+   
+   private void translationFail(Throwable e)
+   {
+      if (hints.dieOnError) throw new IllegalArgumentException("Could not translate code to a query", e); 
    }
    
    private void fillQueryParameters(Query q, List<GeneratedQueryParameter> parameters)
@@ -172,9 +178,16 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
 	   LambdaInfo where = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, test, lambdas.size(), hints.dieOnError);
 	   if (where == null) { translationFail(); return null; }
 	   JPQLQueryTransform whereTransform = new WhereTransform(metamodel, where);
-	   JPQLQuery<T> newQuery = whereTransform.apply(query);
-	   if (newQuery == null) { translationFail(); return null; }
-	   return new JPAQueryComposer<>(this, newQuery, lambdas, where);
+	   try {
+	      JPQLQuery<T> newQuery = whereTransform.apply(query);
+   	   if (newQuery == null) { translationFail(); return null; }
+   	   return new JPAQueryComposer<>(this, newQuery, lambdas, where);
+	   }
+	   catch (QueryTransformException e)
+	   {
+	      translationFail(e);
+	      return null;
+	   }
    }
 
    @Override
@@ -235,9 +248,16 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       LambdaInfo select = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, selectLambda, lambdas.size(), hints.dieOnError);
       if (select == null) { translationFail(); return null; }
       JPQLQueryTransform selectTransform = new SelectTransform(metamodel, select);
-      JPQLQuery<U> newQuery = selectTransform.apply(query);
-      if (newQuery == null) { translationFail(); return null; }
-      return new JPAQueryComposer<>(this, newQuery, lambdas, select);
+      try {
+         JPQLQuery<U> newQuery = selectTransform.apply(query);
+         if (newQuery == null) { translationFail(); return null; }
+         return new JPAQueryComposer<>(this, newQuery, lambdas, select);
+      }
+      catch (QueryTransformException e)
+      {
+         translationFail(e);
+         return null;
+      }
    }
 
    @Override

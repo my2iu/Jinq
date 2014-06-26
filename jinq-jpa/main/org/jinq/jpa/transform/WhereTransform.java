@@ -23,7 +23,7 @@ public class WhereTransform extends JPQLQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query)
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
    {
       try  {
          if (query instanceof SelectFromWhere)
@@ -39,7 +39,8 @@ public class WhereTransform extends JPQLQueryTransform
                TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue());
                SymbExPassDown returnPassdown = SymbExPassDown.with(null, true);
                ColumnExpressions<?> returnColumns = returnVal.visit(translator, returnPassdown);
-               if (!returnColumns.isSingleColumn()) return null;
+               if (!returnColumns.isSingleColumn())
+                  throw new QueryTransformException("Expecting single column");
                Expression returnExpr = returnColumns.getOnlyColumn();
 
                if (returnVal instanceof ConstantValue.BooleanConstant)
@@ -99,11 +100,11 @@ public class WhereTransform extends JPQLQueryTransform
             return toReturn;
 
          }
-         return null;
-      } catch (TypedValueVisitorException e)
+         throw new QueryTransformException("Existing query cannot be transformed further");
+      }
+      catch (TypedValueVisitorException e)
       {
-         e.printStackTrace();
-         return null;
+         throw new QueryTransformException(e);
       }
    }
 
