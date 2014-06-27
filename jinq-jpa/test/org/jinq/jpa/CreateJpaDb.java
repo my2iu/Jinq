@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
+import org.jinq.jpa.test.entities.ItemType;
 import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
@@ -62,10 +63,11 @@ public class CreateJpaDb
       return s;
    }
 
-   private Item createItem(String name, int purchasePrice, int salePrice)
+   private Item createItem(String name, ItemType type, int purchasePrice, int salePrice)
    {
       Item i = new Item();
       i.setName(name);
+      i.setType(type);
       i.setSaleprice(salePrice);
       i.setPurchaseprice(purchasePrice);
       return i;
@@ -105,11 +107,11 @@ public class CreateJpaDb
       em.persist(dave);
       em.persist(eve);
 
-      Item widgets = createItem("Widgets", 5, 10);
-      Item wudgets = createItem("Wudgets", 2, 3);
-      Item talent = createItem("Talent", 6, 1000);
-      Item lawnmowers = createItem("Lawnmowers", 100, 102);
-      Item screws = createItem("Screws", 1, 2);
+      Item widgets = createItem("Widgets", ItemType.SMALL, 5, 10);
+      Item wudgets = createItem("Wudgets", ItemType.SMALL, 2, 3);
+      Item talent = createItem("Talent", ItemType.OTHER, 6, 1000);
+      Item lawnmowers = createItem("Lawnmowers", ItemType.BIG, 100, 102);
+      Item screws = createItem("Screws", ItemType.SMALL, 1, 2);
       em.persist(widgets);
       em.persist(wudgets);
       em.persist(talent);

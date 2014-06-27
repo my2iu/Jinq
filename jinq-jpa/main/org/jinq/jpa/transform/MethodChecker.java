@@ -44,11 +44,13 @@ final class MethodChecker implements PathAnalysisMethodChecker
          else
          {
             // Use reflection to get info about the method (or would it be better
-            // to do this through direct bytecode inspection?)
+            // to do this through direct bytecode inspection?), and see if it's
+            // annotated as safe
             try
             {
                Method reflectedMethod = Annotations.asmMethodSignatureToReflectionMethod(m);
-               return Annotations.methodHasSomeAnnotations(reflectedMethod, safeMethodAnnotations);
+               if (Annotations.methodHasSomeAnnotations(reflectedMethod, safeMethodAnnotations))
+                  return true;
             } catch (ClassNotFoundException|NoSuchMethodException e)
             {
                // TODO Auto-generated catch block

@@ -3,6 +3,7 @@ package org.jinq.jpa.transform;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ParameterExpression;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
@@ -21,8 +22,9 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
 {
    SelectFromWhere<?> sfw;
    LambdaInfo lambda;
+   MetamodelUtil metamodel;
    final int numLambdaCapturedArgs;
-
+   
    public final static Set<Type> ALLOWED_QUERY_PARAMETER_TYPES = new HashSet<>();
    static {
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.INT_TYPE);
@@ -42,10 +44,11 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
    }
 
    
-   public SelectFromWhereLambdaArgumentHandler(SelectFromWhere<?> sfw, LambdaInfo lambda)
+   public SelectFromWhereLambdaArgumentHandler(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel)
    {
       this.sfw = sfw;
       this.lambda = lambda;
+      this.metamodel = metamodel;
       numLambdaCapturedArgs = lambda.serializedLambda.capturedArgs.length;
    }
    
@@ -60,7 +63,7 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
          // motion will be used to push those field accesses or method calls
          // outside the query where they will be evaluated and then passed in
          // as a parameter)
-         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType))
+         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) && !metamodel.isKnownEnumType(argType.getInternalName()))
             throw new TypedValueVisitorException("Accessing a field with unhandled type");
 
          return ColumnExpressions.singleColumn(new SimpleRowReader<>(),

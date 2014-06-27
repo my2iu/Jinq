@@ -1,7 +1,9 @@
 package org.jinq.jpa;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +13,7 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
 /**
  * Provides helper methods for extracting useful information from
@@ -24,7 +27,9 @@ public class MetamodelUtil
    final Map<MethodSignature, SingularAttribute<?,?>> fieldMethods;
    public final Set<MethodSignature> safeMethods;
    public final Set<MethodSignature> safeStaticMethods;
-
+   final Map<String, List<Enum<?>>> enums;
+   public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
+   
    public static final Map<MethodSignature, Integer> TUPLE_ACCESSORS = new HashMap<>();
    static {
       TUPLE_ACCESSORS.put(TransformationClassAnalyzer.pairGetOne, 1);
@@ -54,6 +59,8 @@ public class MetamodelUtil
    public MetamodelUtil(Metamodel metamodel)
    {
       this.metamodel = metamodel;
+      enums = new HashMap<>();
+      comparisonMethods = new HashMap<>();
       safeMethodAnnotations = new HashSet<Class<?>>();
       safeMethodAnnotations.addAll(TransformationClassAnalyzer.SafeMethodAnnotations);
       safeMethods = new HashSet<MethodSignature>();
@@ -80,10 +87,20 @@ public class MetamodelUtil
       {
          for (SingularAttribute<?,?> singularAttrib: entity.getDeclaredSingularAttributes())
          {
+            Class<?> fieldJavaType = singularAttrib.getJavaType(); 
             MethodSignature methodSig = new MethodSignature(
                   org.objectweb.asm.Type.getInternalName(singularAttrib.getJavaMember().getDeclaringClass()),
                   singularAttrib.getJavaMember().getName(),
-                  org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(singularAttrib.getJavaType())));
+                  org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(fieldJavaType)));
+            if (fieldJavaType.isEnum())
+            {
+               // Record the enum, and mark equals() using the enum as safe
+               String enumTypeName = org.objectweb.asm.Type.getInternalName(fieldJavaType); 
+               enums.put(enumTypeName, Arrays.asList(((Class<Enum<?>>)fieldJavaType).getEnumConstants()));
+               MethodSignature eqMethod = new MethodSignature(enumTypeName, "equals", "(Ljava/lang/Object;)Z"); 
+               comparisonMethods.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);
+               safeMethods.add(eqMethod);
+            }
             fieldMethods.put(methodSig, singularAttrib);
          }
       }
@@ -115,5 +132,35 @@ public class MetamodelUtil
    public String fieldMethodToFieldName(MethodSignature sig)
    {
       return fieldMethods.get(sig).getName();
+   }
+   
+   /**
+    * Returns true if a Class refers to a known enum type
+    * @param className class name using asm style / between package parts
+    * @return
+    */
+   public boolean isKnownEnumType(String className)
+   {
+      return enums.containsKey(className);
+   }
+   
+   /**
+    * If className.name refers to an enum constant, then the method will
+    * return the full name of that enum constant so that it can be 
+    * embedded in a JPQL query. Otherwise, returns null.  
+    * @param className
+    * @param name
+    * @return
+    */
+   public String getFullEnumConstantName(String className, String name)
+   {
+      List<Enum<?>> enumConstants = enums.get(className);
+      if (enumConstants == null) return null;
+      for (Enum<?> e: enumConstants)
+      {
+         if (e.name().equals(name))
+            return className.replace("/", ".") + "." + name;
+      }
+      return null;
    }
 }

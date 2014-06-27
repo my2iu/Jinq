@@ -73,7 +73,7 @@ public class LambdaInfo
       TransformationClassAnalyzer classAnalyzer = 
             new TransformationClassAnalyzer(className, alternateClassLoader);
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-      PathAnalysisSimplifier.cleanAndSimplify(analysis);
+      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.comparisonMethods);
       return analysis;
    }
 

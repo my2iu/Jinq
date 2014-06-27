@@ -1,5 +1,6 @@
 package ch.epfl.labos.iu.orm.queryll2;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class PathAnalysis<T>
       if (simplifiedReturnValue == null)
       {
          simplifiedReturnValue = getReturnValue()
-            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(Collections.emptyMap())), null);
       }
       return simplifiedReturnValue;
    }
@@ -69,7 +70,7 @@ public class PathAnalysis<T>
       if (simplifiedIsTrueReturnValue == null)
       {
          simplifiedIsTrueReturnValue = getIsTrueReturnValue()
-            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null);
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(Collections.emptyMap())), null);
       }
       return simplifiedIsTrueReturnValue; 
    }
@@ -83,7 +84,7 @@ public class PathAnalysis<T>
       {
          List<TypedValue> newConditions = new Vector<TypedValue>();
          for (TypedValue cond: getConditions())
-            newConditions.add(cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>()), null));
+            newConditions.add(cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(Collections.emptyMap())), null));
          simplifiedConditions = newConditions;
       }
       return simplifiedConditions; 

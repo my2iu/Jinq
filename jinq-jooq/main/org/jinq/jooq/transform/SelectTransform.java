@@ -1,5 +1,6 @@
 package org.jinq.jooq.transform;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.jinq.jooq.querygen.ColumnExpressions;
@@ -27,7 +28,7 @@ public class SelectTransform
          // TODO: Handle this case by translating things to use SELECT CASE 
          if (lambda.symbolicAnalysis.paths.size() > 1) return null;
          
-         ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)translator.transform(PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue()));
+         ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)translator.transform(PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), Collections.emptyMap()));
 
          return returnExpr;
       } catch (TypedValueVisitorException e)

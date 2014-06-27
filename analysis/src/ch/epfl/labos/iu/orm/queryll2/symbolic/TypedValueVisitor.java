@@ -12,6 +12,10 @@ public abstract class TypedValueVisitor<I, O, E extends Exception>
    {
       return defaultValue(val, in);
    }
+   public O getStaticFieldValue(TypedValue.GetStaticFieldValue val, I in) throws E
+   {
+      return defaultValue(val, in);
+   }
    
    public O varValue(TypedValue val, I in) throws E
    {

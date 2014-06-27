@@ -1,6 +1,7 @@
 package org.jinq.jooq.transform;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
@@ -49,7 +50,7 @@ public class LambdaInfo
          TransformationClassAnalyzer classAnalyzer = 
                new TransformationClassAnalyzer(className);
          MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-         PathAnalysisSimplifier.cleanAndSimplify(analysis);
+         PathAnalysisSimplifier.cleanAndSimplify(analysis, Collections.emptyMap());
          return analysis;
       } catch (IOException e)
       {

@@ -20,7 +20,8 @@ public class Item implements Serializable {
 	private double saleprice;
 	private List<Supplier> suppliers;
 	private List<Lineorder> lineorders;
-
+	private ItemType type;
+	
 	public Item() {
 	}
 
@@ -43,6 +44,14 @@ public class Item implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public ItemType getType() {
+	   return this.type;
+	}
+
+	public void setType(ItemType type) {
+	   this.type = type;
 	}
 
 

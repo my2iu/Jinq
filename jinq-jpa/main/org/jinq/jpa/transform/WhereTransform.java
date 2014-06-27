@@ -30,13 +30,14 @@ public class WhereTransform extends JPQLQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, 
-                  new SelectFromWhereLambdaArgumentHandler(sfw, where));
+                  new SelectFromWhereLambdaArgumentHandler(sfw, where, metamodel));
             Expression methodExpr = null;
             for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
             {
                PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
-               TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue());
+               TypedValue returnVal = PathAnalysisSimplifier
+                     .simplifyBoolean(path.getReturnValue(), metamodel.comparisonMethods);
                SymbExPassDown returnPassdown = SymbExPassDown.with(null, true);
                ColumnExpressions<?> returnColumns = returnVal.visit(translator, returnPassdown);
                if (!returnColumns.isSingleColumn())

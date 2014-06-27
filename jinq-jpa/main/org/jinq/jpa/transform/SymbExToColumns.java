@@ -78,6 +78,19 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             new ConstantExpression("'"+ val.val.replaceAll("'", "''") +"'")); 
    }
 
+   @Override public ColumnExpressions<?> getStaticFieldValue(TypedValue.GetStaticFieldValue val, SymbExPassDown in) throws TypedValueVisitorException
+   {
+      // Check if we're just reading an enum constant
+      if (metamodel.isKnownEnumType(val.owner))
+      {
+         String enumFullName = metamodel.getFullEnumConstantName(val.owner, val.name);
+         if (enumFullName != null)
+            return ColumnExpressions.singleColumn(new SimpleRowReader<Enum<?>>(),
+                  new ConstantExpression(enumFullName)); 
+      }
+      return defaultValue(val, in);
+   }
+
    @Override public ColumnExpressions<?> castValue(TypedValue.CastValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       // TODO: Check if cast is consistent with the reader

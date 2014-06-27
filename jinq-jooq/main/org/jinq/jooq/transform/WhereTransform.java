@@ -1,5 +1,6 @@
 package org.jinq.jooq.transform;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.jinq.jooq.querygen.ColumnExpressions;
@@ -36,7 +37,7 @@ public class WhereTransform
             {
                PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
-               TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue());
+               TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue(), Collections.emptyMap());
                ColumnExpressions<?> returnColumns = translator.transform(returnVal);
                if (!returnColumns.isSingleColumn()) throw new IllegalArgumentException("Where lambda should only return a single column of data");
                QueryPart returnExpr = returnColumns.getOnlyColumn();

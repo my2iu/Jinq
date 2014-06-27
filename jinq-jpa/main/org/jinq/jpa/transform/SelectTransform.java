@@ -26,14 +26,16 @@ public class SelectTransform extends JPQLQueryTransform
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             // TODO: froms.get(0) is temporary 
             SymbExToColumns translator = new SymbExToColumns(metamodel, 
-                  new SelectFromWhereLambdaArgumentHandler(sfw, lambda));
+                  new SelectFromWhereLambdaArgumentHandler(sfw, lambda, metamodel));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 
                throw new QueryTransformException("Can only handle a single path in a SELECT at the moment");
             
             SymbExPassDown passdown = SymbExPassDown.with(null, false);
-            ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue()).visit(translator, passdown);
+            ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)PathAnalysisSimplifier
+                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
+                  .visit(translator, passdown);
 
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = new SelectFromWhere<U>();

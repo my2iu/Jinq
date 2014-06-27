@@ -92,6 +92,27 @@ public class TypedValue implements Value
          return visitor.newValue(this, input);
       }
    }
+   public static class GetStaticFieldValue extends TypedValue
+   {
+      public String owner;
+      public String name;
+      public String desc;
+      public GetStaticFieldValue(String owner, String name, String desc)
+      {
+         super(Type.getType(desc));
+         this.owner = owner;
+         this.name = name;
+         this.desc = desc;
+      }
+      public String toString()
+      {
+         return "(" + owner + "." + name + ")";
+      }
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
+      {
+         return visitor.getStaticFieldValue(this, input);
+      }
+   }
 
    public static class UnaryOperationValue extends TypedValue
    {

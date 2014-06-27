@@ -7,6 +7,7 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -148,8 +149,13 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
             IntInsnNode intInsn = (IntInsnNode)insn;
             return new ConstantValue.IntegerConstant(intInsn.operand);
          }
-         case JSR:
          case GETSTATIC:
+         {
+            assert(insn instanceof FieldInsnNode);
+            FieldInsnNode fieldInsn = (FieldInsnNode)insn;
+            return new TypedValue.GetStaticFieldValue(fieldInsn.owner, fieldInsn.name, fieldInsn.desc);
+         }
+         case JSR:
          default:
             throw new AnalyzerException(insn, "Unhandled bytecode instruction");
       }
@@ -411,6 +417,7 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case IFNULL:
          case IF_ACMPEQ:
             op = TypedValue.ComparisonValue.ComparisonOp.eq;
+            break;
          case IFNONNULL:
          case IF_ACMPNE:
             op = TypedValue.ComparisonValue.ComparisonOp.ne;
