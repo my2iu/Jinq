@@ -305,4 +305,33 @@ public class JinqJPATypesTest
       assertEquals(ItemType.OTHER, items.get(1).getTwo());
    }
 
+   @Test
+   public void testDivide()
+   {
+      double val = 5.0;
+      List<Double> resultDouble = streams.streamAll(em, Customer.class)
+            .select(c -> val / 2.0).toList();
+      assertEquals("SELECT :param0 / 2.0 FROM Customer A", query);
+      assertTrue(Math.abs(2.5 - resultDouble.get(0)) < 0.001);
+      
+      int valInt = 5;
+      List<Integer> resultInteger = streams.streamAll(em, Customer.class)
+            .select(c -> valInt / 2).toList();
+      assertEquals("SELECT :param0 / 2 FROM Customer A", query);
+      assertEquals(2, (int)resultInteger.get(0));
+
+      try {
+         resultDouble = streams.streamAll(em, Customer.class)
+               .select(c -> val / valInt).toList();
+         assertEquals("SELECT :param0 / (:param1 * 1.0) FROM Customer A", query);
+         assertTrue(Math.abs(2.5 - resultDouble.get(0)) < 0.001);
+      }
+      catch (Exception e)
+      {
+         // Expected: casts are not supported yet because I can't find typecasting operations in JPQL
+         return;
+      }
+      fail();
+
+   }
 }

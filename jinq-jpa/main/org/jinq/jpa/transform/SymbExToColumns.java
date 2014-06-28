@@ -93,6 +93,12 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
 
    @Override public ColumnExpressions<?> castValue(TypedValue.CastValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
+      // We need to handle casts between primitive types carefully 
+      // because JPQL doesn't really support them directly
+      if (val.isPrimitive())
+      {
+         throw new TypedValueVisitorException("Casts of primitive values are not support in JPQL");
+      }
       // TODO: Check if cast is consistent with the reader
 //      SQLColumnValues toReturn = val.operand.visit(this, in);
 //      if (!toReturn.reader.isCastConsistent(val.getType().getInternalName()))

@@ -188,24 +188,28 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
             TypeInsnNode typeInsn = (TypeInsnNode)insn;
             return new TypedValue.CastValue(Type.getObjectType(typeInsn.desc), (TypedValue)value);
          }
+         case I2L:
+         case F2L:
+         case D2L:
+            return new TypedValue.CastValue(Type.LONG_TYPE, (TypedValue)value);
+         case L2I:
+         case F2I:
+         case D2I:
+            return new TypedValue.CastValue(Type.INT_TYPE, (TypedValue)value);
+         case I2F:
+         case L2F:
+         case D2F:
+            return new TypedValue.CastValue(Type.FLOAT_TYPE, (TypedValue)value);
+         case I2D:
+         case L2D:
+         case F2D:
+            return new TypedValue.CastValue(Type.DOUBLE_TYPE, (TypedValue)value);
          case GETFIELD:  // this should normally failed, but a subclass can handle it
          case INEG:
          case LNEG:
          case FNEG:
          case DNEG:
          case IINC:
-         case I2L:
-         case I2F:
-         case I2D:
-         case L2I:
-         case L2F:
-         case L2D:
-         case F2I:
-         case F2L:
-         case F2D:
-         case D2I:
-         case D2L:
-         case D2F:
          case I2B:
          case I2C:
          case I2S:
@@ -250,7 +254,14 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
             return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.plus, (TypedValue)value1, (TypedValue)value2);
          case IMUL:
          case LMUL: 
+         case FMUL: 
+         case DMUL: 
             return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.mul, (TypedValue)value1, (TypedValue)value2);
+         case IDIV:
+         case LDIV: 
+         case FDIV: 
+         case DDIV: 
+            return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.div, (TypedValue)value1, (TypedValue)value2);
          case LCMP: 
          case FCMPL: 
          case FCMPG: 
@@ -265,12 +276,6 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case BALOAD: 
          case CALOAD: 
          case SALOAD: 
-         case FMUL: 
-         case DMUL: 
-         case IDIV:
-         case LDIV: 
-         case FDIV: 
-         case DDIV: 
          case IREM: 
          case LREM: 
          case FREM: 
