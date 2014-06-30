@@ -13,71 +13,80 @@ import java.util.List;
 @Table(name="SUPPLIERS")
 @NamedQuery(name="Supplier.findAll", query="SELECT s FROM Supplier s")
 public class Supplier implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private int supplierid;
-	private String country;
-	private String name;
-	private List<Item> items;
-	private long revenue;
-	private boolean hasFreeShipping;
+   private static final long serialVersionUID = 1L;
+   private int supplierid;
+   private String country;
+   private String name;
+   private List<Item> items;
+   private long revenue;
+   private boolean hasFreeShipping;
+   private byte[] signature;
 
-	public Supplier() {
-	}
-
-
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(updatable=false)
-	public int getSupplierid() {
-		return this.supplierid;
-	}
-
-	public void setSupplierid(int supplierid) {
-	   this.supplierid = supplierid;
-	}
-
-	public boolean getHasFreeShipping() {
-	   return this.hasFreeShipping;
-	}
-
-	public void setHasFreeShipping(boolean shipping) {
-	   this.hasFreeShipping = shipping;
-	}
-
-	public long getRevenue() {
-	   return this.revenue;
-	}
-
-	public void setRevenue(long revenue) {
-	   this.revenue = revenue;
-	}
-
-	public String getCountry() {
-		return this.country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
+   public Supplier() {
+   }
 
 
-	public String getName() {
-		return this.name;
-	}
+   @Id
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @Column(updatable=false)
+   public int getSupplierid() {
+      return this.supplierid;
+   }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+   public void setSupplierid(int supplierid) {
+      this.supplierid = supplierid;
+   }
+
+   public boolean getHasFreeShipping() {
+      return this.hasFreeShipping;
+   }
+
+   public void setHasFreeShipping(boolean shipping) {
+      this.hasFreeShipping = shipping;
+   }
+
+   public long getRevenue() {
+      return this.revenue;
+   }
+
+   public void setRevenue(long revenue) {
+      this.revenue = revenue;
+   }
+
+   public String getCountry() {
+      return this.country;
+   }
+
+   public void setCountry(String country) {
+      this.country = country;
+   }
 
 
-	//bi-directional many-to-many association to Item
-	@ManyToMany(mappedBy="suppliers")
-	public List<Item> getItems() {
-		return this.items;
-	}
+   public String getName() {
+      return this.name;
+   }
 
-	public void setItems(List<Item> items) {
-		this.items = items;
-	}
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   public byte[] getSignature() {
+      return this.signature;
+   }
+
+   public void setSignature(byte[] signature) {
+      this.signature = signature;
+   }
+
+
+   //bi-directional many-to-many association to Item
+   @ManyToMany(mappedBy="suppliers")
+   public List<Item> getItems() {
+      return this.items;
+   }
+
+   public void setItems(List<Item> items) {
+      this.items = items;
+   }
 
 }

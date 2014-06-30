@@ -41,6 +41,8 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/sql/Timestamp"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Date"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Calendar"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/math/BigDecimal"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/math/BigInteger"));
    }
 
    

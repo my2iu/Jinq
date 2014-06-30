@@ -10,6 +10,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue.ComparisonOp;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.MathOpValue.Op;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 
 public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, RuntimeException>
@@ -139,18 +140,47 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
       comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampEquals, ComparisonOp.eq);
       comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampBefore, ComparisonOp.lt);
       comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.bigDecimalEquals, ComparisonOp.eq);
    }
+   
+   static Map<MethodSignature, TypedValue.MathOpValue.Op> mathMethods;
+   static Map<MethodSignature, Type> mathMethodsType;
+   static {
+      mathMethods = new HashMap<>();
+      mathMethodsType = new HashMap<>();
+      
+      mathMethods.put(TransformationClassAnalyzer.bigDecimalCompareTo, Op.cmp);
+      mathMethodsType.put(TransformationClassAnalyzer.bigDecimalCompareTo, Type.INT_TYPE);
+      mathMethods.put(TransformationClassAnalyzer.bigDecimalAdd, Op.plus);
+      mathMethods.put(TransformationClassAnalyzer.bigDecimalDivide, Op.div);
+      mathMethods.put(TransformationClassAnalyzer.bigDecimalMultiply, Op.mul);
+      mathMethods.put(TransformationClassAnalyzer.bigDecimalSubtract, Op.minus);
+      mathMethods.put(TransformationClassAnalyzer.bigIntegerCompareTo, Op.cmp);
+      mathMethodsType.put(TransformationClassAnalyzer.bigIntegerCompareTo, Type.INT_TYPE);
+      mathMethods.put(TransformationClassAnalyzer.bigIntegerAdd, Op.plus);
+      mathMethods.put(TransformationClassAnalyzer.bigIntegerDivide, Op.div);
+      mathMethods.put(TransformationClassAnalyzer.bigIntegerMultiply, Op.mul);
+      mathMethods.put(TransformationClassAnalyzer.bigIntegerSubtract, Op.minus);
+   }      
    
    public TypedValue virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, I in) 
    {
       // TODO: This changes the semantics of things a little bit
-      if (comparisonMethods.containsKey(val.getSignature()))
+      MethodSignature sig = val.getSignature();
+      if (comparisonMethods.containsKey(sig))
       {
-         return new TypedValue.ComparisonValue(comparisonMethods.get(val.getSignature()), val.base, val.args.get(0));
+         return new TypedValue.ComparisonValue(comparisonMethods.get(sig), val.base, val.args.get(0));
       }
-      if (additionalComparisonMethods.containsKey(val.getSignature()))
+      if (additionalComparisonMethods.containsKey(sig))
       {
-         return new TypedValue.ComparisonValue(additionalComparisonMethods.get(val.getSignature()), val.base, val.args.get(0));
+         return new TypedValue.ComparisonValue(additionalComparisonMethods.get(sig), val.base, val.args.get(0));
+      }
+      if (mathMethods.containsKey(sig))
+      {
+         if (mathMethodsType.containsKey(sig))
+            return new TypedValue.MathOpValue(mathMethods.get(sig), mathMethodsType.get(sig), val.base, val.args.get(0));
+         else
+            return new TypedValue.MathOpValue(mathMethods.get(sig), val.base, val.args.get(0));
       }
       
       return methodCallValue(val, in);

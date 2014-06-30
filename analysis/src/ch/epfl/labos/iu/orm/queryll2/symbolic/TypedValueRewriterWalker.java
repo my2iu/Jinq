@@ -47,7 +47,8 @@ public class TypedValueRewriterWalker<I, E extends Exception> extends TypedValue
    {
       if (remap.containsKey(val)) return remap.get(val);
       I param = val.visit(parameter, in);
-      TypedValue newOperand = val.operand.visit(rewriter, param);
+      TypedValue newOperand = val.operand.visit(this, param);
+      newOperand = newOperand.visit(rewriter, param);
       TypedValue newVal = val;
       if (newOperand != val.operand)
          newVal = val.withNewChildren(newOperand);
@@ -75,8 +76,10 @@ public class TypedValueRewriterWalker<I, E extends Exception> extends TypedValue
    {
       if (remap.containsKey(val)) return remap.get(val);
       I param = val.visit(parameter, in);
-      TypedValue newLeft = val.left.visit(rewriter, param); 
-      TypedValue newRight = val.right.visit(rewriter, param);
+      TypedValue newLeft = val.left.visit(this, param); 
+      TypedValue newRight = val.right.visit(this, param);
+      newLeft = newLeft.visit(rewriter, param); 
+      newRight = newRight.visit(rewriter, param);
       TypedValue newVal = val;
       if (newLeft != val.left || newRight != val.right)
          newVal = val.withNewChildren(newLeft, newRight);
@@ -126,7 +129,8 @@ public class TypedValueRewriterWalker<I, E extends Exception> extends TypedValue
       boolean isChanged = false;
       for (TypedValue arg: val.args)
       {
-         TypedValue newArg = arg.visit(rewriter, param);
+         TypedValue newArg = arg.visit(this, param);
+         newArg = newArg.visit(rewriter, param);
          if (newArg != arg)
             isChanged = true;
          newArgs.add(newArg);
@@ -146,12 +150,14 @@ public class TypedValueRewriterWalker<I, E extends Exception> extends TypedValue
       boolean isChanged = false;
       for (TypedValue arg: val.args)
       {
-         TypedValue newArg = arg.visit(rewriter, param);
+         TypedValue newArg = arg.visit(this, param);
+         newArg = newArg.visit(rewriter, param);
          if (newArg != arg)
             isChanged = true;
          newArgs.add(newArg);
       }
-      TypedValue newBase = val.base.visit(rewriter, param);
+      TypedValue newBase = val.base.visit(this, param);
+      newBase = newBase.visit(rewriter, param);
       if (isChanged || val.base != newBase) 
          newVal = val.withNewArgs(newArgs, newBase); 
       TypedValue returnVal = newVal.visit(rewriter, in);

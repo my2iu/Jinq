@@ -2,6 +2,10 @@ package org.jinq.jpa;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -21,6 +25,7 @@ import javax.persistence.Query;
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.ItemType;
+import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
@@ -303,6 +308,50 @@ public class JinqJPATypesTest
       assertEquals("Lawnmowers", items.get(0).getOne().getName());
       assertEquals("Talent", items.get(1).getOne().getName());
       assertEquals(ItemType.OTHER, items.get(1).getTwo());
+   }
+   
+   @Test
+   public void testBigDecimal()
+   {
+      BigDecimal val = BigDecimal.valueOf(4);
+      BigDecimal val2 = BigDecimal.valueOf(2);
+      List<Pair<Lineorder, BigDecimal>> lineorders = streams.streamAll(em, Lineorder.class)
+            .where(c -> c.getTotal().compareTo(val.multiply(val2)) < 0)
+            .select(c -> new Pair<>(c, c.getTotal()))
+            .toList();
+      lineorders = lineorders.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A, A.total FROM Lineorder A WHERE A.total < (:param0 * :param1)", query);
+      assertEquals(5, lineorders.size());
+      assertEquals(1, lineorders.get(0).getTwo().intValue());
+      assertEquals(5, lineorders.get(3).getTwo().intValue());
+   }
+
+   @Test
+   public void testBigInteger()
+   {
+      BigInteger val = BigInteger.valueOf(3600);
+      BigInteger val2 = BigInteger.valueOf(500);
+      List<Pair<Lineorder, BigInteger>> lineorders = streams.streamAll(em, Lineorder.class)
+            .where(c -> c.getTransactionConfirmation().add(val2).compareTo(val) < 0)
+            .select(c -> new Pair<>(c, c.getTransactionConfirmation()))
+            .toList();
+      lineorders = lineorders.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A, A.transactionConfirmation FROM Lineorder A WHERE A.transactionConfirmation + :param0 < :param1", query);
+      assertEquals(3, lineorders.size());
+      assertEquals(1000, lineorders.get(0).getTwo().intValue());
+      assertEquals(3000, lineorders.get(2).getTwo().intValue());
+   }
+
+   @Test
+   public void testBlob()
+   {
+      List<Pair<Supplier, byte[]>> suppliers = streams.streamAll(em, Supplier.class)
+            .select(s -> new Pair<>(s, s.getSignature()))
+            .toList();
+      suppliers = suppliers.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
+      assertEquals("SELECT A, A.signature FROM Supplier A", query);
+      assertEquals(3, suppliers.size());
+      assertEquals("Conglomerate", Charset.forName("UTF-8").decode(ByteBuffer.wrap(suppliers.get(0).getTwo())).toString());
    }
 
    @Test

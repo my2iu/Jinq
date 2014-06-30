@@ -1,5 +1,8 @@
 package org.jinq.jpa;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -73,12 +76,14 @@ public class CreateJpaDb
       return i;
    }
    
-   private Lineorder addLineorder(Sale s, Item item, int quantity)
+   private Lineorder addLineorder(Sale s, Item item, int quantity, int transactionConfirmation)
    {
       Lineorder lo = new Lineorder();
       s.addLineorder(lo);
       item.addLineorder(lo);
       lo.setQuantity(quantity);
+      lo.setTotal(BigDecimal.valueOf(quantity * item.getPurchaseprice()));
+      lo.setTransactionConfirmation(BigInteger.valueOf(transactionConfirmation));
       return lo;
    }
    
@@ -89,6 +94,7 @@ public class CreateJpaDb
       s.setCountry(country);
       s.setRevenue(revenue);
       s.setHasFreeShipping(hasFreeShipping);
+      s.setSignature(name.getBytes(Charset.forName("UTF-8")));
       return s;
    }
    
@@ -135,17 +141,17 @@ public class CreateJpaDb
       
       em.flush();
       
-      em.persist(addLineorder(s1, widgets, 1));
-      em.persist(addLineorder(s2, wudgets, 2));
-      em.persist(addLineorder(s2, screws, 1));
-      em.persist(addLineorder(s2, lawnmowers, 2));
-      em.persist(addLineorder(s3, screws, 1000));
-      em.persist(addLineorder(s4, widgets, 200));
-      em.persist(addLineorder(s5, talent, 6));
-      em.persist(addLineorder(s6, widgets, 2));
-      em.persist(addLineorder(s6, wudgets, 2));
-      em.persist(addLineorder(s6, lawnmowers, 2));
-      em.persist(addLineorder(s6, screws, 7));
+      em.persist(addLineorder(s1, widgets, 1, 1000));
+      em.persist(addLineorder(s2, wudgets, 2, 2000));
+      em.persist(addLineorder(s2, screws, 1, 3000));
+      em.persist(addLineorder(s2, lawnmowers, 2, 4000));
+      em.persist(addLineorder(s3, screws, 1000, 5000));
+      em.persist(addLineorder(s4, widgets, 200, 6000));
+      em.persist(addLineorder(s5, talent, 6, 7000));
+      em.persist(addLineorder(s6, widgets, 2, 8000));
+      em.persist(addLineorder(s6, wudgets, 2, 9000));
+      em.persist(addLineorder(s6, lawnmowers, 2, 10000));
+      em.persist(addLineorder(s6, screws, 7, 11000));
       
       Supplier s = createSupplier("HW Supplier", "Canada", 500, false);
       s.setItems(Arrays.asList(widgets, wudgets, screws));

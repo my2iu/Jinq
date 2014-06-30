@@ -1,6 +1,9 @@
 package org.jinq.jpa.test.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import javax.persistence.*;
 
 
@@ -13,45 +16,64 @@ import javax.persistence.*;
 @IdClass(LineorderPK.class)
 @NamedQuery(name="Lineorder.findAll", query="SELECT l FROM Lineorder l")
 public class Lineorder implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private int quantity;
-	private Item item;
-	private Sale sale;
+   private static final long serialVersionUID = 1L;
+   private BigDecimal total;
+   private BigInteger transactionConfirmation;
+   private int quantity;
+   private Item item;
+   private Sale sale;
 
-	public Lineorder() {
-	}
-
-	
-	public int getQuantity() {
-		return this.quantity;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
+   public Lineorder() {
+   }
 
 
-	//bi-directional many-to-one association to Item
-	@ManyToOne @Id
-	@JoinColumn(name="ITEMID")
-	public Item getItem() {
-		return this.item;
-	}
+   public int getQuantity() {
+      return this.quantity;
+   }
 
-	public void setItem(Item item) {
-		this.item = item;
-	}
+   public void setQuantity(int quantity) {
+      this.quantity = quantity;
+   }
 
 
-	//bi-directional many-to-one association to Sale
-	@ManyToOne @Id
-	@JoinColumn(name="SALEID")
-	public Sale getSale() {
-		return this.sale;
-	}
+   public BigDecimal getTotal() {
+      return this.total;
+   }
 
-	public void setSale(Sale sale) {
-		this.sale = sale;
-	}
+   public void setTotal(BigDecimal total) {
+      this.total = total;
+   }
+
+   public BigInteger getTransactionConfirmation() {
+      return this.transactionConfirmation;
+   }
+
+   public void setTransactionConfirmation(BigInteger transactionConfirmation) {
+      this.transactionConfirmation = transactionConfirmation;
+   }
+
+
+   //bi-directional many-to-one association to Item
+   @ManyToOne @Id
+   @JoinColumn(name="ITEMID")
+   public Item getItem() {
+      return this.item;
+   }
+
+   public void setItem(Item item) {
+      this.item = item;
+   }
+
+
+   //bi-directional many-to-one association to Sale
+   @ManyToOne @Id
+   @JoinColumn(name="SALEID")
+   public Sale getSale() {
+      return this.sale;
+   }
+
+   public void setSale(Sale sale) {
+      this.sale = sale;
+   }
 
 }
