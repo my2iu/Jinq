@@ -28,13 +28,13 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    {
       super(wrapped);
    }
-
+   
    NonQueryJinqStream()
    {
       super();
    }
    
-   protected <U> Stream<U> wrap(Stream<U> toWrap)
+   protected <U> JinqStream<U> wrap(Stream<U> toWrap)
    {
       return new NonQueryJinqStream<>(toWrap);
    }
@@ -43,7 +43,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    @Override
    public <E extends Exception> JinqStream<T> where(Where<T, E> test)
    {
-      return new NonQueryJinqStream<>(filter(val -> { 
+      return wrap(filter(val -> { 
             try { 
                return test.where(val); 
             } catch (Exception e) {
@@ -57,7 +57,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    @Override
    public <U> JinqStream<U> select(Select<T, U> select)
    {
-      return new NonQueryJinqStream<>(map( val -> select.select(val) ));
+      return wrap(map( val -> select.select(val) ));
    }
 
    @Override
@@ -69,13 +69,13 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
          join.join(left).forEach( right -> 
             { streamBuilder.accept(new Pair<>(left, right)); });
          });
-      return new NonQueryJinqStream<>(streamBuilder.build());
+      return wrap(streamBuilder.build());
    }
    
    @Override
    public JinqStream<T> unique()
    {
-      return new NonQueryJinqStream<>(distinct());
+      return wrap(distinct());
    }
    
    @Override
@@ -93,8 +93,8 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
          map.get(group).add(val);
       });
       for (Map.Entry<U, List<T>> entry: map.entrySet())
-         streamBuilder.accept(new Pair<>(entry.getKey(), aggregate.aggregateSelect(entry.getKey(), new NonQueryJinqStream<>(entry.getValue().stream()))));
-      return new NonQueryJinqStream<>(streamBuilder.build());
+         streamBuilder.accept(new Pair<>(entry.getKey(), aggregate.aggregateSelect(entry.getKey(), wrap(entry.getValue().stream()))));
+      return wrap(streamBuilder.build());
    }
 
    @Override
@@ -139,63 +139,63 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    @Override
    public JinqStream<T> sortedByIntAscending(IntSorter<T> sorter)
    {
-      return new NonQueryJinqStream<>(sorted(
+      return wrap(sorted(
          (o1, o2) -> sorter.value(o1) - sorter.value(o2)));
    }
 
    @Override
    public JinqStream<T> sortedByIntDescending(IntSorter<T> sorter)
    {
-      return new NonQueryJinqStream<>(sorted(
+      return wrap(sorted(
             (o1, o2) -> sorter.value(o2) - sorter.value(o1)));
    }
 
    @Override
    public JinqStream<T> sortedByDoubleAscending(DoubleSorter<T> sorter)
    {
-      return new NonQueryJinqStream<>(sorted(
+      return wrap(sorted(
             (o1, o2) -> (int)Math.signum(sorter.value(o1) - sorter.value(o2))));
    }
 
    @Override
    public JinqStream<T> sortedByDoubleDescending(DoubleSorter<T> sorter)
    {
-      return new NonQueryJinqStream<>(sorted(
+      return wrap(sorted(
             (o1, o2) -> (int)Math.signum(sorter.value(o2) - sorter.value(o1))));
    }
 
    @Override
    public JinqStream<T> sortedByStringAscending(StringSorter<T> sorter)
    {
-      return new NonQueryJinqStream<>(sorted(
+      return wrap(sorted(
             (o1, o2) -> sorter.value(o1).compareTo(sorter.value(o2))));
    }
 
    @Override
    public JinqStream<T> sortedByStringDescending(StringSorter<T> sorter)
    {
-      return new NonQueryJinqStream<>(sorted(
+      return wrap(sorted(
             (o1, o2) -> -sorter.value(o1).compareTo(sorter.value(o2))));
    }
 
    @Override
    public JinqStream<T> sortedByDateAscending(DateSorter<T> sorter)
    {
-      return new NonQueryJinqStream<>(sorted(
+      return wrap(sorted(
             (o1, o2) -> sorter.value(o1).compareTo(sorter.value(o2))));
    }
 
    @Override
    public JinqStream<T> sortedByDateDescending(DateSorter<T> sorter)
    {
-      return new NonQueryJinqStream<>(sorted(
+      return wrap(sorted(
             (o1, o2) -> -sorter.value(o1).compareTo(sorter.value(o2))));
    }
 
    @Override
    public JinqStream<T> firstN(int n)
    {
-      return new NonQueryJinqStream<>(limit(n));
+      return wrap(limit(n));
    }
    
    @Override
@@ -209,7 +209,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    @Override
    public JinqStream<T> with(T toAdd)
    {
-      return new NonQueryJinqStream<>(
+      return wrap(
             Stream.concat(this, Stream.of(toAdd)));
    }
    
@@ -341,7 +341,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
                               nextElement((T)taken);
                         }
                      };
-               JinqStream<T> stream = new NonQueryJinqStream<>(
+               JinqStream<T> stream = wrap(
                      StreamSupport.stream(
                            Spliterators.spliteratorUnknownSize(
                                  inputIterator, 
