@@ -8,6 +8,9 @@
   <artifactId>demogen</artifactId>
   <packaging>jar</packaging>
 
+  <name>Jinq Demo: Mini-ORM Generated Entities</name>
+  <description>Package of auto-generated ORM entities used in the Jinq mini-ORM demo</description>
+
   <build>
     <plugins>
       <plugin>

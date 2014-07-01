@@ -8,6 +8,9 @@
   <artifactId>queryll2</artifactId>
   <packaging>jar</packaging>
 
+  <name>Jinq for Mini-ORM</name>
+  <description>Jinq functional-style queries for its legacy mini-ORM</description>
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>

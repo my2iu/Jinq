@@ -8,6 +8,9 @@
   <artifactId>demosrc</artifactId>
   <packaging>jar</packaging>
 
+  <name>Jinq Demo</name>
+  <description>Jinq mini-ORM query demo</description>
+
   <build>
     <sourceDirectory>src</sourceDirectory>
   </build>

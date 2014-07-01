@@ -5,6 +5,9 @@
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
+  <name>Jinq Sample Code for JPA</name>
+  <description>Sample code for how to use Jinq with a JPA project</description>
+
   <build>
     <!-- Build things using Java 8 -->
     <pluginManagement>

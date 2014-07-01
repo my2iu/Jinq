@@ -8,6 +8,9 @@
   <artifactId>orm</artifactId>
   <packaging>jar</packaging>
 
+  <name>Jinq Mini-ORM</name>
+  <description>Jinq legacy ORM for generating entity classes from XML</description>
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>

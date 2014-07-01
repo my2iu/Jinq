@@ -8,6 +8,9 @@
   <artifactId>jinq-jooq</artifactId>
   <packaging>jar</packaging>
 
+  <name>Jinq for jOOQ</name>
+  <description>Jinq functional-style queries for jOOQ</description>
+
   <build>
     <sourceDirectory>main</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>

@@ -8,6 +8,9 @@
   <artifactId>api</artifactId>
   <packaging>jar</packaging>
 
+  <name>Jinq API</name>
+  <description>Jinq public API for extending Java 8 streams with database functionality</description>
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>

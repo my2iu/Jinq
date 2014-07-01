@@ -8,6 +8,9 @@
   <artifactId>jinq-jpa</artifactId>
   <packaging>jar</packaging>
 
+  <name>Jinq for JPA</name>
+  <description>Jinq functional-style queries for JPA</description>
+
   <build>
     <sourceDirectory>main</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
