@@ -2,7 +2,7 @@ package org.jinq.jpa.jpqlquery;
 
 public class FromAliasExpression extends Expression
 {
-   From from;
+   public From from;
    public FromAliasExpression(From from)
    {
       this.from = from;

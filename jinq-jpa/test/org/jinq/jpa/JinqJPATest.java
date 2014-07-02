@@ -231,21 +231,21 @@ public class JinqJPATest
       assertEquals("HW Supplier", results.get(1).getTwo().getName());
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testJoinEntity()
    {
-      // TODO: Support not implemented yet
       List<Pair<Item, Item>> results = streams.streamAll(em, Item.class)
             .where(i -> i.getName().equals("Widgets"))
             .join((i, source) -> source.stream(Item.class))
             .where(pair -> pair.getOne().getPurchaseprice() < pair.getTwo().getPurchaseprice())
             .toList();
-      assertEquals("SELECT A.customer FROM Sale A", query);
+      assertEquals("SELECT A, B FROM Item A, Item B WHERE A.name = 'Widgets' AND (A.purchaseprice < (B.purchaseprice))", query);
       Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
-//      assertEquals(2, results.size());
-//      assertEquals("Widgets", results.get(0).getOne().getName());
-//      assertEquals("Conglomerate", results.get(0).getTwo().getName());
-//      assertEquals("HW Supplier", results.get(1).getTwo().getName());
+      assertEquals(2, results.size());
+      assertEquals("Lawnmowers", results.get(0).getTwo().getName());
+      assertEquals("Widgets", results.get(0).getOne().getName());
+      assertEquals("Talent", results.get(1).getTwo().getName());
+      assertEquals("Widgets", results.get(1).getOne().getName());
    }
 
    @Test

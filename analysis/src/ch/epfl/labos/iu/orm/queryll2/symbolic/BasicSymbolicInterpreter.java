@@ -132,6 +132,8 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
                return new ConstantValue.FloatConstant(((Float)val).floatValue());
             else if (val instanceof Double)
                return new ConstantValue.DoubleConstant(((Double)val).doubleValue());
+            else if (val instanceof Type)
+               return new ConstantValue.ClassConstant((Type)val);
             else
                throw new AnalyzerException(insn, "Unhandled bytecode instruction");
          }

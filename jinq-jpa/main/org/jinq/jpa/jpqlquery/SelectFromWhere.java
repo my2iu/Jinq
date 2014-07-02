@@ -52,7 +52,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
          {
             if (!isFirst) query += ", ";
             isFirst = false;
-            query += from.entityName + " " + queryState.getFromAlias(froms.get(0));
+            query += from.entityName + " " + queryState.getFromAlias(from);
          }
       }
       if (where != null)

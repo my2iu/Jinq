@@ -11,4 +11,5 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public interface SymbExArgumentHandler
 {
    ColumnExpressions<?> handleArg(int argIndex, Type argType) throws TypedValueVisitorException;
+   boolean checkIsInQueryStreamSource(int argIndex);
 }

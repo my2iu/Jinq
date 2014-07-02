@@ -30,6 +30,8 @@ public class MetamodelUtil
    final Map<String, List<Enum<?>>> enums;
    public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
    
+   public static final MethodSignature inQueryStream = new MethodSignature("org/jinq/orm/stream/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/JinqStream;");
+   
    public static final Map<MethodSignature, Integer> TUPLE_ACCESSORS = new HashMap<>();
    static {
       TUPLE_ACCESSORS.put(TransformationClassAnalyzer.pairGetOne, 1);
@@ -69,6 +71,7 @@ public class MetamodelUtil
       safeMethods.add(TransformationClassAnalyzer.longLongValue);
       safeMethods.add(TransformationClassAnalyzer.doubleDoubleValue);
       safeMethods.add(TransformationClassAnalyzer.booleanBooleanValue);
+      safeMethods.add(inQueryStream);
       safeStaticMethods = new HashSet<MethodSignature>();
       safeStaticMethods.addAll(TransformationClassAnalyzer.KnownSafeStaticMethods);
       safeStaticMethods.add(TransformationClassAnalyzer.integerValueOf);
@@ -111,6 +114,20 @@ public class MetamodelUtil
       EntityType<U> entityType = metamodel.entity(entity);
       if (entityType == null) return null;
       return entityType.getName();
+   }
+   
+   /**
+    * Returns the name of the entity referred to by the given class name
+    * @param className
+    * @return if className refers to a known JPA entity, then the
+    * name of the entity if returned. If not, null is returned 
+    */
+   public String entityNameFromClassName(String className)
+   {
+      for (EntityType<?> entity: metamodel.getEntities())
+         if (entity.getJavaType().getName().equals(className))
+            return entity.getName();
+      return null;
    }
    
    /**

@@ -71,6 +71,10 @@ public abstract class TypedValueVisitor<I, O, E extends Exception>
    {
       return constantValue(val, in);
    }
+   public O classConstantValue(ConstantValue.ClassConstant val, I in) throws E
+   {
+      return constantValue(val, in);
+   }
 
 
    public O unaryOpValue(TypedValue.UnaryOperationValue val, I in) throws E

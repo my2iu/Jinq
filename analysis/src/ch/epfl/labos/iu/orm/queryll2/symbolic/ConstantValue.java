@@ -155,4 +155,19 @@ public class ConstantValue extends TypedValue
       }
       @Override public String getConstant() { return val; }
    }
+   public static class ClassConstant extends ConstantValue
+   {
+      public Type val;
+      public ClassConstant(Type val)
+      {
+         super(Type.getObjectType("java/lang/Class"));
+         this.val = val;
+      }
+      public String toString() { return val.getClassName() + ".class"; }
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
+      {
+         return visitor.classConstantValue(this, input);
+      }
+      @Override public Type getConstant() { return val; }
+   }
 }

@@ -23,6 +23,7 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
    SelectFromWhere<?> sfw;
    LambdaInfo lambda;
    MetamodelUtil metamodel;
+   boolean hasInQueryStreamSource;
    final int numLambdaCapturedArgs;
    
    public final static Set<Type> ALLOWED_QUERY_PARAMETER_TYPES = new HashSet<>();
@@ -46,11 +47,12 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
    }
 
    
-   public SelectFromWhereLambdaArgumentHandler(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel)
+   public SelectFromWhereLambdaArgumentHandler(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
    {
       this.sfw = sfw;
       this.lambda = lambda;
       this.metamodel = metamodel;
+      this.hasInQueryStreamSource = hasInQueryStreamSource; 
       numLambdaCapturedArgs = lambda.serializedLambda.capturedArgs.length;
    }
    
@@ -90,6 +92,8 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
          } 
 */
       }
+      else if (hasInQueryStreamSource && argIndex == numLambdaCapturedArgs+1)
+         throw new TypedValueVisitorException("Using InQueryStreamSource as data");
       else
       // TODO: For JPQL queries, I don't think it's necessary to make a copy of the columns
       //    because I think JPQL lets you substitute the same parameter into multiple locations
@@ -97,5 +101,9 @@ public class SelectFromWhereLambdaArgumentHandler implements SymbExArgumentHandl
       //    that appear multiple times in the query tree.
       return sfw.cols;
    }
-
+   
+   @Override public boolean checkIsInQueryStreamSource(int argIndex)
+   {
+      return hasInQueryStreamSource && argIndex == numLambdaCapturedArgs+1;
+   }
 }
