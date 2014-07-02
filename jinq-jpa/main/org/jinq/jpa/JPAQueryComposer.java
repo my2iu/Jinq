@@ -270,6 +270,15 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
+   public <U> QueryComposer<Pair<T, U>> join(
+         org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> join)
+   {
+      // TODO Auto-generated method stub
+      translationFail(); 
+      return null;
+   }
+
+   @Override
    public QueryComposer<T> unique()
    {
       // TODO Auto-generated method stub

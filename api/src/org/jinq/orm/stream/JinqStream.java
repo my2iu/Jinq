@@ -34,8 +34,11 @@ public interface JinqStream<T> extends Stream<T>
    public static interface Join<U, V> extends Serializable {
       public JinqStream<V> join(U val);
    }
-   // TODO: Rewrite join so that it doesn't take a DBSet
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join);
+   public static interface JoinWithSource<U, V> extends Serializable {
+      public JinqStream<V> join(U val, InQueryStreamSource source);
+   }
+   public <U> JinqStream<Pair<T, U>> join(JoinWithSource<T,U> join);
    public JinqStream<T> unique();
    public static interface AggregateGroup<W, U, V> extends Serializable {
       public V aggregateSelect(W key, JinqStream<U> val);
@@ -99,4 +102,12 @@ public interface JinqStream<T> extends Stream<T>
     * @return this
     */
    public JinqStream<T> setHint(String name, Object value);
+   
+   /**
+    * Easy way to get a JinqStream from a collection. 
+    */
+   public static <U> JinqStream<U> from(Collection<U> collection)
+   {
+      return new NonQueryJinqStream<>(collection.stream());
+   }
 }

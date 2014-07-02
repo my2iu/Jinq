@@ -8,9 +8,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.jinq.orm.stream.JinqStream;
@@ -497,6 +495,12 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
    {
       return composeQuery("join", join,
             null, () -> transformer.join(query.copy(), nextLambdaParamIndex, join, emSource));
+   }
+   
+   public <U> QueryComposer<Pair<T, U>> join(JinqStream.JoinWithSource<T,U> join)
+   {
+      // Not supported
+      return null;
    }
 
    public <U> QueryComposerWithLists<U> select(Select<T, U> select)

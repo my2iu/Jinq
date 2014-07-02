@@ -1,14 +1,10 @@
 package org.jinq.orm.stream;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.jinq.orm.stream.JinqStream.AggregateSelect;
 import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DateSorter;
@@ -22,6 +18,12 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    QueryComposer<T> queryComposer;
    public QueryJinqStream(QueryComposer<T> query)
    {
+      this(query, null);
+   }
+   
+   public QueryJinqStream(QueryComposer<T> query, InQueryStreamSource inQueryStreamSource)
+   {
+      super(inQueryStreamSource);
       this.queryComposer = query;
    }
    
@@ -38,7 +40,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public <E extends Exception> JinqStream<T> where(final Where<T, E> test)
    {
       QueryComposer<T> newComposer = queryComposer.where(test);
-      if (newComposer != null) return new QueryJinqStream<T>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<T>(newComposer, inQueryStreamSource);
       return super.where(test);
    }
 
@@ -46,7 +48,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public <U> JinqStream<U> select(Select<T, U> select)
    {
       QueryComposer<U> newComposer = queryComposer.select(select);
-      if (newComposer != null) return new QueryJinqStream<U>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<U>(newComposer, inQueryStreamSource);
       return super.select(select);
    }
    
@@ -54,15 +56,23 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join)
    {
       QueryComposer<Pair<T, U>> newComposer = queryComposer.join(join);
-      if (newComposer != null) return new QueryJinqStream<Pair<T, U>>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<Pair<T, U>>(newComposer, inQueryStreamSource);
       return super.join(join);
    }
    
    @Override
+   public <U> JinqStream<Pair<T, U>> join(JoinWithSource<T,U> join)
+   {
+      QueryComposer<Pair<T, U>> newComposer = queryComposer.join(join);
+      if (newComposer != null) return new QueryJinqStream<Pair<T, U>>(newComposer, inQueryStreamSource);
+      return super.join(join);
+   }
+
+   @Override
    public JinqStream<T> unique()
    {
       QueryComposer<T> newComposer = queryComposer.unique();
-      if (newComposer != null) return new QueryJinqStream<T>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<T>(newComposer, inQueryStreamSource);
       return super.unique();
    }
    
@@ -70,7 +80,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate)
    {
       QueryComposer<Pair<U, V>> newComposer = queryComposer.group(select, aggregate);
-      if (newComposer != null) return new QueryJinqStream<Pair<U, V>>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<Pair<U, V>>(newComposer, inQueryStreamSource);
       return super.group(select, aggregate);
    }
 
@@ -118,7 +128,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> sortedByIntAscending(IntSorter<T> sorter)
    {
       QueryComposer<T> newComposer = queryComposer.sortedByInt(sorter, true);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.sortedByIntAscending(sorter);
    }
 
@@ -126,7 +136,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> sortedByIntDescending(IntSorter<T> sorter)
    {
       QueryComposer<T> newComposer = queryComposer.sortedByInt(sorter, false);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.sortedByIntDescending(sorter);
    }
 
@@ -134,7 +144,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> sortedByDoubleAscending(DoubleSorter<T> sorter)
    {
       QueryComposer<T> newComposer = queryComposer.sortedByDouble(sorter, true);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.sortedByDoubleAscending(sorter);
    }
 
@@ -142,7 +152,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> sortedByDoubleDescending(DoubleSorter<T> sorter)
    {
       QueryComposer<T> newComposer = queryComposer.sortedByDouble(sorter, false);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.sortedByDoubleDescending(sorter);
    }
 
@@ -150,7 +160,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> sortedByStringAscending(StringSorter<T> sorter)
    {
       QueryComposer<T> newComposer = queryComposer.sortedByString(sorter, true);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.sortedByStringAscending(sorter);
    }
 
@@ -158,7 +168,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> sortedByStringDescending(StringSorter<T> sorter)
    {
       QueryComposer<T> newComposer = queryComposer.sortedByString(sorter, false);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.sortedByStringDescending(sorter);
    }
 
@@ -166,7 +176,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> sortedByDateAscending(DateSorter<T> sorter)
    {
       QueryComposer<T> newComposer = queryComposer.sortedByDate(sorter, true);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.sortedByDateAscending(sorter);
    }
 
@@ -174,7 +184,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> sortedByDateDescending(DateSorter<T> sorter)
    {
       QueryComposer<T> newComposer = queryComposer.sortedByDate(sorter, false);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.sortedByDateDescending(sorter);
    }
 
@@ -182,7 +192,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public JinqStream<T> firstN(int n)
    {
       QueryComposer<T> newComposer = queryComposer.firstN(n);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.firstN(n);
    }
    

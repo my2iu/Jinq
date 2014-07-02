@@ -4,6 +4,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Metamodel;
 
+import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.QueryJinqStream;
 
@@ -33,10 +34,14 @@ public class JinqJPAStreamProvider
     * @return a stream of the results of querying the database for all
     *    entities of the given type.
     */
-   public <U> JinqStream<U> streamAll(EntityManager em, Class<U> entity)
+   public <U> JinqStream<U> streamAll(final EntityManager em, Class<U> entity)
    {
       return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
-            metamodel, em, hints, metamodel.entityNameFromClass(entity)));
+                  metamodel, em, hints, metamodel.entityNameFromClass(entity)),
+            new InQueryStreamSource() {
+               @Override public <S> JinqStream<S> stream(Class<S> entityClass) {
+                  return streamAll(em, entityClass);
+               }});
    }
 
    /**

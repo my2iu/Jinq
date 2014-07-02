@@ -2,18 +2,9 @@ package ch.epfl.labos.iu.orm;
 
 import java.util.Iterator;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
-
-import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
-import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
-import ch.epfl.labos.iu.orm.DBSet.AggregateInteger;
-import ch.epfl.labos.iu.orm.DBSet.AggregateSelect;
-import ch.epfl.labos.iu.orm.DBSet.Join;
-import ch.epfl.labos.iu.orm.DBSet.Select;
-import ch.epfl.labos.iu.orm.DBSet.Where;
 
 public interface QueryComposer<T>
 {
@@ -35,6 +26,7 @@ public interface QueryComposer<T>
    public <E extends Exception> QueryComposer<T> where(JinqStream.Where<T, E> test);
    public <U> QueryComposer<U> select(JinqStream.Select<T, U> select);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
+   public <U> QueryComposer<Pair<T, U>> join(JinqStream.JoinWithSource<T,U> join);
    public QueryComposer<T> unique();
    public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 

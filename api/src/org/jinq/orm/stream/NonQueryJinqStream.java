@@ -26,17 +26,30 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
 {
    public NonQueryJinqStream(Stream<T> wrapped)
    {
-      super(wrapped);
+      this(wrapped, null);
    }
-   
+
+   protected InQueryStreamSource inQueryStreamSource;
+   public NonQueryJinqStream(Stream<T> wrapped, InQueryStreamSource inQueryStreamSource)
+   {
+      super(wrapped);
+      this.inQueryStreamSource = inQueryStreamSource;
+   }
+
    NonQueryJinqStream()
    {
+      this((InQueryStreamSource)null);
+   }
+   
+   NonQueryJinqStream(InQueryStreamSource inQueryStreamSource)
+   {
       super();
+      this.inQueryStreamSource = inQueryStreamSource;
    }
    
    protected <U> JinqStream<U> wrap(Stream<U> toWrap)
    {
-      return new NonQueryJinqStream<>(toWrap);
+      return new NonQueryJinqStream<>(toWrap, inQueryStreamSource);
    }
 
    
@@ -71,7 +84,19 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
          });
       return wrap(streamBuilder.build());
    }
-   
+
+   @Override
+   public <U> JinqStream<Pair<T, U>> join(JoinWithSource<T,U> join)
+   {
+      // TODO: This stream should be constructed on the fly
+      final Stream.Builder<Pair<T,U>> streamBuilder = Stream.builder();
+      forEach( left -> {
+         join.join(left, inQueryStreamSource).forEach( right -> 
+            { streamBuilder.accept(new Pair<>(left, right)); });
+         });
+      return wrap(streamBuilder.build());
+   }
+
    @Override
    public JinqStream<T> unique()
    {
