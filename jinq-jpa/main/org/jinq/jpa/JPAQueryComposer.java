@@ -15,6 +15,7 @@ import org.jinq.jpa.jpqlquery.GeneratedQueryParameter;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.transform.JPQLQueryTransform;
+import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
@@ -262,20 +263,40 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
 
    @Override
    public <U> QueryComposer<Pair<T, U>> join(
-         org.jinq.orm.stream.JinqStream.Join<T, U> join)
+         org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
+      LambdaInfo join = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, joinLambda, lambdas.size(), hints.dieOnError);
+      if (join == null) { translationFail(); return null; }
+      JPQLQueryTransform joinTransform = new JoinTransform(metamodel, join, false);
+      try {
+         JPQLQuery<Pair<T, U>> newQuery = joinTransform.apply(query);
+         if (newQuery == null) { translationFail(); return null; }
+         return new JPAQueryComposer<>(this, newQuery, lambdas, join);
+      }
+      catch (QueryTransformException e)
+      {
+         translationFail(e);
+         return null;
+      }
    }
 
    @Override
    public <U> QueryComposer<Pair<T, U>> join(
-         org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> join)
+         org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> joinLambda)
    {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
+      LambdaInfo join = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, joinLambda, lambdas.size(), hints.dieOnError);
+      if (join == null) { translationFail(); return null; }
+      JPQLQueryTransform joinTransform = new JoinTransform(metamodel, join, true);
+      try {
+         JPQLQuery<Pair<T, U>> newQuery = joinTransform.apply(query);
+         if (newQuery == null) { translationFail(); return null; }
+         return new JPAQueryComposer<>(this, newQuery, lambdas, join);
+      }
+      catch (QueryTransformException e)
+      {
+         translationFail(e);
+         return null;
+      }
    }
 
    @Override

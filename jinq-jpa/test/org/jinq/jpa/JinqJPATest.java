@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.NonQueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -211,6 +213,39 @@ public class JinqJPATest
       Collections.sort(results, (c1, c2) -> c1.getName().compareTo(c2.getName()));
       assertEquals(6, results.size());
       assertEquals("Alice", results.get(0).getName());
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testJoinNMLink()
+   {
+      // TODO: Support not implemented yet
+      List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
+            .where(i -> i.getName().equals("Widgets"))
+            .join(i -> JinqStream.from(i.getSuppliers()))
+            .toList();
+      assertEquals("SELECT A.customer FROM Sale A", query);
+      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
+      assertEquals(2, results.size());
+      assertEquals("Widgets", results.get(0).getOne().getName());
+      assertEquals("Conglomerate", results.get(0).getTwo().getName());
+      assertEquals("HW Supplier", results.get(1).getTwo().getName());
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testJoinEntity()
+   {
+      // TODO: Support not implemented yet
+      List<Pair<Item, Item>> results = streams.streamAll(em, Item.class)
+            .where(i -> i.getName().equals("Widgets"))
+            .join((i, source) -> source.stream(Item.class))
+            .where(pair -> pair.getOne().getPurchaseprice() < pair.getTwo().getPurchaseprice())
+            .toList();
+      assertEquals("SELECT A.customer FROM Sale A", query);
+      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
+//      assertEquals(2, results.size());
+//      assertEquals("Widgets", results.get(0).getOne().getName());
+//      assertEquals("Conglomerate", results.get(0).getTwo().getName());
+//      assertEquals("HW Supplier", results.get(1).getTwo().getName());
    }
 
    @Test
