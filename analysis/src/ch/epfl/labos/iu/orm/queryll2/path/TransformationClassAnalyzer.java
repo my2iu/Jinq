@@ -118,6 +118,7 @@ public class TransformationClassAnalyzer
    public static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumDouble", "(Lorg/jinq/orm/stream/JinqStream$AggregateDouble;)D");
    public static MethodSignature streamMaxInt = new MethodSignature("org/jinq/orm/stream/JinqStream", "maxInt", "(Lorg/jinq/orm/stream/JinqStream$AggregateInteger;)I");
    public static MethodSignature streamMaxDouble = new MethodSignature("org/jinq/orm/stream/JinqStream", "maxDouble", "(Lorg/jinq/orm/stream/JinqStream$AggregateDouble;)D");
+   public static MethodSignature streamFrom = new MethodSignature("org/jinq/orm/stream/JinqStream", "from", "(Ljava/util/Collection;)Lorg/jinq/orm/stream/JinqStream;");
    public static MethodSignature dbsetSumInt = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "sumInt", "(Lch/epfl/labos/iu/orm/DBSet$AggregateInteger;)I");
    public static MethodSignature dbsetSumDouble = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "sumDouble", "(Lch/epfl/labos/iu/orm/DBSet$AggregateDouble;)D");
    public static MethodSignature dbsetMaxInt = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "maxInt", "(Lch/epfl/labos/iu/orm/DBSet$AggregateInteger;)I");
@@ -200,6 +201,7 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(tuple8GetSix);
       KnownSafeMethods.add(tuple8GetSeven);
       KnownSafeMethods.add(tuple8GetEight);
+      KnownSafeStaticMethods.add(streamFrom);
       SafeMethodAnnotations.add(NoSideEffects.class);
       SafeMethodAnnotations.add(EntitySupplier.class);
    }

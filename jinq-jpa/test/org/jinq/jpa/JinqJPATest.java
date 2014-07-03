@@ -21,6 +21,7 @@ import javax.persistence.Query;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
+import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
@@ -215,7 +216,7 @@ public class JinqJPATest
       assertEquals("Alice", results.get(0).getName());
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testJoinNMLink()
    {
       // TODO: Support not implemented yet
@@ -223,12 +224,27 @@ public class JinqJPATest
             .where(i -> i.getName().equals("Widgets"))
             .join(i -> JinqStream.from(i.getSuppliers()))
             .toList();
-      assertEquals("SELECT A.customer FROM Sale A", query);
+      assertEquals("SELECT A, B FROM Item A, A.suppliers B WHERE A.name = 'Widgets'", query);
       Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
       assertEquals(2, results.size());
       assertEquals("Widgets", results.get(0).getOne().getName());
       assertEquals("Conglomerate", results.get(0).getTwo().getName());
       assertEquals("HW Supplier", results.get(1).getTwo().getName());
+   }
+
+   @Test
+   public void testJoin11NMLink()
+   {
+      // TODO: Support not implemented yet
+      List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
+            .join(lo -> JinqStream.from(lo.getItem().getSuppliers()))
+            .where(pair -> pair.getOne().getSale().getCustomer().getName().equals("Alice"))
+            .toList();
+      assertEquals("SELECT A, B FROM Lineorder A, A.item.suppliers B WHERE A.sale.customer.name = 'Alice'", query);
+      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
+      assertEquals(5, results.size());
+      assertEquals("Conglomerate", results.get(1).getTwo().getName());
+      assertEquals("HW Supplier", results.get(4).getTwo().getName());
    }
 
    @Test

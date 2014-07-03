@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
@@ -25,6 +26,7 @@ public class MetamodelUtil
 
    public final Set<Class<?>> safeMethodAnnotations;
    final Map<MethodSignature, SingularAttribute<?,?>> fieldMethods;
+   final Map<MethodSignature, PluralAttribute<?,?,?>> nLinkMethods;
    public final Set<MethodSignature> safeMethods;
    public final Set<MethodSignature> safeStaticMethods;
    final Map<String, List<Enum<?>>> enums;
@@ -78,10 +80,12 @@ public class MetamodelUtil
       safeStaticMethods.add(TransformationClassAnalyzer.longValueOf);
       safeStaticMethods.add(TransformationClassAnalyzer.doubleValueOf);
       safeStaticMethods.add(TransformationClassAnalyzer.booleanValueOf);
-      fieldMethods = new HashMap<MethodSignature, SingularAttribute<?,?>>();
+      fieldMethods = new HashMap<>();
+      nLinkMethods = new HashMap<>();
       
       findMetamodelGetters();
       safeMethods.addAll(fieldMethods.keySet());
+      safeMethods.addAll(nLinkMethods.keySet());
    }
    
    private void findMetamodelGetters()
@@ -105,6 +109,14 @@ public class MetamodelUtil
                safeMethods.add(eqMethod);
             }
             fieldMethods.put(methodSig, singularAttrib);
+         }
+         for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
+         {
+            MethodSignature methodSig = new MethodSignature(
+                  org.objectweb.asm.Type.getInternalName(pluralAttrib.getJavaMember().getDeclaringClass()),
+                  pluralAttrib.getJavaMember().getName(),
+                  org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(pluralAttrib.getJavaType())));
+            nLinkMethods.put(methodSig, pluralAttrib);
          }
       }
    }
@@ -150,7 +162,28 @@ public class MetamodelUtil
    {
       return fieldMethods.get(sig).getName();
    }
+
+   /**
+    * Returns true if a method is used to get a plural attribute field from an entity
+    * @param sig
+    * @return
+    */
+   public boolean isPluralAttributeLinkMethod(MethodSignature sig)
+   {
+      return nLinkMethods.containsKey(sig);
+   }
    
+   /**
+    * Given a method used for a 1:N or N:M navigational link, this returns the actual
+    * name of the link.
+    * @param sig
+    * @return
+    */
+   public String nLinkMethodToLinkName(MethodSignature sig)
+   {
+      return nLinkMethods.get(sig).getName();
+   }
+
    /**
     * Returns true if a Class refers to a known enum type
     * @param className class name using asm style / between package parts

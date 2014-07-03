@@ -113,11 +113,23 @@ public class CreateJpaDb
       em.persist(dave);
       em.persist(eve);
 
+      Supplier hw = createSupplier("HW Supplier", "Canada", 500, false);
+      Supplier talentSupply = createSupplier("Talent Agency", "USA", 1000, true);
+      Supplier conglomerate = createSupplier("Conglomerate", "Switzerland", 10000000L, false);
+      em.persist(hw);
+      em.persist(talentSupply);
+      em.persist(conglomerate);
+
       Item widgets = createItem("Widgets", ItemType.SMALL, 5, 10);
       Item wudgets = createItem("Wudgets", ItemType.SMALL, 2, 3);
       Item talent = createItem("Talent", ItemType.OTHER, 6, 1000);
       Item lawnmowers = createItem("Lawnmowers", ItemType.BIG, 100, 102);
       Item screws = createItem("Screws", ItemType.SMALL, 1, 2);
+      widgets.setSuppliers(Arrays.asList(hw, conglomerate));
+      wudgets.setSuppliers(Arrays.asList(hw));
+      talent.setSuppliers(Arrays.asList(talentSupply));
+      lawnmowers.setSuppliers(Arrays.asList(conglomerate));
+      screws.setSuppliers(Arrays.asList(hw));
       em.persist(widgets);
       em.persist(wudgets);
       em.persist(talent);
@@ -152,17 +164,7 @@ public class CreateJpaDb
       em.persist(addLineorder(s6, wudgets, 2, 9000));
       em.persist(addLineorder(s6, lawnmowers, 2, 10000));
       em.persist(addLineorder(s6, screws, 7, 11000));
-      
-      Supplier s = createSupplier("HW Supplier", "Canada", 500, false);
-      s.setItems(Arrays.asList(widgets, wudgets, screws));
-      em.persist(s);
-      s = createSupplier("Talent Agency", "USA", 1000, true);
-      s.setItems(Arrays.asList(talent));
-      em.persist(s);
-      s = createSupplier("Conglomerate", "Switzerland", 10000000L, false);
-      s.setItems(Arrays.asList(widgets, lawnmowers));
-      em.persist(s);
-      
+
       em.getTransaction().commit();
    }
 }
