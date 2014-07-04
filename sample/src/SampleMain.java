@@ -14,6 +14,8 @@ import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 
 import com.example.jinq.sample.jpa.entities.Customer;
+import com.example.jinq.sample.jpa.entities.Item;
+import com.example.jinq.sample.jpa.entities.ItemType;
 import com.example.jinq.sample.jpa.entities.Lineorder;
 
 public class SampleMain
@@ -46,6 +48,7 @@ public class SampleMain
    // Helper accessor methods
    
    private JinqStream<Customer> customers() { return streams.streamAll(em, Customer.class); }  
+   private JinqStream<Item> items() { return streams.streamAll(em, Item.class); }  
    private JinqStream<Lineorder> lineorders() { return streams.streamAll(em, Lineorder.class); }  
    
    // Actual queries to run
@@ -79,11 +82,11 @@ public class SampleMain
       
       // Simple filtering with a parameter
       // (the parameter must be a basic type and a local variable)
-      int param = 200;
-      out.println("CUSTOMERS WITH DEBT < 200");
-      customers()
-         .where(c -> c.getDebt() < param)
-         .forEach( c -> out.println(c.getName() + " " + c.getDebt()));
+      ItemType param = ItemType.SMALL;
+      out.println("ITEMS OF TYPE SMALL");
+      items()
+         .where(i -> i.getType() == param)
+         .forEach( i -> out.println(i.getName() + " " + i.getType().name()));
       out.println();
 
       // More complex filtering involving multiple fields
