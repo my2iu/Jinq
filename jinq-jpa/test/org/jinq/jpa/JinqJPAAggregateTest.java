@@ -18,8 +18,8 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    {
       long count = streams.streamAll(em, Customer.class)
             .count();
-      assertEquals("SELECT A.customer.name, A.date FROM Sale A WHERE A.customer.country = 'Switzerland' AND (A.customer.debt < 150)", query);
-      assertEquals(2, count);
+      assertEquals("SELECT COUNT(1) FROM Customer A", query);
+      assertEquals(5, count);
    }
    
    @Test
@@ -28,8 +28,8 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       long count = streams.streamAll(em, Customer.class)
             .where(c -> c.getCountry().equals("UK") )
             .count();
-      assertEquals("SELECT A.customer.name, A.date FROM Sale A WHERE A.customer.country = 'Switzerland' AND (A.customer.debt < 150)", query);
-      assertEquals(2, count);
+      assertEquals("SELECT COUNT(1) FROM Customer A WHERE A.country = 'UK'", query);
+      assertEquals(1, count);
    }
 
 }

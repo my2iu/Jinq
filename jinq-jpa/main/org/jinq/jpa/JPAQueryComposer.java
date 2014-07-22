@@ -14,6 +14,7 @@ import javax.persistence.Query;
 import org.jinq.jpa.jpqlquery.GeneratedQueryParameter;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.RowReader;
+import org.jinq.jpa.transform.CountTransform;
 import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaInfo;
@@ -110,6 +111,16 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       hints.queryLogger.logQuery(queryString, positionParams, namedParams);
    }
    
+   private T executeAndGetSingleResult()
+   {
+      final String queryString = query.getQueryString();
+      final Query q = em.createQuery(queryString);
+      fillQueryParameters(q, query.getQueryParameters());
+      final RowReader<T> reader = query.getRowReader();
+      logQuery(queryString, q);
+      return reader.readResult(q.getSingleResult());
+   }
+   
    @Override
    public Iterator<T> executeAndReturnResultIterator(
          Consumer<Throwable> exceptionReporter)
@@ -173,14 +184,28 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       };
    }
 
+   private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLQueryTransform transform)
+   {
+      try {
+         JPQLQuery<U> newQuery = transform.apply(query, null);
+         if (newQuery == null) { translationFail(); return null; }
+         return new JPAQueryComposer<>(this, newQuery, lambdas);
+      }
+      catch (QueryTransformException e)
+      {
+         translationFail(e);
+         return null;
+      }
+   }
+   
    private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLQueryTransform transform, Object lambda)
    {
       LambdaInfo lambdaInfo = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, lambda, lambdas.size(), hints.dieOnError);
       if (lambdaInfo == null) { translationFail(); return null; }
       try {
          JPQLQuery<U> newQuery = transform.apply(query, lambdaInfo);
-      if (newQuery == null) { translationFail(); return null; }
-      return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfo);
+         if (newQuery == null) { translationFail(); return null; }
+         return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfo);
       }
       catch (QueryTransformException e)
       {
@@ -288,7 +313,9 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public Long count()
    {
-      // TODO Auto-generated method stub
+      JPAQueryComposer<Long> result = applyTransformWithLambda(new CountTransform(metamodel));
+      if (result != null)
+         return result.executeAndGetSingleResult();
       translationFail(); 
       return null;
    }
