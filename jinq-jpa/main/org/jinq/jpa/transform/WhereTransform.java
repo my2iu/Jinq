@@ -15,15 +15,13 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class WhereTransform extends JPQLQueryTransform
 {
-   LambdaInfo where;
-   public WhereTransform(MetamodelUtil metamodel, LambdaInfo where)
+   public WhereTransform(MetamodelUtil metamodel)
    {
       super(metamodel);
-      this.where = where;
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo where) throws QueryTransformException
    {
       try  {
          if (query instanceof SelectFromWhere)

@@ -16,7 +16,7 @@ public class JPQLQueryTransform
       this.metamodel = metamodel;
    }
    
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
    {
       return null;
    }

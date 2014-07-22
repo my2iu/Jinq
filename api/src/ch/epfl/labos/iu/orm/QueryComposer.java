@@ -31,6 +31,7 @@ public interface QueryComposer<T>
    public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 
    // returns null if the aggregates cannot be calculated
+   public Long count();
    public Double sumDouble(JinqStream.AggregateDouble<T> aggregate);
    public Integer sumInt(JinqStream.AggregateInteger<T> aggregate);
    public Double maxDouble(JinqStream.AggregateDouble<T> aggregate);
@@ -40,4 +41,5 @@ public interface QueryComposer<T>
    public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);
    
    public void setHint(String name, Object val);
+
 }

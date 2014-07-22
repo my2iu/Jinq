@@ -541,6 +541,12 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
       return null;
    }
 
+   public Long count()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+   
    public Double sumDouble(AggregateDouble<T> aggregate)
    {
       return composeQueryRow("sumDouble", aggregate,

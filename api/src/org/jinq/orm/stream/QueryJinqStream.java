@@ -83,6 +83,15 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       if (newComposer != null) return new QueryJinqStream<Pair<U, V>>(newComposer, inQueryStreamSource);
       return super.group(select, aggregate);
    }
+   
+   @Override
+   public long count()
+   {
+      Long count = queryComposer.count();
+      if (count != null) return count;
+      return super.count();
+   }
+
 
    @Override
    public double sumDouble(AggregateDouble<T> aggregate)

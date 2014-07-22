@@ -3,12 +3,9 @@ package org.jinq.jpa.transform;
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.Expression;
-import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
-import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
-import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
@@ -16,12 +13,10 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class JoinTransform extends JPQLQueryTransform
 {
-   LambdaInfo lambda;
    boolean withSource;
-   public JoinTransform(MetamodelUtil metamodel, LambdaInfo lambda, boolean withSource)
+   public JoinTransform(MetamodelUtil metamodel, boolean withSource)
    {
       super(metamodel);
-      this.lambda = lambda;
       this.withSource = withSource;
    }
    
@@ -39,7 +34,7 @@ public class JoinTransform extends JPQLQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
    {
       try  {
          if (query instanceof SelectFromWhere)

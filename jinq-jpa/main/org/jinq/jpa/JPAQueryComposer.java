@@ -173,22 +173,26 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       };
    }
 
+   private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLQueryTransform transform, Object lambda)
+   {
+      LambdaInfo lambdaInfo = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, lambda, lambdas.size(), hints.dieOnError);
+      if (lambdaInfo == null) { translationFail(); return null; }
+      try {
+         JPQLQuery<U> newQuery = transform.apply(query, lambdaInfo);
+      if (newQuery == null) { translationFail(); return null; }
+      return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfo);
+      }
+      catch (QueryTransformException e)
+      {
+         translationFail(e);
+         return null;
+      }
+   }
+   
    @Override
    public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
-	   LambdaInfo where = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, test, lambdas.size(), hints.dieOnError);
-	   if (where == null) { translationFail(); return null; }
-	   JPQLQueryTransform whereTransform = new WhereTransform(metamodel, where);
-	   try {
-	      JPQLQuery<T> newQuery = whereTransform.apply(query);
-   	   if (newQuery == null) { translationFail(); return null; }
-   	   return new JPAQueryComposer<>(this, newQuery, lambdas, where);
-	   }
-	   catch (QueryTransformException e)
-	   {
-	      translationFail(e);
-	      return null;
-	   }
+      return applyTransformWithLambda(new WhereTransform(metamodel), test);
    }
 
    @Override
@@ -246,57 +250,21 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <U> QueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
-      LambdaInfo select = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, selectLambda, lambdas.size(), hints.dieOnError);
-      if (select == null) { translationFail(); return null; }
-      JPQLQueryTransform selectTransform = new SelectTransform(metamodel, select);
-      try {
-         JPQLQuery<U> newQuery = selectTransform.apply(query);
-         if (newQuery == null) { translationFail(); return null; }
-         return new JPAQueryComposer<>(this, newQuery, lambdas, select);
-      }
-      catch (QueryTransformException e)
-      {
-         translationFail(e);
-         return null;
-      }
+      return applyTransformWithLambda(new SelectTransform(metamodel), selectLambda);
    }
 
    @Override
    public <U> QueryComposer<Pair<T, U>> join(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
-      LambdaInfo join = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, joinLambda, lambdas.size(), hints.dieOnError);
-      if (join == null) { translationFail(); return null; }
-      JPQLQueryTransform joinTransform = new JoinTransform(metamodel, join, false);
-      try {
-         JPQLQuery<Pair<T, U>> newQuery = joinTransform.apply(query);
-         if (newQuery == null) { translationFail(); return null; }
-         return new JPAQueryComposer<>(this, newQuery, lambdas, join);
-      }
-      catch (QueryTransformException e)
-      {
-         translationFail(e);
-         return null;
-      }
+      return applyTransformWithLambda(new JoinTransform(metamodel, false), joinLambda);
    }
 
    @Override
    public <U> QueryComposer<Pair<T, U>> join(
          org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> joinLambda)
    {
-      LambdaInfo join = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, joinLambda, lambdas.size(), hints.dieOnError);
-      if (join == null) { translationFail(); return null; }
-      JPQLQueryTransform joinTransform = new JoinTransform(metamodel, join, true);
-      try {
-         JPQLQuery<Pair<T, U>> newQuery = joinTransform.apply(query);
-         if (newQuery == null) { translationFail(); return null; }
-         return new JPAQueryComposer<>(this, newQuery, lambdas, join);
-      }
-      catch (QueryTransformException e)
-      {
-         translationFail(e);
-         return null;
-      }
+      return applyTransformWithLambda(new JoinTransform(metamodel, true), joinLambda);
    }
 
    @Override
@@ -311,6 +279,14 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <U, V> QueryComposer<Pair<U, V>> group(
          org.jinq.orm.stream.JinqStream.Select<T, U> select,
          org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, V> aggregate)
+   {
+      // TODO Auto-generated method stub
+      translationFail(); 
+      return null;
+   }
+   
+   @Override
+   public Long count()
    {
       // TODO Auto-generated method stub
       translationFail(); 

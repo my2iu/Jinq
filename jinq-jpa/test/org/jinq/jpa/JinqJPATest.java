@@ -1,22 +1,12 @@
 package org.jinq.jpa;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 import org.jinq.jpa.test.entities.Customer;
@@ -25,60 +15,11 @@ import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
-import org.jinq.orm.stream.NonQueryJinqStream;
 import org.jinq.tuples.Pair;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class JinqJPATest
+public class JinqJPATest extends JinqJPATestBase
 {
-   static EntityManagerFactory entityManagerFactory;
-   static JinqJPAStreamProvider streams;
-
-   EntityManager em;
-   String query;
-   
-   @BeforeClass
-   public static void setUpBeforeClass() throws Exception
-   {
-      entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
-      streams = new JinqJPAStreamProvider(entityManagerFactory);
-      EntityManager em = entityManagerFactory.createEntityManager();
-      new CreateJpaDb(em).createDatabase();
-      em.close();
-   }
-
-   @AfterClass
-   public static void tearDownAfterClass() throws Exception
-   {
-      entityManagerFactory.close();
-      try {
-         DriverManager.getConnection("jdbc:derby:memory:demoDB;drop=true");
-      } catch (SQLException e) { }
-   }
-
-   @Before
-   public void setUp() throws Exception
-   {
-      em = entityManagerFactory.createEntityManager();
-      streams.setHint("exceptionOnTranslationFail", true);
-      streams.setHint("queryLogger", new JPAQueryLogger() {
-         @Override public void logQuery(String q,
-               Map<Integer, Object> positionParameters,
-               Map<String, Object> namedParameters)
-         {
-            query = q;
-         }});
-   }
-
-   @After
-   public void tearDown() throws Exception
-   {
-	   em.close();
-   }
 
    @Test
    public void testStreamEntities()
@@ -274,7 +215,8 @@ public class JinqJPATest
       // Query q = em.createQuery("SELECT TRUE FROM Supplier A WHERE A.hasFreeShipping");  // A.hasFreeShipping doesn't work
       // Query q = em.createQuery("SELECT TRUE=TRUE FROM Supplier A WHERE A.hasFreeShipping = TRUE");  // TRUE = TRUE doesn't work
       // Query q = em.createQuery("SELECT (1 = 1) FROM Supplier A WHERE A.hasFreeShipping = TRUE");  // 1=1 doesn't work
-      Query q = em.createQuery("SELECT A.hasFreeShipping FROM Supplier A WHERE 1=1");  // 1=1 works as a conditional, A.hasFreeShipping is ok if you return it
+      // Query q = em.createQuery("SELECT A.hasFreeShipping FROM Supplier A WHERE 1=1");  // 1=1 works as a conditional, A.hasFreeShipping is ok if you return it
+      Query q = em.createQuery("SELECT SUM(A.purchaseprice + A.saleprice) FROM Item A");  // Checking whether sums of arbitrary expressions are allowed
       List results = q.getResultList();
 //      for (Object o : results)
 //         System.out.println(o);

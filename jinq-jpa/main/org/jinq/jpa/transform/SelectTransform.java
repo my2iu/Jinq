@@ -10,15 +10,13 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SelectTransform extends JPQLQueryTransform
 {
-   LambdaInfo lambda;
-   public SelectTransform(MetamodelUtil metamodel, LambdaInfo lambda)
+   public SelectTransform(MetamodelUtil metamodel)
    {
       super(metamodel);
-      this.lambda = lambda;
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
    {
       try  {
          if (query instanceof SelectFromWhere)

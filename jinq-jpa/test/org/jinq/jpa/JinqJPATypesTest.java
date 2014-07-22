@@ -1,26 +1,19 @@
 package org.jinq.jpa;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
@@ -30,59 +23,10 @@ import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class JinqJPATypesTest
+public class JinqJPATypesTest extends JinqJPATestBase
 {
-   static EntityManagerFactory entityManagerFactory;
-   static JinqJPAStreamProvider streams;
-
-   EntityManager em;
-   String query;
-   
-   @BeforeClass
-   public static void setUpBeforeClass() throws Exception
-   {
-      entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
-      streams = new JinqJPAStreamProvider(entityManagerFactory);
-      EntityManager em = entityManagerFactory.createEntityManager();
-      new CreateJpaDb(em).createDatabase();
-      em.close();
-   }
-
-   @AfterClass
-   public static void tearDownAfterClass() throws Exception
-   {
-      entityManagerFactory.close();
-      try {
-         DriverManager.getConnection("jdbc:derby:memory:demoDB;drop=true");
-      } catch (SQLException e) { }
-   }
-
-   @Before
-   public void setUp() throws Exception
-   {
-      em = entityManagerFactory.createEntityManager();
-      streams.setHint("exceptionOnTranslationFail", true);
-      streams.setHint("queryLogger", new JPAQueryLogger() {
-         @Override public void logQuery(String q,
-               Map<Integer, Object> positionParameters,
-               Map<String, Object> namedParameters)
-         {
-            query = q;
-         }});
-   }
-
-   @After
-   public void tearDown() throws Exception
-   {
-	   em.close();
-   }
-
    @Test
    public void testString()
    {
