@@ -1,5 +1,7 @@
 package org.jinq.orm.stream;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -120,6 +122,28 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       for (Map.Entry<U, List<T>> entry: map.entrySet())
          streamBuilder.accept(new Pair<>(entry.getKey(), aggregate.aggregateSelect(entry.getKey(), wrap(entry.getValue().stream()))));
       return wrap(streamBuilder.build());
+   }
+
+   private static <V extends Number> V genericSum(V a, V b)
+   {
+      if (a == null) return b;
+      if (b == null) return a;
+      if (!a.getClass().equals(b.getClass())) throw new IllegalArgumentException("Mismatched number types");
+      if (a instanceof Long) return (V)Long.valueOf(a.longValue() + b.longValue());
+      if (a instanceof Integer) return (V)Integer.valueOf(a.intValue() + b.intValue());
+      if (a instanceof Double) return (V)Double.valueOf(a.doubleValue() + b.doubleValue());
+      if (a instanceof BigDecimal) return (V)((BigDecimal)a).add((BigDecimal)b);
+      if (a instanceof BigInteger) return (V)((BigInteger)a).add((BigInteger)b);
+      throw new IllegalArgumentException("Summing unknown number types");
+   }
+   
+   @Override
+   public <V extends Number> V sum(
+         org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
+   {
+      return reduce((V)null, 
+            (accum, val) -> genericSum(accum, aggregate.aggregate(val)),
+            (accum1, accum2) -> genericSum(accum1, accum2));
    }
 
    @Override
@@ -394,5 +418,4 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    {
       return this;
    }
-
 }

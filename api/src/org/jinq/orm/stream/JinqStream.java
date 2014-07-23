@@ -44,6 +44,17 @@ public interface JinqStream<T> extends Stream<T>
       public V aggregateSelect(W key, JinqStream<U> val);
    }
    public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate);
+   // TODO: This interface is a little iffy since the function can potentially return different number types
+   // and things can't be checked until runtime, but Java type inferencing currently can't
+   // disambiguate between different methods that take functions with different return types.
+   // In most cases, this should be fine as long as programmers define V as something specific
+   // like Integer or Double instead of something generic like Number.
+   public static interface CollectNumber<U, V extends Number> extends Serializable {
+      public V aggregate(U val);
+   }
+   // TODO: It's more type-safe to have separate sumDouble(), sumInteger(), etc. methods,
+   // but it's too messy, so I'll provide this simpler sum() method for now
+   public <V extends Number> V sum(CollectNumber<T, V> aggregate);
    public static interface AggregateDouble<U> extends Serializable {
       public double aggregate(U val);
    }
