@@ -219,7 +219,7 @@ public class JinqJPATest extends JinqJPATestBase
       // Query q = em.createQuery("SELECT SUM(A.purchaseprice + A.saleprice) FROM Item A");  // Checking whether sums of arbitrary expressions are allowed
       Query q = em.createQuery("SELECT COUNT(A), COUNT(B) FROM Customer A, A.Orders B");  // Checking to see if it matters what you stick inside the COUNT() function
       List results = q.getResultList();
-      for (Object o : results)
-         System.out.println(o);
+//      for (Object o : results)
+//         System.out.println(o);
    }
 }

@@ -547,8 +547,20 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
       return null;
    }
    
-   public <V extends Number> V sum(JinqStream.CollectNumber<T, V> aggregate)
+   public <V extends Number & Comparable<V>> Number sum(JinqStream.CollectNumber<T, V> aggregate, Class<V> collectClass)
    {
+      if (collectClass.equals(Double.class))
+      {
+         JinqStream.CollectDouble<T> collect = (JinqStream.CollectDouble<T>) aggregate;
+         return composeQueryRow("sumDouble", aggregate,
+               () -> transformer.sum(query.copy(), nextLambdaParamIndex, collect, Double.class, emSource));
+      }
+      else if (collectClass.equals(Integer.class))
+      {
+         JinqStream.CollectInteger<T> collect = (JinqStream.CollectInteger<T>) aggregate;
+         return ((Integer)composeQueryRow("sumInt", aggregate,
+               () -> transformer.sum(query.copy(), nextLambdaParamIndex, collect, Integer.class, emSource))).longValue();
+      }
       // TODO Auto-generated method stub
       return null;
    }
@@ -559,19 +571,7 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
             () -> transformer.sumDouble(query.copy(), nextLambdaParamIndex, aggregate, emSource));
    }
 
-   public Double sumDouble(JinqStream.AggregateDouble<T> aggregate)
-   {
-      return composeQueryRow("sumDouble", aggregate,
-            () -> transformer.sumDouble(query.copy(), nextLambdaParamIndex, aggregate, emSource));
-   }
-
    public Integer sumInt(AggregateInteger<T> aggregate)
-   {
-      return composeQueryRow("sumInt", aggregate,
-            () -> transformer.sumInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));
-   }
-
-   public Integer sumInt(JinqStream.AggregateInteger<T> aggregate)
    {
       return composeQueryRow("sumInt", aggregate,
             () -> transformer.sumInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));

@@ -22,6 +22,7 @@ import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.WhereTransform;
+import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
 
@@ -321,7 +322,9 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       return null;
    }
 
-   public <V extends Number> V sum(org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
+   @Override
+   public <V extends Number & Comparable<V>> Number sum(
+         CollectNumber<T, V> aggregate, Class<V> collectClass)
    {
       JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel), aggregate);
       if (result != null)
@@ -329,25 +332,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       translationFail(); 
       return null;
    }
-
-   @Override
-   public Double sumDouble(
-         org.jinq.orm.stream.JinqStream.AggregateDouble<T> aggregate)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-
-   @Override
-   public Integer sumInt(
-         org.jinq.orm.stream.JinqStream.AggregateInteger<T> aggregate)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-
+   
    @Override
    public Double maxDouble(
          org.jinq.orm.stream.JinqStream.AggregateDouble<T> aggregate)

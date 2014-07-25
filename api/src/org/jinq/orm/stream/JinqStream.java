@@ -1,6 +1,8 @@
 package org.jinq.orm.stream;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -49,12 +51,37 @@ public interface JinqStream<T> extends Stream<T>
    // disambiguate between different methods that take functions with different return types.
    // In most cases, this should be fine as long as programmers define V as something specific
    // like Integer or Double instead of something generic like Number.
-   public static interface CollectNumber<U, V extends Number> extends Serializable {
+
+   // These interfaces are used to define the lambdas used as parameters to various aggregation
+   // operations.
+   public static interface CollectNumber<U, V extends Number & Comparable<V>> extends Serializable {
       public V aggregate(U val);
    }
+   public static interface CollectComparable<U, V extends Comparable<V>> extends Serializable {
+      public V aggregate(U val);
+   }
+   public static interface CollectInteger<U> extends CollectNumber<U, Integer> {}
+   public static interface CollectLong<U> extends CollectNumber<U, Long> {}
+   public static interface CollectDouble<U> extends CollectNumber<U, Double> {}
+   public static interface CollectBigDecimal<U> extends CollectNumber<U, BigDecimal> {}
+   public static interface CollectBigInteger<U> extends CollectNumber<U, BigInteger> {}
+   
+   
    // TODO: It's more type-safe to have separate sumDouble(), sumInteger(), etc. methods,
    // but it's too messy, so I'll provide this simpler sum() method for now
-   public <V extends Number> V sum(CollectNumber<T, V> aggregate);
+//   public <V extends Number> V sum(CollectNumber<T, V> aggregate);
+
+   // Having separate sum() methods for different types is messy but due to problems
+   // with Java's type inferencing and the fact that JPQL uses different return types
+   // for a sum than the types being summed over, this is the only way to do sum
+   // operations in a type-safe way.
+   public Long sumInteger(CollectInteger<T> aggregate);
+   public Long sumLong(CollectLong<T> aggregate);
+   public Double sumDouble(CollectDouble<T> aggregate);
+   public BigDecimal sumBigDecimal(CollectBigDecimal<T> aggregate);
+   public BigInteger sumBigInteger(CollectBigInteger<T> aggregate);
+   
+   
    public static interface AggregateDouble<U> extends Serializable {
       public double aggregate(U val);
    }
@@ -64,8 +91,6 @@ public interface JinqStream<T> extends Stream<T>
    public static interface AggregateSelect<U, V> extends Serializable {
       public V aggregateSelect(JinqStream<U> val);
    }
-   public double sumDouble(AggregateDouble<T> aggregate);
-   public int sumInt(AggregateInteger<T> aggregate);
    public double maxDouble(AggregateDouble<T> aggregate);
    public int maxInt(AggregateInteger<T> aggregate);
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate);

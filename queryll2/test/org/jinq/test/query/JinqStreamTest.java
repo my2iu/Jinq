@@ -193,8 +193,8 @@ public class JinqStreamTest
    public void testAggregation()
    {
       // Aggregation operations (Sum of all line order quantities)
-      int total = em.lineOrderStream()
-         .sumInt(lo -> lo.getQuantity());
+      long total = em.lineOrderStream()
+         .sumInteger(lo -> lo.getQuantity());
       assertEquals("SELECT SUM(A.Quantity) AS COL1 FROM LineOrders AS A",
          savedOutput.toString().trim());
    }
@@ -214,10 +214,10 @@ public class JinqStreamTest
    {
       // Calculate more than one aggregate
       // (Sum of all line order quantities and number of line orders)
-      Pair<Integer, Integer> pairResult = em.lineOrderStream()
+      Pair<Long, Long> pairResult = em.lineOrderStream()
          .aggregate(
-               data -> data.sumInt(lo -> lo.getQuantity()),
-               data -> data.sumInt(lo -> 1));
+               data -> data.sumInteger(lo -> lo.getQuantity()),
+               data -> data.sumInteger(lo -> 1));
       assertEquals("SELECT SUM(A.Quantity) AS COL1, SUM(1) AS COL2 FROM LineOrders AS A",
             savedOutput.toString().trim());
    }
@@ -230,7 +230,7 @@ public class JinqStreamTest
             em.saleStream()
                .group(
                   s -> s.getPurchaser().getCustomerId(),
-                  (key, sales) -> sales.sumInt(sale -> 1))
+                  (key, sales) -> sales.sumInteger(sale -> 1))
                .getDebugQueryString());
    }
    

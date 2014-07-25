@@ -37,7 +37,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    public void testSum()
    {
       long sum = streams.streamAll(em, Supplier.class)
-            .sum(s -> (long)s.getRevenue());
+            .sumLong(s -> (long)s.getRevenue());
       assertEquals("SELECT SUM(A.revenue) FROM Supplier A", query);
       assertEquals(10001500l, sum);
    }

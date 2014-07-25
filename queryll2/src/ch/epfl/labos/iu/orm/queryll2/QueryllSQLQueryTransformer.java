@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.AggregateSelect;
+import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.tuples.Pair;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
@@ -35,6 +36,7 @@ import ch.epfl.labos.iu.orm.query2.SQLQueryTransforms;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.DoubleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.IntegerSQLReader;
+import ch.epfl.labos.iu.orm.query2.SQLReader.LongSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution.FromReference;
 import ch.epfl.labos.iu.orm.queryll2.path.StaticMethodAnalysisStorage;
@@ -877,15 +879,19 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       // TODO: Need a proper param handler here
       return handleSimpleAggregate(query, analysis, "SUM", IntegerSQLReader.class, new ParamsToJava8LambdaDescription(), null, emSource);
    }
-   
+
    @Override
-   public <T> SQLQuery<Integer> sumInt(SQLQuery<T> query, int lambdaThisIndex,
-         JinqStream.AggregateInteger<T> aggregate,
+   public <T, U extends Number & Comparable<U>, V> SQLQuery<V> sum(
+         SQLQuery<T> query, int lambdaThisIndex, CollectNumber<T, U> aggregate,
+         Class<U> collectClass,
          Object emSource)
    {
       MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateIntegerAnalysis);
       if (analysis == null) return null;
-      return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", IntegerSQLReader.class, emSource);
+      if (collectClass.equals(Double.class))
+         return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", DoubleSQLReader.class, emSource);
+      else
+         return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", IntegerSQLReader.class, emSource);
    }
 
    public <T> SQLQuery<Integer> sumInt(SQLQuery<T> query, int lambdaThisIndex, 
@@ -896,17 +902,6 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", IntegerSQLReader.class, emSource);
    }
 
-   @Override
-   public <T> SQLQuery<Double> sumDouble(SQLQuery<T> query,
-         int lambdaThisIndex,
-         JinqStream.AggregateDouble<T> aggregate,
-         Object emSource)
-   {
-      MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateDoubleAnalysis);
-      if (analysis == null) return null;
-      return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", DoubleSQLReader.class, emSource);
-   }
-   
    public <T> SQLQuery<Double> sumDouble(SQLQuery<T> query, int lambdaThisIndex, 
                                          AggregateDouble<T> aggregate, Object emSource)
    {

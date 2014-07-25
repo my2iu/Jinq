@@ -44,10 +44,10 @@ public class NonQueryJinqStreamTest
    {
       JinqStream<Integer> stream = 
             new NonQueryJinqStream<>(Stream.of(1, 2, 3, 4, 5));
-      Tuple3<Integer, Integer, Integer> result = 
-            stream.aggregate((vals) -> vals.sumInt(x -> x), 
+      Tuple3<Long, Integer, Long> result = 
+            stream.aggregate((vals) -> vals.sumInteger(x -> x), 
                   (vals) -> vals.maxInt(x -> x),
-                  (vals) -> vals.sumInt(x -> x + 1));
+                  (vals) -> vals.sumInteger(x -> x + 1));
       assertEquals(15, result.getOne().intValue());
       assertEquals(5, result.getTwo().intValue());
       assertEquals(20, result.getThree().intValue());
@@ -56,7 +56,7 @@ public class NonQueryJinqStreamTest
    @Test
    public void testSum()
    {
-      assertEquals(15, (int)new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sum(n -> n));
-      assertTrue(Math.abs(20.0 - new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sum(n -> n + 1.0)) < 0.01);
+      assertEquals(15, (long)new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sumInteger(n -> n));
+      assertTrue(Math.abs(20.0 - new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sumDouble(n -> n + 1.0)) < 0.01);
    }
 }

@@ -122,15 +122,15 @@ public class Main
 
       // Aggregation operations
       System.out.println("Sum of all line order quantities");
-      int total = em.lineOrderStream()
-            .sumInt(lo -> lo.getQuantity());
+      long total = em.lineOrderStream()
+            .sumInteger(lo -> lo.getQuantity());
 
       // Calculate more than one aggregate
       System.out.println("Sum of all line order quantities " +
       		"and number of line orders");
       Pair pairResult = em.lineOrderStream()
-            .aggregate(data -> data.sumInt(lo -> lo.getQuantity()),
-                       data -> data.sumInt(lo -> 1));
+            .aggregate(data -> data.sumInteger(lo -> lo.getQuantity()),
+                       data -> data.sumInteger(lo -> 1));
 
       // Some math inside a select
       System.out.println("Profit on each item");
@@ -144,7 +144,7 @@ public class Main
       result = em.saleStream()
             .group(
                   s -> s.getPurchaser().getCustomerId(),
-                  (key, sales) -> sales.sumInt(sale -> 1))
+                  (key, sales) -> sales.sumInteger(sale -> 1))
             .toList();
       
       // Limited subquery support (so far)

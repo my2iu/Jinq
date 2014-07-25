@@ -1,10 +1,17 @@
 package org.jinq.orm.stream;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jinq.orm.stream.JinqStream.CollectBigDecimal;
+import org.jinq.orm.stream.JinqStream.CollectBigInteger;
+import org.jinq.orm.stream.JinqStream.CollectDouble;
+import org.jinq.orm.stream.JinqStream.CollectInteger;
+import org.jinq.orm.stream.JinqStream.CollectLong;
 import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DateSorter;
@@ -92,29 +99,49 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       return super.count();
    }
 
+//   @Override
+//   public <V extends Number> V sum(
+//         org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
+//   {
+//      V val = queryComposer.sum(aggregate);
+//      if (val != null) return val;
+//      return super.sum(aggregate);
+//   }
+   
    @Override
-   public <V extends Number> V sum(
-         org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
+   public Long sumInteger(CollectInteger<T> aggregate)
    {
-      V val = queryComposer.sum(aggregate);
+      Long val = (Long)queryComposer.sum(aggregate, Integer.class);
       if (val != null) return val;
-      return super.sum(aggregate);
+      return super.sumInteger(aggregate);
    }
-
    @Override
-   public double sumDouble(AggregateDouble<T> aggregate)
+   public Long sumLong(CollectLong<T> aggregate)
    {
-      Double val = queryComposer.sumDouble(aggregate);
+      Long val = (Long)queryComposer.sum(aggregate, Long.class);
+      if (val != null) return val;
+      return super.sumLong(aggregate);
+   }
+   @Override
+   public Double sumDouble(CollectDouble<T> aggregate)
+   {
+      Double val = (Double)queryComposer.sum(aggregate, Double.class);
       if (val != null) return val;
       return super.sumDouble(aggregate);
    }
-   
    @Override
-   public int sumInt(AggregateInteger<T> aggregate)
+   public BigDecimal sumBigDecimal(CollectBigDecimal<T> aggregate)
    {
-      Integer val = queryComposer.sumInt(aggregate);
+      BigDecimal val = (BigDecimal)queryComposer.sum(aggregate, BigDecimal.class);
       if (val != null) return val;
-      return super.sumInt(aggregate);
+      return super.sumBigDecimal(aggregate);
+   }
+   @Override
+   public BigInteger sumBigInteger(CollectBigInteger<T> aggregate)
+   {
+      BigInteger val = (BigInteger)queryComposer.sum(aggregate, BigInteger.class);
+      if (val != null) return val;
+      return super.sumBigInteger(aggregate);
    }
 
    @Override

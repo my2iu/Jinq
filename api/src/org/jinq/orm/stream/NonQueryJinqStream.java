@@ -1,5 +1,6 @@
 package org.jinq.orm.stream;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -16,6 +17,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jinq.orm.stream.JinqStream.CollectBigDecimal;
+import org.jinq.orm.stream.JinqStream.CollectBigInteger;
+import org.jinq.orm.stream.JinqStream.CollectDouble;
+import org.jinq.orm.stream.JinqStream.CollectInteger;
+import org.jinq.orm.stream.JinqStream.CollectLong;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 
@@ -138,29 +144,39 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    }
    
    @Override
-   public <V extends Number> V sum(
-         org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
+   public Long sumInteger(CollectInteger<T> aggregate)
    {
-      return reduce((V)null, 
+      return reduce((Long)null, 
+            (accum, val) -> genericSum(accum, (long)aggregate.aggregate(val)),
+            (accum1, accum2) -> genericSum(accum1, accum2));
+   }
+   @Override
+   public Long sumLong(CollectLong<T> aggregate)
+   {
+      return reduce((Long)null, 
             (accum, val) -> genericSum(accum, aggregate.aggregate(val)),
             (accum1, accum2) -> genericSum(accum1, accum2));
    }
-
    @Override
-   public double sumDouble(AggregateDouble<T> aggregate)
+   public Double sumDouble(CollectDouble<T> aggregate)
    {
-      // TODO: Rewrite using a summing collector 
-      return reduce(0.0, 
-            (accum, val) -> accum + aggregate.aggregate(val),
-            (accum1, accum2) -> accum1 + accum2);
+      return reduce((Double)null, 
+            (accum, val) -> genericSum(accum, aggregate.aggregate(val)),
+            (accum1, accum2) -> genericSum(accum1, accum2));
    }
-   
    @Override
-   public int sumInt(AggregateInteger<T> aggregate)
+   public BigDecimal sumBigDecimal(CollectBigDecimal<T> aggregate)
    {
-      return reduce(0, 
-            (accum, val) -> accum + aggregate.aggregate(val),
-            (accum1, accum2) -> accum1 + accum2);
+      return reduce((BigDecimal)null, 
+            (accum, val) -> genericSum(accum, aggregate.aggregate(val)),
+            (accum1, accum2) -> genericSum(accum1, accum2));
+   }
+   @Override
+   public BigInteger sumBigInteger(CollectBigInteger<T> aggregate)
+   {
+      return reduce((BigInteger)null, 
+            (accum, val) -> genericSum(accum, aggregate.aggregate(val)),
+            (accum1, accum2) -> genericSum(accum1, accum2));
    }
 
    @Override

@@ -60,6 +60,21 @@ public abstract class SQLReader<T>
          return "java/lang/Integer".equals(internalName);
       }
    }
+   public static class LongSQLReader extends SQLReader<Long>
+   {
+      public int getNumColumns()
+      {
+         return 1;
+      }
+      public Long readData(ResultSet result, int column) throws SQLException
+      {
+         return result.getLong(column);
+      }
+      public boolean isCastConsistent(String internalName)
+      {
+         return "java/lang/Long".equals(internalName);
+      }
+   }
    public static class FloatSQLReader extends SQLReader<Float>
    {
       public int getNumColumns()
