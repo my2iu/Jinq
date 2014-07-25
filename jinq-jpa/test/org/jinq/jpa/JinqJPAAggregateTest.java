@@ -1,15 +1,15 @@
 package org.jinq.jpa;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Date;
-import java.util.List;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import org.jinq.jpa.test.entities.Customer;
-import org.jinq.jpa.test.entities.Sale;
+import org.jinq.jpa.test.entities.Item;
+import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Supplier;
-import org.jinq.orm.stream.JinqStream;
-import org.jinq.tuples.Pair;
 import org.junit.Test;
 
 public class JinqJPAAggregateTest extends JinqJPATestBase
@@ -36,9 +36,39 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    @Test
    public void testSum()
    {
-      long sum = streams.streamAll(em, Supplier.class)
-            .sumLong(s -> (long)s.getRevenue());
+      assertEquals(10001500l, (long)streams.streamAll(em, Supplier.class)
+            .sumLong(s -> s.getRevenue()));
       assertEquals("SELECT SUM(A.revenue) FROM Supplier A", query);
-      assertEquals(10001500l, sum);
+      
+      assertEquals(1117.0, (double)streams.streamAll(em, Item.class)
+            .sumDouble(i -> i.getSaleprice()), 0.001);
+      assertEquals("SELECT SUM(A.saleprice) FROM Item A", query);
+      
+      assertEquals(new BigDecimal(2467), streams.streamAll(em, Lineorder.class)
+            .sumBigDecimal(lo -> lo.getTotal()));
+      assertEquals("SELECT SUM(A.total) FROM Lineorder A", query);
+
+      assertEquals(BigInteger.valueOf(66000l), streams.streamAll(em, Lineorder.class)
+            .sumBigInteger(lo -> lo.getTransactionConfirmation()));
+      assertEquals("SELECT SUM(A.transactionConfirmation) FROM Lineorder A", query);
    }
+   
+   @Test
+   public void testSumInteger()
+   {
+      // Sum of integers is a long
+      assertEquals(1280, (long)streams.streamAll(em, Customer.class)
+            .sumInteger(s -> s.getSalary()));
+      assertEquals("SELECT SUM(A.salary) FROM Customer A", query);
+   }
+   
+   @Test
+   public void testSumExpression()
+   {
+      // Sum of integers is a long
+      assertEquals(205300, (long)streams.streamAll(em, Customer.class)
+            .sumInteger(s -> s.getSalary() * s.getDebt()));
+      assertEquals("SELECT SUM(A.salary * (A.debt)) FROM Customer A", query);
+   }
+
 }
