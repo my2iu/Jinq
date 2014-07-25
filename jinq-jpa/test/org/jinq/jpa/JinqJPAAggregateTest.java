@@ -67,8 +67,17 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    {
       // Sum of integers is a long
       assertEquals(205300, (long)streams.streamAll(em, Customer.class)
-            .sumInteger(s -> s.getSalary() * s.getDebt()));
+            .sumInteger(c -> c.getSalary() * c.getDebt()));
       assertEquals("SELECT SUM(A.salary * (A.debt)) FROM Customer A", query);
    }
 
+   @Test(expected=IllegalArgumentException.class)
+   public void testSumJoinCast()
+   {
+      // TODO: In order to support certain useful operations, we're going to need a way to 
+      // support casts even if the underlying JPQL doesn't.
+      assertEquals(1, (double)streams.streamAll(em, Lineorder.class)
+            .sumDouble(lo -> lo.getQuantity() * lo.getItem().getSaleprice()), 0.001);
+      assertEquals("SELECT SUM(A.quantity * (A.item.saleprice)) FROM Lineorder A", query);
+   }
 }
