@@ -32,6 +32,7 @@ public interface QueryComposer<T>
 
    // returns null if the aggregates cannot be calculated
    public Long count();
+   public <V extends Number> V sum(JinqStream.CollectNumber<T, V> aggregate);
    public Double sumDouble(JinqStream.AggregateDouble<T> aggregate);
    public Integer sumInt(JinqStream.AggregateInteger<T> aggregate);
    public Double maxDouble(JinqStream.AggregateDouble<T> aggregate);

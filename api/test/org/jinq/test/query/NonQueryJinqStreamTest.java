@@ -56,7 +56,7 @@ public class NonQueryJinqStreamTest
    @Test
    public void testSum()
    {
-      assertEquals(15, new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sum(n -> n));
+      assertEquals(15, (int)new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sum(n -> n));
       assertTrue(Math.abs(20.0 - new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sum(n -> n + 1.0)) < 0.01);
    }
 }

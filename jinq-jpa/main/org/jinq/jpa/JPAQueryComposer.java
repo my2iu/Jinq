@@ -14,6 +14,7 @@ import javax.persistence.Query;
 import org.jinq.jpa.jpqlquery.GeneratedQueryParameter;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.RowReader;
+import org.jinq.jpa.transform.AggregateTransform;
 import org.jinq.jpa.transform.CountTransform;
 import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.JoinTransform;
@@ -314,6 +315,15 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public Long count()
    {
       JPAQueryComposer<Long> result = applyTransformWithLambda(new CountTransform(metamodel));
+      if (result != null)
+         return result.executeAndGetSingleResult();
+      translationFail(); 
+      return null;
+   }
+
+   public <V extends Number> V sum(org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
+   {
+      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel), aggregate);
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 

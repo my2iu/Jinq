@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Sale;
+import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Test;
@@ -32,4 +33,12 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals(1, count);
    }
 
+   @Test
+   public void testSum()
+   {
+      long sum = streams.streamAll(em, Supplier.class)
+            .sum(s -> (long)s.getRevenue());
+      assertEquals("SELECT SUM(A.revenue) FROM Supplier A", query);
+      assertEquals(10001500l, sum);
+   }
 }

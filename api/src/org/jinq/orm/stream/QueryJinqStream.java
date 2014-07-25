@@ -92,6 +92,14 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       return super.count();
    }
 
+   @Override
+   public <V extends Number> V sum(
+         org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
+   {
+      V val = queryComposer.sum(aggregate);
+      if (val != null) return val;
+      return super.sum(aggregate);
+   }
 
    @Override
    public double sumDouble(AggregateDouble<T> aggregate)

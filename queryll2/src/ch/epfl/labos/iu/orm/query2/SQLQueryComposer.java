@@ -547,6 +547,12 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
       return null;
    }
    
+   public <V extends Number> V sum(JinqStream.CollectNumber<T, V> aggregate)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
    public Double sumDouble(AggregateDouble<T> aggregate)
    {
       return composeQueryRow("sumDouble", aggregate,

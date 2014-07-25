@@ -1,6 +1,7 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
+import org.jinq.jpa.jpqlquery.AggregateFunctionExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
@@ -33,8 +34,8 @@ public class CountTransform extends JPQLQueryTransform
          // TODO: It looks like you can stick anything inside the COUNT(),
          //    but I'm not sure. Why does it even take a parameter there?
          toReturn.cols = ColumnExpressions.singleColumn(
-               new SimpleRowReader<>(), 
-               new ConstantExpression("COUNT(1)")); 
+               new SimpleRowReader<>(),
+               new AggregateFunctionExpression(new ConstantExpression("1"), "COUNT")); 
          toReturn.where = sfw.where;
          return toReturn;
       }
