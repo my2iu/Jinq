@@ -13,12 +13,19 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class AggregateTransform extends JPQLQueryTransform
 {
-   public AggregateTransform(MetamodelUtil metamodel)
+   // TODO: Should I include count() here too?
+   public enum AggregateType
    {
-      super(metamodel);
+      SUM, AVG, MAX, MIN
    }
    
-   private String aggregateFunction = "SUM";
+   public AggregateTransform(MetamodelUtil metamodel, AggregateType type)
+   {
+      super(metamodel);
+      aggregateFunction = type.name();
+   }
+   
+   private String aggregateFunction;
    
    @Override
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException

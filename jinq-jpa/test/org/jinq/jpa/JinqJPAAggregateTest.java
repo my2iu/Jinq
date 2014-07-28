@@ -1,14 +1,15 @@
 package org.jinq.jpa;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
+import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.junit.Test;
 
@@ -31,6 +32,36 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
             .count();
       assertEquals("SELECT COUNT(1) FROM Customer A WHERE A.country = 'UK'", query);
       assertEquals(1, count);
+   }
+
+   @Test
+   public void testMax()
+   {
+      assertEquals(BigInteger.valueOf(11000), 
+            streams.streamAll(em, Lineorder.class)
+                  .max(lo -> lo.getTransactionConfirmation()));
+      assertEquals("SELECT MAX(A.transactionConfirmation) FROM Lineorder A", query);
+   }
+   
+   @Test
+   public void testMin()
+   {
+      Date minDate = streams.streamAll(em, Sale.class)
+            .where(s -> s.getCustomer().getName().equals("Dave"))
+            .select(s -> s.getDate())
+            .getOnlyValue();
+      Date date = streams.streamAll(em, Sale.class)
+            .min(s -> s.getDate());
+      assertEquals(minDate, date);
+      assertEquals("SELECT MIN(A.date) FROM Sale A", query);
+   }
+
+   @Test
+   public void testAvg()
+   {
+      assertEquals(512, streams.streamAll(em, Customer.class)
+            .avg(c -> c.getSalary() * 2), 0.001);
+      assertEquals("SELECT AVG(A.salary * 2) FROM Customer A", query);
    }
 
    @Test

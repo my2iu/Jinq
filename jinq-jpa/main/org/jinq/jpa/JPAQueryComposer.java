@@ -327,7 +327,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <V extends Number & Comparable<V>> Number sum(
          CollectNumber<T, V> aggregate, Class<V> collectClass)
    {
-      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel), aggregate);
+      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, AggregateTransform.AggregateType.SUM), aggregate);
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 
@@ -337,7 +337,9 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public <V extends Comparable<V>> V max(CollectComparable<T, V> aggregate)
    {
-      // TODO Auto-generated method stub
+      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, AggregateTransform.AggregateType.MAX), aggregate);
+      if (result != null)
+         return result.executeAndGetSingleResult();
       translationFail(); 
       return null;
    }
@@ -345,7 +347,9 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public <V extends Comparable<V>> V min(CollectComparable<T, V> aggregate)
    {
-      // TODO Auto-generated method stub
+      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, AggregateTransform.AggregateType.MIN), aggregate);
+      if (result != null)
+         return result.executeAndGetSingleResult();
       translationFail(); 
       return null;
    }
@@ -354,7 +358,9 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <V extends Number & Comparable<V>> Double avg(
          CollectNumber<T, V> aggregate)
    {
-      // TODO Auto-generated method stub
+      JPAQueryComposer<Double> result = applyTransformWithLambda(new AggregateTransform(metamodel, AggregateTransform.AggregateType.AVG), aggregate);
+      if (result != null)
+         return result.executeAndGetSingleResult();
       translationFail(); 
       return null;
    }
