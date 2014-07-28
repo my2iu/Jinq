@@ -22,6 +22,7 @@ import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.WhereTransform;
+import org.jinq.orm.stream.JinqStream.CollectComparable;
 import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
@@ -332,25 +333,32 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       translationFail(); 
       return null;
    }
+
+   @Override
+   public <V extends Comparable<V>> V max(CollectComparable<T, V> aggregate)
+   {
+      // TODO Auto-generated method stub
+      translationFail(); 
+      return null;
+   }
+
+   @Override
+   public <V extends Comparable<V>> V min(CollectComparable<T, V> aggregate)
+   {
+      // TODO Auto-generated method stub
+      translationFail(); 
+      return null;
+   }
+
+   @Override
+   public <V extends Number & Comparable<V>> Double avg(
+         CollectNumber<T, V> aggregate)
+   {
+      // TODO Auto-generated method stub
+      translationFail(); 
+      return null;
+   }
    
-   @Override
-   public Double maxDouble(
-         org.jinq.orm.stream.JinqStream.AggregateDouble<T> aggregate)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-
-   @Override
-   public Integer maxInt(
-         org.jinq.orm.stream.JinqStream.AggregateInteger<T> aggregate)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-
    @Override
    public <U> U selectAggregates(
          org.jinq.orm.stream.JinqStream.AggregateSelect<T, U> aggregate)

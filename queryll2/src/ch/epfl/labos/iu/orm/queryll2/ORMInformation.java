@@ -67,8 +67,8 @@ public class ORMInformation implements QueryllEntityConfigurationInfo
       fieldMethods.put(TransformationClassAnalyzer.tuple8GetEight, "Eight");
       jinqStreamMethods.add(TransformationClassAnalyzer.streamSumInt);
       jinqStreamMethods.add(TransformationClassAnalyzer.streamSumDouble);
-      jinqStreamMethods.add(TransformationClassAnalyzer.streamMaxInt);
-      jinqStreamMethods.add(TransformationClassAnalyzer.streamMaxDouble);
+      jinqStreamMethods.add(TransformationClassAnalyzer.streamMax);
+      jinqStreamMethods.add(TransformationClassAnalyzer.streamMin);
       dbSetMethods.add(TransformationClassAnalyzer.dbsetSumInt);
       dbSetMethods.add(TransformationClassAnalyzer.dbsetSumDouble);
       dbSetMethods.add(TransformationClassAnalyzer.dbsetMaxInt);

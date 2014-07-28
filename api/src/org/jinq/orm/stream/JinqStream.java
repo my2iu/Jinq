@@ -66,11 +66,6 @@ public interface JinqStream<T> extends Stream<T>
    public static interface CollectBigDecimal<U> extends CollectNumber<U, BigDecimal> {}
    public static interface CollectBigInteger<U> extends CollectNumber<U, BigInteger> {}
    
-   
-   // TODO: It's more type-safe to have separate sumDouble(), sumInteger(), etc. methods,
-   // but it's too messy, so I'll provide this simpler sum() method for now
-//   public <V extends Number> V sum(CollectNumber<T, V> aggregate);
-
    // Having separate sum() methods for different types is messy but due to problems
    // with Java's type inferencing and the fact that JPQL uses different return types
    // for a sum than the types being summed over, this is the only way to do sum
@@ -81,18 +76,16 @@ public interface JinqStream<T> extends Stream<T>
    public BigDecimal sumBigDecimal(CollectBigDecimal<T> aggregate);
    public BigInteger sumBigInteger(CollectBigInteger<T> aggregate);
    
+
+   // TODO: It's more type-safe to have separate maxDouble(), maxDate(), etc. methods,
+   // but it's too messy, so I'll provide this simpler max() method for now
+   public <V extends Comparable<V>> V max(CollectComparable<T, V> aggregate);
+   public <V extends Comparable<V>> V min(CollectComparable<T, V> aggregate);
+   public <V extends Number & Comparable<V>> Double avg(CollectNumber<T, V> aggregate);
    
-   public static interface AggregateDouble<U> extends Serializable {
-      public double aggregate(U val);
-   }
-   public static interface AggregateInteger<U> extends Serializable {
-      public int aggregate(U val);
-   }
    public static interface AggregateSelect<U, V> extends Serializable {
       public V aggregateSelect(JinqStream<U> val);
    }
-   public double maxDouble(AggregateDouble<T> aggregate);
-   public int maxInt(AggregateInteger<T> aggregate);
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
    public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1,
          AggregateSelect<T, V> aggregate2);

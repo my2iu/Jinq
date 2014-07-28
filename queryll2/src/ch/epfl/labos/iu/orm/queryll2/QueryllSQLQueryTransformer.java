@@ -787,7 +787,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
                      this);
             List<SQLFragment> columns = new ArrayList<SQLFragment>();
             sfw.reader = generateSelect(analysis, gen, columns);
-            assert(desiredSQLReader.isInstance(sfw.reader));
+            assert(desiredSQLReader == null || desiredSQLReader.isInstance(sfw.reader));
             assert(columns.size() == 1);
             SQLFragment summedColumn = new SQLFragment();
             summedColumn.add(aggregateOperator + "(");
@@ -910,16 +910,6 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "SUM", DoubleSQLReader.class, emSource);
    }
 
-   @Override
-   public <T> SQLQuery<Integer> maxInt(SQLQuery<T> query, int lambdaThisIndex,
-         JinqStream.AggregateInteger<T> aggregate,
-         Object emSource)
-   {
-      MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateIntegerAnalysis);
-      if (analysis == null) return null;
-      return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "MAX", IntegerSQLReader.class, emSource);
-   }
-   
    public <T> SQLQuery<Integer> maxInt(SQLQuery<T> query,
                                        TypedValue lambda,
                                        EntityManagerBackdoor emSource) throws TypedValueVisitorException
@@ -943,6 +933,54 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       // TODO: Need a proper param handler here
       return handleSimpleAggregate(query, analysis, "MAX", IntegerSQLReader.class, null, null, emSource);
    }
+   public <T, V extends Comparable<V>> SQLQuery<V> max(SQLQuery<T> query,
+         TypedValue lambda,
+         EntityManagerBackdoor emSource) throws TypedValueVisitorException
+   {
+      MethodAnalysisResults analysis;
+      String className = getLambdaClassName(lambda);
+      Handle methodHandle = getLambdaMethodHandle(lambda);
+      if (className != null) 
+      {
+         if (!aggregateIntegerAnalysis.containsKey(className)) return null;
+         analysis = aggregateIntegerAnalysis.get(className);
+      }
+      else if (methodHandle != null)
+      {
+         analysis = runtimeAnalyzer.analyzeLambda(methodHandle.getOwner(), methodHandle.getName(), methodHandle.getDesc());
+         if (analysis == null) return null;
+      }
+      else
+         return null;
+      if (!doRuntimeCheckForSideEffects(analysis)) return null;
+      // TODO: Need a proper param handler here
+      return handleSimpleAggregate(query, analysis, "MAX", null, null, null, emSource);
+   }
+
+   public <T, V extends Comparable<V>> SQLQuery<V> min(SQLQuery<T> query,
+         TypedValue lambda,
+         EntityManagerBackdoor emSource) throws TypedValueVisitorException
+   {
+      MethodAnalysisResults analysis;
+      String className = getLambdaClassName(lambda);
+      Handle methodHandle = getLambdaMethodHandle(lambda);
+      if (className != null) 
+      {
+         if (!aggregateIntegerAnalysis.containsKey(className)) return null;
+         analysis = aggregateIntegerAnalysis.get(className);
+      }
+      else if (methodHandle != null)
+      {
+         analysis = runtimeAnalyzer.analyzeLambda(methodHandle.getOwner(), methodHandle.getName(), methodHandle.getDesc());
+         if (analysis == null) return null;
+      }
+      else
+         return null;
+      if (!doRuntimeCheckForSideEffects(analysis)) return null;
+      // TODO: Need a proper param handler here
+      return handleSimpleAggregate(query, analysis, "MIN", null, null, null, emSource);
+   }
+
 
    public <T> SQLQuery<Integer> maxInt(SQLQuery<T> query, int lambdaThisIndex, 
                                        AggregateInteger<T> aggregate, Object emSource)
@@ -952,10 +990,19 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "MAX", IntegerSQLReader.class, emSource);
    }
 
-   @Override
-   public <T> SQLQuery<Double> maxDouble(SQLQuery<T> query,
+   public <T, V extends Comparable<V>> SQLQuery<V> max(SQLQuery<T> query,
          int lambdaThisIndex,
-         JinqStream.AggregateDouble<T> aggregate,
+         JinqStream.CollectComparable<T, V> aggregate,
+         Object emSource)
+   {
+      MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateDoubleAnalysis);
+      if (analysis == null) return null;
+      return handleSimpleAggregate(query, analysis, lambdaThisIndex, aggregate, "MAX", DoubleSQLReader.class, emSource);
+   }
+
+   public <T, V extends Comparable<V>> SQLQuery<V> min(SQLQuery<T> query,
+         int lambdaThisIndex,
+         JinqStream.CollectComparable<T, V> aggregate,
          Object emSource)
    {
       MethodAnalysisResults analysis = analyzeSimpleAggregateLambda(aggregate, aggregateDoubleAnalysis);

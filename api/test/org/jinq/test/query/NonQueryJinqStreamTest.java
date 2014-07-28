@@ -32,7 +32,7 @@ public class NonQueryJinqStreamTest
             new NonQueryJinqStream<>(Stream.of(
                   new Pair<>(1, 2), new Pair<>(1, 3), new Pair<>(2, 5)));
       List<Pair<Integer, Integer>> results = stream
-            .group(pair -> pair.getOne(), (key, pairs) -> pairs.maxInt(x -> x.getTwo()))
+            .group(pair -> pair.getOne(), (key, pairs) -> pairs.<Integer>max(x -> x.getTwo()))
             .toList();
       assertEquals(2, results.size());
       assertTrue(results.contains(new Pair<>(1, 3)));
@@ -46,7 +46,7 @@ public class NonQueryJinqStreamTest
             new NonQueryJinqStream<>(Stream.of(1, 2, 3, 4, 5));
       Tuple3<Long, Integer, Long> result = 
             stream.aggregate((vals) -> vals.sumInteger(x -> x), 
-                  (vals) -> vals.maxInt(x -> x),
+                  (vals) -> vals.max(x -> x),
                   (vals) -> vals.sumInteger(x -> x + 1));
       assertEquals(15, result.getOne().intValue());
       assertEquals(5, result.getTwo().intValue());
@@ -59,4 +59,17 @@ public class NonQueryJinqStreamTest
       assertEquals(15, (long)new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sumInteger(n -> n));
       assertTrue(Math.abs(20.0 - new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).sumDouble(n -> n + 1.0)) < 0.01);
    }
+   
+   @Test
+   public void testMax()
+   {
+      assertEquals(6, (int)new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).max(n -> n + 1));
+   }
+
+   @Test
+   public void testAvg()
+   {
+      assertEquals(3, new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).avg(n -> n), 0.001);
+   }
+
 }

@@ -33,6 +33,8 @@ public class CountTransform extends JPQLQueryTransform
          toReturn.froms.addAll(sfw.froms);
          // TODO: It looks like you can stick anything inside the COUNT(),
          //    but I'm not sure. Why does it even take a parameter there?
+         // TODO: The difference might be in NULL handling. If a field is
+         //    given, then NULLs are ignored and not counted; otherwise, they are
          toReturn.cols = ColumnExpressions.singleColumn(
                new SimpleRowReader<>(),
                new AggregateFunctionExpression(new ConstantExpression("1"), "COUNT")); 

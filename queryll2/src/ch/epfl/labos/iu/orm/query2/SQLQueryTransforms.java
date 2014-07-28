@@ -24,10 +24,10 @@ public interface SQLQueryTransforms
    <T> SQLQuery<Integer> sumInt(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateInteger<T> aggregate, Object emSource);
    <T> SQLQuery<Double> sumDouble(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateDouble<T> aggregate, Object emSource);
    <T, U extends Number & Comparable<U>, V> SQLQuery<V> sum(SQLQuery<T> query, int lambdaThisIndex, JinqStream.CollectNumber<T, U> aggregate, Class<U> collectClass, Object emSource);
+   <T, V extends Comparable<V>> SQLQuery<V> max(SQLQuery<T> query, int lambdaThisIndex, JinqStream.CollectComparable<T, V> aggregate, Object emSource);
+   <T, V extends Comparable<V>> SQLQuery<V> min(SQLQuery<T> query, int lambdaThisIndex, JinqStream.CollectComparable<T, V> aggregate, Object emSource);
    <T> SQLQuery<Integer> maxInt(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateInteger<T> aggregate, Object emSource);
-   <T> SQLQuery<Integer> maxInt(SQLQuery<T> query, int lambdaThisIndex, JinqStream.AggregateInteger<T> aggregate, Object emSource);
    <T> SQLQuery<Double> maxDouble(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateDouble<T> aggregate, Object emSource);
-   <T> SQLQuery<Double> maxDouble(SQLQuery<T> query, int lambdaThisIndex, JinqStream.AggregateDouble<T> aggregate, Object emSource);
    <T,U> SQLQuery<Pair<T,U>> join(SQLQuery<T> query, int lambdaThisIndex, DBSet.Join<T,U> join, Object emSource);
    <T,U> SQLQuery<Pair<T,U>> join(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Join<T,U> join, Object emSource);
    <T,U> SQLQuery<U> selectAggregates(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateSelect<T,U> select, Object emSource);

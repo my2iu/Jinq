@@ -116,8 +116,8 @@ public class TransformationClassAnalyzer
    public static MethodSignature tuple8GetEight = new MethodSignature("org/jinq/tuples/Tuple8", "getEight", "()Ljava/lang/Object;");
    public static MethodSignature streamSumInt = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumInteger", "(Lorg/jinq/orm/stream/JinqStream$CollectInteger;)Ljava/lang/Long;");
    public static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumDouble", "(Lorg/jinq/orm/stream/JinqStream$CollectDouble;)Ljava/lang/Double;");
-   public static MethodSignature streamMaxInt = new MethodSignature("org/jinq/orm/stream/JinqStream", "maxInt", "(Lorg/jinq/orm/stream/JinqStream$AggregateInteger;)I");
-   public static MethodSignature streamMaxDouble = new MethodSignature("org/jinq/orm/stream/JinqStream", "maxDouble", "(Lorg/jinq/orm/stream/JinqStream$AggregateDouble;)D");
+   public static MethodSignature streamMax = new MethodSignature("org/jinq/orm/stream/JinqStream", "max", "(Lorg/jinq/orm/stream/JinqStream$CollectComparable;)Ljava/lang/Comparable;");
+   public static MethodSignature streamMin = new MethodSignature("org/jinq/orm/stream/JinqStream", "min", "(Lorg/jinq/orm/stream/JinqStream$CollectComparable;)Ljava/lang/Comparable;");
    public static MethodSignature streamFrom = new MethodSignature("org/jinq/orm/stream/JinqStream", "from", "(Ljava/util/Collection;)Lorg/jinq/orm/stream/JinqStream;");
    public static MethodSignature dbsetSumInt = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "sumInt", "(Lch/epfl/labos/iu/orm/DBSet$AggregateInteger;)I");
    public static MethodSignature dbsetSumDouble = new MethodSignature("ch/epfl/labos/iu/orm/DBSet", "sumDouble", "(Lch/epfl/labos/iu/orm/DBSet$AggregateDouble;)D");

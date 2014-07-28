@@ -7,11 +7,6 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.jinq.orm.stream.JinqStream.CollectBigDecimal;
-import org.jinq.orm.stream.JinqStream.CollectBigInteger;
-import org.jinq.orm.stream.JinqStream.CollectDouble;
-import org.jinq.orm.stream.JinqStream.CollectInteger;
-import org.jinq.orm.stream.JinqStream.CollectLong;
 import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DateSorter;
@@ -99,15 +94,6 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       return super.count();
    }
 
-//   @Override
-//   public <V extends Number> V sum(
-//         org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
-//   {
-//      V val = queryComposer.sum(aggregate);
-//      if (val != null) return val;
-//      return super.sum(aggregate);
-//   }
-   
    @Override
    public Long sumInteger(CollectInteger<T> aggregate)
    {
@@ -143,21 +129,32 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       if (val != null) return val;
       return super.sumBigInteger(aggregate);
    }
-
-   @Override
-   public double maxDouble(AggregateDouble<T> aggregate)
-   {
-      Double val = queryComposer.maxDouble(aggregate);
-      if (val != null) return val;
-      return super.maxDouble(aggregate);
-   }
    
    @Override
-   public int maxInt(AggregateInteger<T> aggregate)
+   public <V extends Comparable<V>> V max(
+         org.jinq.orm.stream.JinqStream.CollectComparable<T, V> aggregate)
    {
-      Integer val = queryComposer.maxInt(aggregate);
+      V val = (V)queryComposer.max(aggregate);
       if (val != null) return val;
-      return super.maxInt(aggregate);
+      return super.max(aggregate);
+   }
+
+   @Override
+   public <V extends Comparable<V>> V min(
+         org.jinq.orm.stream.JinqStream.CollectComparable<T, V> aggregate)
+   {
+      V val = (V)queryComposer.min(aggregate);
+      if (val != null) return val;
+      return super.max(aggregate);
+   }
+
+   @Override
+   public <V extends Number & Comparable<V>> Double avg(
+         org.jinq.orm.stream.JinqStream.CollectNumber<T, V> aggregate)
+   {
+      Double val = queryComposer.avg(aggregate);
+      if (val != null) return val;
+      return super.avg(aggregate);
    }
    
    @Override

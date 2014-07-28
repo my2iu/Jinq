@@ -22,6 +22,7 @@ import org.jinq.orm.stream.JinqStream.CollectBigInteger;
 import org.jinq.orm.stream.JinqStream.CollectDouble;
 import org.jinq.orm.stream.JinqStream.CollectInteger;
 import org.jinq.orm.stream.JinqStream.CollectLong;
+import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 
@@ -179,22 +180,55 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
             (accum1, accum2) -> genericSum(accum1, accum2));
    }
 
-   @Override
-   public double maxDouble(AggregateDouble<T> aggregate)
+   private static <V extends Comparable<V>> V genericCompare(boolean isMax, V a, V b)
    {
-      return reduce(Double.NEGATIVE_INFINITY, 
-            (accum, val) -> Math.max(accum, aggregate.aggregate(val)),
-            (accum1, accum2) -> Math.max(accum1, accum2));
+      if (a == null) return b;
+      if (b == null) return a;
+      if (isMax)
+         return a.compareTo(b) <= 0 ? b : a;
+      else
+         return a.compareTo(b) >= 0 ? b : a;
    }
    
    @Override
-   public int maxInt(AggregateInteger<T> aggregate)
+   public <V extends Comparable<V>> V max(
+         org.jinq.orm.stream.JinqStream.CollectComparable<T, V> aggregate)
    {
-      return reduce(Integer.MIN_VALUE, 
-            (accum, val) -> Math.max(accum, aggregate.aggregate(val)),
-            (accum1, accum2) -> Math.max(accum1, accum2));
+      return reduce((V)null,
+            (accum, val) -> genericCompare(true, accum, aggregate.aggregate(val)),
+            (accum1, accum2) -> genericCompare(true, accum1, accum2));
+   }
+
+   @Override
+   public <V extends Comparable<V>> V min(
+         org.jinq.orm.stream.JinqStream.CollectComparable<T, V> aggregate)
+   {
+      return reduce((V)null,
+            (accum, val) -> genericCompare(false, accum, aggregate.aggregate(val)),
+            (accum1, accum2) -> genericCompare(false, accum1, accum2));
+   }
+
+   private static class GenericAverage
+   {
+      double sum = 0;
+      int count = 0;
+      synchronized <V extends Number> void accumulate(V a)
+      {
+         if (a == null) return;
+         sum += a.doubleValue();
+         count++;
+      }
    }
    
+   @Override
+   public <V extends Number & Comparable<V>> Double avg(CollectNumber<T, V> aggregate)
+   {
+      final GenericAverage avg = new GenericAverage();
+      forEach(val -> avg.accumulate(aggregate.aggregate(val)));
+      if (avg.count == 0) return null;
+      return avg.sum / avg.count;
+   }
+
    @Override
    public <U> U selectAggregates(AggregateSelect<T, U> aggregate)
    {

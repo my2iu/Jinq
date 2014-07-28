@@ -242,14 +242,17 @@ public class SymbExToSQLGenerator<T> extends TypedValueVisitor<T, SQLColumnValue
          // parameters pass through the constructor
          SQLQuery subQuery = val.base.visit(subQueryHandler, in);
          if (sig.equals(TransformationClassAnalyzer.streamSumInt)
-               || sig.equals(TransformationClassAnalyzer.streamMaxInt))
+               || sig.equals(TransformationClassAnalyzer.streamMax)
+               || sig.equals(TransformationClassAnalyzer.streamMin))
          {
             // TODO: do subqueries need to be copied before being passed in here?
             SQLQuery<Integer> newQuery = null;
             if (sig.equals(TransformationClassAnalyzer.streamSumInt))
                newQuery = queryMethodHandler.sumInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-            else if (sig.equals(TransformationClassAnalyzer.streamMaxInt))
-               newQuery = queryMethodHandler.maxInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
+            else if (sig.equals(TransformationClassAnalyzer.streamMax))
+               newQuery = queryMethodHandler.max(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
+            else if (sig.equals(TransformationClassAnalyzer.streamMin))
+               newQuery = queryMethodHandler.min(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
             return handleAggregationSubQuery(val, newQuery);
          }
          // TODO: Implement other aggregation functions

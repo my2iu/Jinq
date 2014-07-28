@@ -33,8 +33,9 @@ public interface QueryComposer<T>
    // returns null if the aggregates cannot be calculated
    public Long count();
    public <V extends Number & Comparable<V>> Number sum(JinqStream.CollectNumber<T, V> aggregate, Class<V> collectClass);
-   public Double maxDouble(JinqStream.AggregateDouble<T> aggregate);
-   public Integer maxInt(JinqStream.AggregateInteger<T> aggregate);
+   public <V extends Comparable<V>> V max(JinqStream.CollectComparable<T, V> aggregate);
+   public <V extends Comparable<V>> V min(JinqStream.CollectComparable<T, V> aggregate);
+   public <V extends Number & Comparable<V>> Double avg(JinqStream.CollectNumber<T, V> aggregate);
    public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate);
    
    public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);

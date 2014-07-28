@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.tuples.Pair;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
@@ -576,6 +577,26 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
       return composeQueryRow("sumInt", aggregate,
             () -> transformer.sumInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));
    }
+   
+   public <V extends Comparable<V>> V max(JinqStream.CollectComparable<T, V> aggregate)
+   {
+      return composeQueryRow("max", aggregate,
+            () -> transformer.max(query.copy(), nextLambdaParamIndex, aggregate, emSource));
+   }
+   
+   public <V extends Comparable<V>> V min(JinqStream.CollectComparable<T, V> aggregate)
+   {
+      return composeQueryRow("max", aggregate,
+            () -> transformer.min(query.copy(), nextLambdaParamIndex, aggregate, emSource));
+   }
+
+   @Override
+   public <V extends Number & Comparable<V>> Double avg(
+         CollectNumber<T, V> aggregate)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
 
    public Double maxDouble(AggregateDouble<T> aggregate)
    {
@@ -583,19 +604,7 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
             () -> transformer.maxDouble(query.copy(), nextLambdaParamIndex, aggregate, emSource));
    }
 
-   public Double maxDouble(JinqStream.AggregateDouble<T> aggregate)
-   {
-      return composeQueryRow("maxDouble", aggregate,
-            () -> transformer.maxDouble(query.copy(), nextLambdaParamIndex, aggregate, emSource));
-   }
-
    public Integer maxInt(AggregateInteger<T> aggregate)
-   {
-      return composeQueryRow("maxInt", aggregate,
-            () -> transformer.maxInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));
-   }
-
-   public Integer maxInt(JinqStream.AggregateInteger<T> aggregate)
    {
       return composeQueryRow("maxInt", aggregate,
             () -> transformer.maxInt(query.copy(), nextLambdaParamIndex, aggregate, emSource));
@@ -676,5 +685,4 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
    {
       // No hints
    }
-
 }

@@ -241,7 +241,7 @@ public class JinqStreamTest
       EntityManager em = this.em;
       assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))",
             em.saleStream()
-                  .where((s) -> em.saleStream().maxInt(ss -> ss.getSaleId())
+                  .where((s) -> em.saleStream().max(ss -> ss.getSaleId())
                         == s.getSaleId())
                   .getDebugQueryString());
    }
