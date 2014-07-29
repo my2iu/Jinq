@@ -22,7 +22,7 @@ public class JoinTransform extends JPQLQueryTransform
    
    private boolean isSimpleFrom(JPQLQuery<?> query)
    {
-      if (!(query instanceof SelectFromWhere)) return false;
+      if (!query.isSelectFromWhere()) return false;
       SelectFromWhere<?> sfw = (SelectFromWhere<?>)query;
       if (sfw.where != null) return false;
       if (sfw.froms.size() != 1) return false;
@@ -37,7 +37,7 @@ public class JoinTransform extends JPQLQueryTransform
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
    {
       try  {
-         if (query instanceof SelectFromWhere)
+         if (query.isSelectFromWhere())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             

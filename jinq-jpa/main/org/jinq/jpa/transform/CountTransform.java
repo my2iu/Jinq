@@ -24,7 +24,7 @@ public class CountTransform extends JPQLQueryTransform
    {
       if (lambda != null) throw new IllegalArgumentException("lambda should be null");
       
-      if (query instanceof SelectFromWhere)
+      if (query.isSelectFromWhere())
       {
          SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
          

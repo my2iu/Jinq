@@ -90,6 +90,11 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
       return cols.reader;
    }
    
+   public boolean isSelectFromWhere()
+   {
+      return true;
+   }
+
 //   @Override
 //   public JPQLQuery<T> copy()
 //   {

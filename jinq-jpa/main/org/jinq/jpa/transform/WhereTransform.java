@@ -24,7 +24,7 @@ public class WhereTransform extends JPQLQueryTransform
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo where) throws QueryTransformException
    {
       try  {
-         if (query instanceof SelectFromWhere)
+         if (query.isSelectFromWhere())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, 
