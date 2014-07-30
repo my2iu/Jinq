@@ -1,8 +1,11 @@
 package org.jinq.jpa;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -205,6 +208,49 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Widgets", results.get(1).getOne().getName());
    }
 
+   @Test
+   public void testJPQLNumericPromotion()
+   {
+      // Trying to understand the numeric promotion rules for JPQL.
+      // It looks like int -> long -> BigInteger -> BigDecimal -> double
+      Object obj;
+
+      obj = em.createQuery("SELECT A.quantity + A.sale.creditCard FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Long);  // int + long = long
+      obj = em.createQuery("SELECT A.quantity + A.item.saleprice FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // int + double = double
+      obj = em.createQuery("SELECT A.quantity + A.transactionConfirmation FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof BigInteger);  // int + BigInteger = BigInteger
+      obj = em.createQuery("SELECT A.quantity + A.total FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof BigDecimal);  // int + BigDecimal = BigDecimal
+      obj = em.createQuery("SELECT A.quantity + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // int + decimal constant = Double
+
+      obj = em.createQuery("SELECT A.sale.creditCard + A.item.saleprice FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // long + double = double
+      obj = em.createQuery("SELECT A.sale.creditCard + A.transactionConfirmation FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof BigInteger);  // long + BigInteger = BigInteger
+      obj = em.createQuery("SELECT A.sale.creditCard + A.total FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof BigDecimal);  // long + BigDecimal = BigDecimal
+      obj = em.createQuery("SELECT A.sale.creditCard + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // long + decimal constant = Double
+
+      obj = em.createQuery("SELECT A.item.saleprice + A.transactionConfirmation FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // double + BigInteger = Double
+      obj = em.createQuery("SELECT A.item.saleprice + A.total FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // double + BigDecimal = Double
+      obj = em.createQuery("SELECT A.item.saleprice + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // double + decimal constant = Double
+
+      obj = em.createQuery("SELECT A.transactionConfirmation + A.total FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof BigDecimal);  // BigInteger + BigDecimal = BigDecimal
+      obj = em.createQuery("SELECT A.transactionConfirmation + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // BigInteger + decimal constant = Double
+
+      obj = em.createQuery("SELECT A.total + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      assertTrue(obj instanceof Double);  // BigDecimal + decimal constant = Double
+   }
+   
    @Test
    public void testJPQL()
    {

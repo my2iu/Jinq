@@ -26,6 +26,7 @@ public class Sale implements Serializable {
    private java.sql.Timestamp sqlTimestamp;
    private Date date;
    private Calendar calendar;
+   long creditCard;
 
    public Sale() {
    }
@@ -82,6 +83,14 @@ public class Sale implements Serializable {
 
    public void setSqlTimestamp(java.sql.Timestamp timestamp) {
       this.sqlTimestamp = timestamp;
+   }
+   
+   public long getCreditCard() {
+      return this.creditCard;
+   }
+   
+   public void setCreditCard(long creditCard) {
+      this.creditCard = creditCard;
    }
 
 
