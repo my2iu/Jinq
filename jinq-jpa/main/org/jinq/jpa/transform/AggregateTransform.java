@@ -3,7 +3,6 @@ package org.jinq.jpa.transform;
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.AggregateFunctionExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
-import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
@@ -48,6 +47,7 @@ public class AggregateTransform extends JPQLQueryTransform
 
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = new SelectFromWhere<U>();
+            toReturn.isAggregated = true;
             toReturn.froms.addAll(sfw.froms);
             toReturn.cols = returnExpr;
             toReturn.cols = ColumnExpressions.singleColumn(

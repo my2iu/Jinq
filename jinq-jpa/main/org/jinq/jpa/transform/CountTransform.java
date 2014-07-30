@@ -4,13 +4,9 @@ import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.AggregateFunctionExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
-import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
-
-import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class CountTransform extends JPQLQueryTransform
 {
@@ -30,6 +26,7 @@ public class CountTransform extends JPQLQueryTransform
          
          // Create the new query, merging in the analysis of the method
          SelectFromWhere<U> toReturn = new SelectFromWhere<U>();
+         toReturn.isAggregated = true;
          toReturn.froms.addAll(sfw.froms);
          // TODO: It looks like you can stick anything inside the COUNT(),
          //    but I'm not sure. Why does it even take a parameter there?

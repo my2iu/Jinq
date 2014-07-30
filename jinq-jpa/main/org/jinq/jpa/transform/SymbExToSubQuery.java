@@ -1,18 +1,14 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
-import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
-import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
-import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
-import org.jinq.jpa.jpqlquery.TupleRowReader;
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;

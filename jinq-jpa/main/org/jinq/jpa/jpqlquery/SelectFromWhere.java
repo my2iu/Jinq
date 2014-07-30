@@ -8,6 +8,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
    public ColumnExpressions<T> cols;
    public List<From> froms = new ArrayList<>();
    public Expression where;
+   public boolean isAggregated = false;
 
    /**
     * After a JPQL query is generated, this stores the resulting query string.  
@@ -92,7 +93,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
    
    public boolean isSelectFromWhere()
    {
-      return true;
+      return !isAggregated;
    }
 
 //   @Override
