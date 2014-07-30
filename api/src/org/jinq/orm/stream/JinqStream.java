@@ -92,17 +92,9 @@ public interface JinqStream<T> extends Stream<T>
    public <U, V, W> Tuple3<U, V, W> aggregate(AggregateSelect<T, U> aggregate1,
          AggregateSelect<T, V> aggregate2, AggregateSelect<T, W> aggregate3);
 
-   public JinqStream<T> sortedByIntAscending(final IntSorter<T> sorter);
-   public JinqStream<T> sortedByIntDescending(final IntSorter<T> sorter);
-   public JinqStream<T> sortedByDoubleAscending(final DoubleSorter<T> sorter);
-   public JinqStream<T> sortedByDoubleDescending(final DoubleSorter<T> sorter);
-   public JinqStream<T> sortedByStringAscending(final StringSorter<T> sorter);
-   public JinqStream<T> sortedByStringDescending(final StringSorter<T> sorter);
-   public JinqStream<T> sortedByDateAscending(final DateSorter<T> sorter);
-   public JinqStream<T> sortedByDateDescending(final DateSorter<T> sorter);
-   
-   public JinqStream<T> firstN(int n);
-   
+   public <V extends Comparable<V>> JinqStream<T> sortedBy(CollectComparable<T, V> sortField);
+   public <V extends Comparable<V>> JinqStream<T> sortedDescendingBy(CollectComparable<T, V> sortField);
+
    public T getOnlyValue();
    public JinqStream<T> with(T toAdd);
    

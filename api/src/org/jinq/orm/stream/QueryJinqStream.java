@@ -164,79 +164,41 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       if (val != null) return val;
       return super.selectAggregates(aggregate);
    }
-
-   @Override
-   public JinqStream<T> sortedByIntAscending(IntSorter<T> sorter)
-   {
-      QueryComposer<T> newComposer = queryComposer.sortedByInt(sorter, true);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.sortedByIntAscending(sorter);
-   }
-
-   @Override
-   public JinqStream<T> sortedByIntDescending(IntSorter<T> sorter)
-   {
-      QueryComposer<T> newComposer = queryComposer.sortedByInt(sorter, false);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.sortedByIntDescending(sorter);
-   }
-
-   @Override
-   public JinqStream<T> sortedByDoubleAscending(DoubleSorter<T> sorter)
-   {
-      QueryComposer<T> newComposer = queryComposer.sortedByDouble(sorter, true);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.sortedByDoubleAscending(sorter);
-   }
-
-   @Override
-   public JinqStream<T> sortedByDoubleDescending(DoubleSorter<T> sorter)
-   {
-      QueryComposer<T> newComposer = queryComposer.sortedByDouble(sorter, false);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.sortedByDoubleDescending(sorter);
-   }
-
-   @Override
-   public JinqStream<T> sortedByStringAscending(StringSorter<T> sorter)
-   {
-      QueryComposer<T> newComposer = queryComposer.sortedByString(sorter, true);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.sortedByStringAscending(sorter);
-   }
-
-   @Override
-   public JinqStream<T> sortedByStringDescending(StringSorter<T> sorter)
-   {
-      QueryComposer<T> newComposer = queryComposer.sortedByString(sorter, false);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.sortedByStringDescending(sorter);
-   }
-
-   @Override
-   public JinqStream<T> sortedByDateAscending(DateSorter<T> sorter)
-   {
-      QueryComposer<T> newComposer = queryComposer.sortedByDate(sorter, true);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.sortedByDateAscending(sorter);
-   }
-
-   @Override
-   public JinqStream<T> sortedByDateDescending(DateSorter<T> sorter)
-   {
-      QueryComposer<T> newComposer = queryComposer.sortedByDate(sorter, false);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.sortedByDateDescending(sorter);
-   }
-
-   @Override
-   public JinqStream<T> firstN(int n)
-   {
-      QueryComposer<T> newComposer = queryComposer.firstN(n);
-      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
-      return super.firstN(n);
-   }
    
+   @Override
+   public <V extends Comparable<V>> JinqStream<T> sortedBy(
+         JinqStream.CollectComparable<T, V> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedBy(sorter, true);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
+      return super.sortedBy(sorter);
+   }
+
+   @Override
+   public <V extends Comparable<V>> JinqStream<T> sortedDescendingBy(
+         JinqStream.CollectComparable<T, V> sorter)
+   {
+      QueryComposer<T> newComposer = queryComposer.sortedBy(sorter, false);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
+      return super.sortedDescendingBy(sorter);
+   }
+
+   @Override
+   public Stream<T> limit(long n)
+   {
+      QueryComposer<T> newComposer = queryComposer.limit(n);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
+      return super.limit(n);
+   }
+
+   @Override
+   public Stream<T> skip(long n)
+   {
+      QueryComposer<T> newComposer = queryComposer.skip(n);
+      if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
+      return super.skip(n);
+   }
+
    @Override
    public String getDebugQueryString()
    {

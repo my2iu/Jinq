@@ -158,7 +158,7 @@ public class Main
       System.out.println("Sorted list of customer names");
       result = em.customerStream()
             .select(c -> c.getName())
-            .sortedByStringAscending(name -> name)
+            .sortedBy(name -> name)
             .toList();
       
       // Simple query that is not possible with a simple ORM.

@@ -36,6 +36,7 @@ public interface SQLQueryTransforms
    <T,U,V> SQLQuery<Pair<U,V>> group(SQLQuery<T> query, int lambdaSelectThisIndex, DBSet.Select<T,U> select, int lambdaAggregateThisIndex, DBSet.AggregateGroup<U, T, V> aggregate, Object emSource);
    <T,U,V> SQLQuery<Pair<U,V>> group(SQLQuery<T> query, int lambdaSelectThisIndex, JinqStream.Select<T,U> select, int lambdaAggregateThisIndex, JinqStream.AggregateGroup<U, T, V> aggregate, Object emSource);
    <T> SQLQuery<T> firstN(SQLQuery<T> query, int n, Object emSource);
+   <T, V extends Comparable<V>> SQLQuery<T> sortedBy(SQLQuery<T> query, int lambdaThisIndex, JinqStream.CollectComparable<T, V> sorter, boolean isAscending, Object emSource);
    <T> SQLQuery<T> sortedByDate(SQLQuery<T> query, int lambdaThisIndex, DateSorter<T> sorter, boolean isAscending, Object emSource);
    <T> SQLQuery<T> sortedByInt(SQLQuery<T> query, int lambdaThisIndex, IntSorter<T> sorter, boolean isAscending, Object emSource);
    <T> SQLQuery<T> sortedByDouble(SQLQuery<T> query, int lambdaThisIndex, DoubleSorter<T> sorter, boolean isAscending, Object emSource);

@@ -16,11 +16,10 @@ public interface QueryComposer<T>
    // Returns a new query with the given operation integrated in
    // (or returns null if the given operation cannot be integrated)
    public QueryComposer<T> with(T toAdd);
-   public QueryComposer<T> sortedByInt(final IntSorter<T> sorter, boolean isAscending);
-   public QueryComposer<T> sortedByDouble(final DoubleSorter<T> sorter, boolean isAscending);
-   public QueryComposer<T> sortedByString(final StringSorter<T> sorter, boolean isAscending);
-   public QueryComposer<T> sortedByDate(final DateSorter<T> sorter, boolean isAscending);
-   public QueryComposer<T> firstN(int n);
+   public <V extends Comparable<V>> QueryComposer<T> sortedBy(
+         JinqStream.CollectComparable<T, V> sorter, boolean isAscending);
+   public QueryComposer<T> limit(long n);
+   public QueryComposer<T> skip(long n);
    
    // New stuff for Queryll2
    public <E extends Exception> QueryComposer<T> where(JinqStream.Where<T, E> test);

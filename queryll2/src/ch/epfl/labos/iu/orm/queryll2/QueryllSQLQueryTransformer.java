@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.AggregateSelect;
+import org.jinq.orm.stream.JinqStream.CollectComparable;
 import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.tuples.Pair;
 import org.objectweb.asm.Handle;
@@ -1360,7 +1361,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
                      this);
             List<SQLFragment> columns = new ArrayList<SQLFragment>();
             SQLReader reader = generateSelect(analysis, gen, columns);
-            assert(desiredSQLReader.isInstance(reader));
+            assert(desiredSQLReader == null || desiredSQLReader.isInstance(reader));
             assert(columns.size() == 1);
 
             SQLQuery.SortedAndLimited<T> toReturn = null;
@@ -1402,7 +1403,16 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       if (!doRuntimeCheckForSideEffects(analysis)) return null;
       return analysis;
    }
-   
+
+   @Override
+   public <T, V extends Comparable<V>> SQLQuery<T> sortedBy(SQLQuery<T> query,
+         int lambdaThisIndex, CollectComparable<T, V> sorter,
+         boolean isAscending, Object emSource)
+   {
+      MethodAnalysisResults analysis = analyzeSorterLambda(sorter, new HashMap<>());
+      return handleSorter(query, analysis, sorter, isAscending, new ParamHandler<Object>(lambdaThisIndex, sorter, emSource), null, emSource);
+   }
+
    public <T> SQLQuery<T> sortedByDate(SQLQuery<T> query, int lambdaThisIndex, DateSorter<T> sorter,
          boolean isAscending, Object emSource)
    {

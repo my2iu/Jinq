@@ -26,6 +26,11 @@ public interface QueryComposerWithLists<T> extends QueryComposer<T>
    public <U> QueryComposerWithLists<Pair<T, U>> join(Join<T,U> join);
    public <U, V> QueryComposerWithLists<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate);
 
+   public QueryComposer<T> sortedByInt(final IntSorter<T> sorter, boolean isAscending);
+   public QueryComposer<T> sortedByDouble(final DoubleSorter<T> sorter, boolean isAscending);
+   public QueryComposer<T> sortedByString(final StringSorter<T> sorter, boolean isAscending);
+   public QueryComposer<T> sortedByDate(final DateSorter<T> sorter, boolean isAscending);
+
    // returns null if the aggregates cannot be calculated
    public Double sumDouble(AggregateDouble<T> aggregate);
    public Integer sumInt(AggregateInteger<T> aggregate);

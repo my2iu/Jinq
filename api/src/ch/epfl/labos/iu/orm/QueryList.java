@@ -269,7 +269,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.firstN(n);
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.limit(n);
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.firstN(n);

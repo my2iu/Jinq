@@ -236,67 +236,21 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    }
 
    @Override
-   public JinqStream<T> sortedByIntAscending(IntSorter<T> sorter)
+   public <V extends Comparable<V>> JinqStream<T> sortedBy(
+         JinqStream.CollectComparable<T, V> sortField)
    {
       return wrap(sorted(
-         (o1, o2) -> sorter.value(o1) - sorter.value(o2)));
+            (o1, o2) -> sortField.aggregate(o1).compareTo(sortField.aggregate(o2))));
    }
 
    @Override
-   public JinqStream<T> sortedByIntDescending(IntSorter<T> sorter)
+   public <V extends Comparable<V>> JinqStream<T> sortedDescendingBy(
+         JinqStream.CollectComparable<T, V> sortField)
    {
       return wrap(sorted(
-            (o1, o2) -> sorter.value(o2) - sorter.value(o1)));
+            (o1, o2) -> -sortField.aggregate(o1).compareTo(sortField.aggregate(o2))));
    }
 
-   @Override
-   public JinqStream<T> sortedByDoubleAscending(DoubleSorter<T> sorter)
-   {
-      return wrap(sorted(
-            (o1, o2) -> (int)Math.signum(sorter.value(o1) - sorter.value(o2))));
-   }
-
-   @Override
-   public JinqStream<T> sortedByDoubleDescending(DoubleSorter<T> sorter)
-   {
-      return wrap(sorted(
-            (o1, o2) -> (int)Math.signum(sorter.value(o2) - sorter.value(o1))));
-   }
-
-   @Override
-   public JinqStream<T> sortedByStringAscending(StringSorter<T> sorter)
-   {
-      return wrap(sorted(
-            (o1, o2) -> sorter.value(o1).compareTo(sorter.value(o2))));
-   }
-
-   @Override
-   public JinqStream<T> sortedByStringDescending(StringSorter<T> sorter)
-   {
-      return wrap(sorted(
-            (o1, o2) -> -sorter.value(o1).compareTo(sorter.value(o2))));
-   }
-
-   @Override
-   public JinqStream<T> sortedByDateAscending(DateSorter<T> sorter)
-   {
-      return wrap(sorted(
-            (o1, o2) -> sorter.value(o1).compareTo(sorter.value(o2))));
-   }
-
-   @Override
-   public JinqStream<T> sortedByDateDescending(DateSorter<T> sorter)
-   {
-      return wrap(sorted(
-            (o1, o2) -> -sorter.value(o1).compareTo(sorter.value(o2))));
-   }
-
-   @Override
-   public JinqStream<T> firstN(int n)
-   {
-      return wrap(limit(n));
-   }
-   
    @Override
    public T getOnlyValue()
    {

@@ -232,7 +232,8 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public QueryComposer<T> sortedByInt(IntSorter<T> sorter, boolean isAscending)
+   public <V extends Comparable<V>> QueryComposer<T> sortedBy(
+         CollectComparable<T, V> sorter, boolean isAscending)
    {
       // TODO Auto-generated method stub
       translationFail(); 
@@ -240,8 +241,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public QueryComposer<T> sortedByDouble(DoubleSorter<T> sorter,
-         boolean isAscending)
+   public QueryComposer<T> limit(long n)
    {
       // TODO Auto-generated method stub
       translationFail(); 
@@ -249,25 +249,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public QueryComposer<T> sortedByString(StringSorter<T> sorter,
-         boolean isAscending)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-
-   @Override
-   public QueryComposer<T> sortedByDate(DateSorter<T> sorter,
-         boolean isAscending)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-
-   @Override
-   public QueryComposer<T> firstN(int n)
+   public QueryComposer<T> skip(long n)
    {
       // TODO Auto-generated method stub
       translationFail(); 

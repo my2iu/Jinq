@@ -640,18 +640,30 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
       }
       return evaluateRowQuery(newQuery, newParams);
    }
-   
-   public QueryComposer<T> firstN(int n)
+
+   public QueryComposer<T> skip(long n)
+   {
+      return null;
+   }
+
+   public QueryComposer<T> limit(long n)
    {
       if (transformer == null) return null;
       QueryComposer<T> cached = lookupQueryCache("firstN", null, null);
       if (cached != null) return cached;
-      SQLQuery<T> newQuery = transformer.firstN(query.copy(), n, emSource);
+      SQLQuery<T> newQuery = transformer.firstN(query.copy(), (int)n, emSource);
       if (newQuery == null) return null;
       // TODO: I'm not sure firstN can be cached using this framework because the "n" isn't properly 
       // treated as a parameter by the cache.
       storeInQueryCache("firstN", newQuery, null, null, null, null);
       return new SQLQueryComposer<T>(emSource, jdbc, transformer, newQuery, nextLambdaParamIndex, params);
+   }
+   
+   public <V extends Comparable<V>> QueryComposer<T> sortedBy(
+         JinqStream.CollectComparable<T, V> sorter, boolean isAscending)
+   {
+      return composeQuery(isAscending ? "sortedByAscending" : "sortedByDescending", sorter, 
+            null, () -> transformer.sortedBy(query.copy(), nextLambdaParamIndex, sorter, isAscending, emSource));
    }
 
    public QueryComposer<T> sortedByDate(DateSorter<T> sorter,
