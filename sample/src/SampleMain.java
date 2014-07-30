@@ -132,6 +132,13 @@ public class SampleMain
          .forEach(name -> out.println(name));
       out.println();
       
+      // Sum aggregation
+      out.println("TOTAL NUMBER OF WIDGETS SOLD");
+      out.println(lineorders()
+         .where(lo -> lo.getItem().getName().equals("Widgets"))
+         .sumInteger(lo -> lo.getQuantity()) );
+      out.println();
+      
       em.close();
    }
 }
