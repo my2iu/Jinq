@@ -30,11 +30,7 @@ import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
 
-import ch.epfl.labos.iu.orm.DateSorter;
-import ch.epfl.labos.iu.orm.DoubleSorter;
-import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.QueryComposer;
-import ch.epfl.labos.iu.orm.StringSorter;
 
 /**
  * Holds a query and can apply the logic for composing JPQL queries. 

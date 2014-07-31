@@ -119,7 +119,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
    
    public boolean isSelectFromWhere()
    {
-      return !isAggregated && sort.isEmpty();
+      return !isAggregated && sort.isEmpty() && limit < 0 && skip < 0;
    }
    
    public boolean canSort()
