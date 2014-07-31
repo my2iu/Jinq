@@ -10,6 +10,8 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
    public Expression where;
    public boolean isAggregated = false;
    public List<SortingParameters> sort = new ArrayList<>();
+   public long limit = -1;
+   public long skip = -1;
    
    /**
     * Holds information needed to do a sort. 
@@ -122,7 +124,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
    
    public boolean canSort()
    {
-      return true;
+      return !isAggregated && limit < 0 && skip < 0;
    }
 
    public SelectFromWhere<T> shallowCopy()
@@ -133,6 +135,8 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
       copy.where = where;
       copy.isAggregated = isAggregated;
       copy.sort.addAll(sort);
+      copy.limit = limit;
+      copy.skip = skip;
       return copy;
    }
    

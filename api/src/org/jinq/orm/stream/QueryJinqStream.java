@@ -184,7 +184,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
 
    @Override
-   public Stream<T> limit(long n)
+   public JinqStream<T> limit(long n)
    {
       QueryComposer<T> newComposer = queryComposer.limit(n);
       if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
@@ -192,7 +192,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
 
    @Override
-   public Stream<T> skip(long n)
+   public JinqStream<T> skip(long n)
    {
       QueryComposer<T> newComposer = queryComposer.skip(n);
       if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);

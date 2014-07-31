@@ -2,6 +2,8 @@ package org.jinq.jpa;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -20,6 +22,7 @@ public class JinqJPATestBase
 
    EntityManager em;
    String query;
+   List<String> queryList = new ArrayList<>();
    
    
    @BeforeClass
@@ -45,12 +48,14 @@ public class JinqJPATestBase
    public void setUp() throws Exception
    {
       em = entityManagerFactory.createEntityManager();
+      queryList.clear();
       streams.setHint("exceptionOnTranslationFail", true);
       streams.setHint("queryLogger", new JPAQueryLogger() {
          @Override public void logQuery(String q,
                Map<Integer, Object> positionParameters,
                Map<String, Object> namedParameters)
          {
+            queryList.add(q);
             query = q;
          }});
    }
@@ -58,6 +63,6 @@ public class JinqJPATestBase
    @After
    public void tearDown() throws Exception
    {
-           em.close();
+      em.close();
    }
 }

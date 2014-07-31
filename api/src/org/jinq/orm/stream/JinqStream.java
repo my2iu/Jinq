@@ -94,6 +94,10 @@ public interface JinqStream<T> extends Stream<T>
 
    public <V extends Comparable<V>> JinqStream<T> sortedBy(CollectComparable<T, V> sortField);
    public <V extends Comparable<V>> JinqStream<T> sortedDescendingBy(CollectComparable<T, V> sortField);
+   
+   // Overriding the Stream API versions to return a JinqStream instead, so it's easier to chain them
+   @Override public JinqStream<T> skip(long n);
+   @Override public JinqStream<T> limit(long n);
 
    public T getOnlyValue();
    public JinqStream<T> with(T toAdd);

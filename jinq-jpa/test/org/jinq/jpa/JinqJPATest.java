@@ -222,6 +222,19 @@ public class JinqJPATest extends JinqJPATestBase
    }
 
    @Test
+   public void testSortExpression()
+   {
+      List<Item> results = streams.streamAll(em, Item.class)
+            .where(i -> i.getPurchaseprice() > 1)
+            .sortedDescendingBy(i -> i.getSaleprice() - i.getPurchaseprice())
+            .toList();
+      assertEquals("SELECT A FROM Item A WHERE A.purchaseprice > 1.0 ORDER BY A.saleprice - (A.purchaseprice) DESC", query);
+      assertEquals(4, results.size());
+      assertEquals("Talent", results.get(0).getName());
+      assertEquals("Widgets", results.get(1).getName());
+   }
+
+   @Test
    public void testSortChained()
    {
       List<Customer> results = streams.streamAll(em, Customer.class)
@@ -233,6 +246,37 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Eve", results.get(0).getName());
       assertEquals("Bob", results.get(1).getName());
       assertEquals("Alice", results.get(2).getName());
+   }
+
+   @Test
+   public void testLimitSkip()
+   {
+      List<Customer> results = streams.streamAll(em, Customer.class)
+            .setHint("automaticPageSize", 1)
+            .sortedBy(c -> c.getName())
+            .skip(1)
+            .limit(2)
+            .toList();
+      assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
+      assertEquals(2, queryList.size());
+      assertEquals(2, results.size());
+      assertEquals("Bob", results.get(0).getName());
+      assertEquals("Carol", results.get(1).getName());
+   }
+
+   @Test
+   public void testSkipLimit()
+   {
+      List<Customer> results = streams.streamAll(em, Customer.class)
+            .sortedBy(c -> c.getName())
+            .limit(3)
+            .skip(1)
+            .toList();
+      assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
+      assertEquals(1, queryList.size());
+      assertEquals(2, results.size());
+      assertEquals("Bob", results.get(0).getName());
+      assertEquals("Carol", results.get(1).getName());
    }
 
    @Test

@@ -251,6 +251,18 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
             (o1, o2) -> -sortField.aggregate(o1).compareTo(sortField.aggregate(o2))));
    }
 
+   @Override 
+   public JinqStream<T> skip(long n)
+   {
+      return wrap(super.skip(n));
+   }
+   
+   @Override 
+   public JinqStream<T> limit(long n)
+   {
+      return wrap(super.limit(n));
+   }
+
    @Override
    public T getOnlyValue()
    {

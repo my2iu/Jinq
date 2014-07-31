@@ -14,11 +14,13 @@ import javax.persistence.Query;
 import org.jinq.jpa.jpqlquery.GeneratedQueryParameter;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.RowReader;
+import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.transform.AggregateTransform;
 import org.jinq.jpa.transform.CountTransform;
 import org.jinq.jpa.transform.JPQLQueryTransform;
 import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaInfo;
+import org.jinq.jpa.transform.LimitSkipTransform;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.SortingTransform;
@@ -133,6 +135,19 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       final Query q = em.createQuery(queryString);
       fillQueryParameters(q, query.getQueryParameters());
       final RowReader<T> reader = query.getRowReader();
+      long skip = 0;
+      long limit = Long.MAX_VALUE;
+      if (query instanceof SelectFromWhere)
+      {
+         SelectFromWhere<?> sfw = (SelectFromWhere<?>)query;
+         if (sfw.limit >= 0)
+            limit = sfw.limit;
+         if (sfw.skip >= 0)
+            skip = sfw.skip;
+      }
+      final long initialOffset = skip;
+      final long maxTotalResults = limit;
+      
       // To handle the streaming of giant result sets, we will break
       // them down into pages. Technically, this is not really correct
       // because a database can return the results in different orders
@@ -141,15 +156,22 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       return new NextOnlyIterator<T>() {
          boolean hasNextPage = false;
          Iterator<Object> resultIterator;
-         int offset = 0;
+         int offset = (int)initialOffset;
+         long totalRead = 0;
          @Override protected void generateNext()
          {
             if (resultIterator == null)
             {
+               if (offset > 0) q.setFirstResult(offset);
+               long pageSize = Long.MAX_VALUE;
+               if (hints.automaticResultsPagingSize > 0)
+                  pageSize = hints.automaticResultsPagingSize + 1;
+               if (maxTotalResults != Long.MAX_VALUE)
+                  pageSize = Math.min(pageSize, maxTotalResults - totalRead);
+               if (pageSize != Long.MAX_VALUE)
+                  q.setMaxResults((int)pageSize);
                if (hints.automaticResultsPagingSize > 0)
                {
-                  q.setFirstResult(offset);
-                  q.setMaxResults(hints.automaticResultsPagingSize + 1);
                   logQuery(queryString, q);
                   List<Object> results = q.getResultList();
                   if (results.size() > hints.automaticResultsPagingSize)
@@ -158,6 +180,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
                      offset += hints.automaticResultsPagingSize;
                      results.remove(hints.automaticResultsPagingSize);
                   }
+                  totalRead += results.size();
                   resultIterator = results.iterator();
                }
                else
@@ -242,17 +265,13 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public QueryComposer<T> limit(long n)
    {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
+      return applyTransformWithLambda(new LimitSkipTransform(metamodel, true, n));
    }
 
    @Override
    public QueryComposer<T> skip(long n)
    {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
+      return applyTransformWithLambda(new LimitSkipTransform(metamodel, false, n));
    }
 
    @Override
