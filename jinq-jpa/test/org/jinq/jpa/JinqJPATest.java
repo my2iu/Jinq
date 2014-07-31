@@ -209,6 +209,33 @@ public class JinqJPATest extends JinqJPATestBase
    }
 
    @Test
+   public void testSort()
+   {
+      List<Customer> results = streams.streamAll(em, Customer.class)
+            .sortedBy(c -> c.getName())
+            .toList();
+      assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
+      assertEquals(5, results.size());
+      assertEquals("Alice", results.get(0).getName());
+      assertEquals("Bob", results.get(1).getName());
+      assertEquals("Eve", results.get(4).getName());
+   }
+
+   @Test
+   public void testSortChained()
+   {
+      List<Customer> results = streams.streamAll(em, Customer.class)
+            .sortedDescendingBy(c -> c.getName())
+            .sortedBy(c -> c.getCountry())
+            .toList();
+      assertEquals("SELECT A FROM Customer A ORDER BY A.country ASC, A.name DESC", query);
+      assertEquals(5, results.size());
+      assertEquals("Eve", results.get(0).getName());
+      assertEquals("Bob", results.get(1).getName());
+      assertEquals("Alice", results.get(2).getName());
+   }
+
+   @Test
    public void testJPQLNumericPromotion()
    {
       // Trying to understand the numeric promotion rules for JPQL.

@@ -21,6 +21,7 @@ import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
+import org.jinq.jpa.transform.SortingTransform;
 import org.jinq.jpa.transform.WhereTransform;
 import org.jinq.orm.stream.JinqStream.CollectComparable;
 import org.jinq.orm.stream.JinqStream.CollectNumber;
@@ -235,9 +236,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <V extends Comparable<V>> QueryComposer<T> sortedBy(
          CollectComparable<T, V> sorter, boolean isAscending)
    {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
+      return applyTransformWithLambda(new SortingTransform(metamodel, isAscending), sorter);
    }
 
    @Override

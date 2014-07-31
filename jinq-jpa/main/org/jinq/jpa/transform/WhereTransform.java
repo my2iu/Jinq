@@ -89,15 +89,12 @@ public class WhereTransform extends JPQLQueryTransform
             }
             
             // Create the new query, merging in the analysis of the method
-            SelectFromWhere<U> toReturn = new SelectFromWhere<U>();
-            toReturn.froms.addAll(sfw.froms);
-            toReturn.cols = (ColumnExpressions<U>) sfw.cols;
+            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
             if (sfw.where == null)
                toReturn.where = methodExpr;
             else
                toReturn.where = new BinaryExpression("AND", sfw.where, methodExpr);
             return toReturn;
-
          }
          throw new QueryTransformException("Existing query cannot be transformed further");
       }

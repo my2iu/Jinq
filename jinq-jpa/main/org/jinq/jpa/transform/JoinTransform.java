@@ -59,13 +59,11 @@ public class JoinTransform extends JPQLQueryTransform
             if (isSimpleFrom(returnExpr))
             {
                SelectFromWhere<?> toMerge = (SelectFromWhere<?>)returnExpr;
-               SelectFromWhere<U> toReturn = new SelectFromWhere<>();
-               toReturn.froms.addAll(sfw.froms);
+               SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
                toReturn.froms.add(toMerge.froms.get(0));
                toReturn.cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(TupleRowReader.PAIR_CLASS, sfw.cols.reader, toMerge.cols.reader));
                toReturn.cols.columns.addAll(sfw.cols.columns);
                toReturn.cols.columns.addAll(toMerge.cols.columns);
-               toReturn.where = sfw.where;
                return toReturn;
             }
             

@@ -25,9 +25,8 @@ public class CountTransform extends JPQLQueryTransform
          SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
          
          // Create the new query, merging in the analysis of the method
-         SelectFromWhere<U> toReturn = new SelectFromWhere<U>();
+         SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
          toReturn.isAggregated = true;
-         toReturn.froms.addAll(sfw.froms);
          // TODO: It looks like you can stick anything inside the COUNT(),
          //    but I'm not sure. Why does it even take a parameter there?
          // TODO: The difference might be in NULL handling. If a field is
@@ -35,7 +34,6 @@ public class CountTransform extends JPQLQueryTransform
          toReturn.cols = ColumnExpressions.singleColumn(
                new SimpleRowReader<>(),
                new AggregateFunctionExpression(new ConstantExpression("1"), "COUNT")); 
-         toReturn.where = sfw.where;
          return toReturn;
       }
       throw new QueryTransformException("Existing query cannot be transformed further");

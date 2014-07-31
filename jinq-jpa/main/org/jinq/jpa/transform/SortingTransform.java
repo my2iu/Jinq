@@ -10,27 +10,21 @@ import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class AggregateTransform extends JPQLQueryTransform
+public class SortingTransform extends JPQLQueryTransform
 {
-   // TODO: Should I include count() here too?
-   public enum AggregateType
-   {
-      SUM, AVG, MAX, MIN
-   }
-   
-   public AggregateTransform(MetamodelUtil metamodel, AggregateType type)
+   public SortingTransform(MetamodelUtil metamodel, boolean isAscending)
    {
       super(metamodel);
-      aggregateFunction = type.name();
+      this.isAscending = isAscending;
    }
-   
-   private String aggregateFunction;
+
+   private boolean isAscending;
    
    @Override
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
    {
       try  {
-         if (query.isSelectFromWhere())
+         if (query instanceof SelectFromWhere && query.canSort())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, 
@@ -46,11 +40,11 @@ public class AggregateTransform extends JPQLQueryTransform
                   .visit(translator, passdown);
 
             // Create the new query, merging in the analysis of the method
-            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy(); 
-            toReturn.isAggregated = true;
-            toReturn.cols = ColumnExpressions.singleColumn(
-                  new SimpleRowReader<>(), 
-                  new AggregateFunctionExpression(returnExpr.getOnlyColumn(), aggregateFunction)); 
+            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
+            SelectFromWhere.SortingParameters sort = new SelectFromWhere.SortingParameters();
+            sort.expr = returnExpr.getOnlyColumn();
+            sort.isAscending = isAscending;
+            toReturn.sort.add(0, sort);
             return toReturn;
          }
          throw new QueryTransformException("Existing query cannot be transformed further");

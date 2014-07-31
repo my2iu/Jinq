@@ -9,7 +9,17 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
    public List<From> froms = new ArrayList<>();
    public Expression where;
    public boolean isAggregated = false;
-
+   public List<SortingParameters> sort = new ArrayList<>();
+   
+   /**
+    * Holds information needed to do a sort. 
+    */
+   public static class SortingParameters
+   {
+      public Expression expr;
+      public boolean isAscending;
+   }
+   
    /**
     * After a JPQL query is generated, this stores the resulting query string.  
     */
@@ -65,6 +75,20 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
          where.generateQuery(queryState, Expression.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
          query += queryState.queryString;
       }
+      if (!sort.isEmpty())
+      {
+         query += " ORDER BY";
+         boolean isFirst = true;
+         for (SortingParameters sortParams: sort)
+         {
+            if (!isFirst) query += ",";
+            isFirst = false;
+            queryState.queryString = " ";
+            sortParams.expr.generateQuery(queryState, Expression.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+            query += queryState.queryString;
+            query += (sortParams.isAscending ? " ASC" : " DESC");
+         }
+      }
       queryString = query;
       queryParameters = queryState.parameters;
    }
@@ -93,9 +117,25 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
    
    public boolean isSelectFromWhere()
    {
-      return !isAggregated;
+      return !isAggregated && sort.isEmpty();
+   }
+   
+   public boolean canSort()
+   {
+      return true;
    }
 
+   public SelectFromWhere<T> shallowCopy()
+   {
+      SelectFromWhere<T> copy = new SelectFromWhere<>();
+      copy.cols = cols;
+      copy.froms.addAll(froms);
+      copy.where = where;
+      copy.isAggregated = isAggregated;
+      copy.sort.addAll(sort);
+      return copy;
+   }
+   
 //   @Override
 //   public JPQLQuery<T> copy()
 //   {

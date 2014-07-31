@@ -35,11 +35,9 @@ public class SelectTransform extends JPQLQueryTransform
                   .visit(translator, passdown);
 
             // Create the new query, merging in the analysis of the method
-            SelectFromWhere<U> toReturn = new SelectFromWhere<U>();
-            toReturn.froms.addAll(sfw.froms);
+            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
             // TODO: translator.transform() should return multiple columns, not just one thing
             toReturn.cols = returnExpr;
-            toReturn.where = sfw.where;
             return toReturn;
          }
          throw new QueryTransformException("Existing query cannot be transformed further");
