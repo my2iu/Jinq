@@ -133,6 +133,12 @@ public class TransformationClassAnalyzer
    public static MethodSignature longLongValue = new MethodSignature("java/lang/Long", "longValue", "()J");
    public static MethodSignature doubleDoubleValue = new MethodSignature("java/lang/Double", "doubleValue", "()D");
    public static MethodSignature booleanBooleanValue = new MethodSignature("java/lang/Boolean", "booleanValue", "()Z");
+   public static MethodSignature bigIntegerValueOfLong = new MethodSignature("java/math/BigInteger", "valueOf", "(J)Ljava/math/BigInteger;");
+   public static MethodSignature newBigDecimalLong = new MethodSignature("java/math/BigDecimal", "<init>", "(J)V");
+   public static MethodSignature newBigDecimalDouble = new MethodSignature("java/math/BigDecimal", "<init>", "(D)V");
+   public static MethodSignature newBigDecimalInt = new MethodSignature("java/math/BigDecimal", "<init>", "(I)V");
+   public static MethodSignature newBigDecimalBigInteger = new MethodSignature("java/math/BigDecimal", "<init>", "(Ljava/math/BigInteger;)V");
+
    static {
       TransformationClassMethods.put(GROUP_INTERFACE, GROUP_METHOD);
       TransformationClassMethods.put(JOIN_INTERFACE, JOIN_METHOD);
@@ -202,6 +208,12 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(tuple8GetSeven);
       KnownSafeMethods.add(tuple8GetEight);
       KnownSafeStaticMethods.add(streamFrom);
+      KnownSafeStaticMethods.add(bigIntegerValueOfLong);
+      KnownSafeMethods.add(newBigDecimalLong);
+      KnownSafeMethods.add(newBigDecimalDouble);
+      KnownSafeMethods.add(newBigDecimalInt);
+      KnownSafeMethods.add(newBigDecimalBigInteger);
+
       SafeMethodAnnotations.add(NoSideEffects.class);
       SafeMethodAnnotations.add(EntitySupplier.class);
    }

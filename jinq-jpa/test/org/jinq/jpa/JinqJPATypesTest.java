@@ -358,6 +358,31 @@ public class JinqJPATypesTest extends JinqJPATestBase
    }
 
    @Test
+   public void testNumericPromotionBigDecimal()
+   {
+      long val = 3;
+      List<BigDecimal> lineorders = streams.streamAll(em, Lineorder.class)
+            .select(lo -> lo.getTotal().add(new BigDecimal(val)))
+            .sortedBy(num -> num)
+            .toList();
+      assertEquals("SELECT A.total + :param0 FROM Lineorder A ORDER BY A.total + :param0 ASC", query);
+      assertEquals(11, lineorders.size());
+      assertEquals(4, lineorders.get(0).longValue());
+   }
+
+   @Test
+   public void testNumericPromotionBigInteger()
+   {
+      List<BigInteger> lineorders = streams.streamAll(em, Lineorder.class)
+            .select(lo -> lo.getTransactionConfirmation().add(BigInteger.valueOf(lo.getQuantity())))
+            .sortedBy(num -> num)
+            .toList();
+      assertEquals("SELECT A.transactionConfirmation + (A.quantity) FROM Lineorder A ORDER BY A.transactionConfirmation + (A.quantity) ASC", query);
+      assertEquals(11, lineorders.size());
+      assertEquals(1001, lineorders.get(0).longValue());
+   }
+   
+   @Test
    public void testNumericPromotionComparison()
    {
       List<Lineorder> lineorders = streams.streamAll(em, Lineorder.class)
