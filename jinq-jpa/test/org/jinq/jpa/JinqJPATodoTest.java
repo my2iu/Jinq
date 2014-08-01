@@ -9,12 +9,6 @@ import org.junit.Test;
 public class JinqJPATodoTest 
 {
    @Test
-   public void testSortSkipLimit() {}
-
-   @Test
-   public void testNumericPromotionCasts() {}
-   
-   @Test
    public void testMultiAggregate() {}
 
    @Test

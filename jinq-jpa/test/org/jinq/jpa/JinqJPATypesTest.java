@@ -305,7 +305,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       List<Double> resultDouble = streams.streamAll(em, Customer.class)
             .select(c -> val / 2.0).toList();
       assertEquals("SELECT :param0 / 2.0 FROM Customer A", query);
-      assertTrue(Math.abs(2.5 - resultDouble.get(0)) < 0.001);
+      assertEquals(2.5, resultDouble.get(0), 0.001);
       
       int valInt = 5;
       List<Integer> resultInteger = streams.streamAll(em, Customer.class)
@@ -313,18 +313,59 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("SELECT :param0 / 2 FROM Customer A", query);
       assertEquals(2, (int)resultInteger.get(0));
 
-      try {
-         resultDouble = streams.streamAll(em, Customer.class)
-               .select(c -> val / valInt).toList();
-         assertEquals("SELECT :param0 / (:param1 * 1.0) FROM Customer A", query);
-         assertTrue(Math.abs(2.5 - resultDouble.get(0)) < 0.001);
-      }
-      catch (Exception e)
-      {
-         // Expected: casts are not supported yet because I can't find typecasting operations in JPQL
-         return;
-      }
-      fail();
+      resultDouble = streams.streamAll(em, Customer.class)
+            .select(c -> val * 2.0 / valInt)
+            .sortedBy( num -> num ).toList();
+      assertEquals("SELECT :param0 * 2.0 / :param1 FROM Customer A ORDER BY :param0 * 2.0 / :param1 ASC", query);
+      assertEquals(2.0, resultDouble.get(0), 0.001);
+   }
+   
+   @Test(expected=ClassCastException.class)
+   public void testJPQLWeirdness()
+   {
+      // EclipseLink seems to think two parameters divided by each other results in a BigDouble.
+      // Perhaps the problem is that EclipseLink cannot determine the type until after the
+      // parameters are substituted in, but it performs its type checking earlier than that?
+      double val = 5.0;
+      int valInt = 5;
+      List<Double> resultDouble = streams.streamAll(em, Customer.class)
+            .select(c -> val / valInt).toList();
+      assertEquals("SELECT :param0 / :param1 FROM Customer A", query);
+      assertEquals(1.0, resultDouble.get(0).doubleValue(), 0.001);
+   }
 
+   @Test(expected=IllegalArgumentException.class)
+   public void testJPQLWeirdness2()
+   {
+      // EclipseLink seems to have problems when ordering things without using
+      // any fields of data.
+      double val = 5.0;
+      List<Customer> results = streams.streamAll(em, Customer.class)
+            .sortedBy(c -> 5 * val).toList();
+      assertEquals("SELECT A FROM Customer A ORDER BY 5 * :param0", query);
+      assertEquals(5, results.size());
+   }
+
+   @Test
+   public void testNumericPromotionMath()
+   {
+      List<Lineorder> lineorders = streams.streamAll(em, Lineorder.class)
+            .sortedBy(lo -> lo.getQuantity() * lo.getItem().getSaleprice())
+            .toList();
+      assertEquals("SELECT A FROM Lineorder A ORDER BY A.quantity * (A.item.saleprice) ASC", query);
+      assertEquals(11, lineorders.size());
+      assertEquals("Screws", lineorders.get(0).getItem().getName());
+   }
+
+   @Test
+   public void testNumericPromotionComparison()
+   {
+      List<Lineorder> lineorders = streams.streamAll(em, Lineorder.class)
+            .where(lo -> lo.getQuantity() + 20 < lo.getItem().getSaleprice())
+            .sortedBy(lo -> lo.getItem().getName())
+            .toList();
+      assertEquals("SELECT A FROM Lineorder A WHERE A.quantity + 20 < (A.item.saleprice) ORDER BY A.item.name ASC", query);
+      assertEquals(3, lineorders.size());
+      assertEquals("Lawnmowers", lineorders.get(0).getItem().getName());
    }
 }

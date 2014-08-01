@@ -1,5 +1,8 @@
 package org.jinq.jpa.transform;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
@@ -106,22 +109,67 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       return val.operand.visit(this, SymbExPassDown.with(val, in.isExpectingConditional));
    }
 
+   private boolean isWideningCast(TypedValue val)
+   {
+      if (val instanceof TypedValue.CastValue)
+      {
+         TypedValue.CastValue castedVal = (TypedValue.CastValue)val;
+         Type toType = castedVal.getType();
+         Type fromType = castedVal.operand.getType();
+         if (!numericPromotionPriority.containsKey(fromType)) return false;
+         if (!numericPromotionPriority.containsKey(toType)) return false;
+         if (numericPromotionPriority.get(toType) > numericPromotionPriority.get(fromType))
+            return true;
+      }
+      return false;
+   }
+
+   private TypedValue skipWideningCast(TypedValue val) throws TypedValueVisitorException
+   {
+      if (val instanceof TypedValue.CastValue)
+      {
+         TypedValue.CastValue castedVal = (TypedValue.CastValue)val;
+         return castedVal.operand;
+      }
+      throw new IllegalArgumentException("Cannot skip an unknown widening cast type");
+   }
+
+   private <U> ColumnExpressions<U> binaryOpWithNumericPromotion(String opString, TypedValue leftVal, TypedValue rightVal, SymbExPassDown passdown) throws TypedValueVisitorException
+   {
+      boolean isFinalTypeFromLeft = true;
+      // Check if we have a valid numeric promotion (i.e. one side has a widening cast
+      // to match the type of the other side).
+      assert(leftVal.getType().equals(rightVal.getType()));
+      if (isWideningCast(leftVal))
+      {
+         if (!isWideningCast(rightVal))
+         {
+            leftVal = skipWideningCast(leftVal);
+            isFinalTypeFromLeft = false;
+         }
+      }
+      else if (isWideningCast(rightVal))
+      {
+         rightVal = skipWideningCast(rightVal);
+      }
+      ColumnExpressions<U> left = (ColumnExpressions<U>)leftVal.visit(this, passdown);
+      ColumnExpressions<U> right = (ColumnExpressions<U>)rightVal.visit(this, passdown);
+      return ColumnExpressions.singleColumn(isFinalTypeFromLeft ? left.reader : right.reader,
+            new BinaryExpression(opString, left.getOnlyColumn(), right.getOnlyColumn())); 
+   }
+   
    @Override public ColumnExpressions<?> mathOpValue(TypedValue.MathOpValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       if (val.op == TypedValue.MathOpValue.Op.cmp)
          throw new TypedValueVisitorException("cmp operator was not converted to a boolean operator");
       SymbExPassDown passdown = SymbExPassDown.with(val, false);
-      ColumnExpressions<?> left = val.left.visit(this, passdown);
-      ColumnExpressions<?> right = val.right.visit(this, passdown);
-      return ColumnExpressions.singleColumn(left.reader,
-            new BinaryExpression(val.sqlOpString(), left.getOnlyColumn(), right.getOnlyColumn())); 
+      return binaryOpWithNumericPromotion(val.sqlOpString(), val.left, val.right, passdown);
    }
 
    @Override public ColumnExpressions<?> comparisonOpValue(TypedValue.ComparisonValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       SymbExPassDown passdown = SymbExPassDown.with(val, false);
-      ColumnExpressions<?> left = val.left.visit(this, passdown);
-      ColumnExpressions<?> right = val.right.visit(this, passdown);
+      return binaryOpWithNumericPromotion(val.sqlOpString(), val.left, val.right, passdown);
 //      if (val.left.getType() == Type.BOOLEAN_TYPE
 //            || val.right.getType() == Type.BOOLEAN_TYPE)
 //      {
@@ -140,10 +188,6 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
 //            right.columns[0] = new SQLFragment("FALSE");
 //         }
 //      }
-      if (!left.isSingleColumn() || !right.isSingleColumn())
-         throw new TypedValueVisitorException("Do not know how to add multiple columns together");
-      return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
-            new BinaryExpression(val.sqlOpString(), left.getOnlyColumn(), right.getOnlyColumn())); 
    }
    
    @Override public ColumnExpressions<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -348,4 +392,23 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          return super.staticMethodCallValue(val, in);
    }
 
+   // Tracks which numeric types are considered to have more information than
+   // other types.
+   static Map<Type, Integer> numericPromotionPriority = new HashMap<>();
+   static {
+      int n = 0;
+      numericPromotionPriority.put(Type.INT_TYPE, n);
+      numericPromotionPriority.put(Type.getObjectType("java/lang/Integer"), n);
+      n++;
+      numericPromotionPriority.put(Type.LONG_TYPE, n);
+      numericPromotionPriority.put(Type.getObjectType("java/lang/Long"), n);
+      n++;
+      numericPromotionPriority.put(Type.getObjectType("java/math/BigInteger"), n);
+      n++;
+      numericPromotionPriority.put(Type.getObjectType("java/math/BigDecimal"), n);
+      n++;
+      numericPromotionPriority.put(Type.DOUBLE_TYPE, n);
+      numericPromotionPriority.put(Type.getObjectType("java/lang/Double"), n);
+      n++;
+   }
 }
