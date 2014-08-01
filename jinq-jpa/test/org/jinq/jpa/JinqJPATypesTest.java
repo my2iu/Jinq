@@ -361,13 +361,13 @@ public class JinqJPATypesTest extends JinqJPATestBase
    public void testNumericPromotionBigDecimal()
    {
       long val = 3;
-      List<BigDecimal> lineorders = streams.streamAll(em, Lineorder.class)
-            .select(lo -> lo.getTotal().add(new BigDecimal(val)))
+      List<Double> lineorders = streams.streamAll(em, Lineorder.class)
+            .select(lo -> (lo.getTotal().add(new BigDecimal(val))).doubleValue() + lo.getItem().getSaleprice())
             .sortedBy(num -> num)
             .toList();
-      assertEquals("SELECT A.total + :param0 FROM Lineorder A ORDER BY A.total + :param0 ASC", query);
+      assertEquals("SELECT A.total + :param0 + A.item.saleprice FROM Lineorder A ORDER BY A.total + :param0 + A.item.saleprice ASC", query);
       assertEquals(11, lineorders.size());
-      assertEquals(4, lineorders.get(0).longValue());
+      assertEquals(6, lineorders.get(0).longValue());
    }
 
    @Test

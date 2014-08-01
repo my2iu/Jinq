@@ -138,6 +138,8 @@ public class TransformationClassAnalyzer
    public static MethodSignature newBigDecimalDouble = new MethodSignature("java/math/BigDecimal", "<init>", "(D)V");
    public static MethodSignature newBigDecimalInt = new MethodSignature("java/math/BigDecimal", "<init>", "(I)V");
    public static MethodSignature newBigDecimalBigInteger = new MethodSignature("java/math/BigDecimal", "<init>", "(Ljava/math/BigInteger;)V");
+   public static MethodSignature bigDecimalDoubleValue = new MethodSignature("java/math/BigDecimal", "doubleValue", "()D");
+   public static MethodSignature bigIntegerDoubleValue = new MethodSignature("java/math/BigInteger", "doubleValue", "()D");
 
    static {
       TransformationClassMethods.put(GROUP_INTERFACE, GROUP_METHOD);
@@ -213,6 +215,8 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(newBigDecimalDouble);
       KnownSafeMethods.add(newBigDecimalInt);
       KnownSafeMethods.add(newBigDecimalBigInteger);
+      KnownSafeMethods.add(bigDecimalDoubleValue);
+      KnownSafeMethods.add(bigIntegerDoubleValue);
 
       SafeMethodAnnotations.add(NoSideEffects.class);
       SafeMethodAnnotations.add(EntitySupplier.class);

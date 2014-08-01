@@ -131,6 +131,12 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          {
             return true;
          }
+         else if (sig.equals(TransformationClassAnalyzer.bigDecimalDoubleValue)
+               || sig.equals(TransformationClassAnalyzer.bigIntegerDoubleValue))
+         {
+            return true;
+         }
+
       }
       else if (val instanceof MethodCallValue.StaticMethodCallValue)
       {
@@ -154,13 +160,18 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       }
       else if (val instanceof MethodCallValue.VirtualMethodCallValue)
       {
-         MethodCallValue methodCall = (MethodCallValue.VirtualMethodCallValue)val;
+         MethodCallValue.VirtualMethodCallValue methodCall = (MethodCallValue.VirtualMethodCallValue)val;
          MethodSignature sig = methodCall.getSignature();
          if (sig.equals(TransformationClassAnalyzer.newBigDecimalLong)
                || sig.equals(TransformationClassAnalyzer.newBigDecimalInt)
                || sig.equals(TransformationClassAnalyzer.newBigDecimalBigInteger))
          {
             return skipWideningCast(methodCall.args.get(0));
+         }
+         else if (sig.equals(TransformationClassAnalyzer.bigDecimalDoubleValue)
+               || sig.equals(TransformationClassAnalyzer.bigIntegerDoubleValue))
+         {
+            return skipWideningCast(methodCall.base);
          }
       }
       else if (val instanceof MethodCallValue.StaticMethodCallValue)
