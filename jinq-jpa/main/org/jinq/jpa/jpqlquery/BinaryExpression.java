@@ -13,15 +13,17 @@ public class BinaryExpression extends Expression
    }
 
    @Override
-   public void generateQuery(QueryGenerationState queryState, String operatorPrecedenceScope)
+   public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
-      if (!Expression.doesOperatorHaveJPQLPrecedence(operator, operatorPrecedenceScope))
+      OperatorPrecedenceLevel precedence = OperatorPrecedenceLevel.forOperator(operator);
+      if (!precedence.hasPrecedence(operatorPrecedenceScope))
          queryState.appendQuery("(");
-      left.generateQuery(queryState, operator);
+      left.generateQuery(queryState, precedence);
       queryState.appendQuery(" " + operator + " ");
-      // Don't do any operator precedence on the right for now since it requires a more complicated precedence framework
-      right.generateQuery(queryState, null);
-      if (!Expression.doesOperatorHaveJPQLPrecedence(operator, operatorPrecedenceScope))
+      // Things on the right hand side should be wrapped in brackets if they are at the same precedence level
+      // so we need to pass down a lower precedence scope there.
+      right.generateQuery(queryState, precedence.getLevelBelow());
+      if (!precedence.hasPrecedence(operatorPrecedenceScope))
          queryState.appendQuery(")");
    }
 

@@ -9,7 +9,7 @@ public class ConstantExpression extends Expression
    }
    
    @Override
-   public void generateQuery(QueryGenerationState queryState, String operatorPrecedenceScope)
+   public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
       queryState.appendQuery(text);
    }

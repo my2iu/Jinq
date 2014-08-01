@@ -29,7 +29,7 @@ public class JinqJPAWhereTest extends JinqJPATestBase
    {
       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
            .where((c) -> c.getCountry().equals("UK") ? c.getName().equals("Bob") : c.getName().equals("Alice"));
-      assertEquals("SELECT A FROM Customer A WHERE A.name = 'Alice' AND (A.country <> 'UK') OR (A.name = 'Bob' AND (A.country = 'UK'))", customers.getDebugQueryString());
+      assertEquals("SELECT A FROM Customer A WHERE A.name = 'Alice' AND A.country <> 'UK' OR A.name = 'Bob' AND A.country = 'UK'", customers.getDebugQueryString());
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Alice", results.get(0).getName());
@@ -52,7 +52,7 @@ public class JinqJPAWhereTest extends JinqJPATestBase
       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
            .where(c -> c.getCountry().equals("Switzerland"))
            .where(c -> c.getName().equals("Bob"));
-      assertEquals("SELECT A FROM Customer A WHERE A.country = 'Switzerland' AND (A.name = 'Bob')", customers.getDebugQueryString());
+      assertEquals("SELECT A FROM Customer A WHERE A.country = 'Switzerland' AND A.name = 'Bob'", customers.getDebugQueryString());
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Bob", results.get(0).getName());
@@ -91,7 +91,7 @@ public class JinqJPAWhereTest extends JinqJPATestBase
       int paramUpper = 250;
       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
            .where(c -> c.getDebt() > paramLower && c.getDebt() < paramUpper);
-      assertEquals("SELECT A FROM Customer A WHERE A.debt > :param0 AND (A.debt < :param1)", customers.getDebugQueryString());
+      assertEquals("SELECT A FROM Customer A WHERE A.debt > :param0 AND A.debt < :param1", customers.getDebugQueryString());
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Bob", results.get(0).getName());
@@ -115,7 +115,7 @@ public class JinqJPAWhereTest extends JinqJPATestBase
             .where(s -> s.getCustomer().getCountry().equals("Switzerland"))
             .where(s -> s.getCustomer().getDebt() < 150)
             .select(s -> new Pair<>(s.getCustomer().getName(), s.getDate()));
-      assertEquals("SELECT A.customer.name, A.date FROM Sale A WHERE A.customer.country = 'Switzerland' AND (A.customer.debt < 150)", sales.getDebugQueryString());
+      assertEquals("SELECT A.customer.name, A.date FROM Sale A WHERE A.customer.country = 'Switzerland' AND A.customer.debt < 150", sales.getDebugQueryString());
       List<Pair<String, Date>> results = sales.toList();
       assertEquals(2, results.size());
       assertEquals("Alice", results.get(0).getOne());

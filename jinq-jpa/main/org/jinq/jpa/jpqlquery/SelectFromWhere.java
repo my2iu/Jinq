@@ -53,7 +53,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
             if (!isFirst) query += ", ";
             isFirst = false;
             queryState.queryString = "";
-            col.generateQuery(queryState, Expression.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+            col.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
             query += queryState.queryString;
          }
       }
@@ -74,7 +74,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
       {
          query += " WHERE ";
          queryState.queryString = "";
-         where.generateQuery(queryState, Expression.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+         where.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
          query += queryState.queryString;
       }
       if (!sort.isEmpty())
@@ -86,7 +86,7 @@ public class SelectFromWhere<T> extends JPQLQuery<T>
             if (!isFirst) query += ",";
             isFirst = false;
             queryState.queryString = " ";
-            sortParams.expr.generateQuery(queryState, Expression.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+            sortParams.expr.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
             query += queryState.queryString;
             query += (sortParams.isAscending ? " ASC" : " DESC");
          }

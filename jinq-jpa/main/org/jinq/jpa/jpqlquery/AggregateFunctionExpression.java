@@ -11,11 +11,11 @@ public class AggregateFunctionExpression extends Expression
    }
    
    @Override
-   public void generateQuery(QueryGenerationState queryState, String operatorPrecedenceScope)
+   public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
       queryState.appendQuery(aggregateName);
       queryState.appendQuery("(");
-      base.generateQuery(queryState, JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+      base.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
       queryState.appendQuery(")");
    }
 }

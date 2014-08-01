@@ -32,7 +32,7 @@ public abstract class From implements JPQLFragment
       Expression links;
       void generateFromString(QueryGenerationState queryState)
       {
-         links.generateQuery(queryState, Expression.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+         links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
       }
    }
 }
