@@ -259,19 +259,21 @@ public class TypedValue implements Value
    {
       public enum Op
       {
-         plus, minus, mul, div, cmp;
+         plus ("+"), minus("-"), mul("*"), div("/"), cmp("cmp");
+         
+         private Op(String opString)
+         {
+            this.opString = opString;
+         }
+         String opString;
+         public String getOpString()
+         {
+            return opString;
+         }
       }
       static String opToString(Op op)
       {
-         switch(op)
-         {
-         case plus:  return "+";
-         case minus:  return "-";
-         case mul: return "*";
-         case div: return "/";
-         case cmp: return "cmp";
-         default:  return "??";
-         }
+         return op.getOpString();
       }
       public String sqlOpString()
       {
