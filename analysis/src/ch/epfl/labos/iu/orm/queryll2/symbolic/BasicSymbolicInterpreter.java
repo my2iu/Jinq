@@ -206,11 +206,14 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case L2D:
          case F2D:
             return new TypedValue.CastValue(Type.DOUBLE_TYPE, (TypedValue)value);
-         case GETFIELD:  // this should normally failed, but a subclass can handle it
          case INEG:
+            return new TypedValue.UnaryMathOpValue(TypedValue.UnaryMathOpValue.UnaryOp.neg, Type.INT_TYPE, (TypedValue)value);
          case LNEG:
-         case FNEG:
+            return new TypedValue.UnaryMathOpValue(TypedValue.UnaryMathOpValue.UnaryOp.neg, Type.LONG_TYPE, (TypedValue)value);
          case DNEG:
+            return new TypedValue.UnaryMathOpValue(TypedValue.UnaryMathOpValue.UnaryOp.neg, Type.DOUBLE_TYPE, (TypedValue)value);
+         case GETFIELD:  // this should normally fail, but a subclass can handle it
+         case FNEG:
          case IINC:
          case I2B:
          case I2C:

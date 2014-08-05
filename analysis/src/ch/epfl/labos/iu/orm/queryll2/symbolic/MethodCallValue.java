@@ -13,9 +13,9 @@ public class MethodCallValue extends TypedValue
    public String name;   // name of the method
    public String desc;   // method parameters
    public List<TypedValue> args;
-   public MethodCallValue(String owner, String name, String desc, List<TypedValue> args)
+   public MethodCallValue(String owner, String name, String desc, List<TypedValue> args, Type returnType)
    {
-      super(Type.getReturnType(desc));
+      super(returnType);
       this.owner = owner;
       this.name = name;
       this.desc = desc;
@@ -45,7 +45,7 @@ public class MethodCallValue extends TypedValue
 
    public MethodCallValue withNewArgs(List<TypedValue> newArgs)
    {
-      return new MethodCallValue(owner, name, desc, newArgs);
+      return new MethodCallValue(owner, name, desc, newArgs, type);
    }
    
    public MethodSignature getSignature()
@@ -59,7 +59,7 @@ public class MethodCallValue extends TypedValue
       public StaticMethodCallValue(String owner, String name,
             String desc, List<TypedValue> args)
       {
-         super(owner, name, desc, args);
+         super(owner, name, desc, args, Type.getReturnType(desc));
       }
       @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
@@ -76,10 +76,10 @@ public class MethodCallValue extends TypedValue
       public TypedValue base;
       public VirtualMethodCallValue(String owner, String name, String desc, List<TypedValue> args, TypedValue base)
       {
-         super(owner, name, desc, args);
+         super(owner, name, desc, args, name.equals("<init>") ? Type.getObjectType(owner) : Type.getReturnType(desc));
          this.base = base;
       }
-      
+
       public boolean isConstructor()
       {
          return name.equals("<init>");

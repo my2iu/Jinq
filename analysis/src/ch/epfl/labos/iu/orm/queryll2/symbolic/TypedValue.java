@@ -124,7 +124,7 @@ public class TypedValue implements Value
       }
 //      public String toString() 
 //      { 
-//         return "(" + left.toString() + " " + operation + " " + right.toString() + ")";
+//         return "(" + op.getOpString() + " " + operand.toString() + ")";
 //      }
       @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
@@ -133,6 +133,37 @@ public class TypedValue implements Value
       public UnaryOperationValue withNewChildren(TypedValue newOperand)
       {
          return new UnaryOperationValue(type, newOperand);
+      }
+   }
+   public static class UnaryMathOpValue extends UnaryOperationValue
+   {
+      public UnaryOp op;
+      public enum UnaryOp
+      {
+         neg("-");
+         private UnaryOp(String str)
+         {
+            this.str = str;
+         }
+         public String getOpString() { return str; }
+         String str;
+      }
+      public UnaryMathOpValue(UnaryOp op, Type resultType, TypedValue operand)
+      {
+         super(resultType, operand);
+         this.op = op;
+      }
+      public String toString() 
+      { 
+         return "(" + op.getOpString() + " " + operand.toString() + ")";
+      }
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
+      {
+         return visitor.unaryMathOpValue(this, input);
+      }
+      public UnaryOperationValue withNewChildren(TypedValue newOperand)
+      {
+         return new UnaryMathOpValue(op, type, newOperand);
       }
    }
    public static class NotValue extends UnaryOperationValue

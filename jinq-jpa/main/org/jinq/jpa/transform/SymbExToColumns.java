@@ -11,6 +11,7 @@ import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
+import org.jinq.jpa.jpqlquery.UnaryExpression;
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
@@ -79,6 +80,22 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<String>(),
             new ConstantExpression("'"+ val.val.replaceAll("'", "''") +"'")); 
+   }
+   
+   @Override public ColumnExpressions<?> unaryMathOpValue(TypedValue.UnaryMathOpValue val, SymbExPassDown in) throws TypedValueVisitorException
+   {
+      SymbExPassDown passdown = SymbExPassDown.with(val, false);
+      ColumnExpressions<?> left = val.operand.visit(this, passdown);
+      return ColumnExpressions.singleColumn(left.reader,
+            new UnaryExpression(val.op.getOpString(), left.getOnlyColumn())); 
+   }
+
+   @Override public ColumnExpressions<?> notOpValue(TypedValue.NotValue val, SymbExPassDown in) throws TypedValueVisitorException
+   {
+      SymbExPassDown passdown = SymbExPassDown.with(val, true);
+      ColumnExpressions<?> left = val.operand.visit(this, passdown);
+      return ColumnExpressions.singleColumn(left.reader,
+            new UnaryExpression("NOT", left.getOnlyColumn())); 
    }
 
    @Override public ColumnExpressions<?> getStaticFieldValue(TypedValue.GetStaticFieldValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -191,6 +208,11 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       boolean isFinalTypeFromLeft = true;
       // Check if we have a valid numeric promotion (i.e. one side has a widening cast
       // to match the type of the other side).
+      if (!leftVal.getType().equals(rightVal.getType()))
+      {
+         System.out.println(leftVal.getType() + " " + leftVal);
+         System.out.println(rightVal.getType() + " " + rightVal);
+      }
       assert(leftVal.getType().equals(rightVal.getType()));
       if (isWideningCast(leftVal))
       {

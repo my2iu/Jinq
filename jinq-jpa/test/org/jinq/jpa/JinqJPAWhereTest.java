@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Sale;
+import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Test;
@@ -44,6 +45,28 @@ public class JinqJPAWhereTest extends JinqJPATestBase
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Eve", results.get(0).getName());
+   }
+
+   @Test
+   public void testWhereNegation()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+           .where(c -> c.getDebt() > -c.getSalary() + 1)
+           .toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.debt > - A.salary + 1", query);
+      assertEquals(5, customers.size());
+   }
+
+   @Test
+   public void testWhereNot()
+   {
+      List<Supplier> suppliers = streams.streamAll(em, Supplier.class)
+           .where(s -> !s.getHasFreeShipping())
+           .where(s -> !(s.getName().equals("Conglomerate") || s.getName().equals("Talent Agency")))
+           .toList();
+      assertEquals("SELECT A FROM Supplier A WHERE NOT A.hasFreeShipping = TRUE AND (A.name <> 'Conglomerate' AND A.name <> 'Talent Agency')", query);
+      assertEquals(1, suppliers.size());
+      assertEquals("HW Supplier", suppliers.get(0).getName());
    }
 
    @Test

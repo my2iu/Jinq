@@ -81,6 +81,10 @@ public abstract class TypedValueVisitor<I, O, E extends Exception>
    {
       return defaultValue(val, in);
    }
+   public O unaryMathOpValue(TypedValue.UnaryMathOpValue val, I in) throws E
+   {
+      return unaryOpValue(val, in);
+   }
    public O notOpValue(TypedValue.NotValue val, I in) throws E
    {
       return unaryOpValue(val, in);
