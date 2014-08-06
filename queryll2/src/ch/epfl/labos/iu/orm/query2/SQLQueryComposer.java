@@ -616,12 +616,12 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
             () -> transformer.selectAggregates(query.copy(), nextLambdaParamIndex, aggregate, emSource));
    }
 
-   public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate)
-   {
-      return composeQueryRow("selectAggregates", aggregate,
-            () -> transformer.selectAggregates(query.copy(), nextLambdaParamIndex, aggregate, emSource));
-   }
-
+//   public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate)
+//   {
+//      return composeQueryRow("selectAggregates", aggregate,
+//            () -> transformer.selectAggregates(query.copy(), nextLambdaParamIndex, aggregate, emSource));
+//   }
+//
    public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates)
    {
       // TODO: Implement caching for this.

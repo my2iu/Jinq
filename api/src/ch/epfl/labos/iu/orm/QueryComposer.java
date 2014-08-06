@@ -35,7 +35,7 @@ public interface QueryComposer<T>
    public <V extends Comparable<V>> V max(JinqStream.CollectComparable<T, V> aggregate);
    public <V extends Comparable<V>> V min(JinqStream.CollectComparable<T, V> aggregate);
    public <V extends Number & Comparable<V>> Double avg(JinqStream.CollectNumber<T, V> aggregate);
-   public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate);
+//   public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate);
    
    public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);
    

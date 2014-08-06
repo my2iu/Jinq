@@ -10,11 +10,6 @@ import java.util.stream.Stream;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 
-import ch.epfl.labos.iu.orm.DateSorter;
-import ch.epfl.labos.iu.orm.DoubleSorter;
-import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.StringSorter;
-
 public interface JinqStream<T> extends Stream<T>
 {
    public static interface Where<U, E extends Exception> extends Serializable {
@@ -86,7 +81,8 @@ public interface JinqStream<T> extends Stream<T>
    public static interface AggregateSelect<U, V> extends Serializable {
       public V aggregateSelect(JinqStream<U> val);
    }
-   public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
+//   public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
+   public <U> U aggregate(AggregateSelect<T, U> aggregate1);
    public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1,
          AggregateSelect<T, V> aggregate2);
    public <U, V, W> Tuple3<U, V, W> aggregate(AggregateSelect<T, U> aggregate1,

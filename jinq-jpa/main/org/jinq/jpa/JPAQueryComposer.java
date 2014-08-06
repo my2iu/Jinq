@@ -17,10 +17,13 @@ import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.transform.AggregateTransform;
 import org.jinq.jpa.transform.CountTransform;
-import org.jinq.jpa.transform.JPQLQueryTransform;
+import org.jinq.jpa.transform.JPQLMultiLambdaQueryTransform;
+import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
+import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
 import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
+import org.jinq.jpa.transform.MultiAggregateTransform;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.SortingTransform;
@@ -207,10 +210,10 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       };
    }
 
-   private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLQueryTransform transform)
+   private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLNoLambdaQueryTransform transform)
    {
       try {
-         JPQLQuery<U> newQuery = transform.apply(query, null);
+         JPQLQuery<U> newQuery = transform.apply(query);
          if (newQuery == null) { translationFail(); return null; }
          return new JPAQueryComposer<>(this, newQuery, lambdas);
       }
@@ -221,7 +224,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       }
    }
    
-   private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLQueryTransform transform, Object lambda)
+   private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLOneLambdaQueryTransform transform, Object lambda)
    {
       LambdaInfo lambdaInfo = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, lambda, lambdas.size(), hints.dieOnError);
       if (lambdaInfo == null) { translationFail(); return null; }
@@ -236,7 +239,27 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          return null;
       }
    }
-   
+
+   private <U> JPAQueryComposer<U> applyTransformWithLambdas(JPQLMultiLambdaQueryTransform transform, Object [] groupingLambdas)
+   {
+      LambdaInfo[] lambdaInfos = new LambdaInfo[groupingLambdas.length];
+      for (int n = 0; n < groupingLambdas.length; n++)
+      {
+         lambdaInfos[n] = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, groupingLambdas[n], lambdas.size() + n, hints.dieOnError);
+         if (lambdaInfos[n] == null) { translationFail(); return null; }
+      }
+      try {
+         JPQLQuery<U> newQuery = transform.apply(query, lambdaInfos);
+         if (newQuery == null) { translationFail(); return null; }
+         return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfos);
+      }
+      catch (QueryTransformException e)
+      {
+         translationFail(e);
+         return null;
+      }
+   }
+
    @Override
    public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
@@ -361,20 +384,24 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       return null;
    }
    
-   @Override
-   public <U> U selectAggregates(
-         org.jinq.orm.stream.JinqStream.AggregateSelect<T, U> aggregate)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-
+//   @Override
+//   public <U> U selectAggregates(
+//         org.jinq.orm.stream.JinqStream.AggregateSelect<T, U> aggregate)
+//   {
+//      // TODO Auto-generated method stub
+//      translationFail(); 
+//      return null;
+//   }
+//
    @Override
    public Object[] multiaggregate(
          org.jinq.orm.stream.JinqStream.AggregateSelect<T, ?>[] aggregates)
    {
-      // TODO Auto-generated method stub
+      Object [] groupingLambdas = new Object[aggregates.length];
+      System.arraycopy(aggregates, 0, groupingLambdas, 0, aggregates.length);
+      JPAQueryComposer<Object[]> result = applyTransformWithLambdas(new MultiAggregateTransform(metamodel), groupingLambdas);
+      if (result != null)
+         return result.executeAndGetSingleResult();
       translationFail(); 
       return null;
    }

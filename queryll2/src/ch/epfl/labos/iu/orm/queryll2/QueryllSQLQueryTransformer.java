@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.AggregateSelect;
@@ -37,7 +36,6 @@ import ch.epfl.labos.iu.orm.query2.SQLQueryTransforms;
 import ch.epfl.labos.iu.orm.query2.SQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.DoubleSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLReader.IntegerSQLReader;
-import ch.epfl.labos.iu.orm.query2.SQLReader.LongSQLReader;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution;
 import ch.epfl.labos.iu.orm.query2.SQLSubstitution.FromReference;
 import ch.epfl.labos.iu.orm.queryll2.path.StaticMethodAnalysisStorage;

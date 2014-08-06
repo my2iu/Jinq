@@ -10,7 +10,7 @@ import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class AggregateTransform extends JPQLQueryTransform
+public class AggregateTransform extends JPQLOneLambdaQueryTransform
 {
    // TODO: Should I include count() here too?
    public enum AggregateType

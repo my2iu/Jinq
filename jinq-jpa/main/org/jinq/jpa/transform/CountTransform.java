@@ -8,7 +8,7 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 
-public class CountTransform extends JPQLQueryTransform
+public class CountTransform extends JPQLNoLambdaQueryTransform
 {
    public CountTransform(MetamodelUtil metamodel)
    {
@@ -16,10 +16,8 @@ public class CountTransform extends JPQLQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
    {
-      if (lambda != null) throw new IllegalArgumentException("lambda should be null");
-      
       if (query.isSelectFromWhere())
       {
          SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;

@@ -11,6 +11,7 @@ import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
+import org.jinq.tuples.Pair;
 import org.junit.Test;
 
 public class JinqJPAAggregateTest extends JinqJPATestBase
@@ -109,4 +110,15 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
             .sumDouble(lo -> lo.getQuantity() * lo.getItem().getSaleprice()), 0.001);
       assertEquals("SELECT SUM(A.quantity * A.item.saleprice) FROM Lineorder A", query);
    }
+   
+   @Test(expected=IllegalArgumentException.class)
+   public void testMultiAggregate()
+   {
+      assertEquals(new Pair<>(256l, 256l), 
+            streams.streamAll(em, Customer.class)
+               .aggregate(stream -> stream.sumInteger(c -> c.getSalary()),
+                  stream -> stream.avg(c -> c.getSalary())));
+      assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
+   }
+
 }

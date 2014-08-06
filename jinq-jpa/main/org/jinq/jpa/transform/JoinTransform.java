@@ -11,7 +11,7 @@ import org.jinq.jpa.jpqlquery.TupleRowReader;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class JoinTransform extends JPQLQueryTransform
+public class JoinTransform extends JPQLOneLambdaQueryTransform
 {
    boolean withSource;
    public JoinTransform(MetamodelUtil metamodel, boolean withSource)

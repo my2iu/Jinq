@@ -18,9 +18,6 @@ public class JinqJPATodoTest
    public void testSubqueries() {}
    
    @Test
-   public void testUnaryExpressions() {}
-
-   @Test
    public void testFunctionsLikeEtc() {}
    
    @Test

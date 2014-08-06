@@ -8,7 +8,7 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 
-public class LimitSkipTransform extends JPQLQueryTransform
+public class LimitSkipTransform extends JPQLNoLambdaQueryTransform
 {
    public LimitSkipTransform(MetamodelUtil metamodel, boolean isLimit, long n)
    {
@@ -21,10 +21,8 @@ public class LimitSkipTransform extends JPQLQueryTransform
    long constraint;
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
    {
-      if (lambda != null) throw new IllegalArgumentException("lambda should be null");
-      
       if (query instanceof SelectFromWhere)
       {
          SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;

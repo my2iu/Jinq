@@ -8,7 +8,7 @@ import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class SelectTransform extends JPQLQueryTransform
+public class SelectTransform extends JPQLOneLambdaQueryTransform
 {
    public SelectTransform(MetamodelUtil metamodel)
    {

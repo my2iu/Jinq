@@ -1,11 +1,13 @@
 package org.jinq.jpa.transform;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
@@ -15,6 +17,28 @@ final class MethodChecker implements PathAnalysisMethodChecker
    private final Set<MethodSignature> safeMethods;
    private final Set<MethodSignature> safeStaticMethods;
 
+   public static MethodSignature streamSumInt = TransformationClassAnalyzer.streamSumInt;
+   public static MethodSignature streamSumDouble = TransformationClassAnalyzer.streamSumDouble;
+   public static MethodSignature streamSumLong = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumLong", "(Lorg/jinq/orm/stream/JinqStream$CollectLong;)Ljava/lang/Long;");
+   public static MethodSignature streamSumBigDecimal = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumBigDecimal", "(Lorg/jinq/orm/stream/JinqStream$CollectBigDecimal;)Ljava/math/BigDecimal;");
+   public static MethodSignature streamSumBigInteger = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumBigInteger", "(Lorg/jinq/orm/stream/JinqStream$CollectBigInteger;)Ljava/math/BigInteger;");
+   public static MethodSignature streamMax = TransformationClassAnalyzer.streamMax;
+   public static MethodSignature streamMin = TransformationClassAnalyzer.streamMin;
+   public static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/JinqStream", "avg", "(Lorg/jinq/orm/stream/JinqStream$CollectNumber;)Ljava/lang/Double;");
+   
+   private static final Set<MethodSignature> subqueryMethods = 
+         new HashSet<>();
+   static {
+      subqueryMethods.add(streamSumInt);
+      subqueryMethods.add(streamSumDouble);
+      subqueryMethods.add(streamSumLong);
+      subqueryMethods.add(streamSumBigInteger);
+      subqueryMethods.add(streamSumBigDecimal);
+      subqueryMethods.add(streamMax);
+      subqueryMethods.add(streamMin);
+      subqueryMethods.add(streamAvg);
+   }
+   
    MethodChecker(Set<Class<?>> safeMethodAnnotations,
          Set<MethodSignature> safeMethods,
          Set<MethodSignature> safeStaticMethods)
@@ -38,6 +62,10 @@ final class MethodChecker implements PathAnalysisMethodChecker
    public boolean isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args)
       {
          if (safeMethods.contains(m))
+         {
+            return true;
+         }
+         else if (subqueryMethods.contains(m))
          {
             return true;
          }

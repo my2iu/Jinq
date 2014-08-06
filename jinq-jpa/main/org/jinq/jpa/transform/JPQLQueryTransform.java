@@ -1,7 +1,6 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
-import org.jinq.jpa.jpqlquery.JPQLQuery;
 
 /**
  * Subclasses of this class are used to hold the logic for applying
@@ -14,10 +13,5 @@ public class JPQLQueryTransform
    JPQLQueryTransform(MetamodelUtil metamodel)
    {
       this.metamodel = metamodel;
-   }
-   
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
-   {
-      return null;
    }
 }

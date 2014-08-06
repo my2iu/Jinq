@@ -13,7 +13,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class WhereTransform extends JPQLQueryTransform
+public class WhereTransform extends JPQLOneLambdaQueryTransform
 {
    public WhereTransform(MetamodelUtil metamodel)
    {

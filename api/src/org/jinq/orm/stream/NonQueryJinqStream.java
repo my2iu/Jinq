@@ -1,6 +1,5 @@
 package org.jinq.orm.stream;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,19 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.jinq.orm.stream.JinqStream.CollectBigDecimal;
-import org.jinq.orm.stream.JinqStream.CollectBigInteger;
-import org.jinq.orm.stream.JinqStream.CollectDouble;
-import org.jinq.orm.stream.JinqStream.CollectInteger;
-import org.jinq.orm.stream.JinqStream.CollectLong;
-import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
-
-import ch.epfl.labos.iu.orm.DateSorter;
-import ch.epfl.labos.iu.orm.DoubleSorter;
-import ch.epfl.labos.iu.orm.IntSorter;
-import ch.epfl.labos.iu.orm.StringSorter;
 
 public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
 {
@@ -229,12 +217,12 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return avg.sum / avg.count;
    }
 
-   @Override
-   public <U> U selectAggregates(AggregateSelect<T, U> aggregate)
-   {
-      return aggregate.aggregateSelect(this);
-   }
-
+//   @Override
+//   public <U> U selectAggregates(AggregateSelect<T, U> aggregate)
+//   {
+//      return aggregate.aggregateSelect(this);
+//   }
+//
    @Override
    public <V extends Comparable<V>> JinqStream<T> sortedBy(
          JinqStream.CollectComparable<T, V> sortField)
@@ -308,6 +296,17 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return recordedExceptions.values();
    }
 
+   @Override
+   public <U> U aggregate(AggregateSelect<T, U> aggregate1)
+   {
+      AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
+            {
+               aggregate1
+            };
+      Object [] results = multiaggregate(aggregates);
+      return (U)results[0];
+   }
+   
    @Override
    public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1, AggregateSelect<T, V> aggregate2)
    {

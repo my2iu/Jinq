@@ -9,11 +9,7 @@ import java.util.stream.StreamSupport;
 
 import org.jinq.tuples.Pair;
 
-import ch.epfl.labos.iu.orm.DateSorter;
-import ch.epfl.labos.iu.orm.DoubleSorter;
-import ch.epfl.labos.iu.orm.IntSorter;
 import ch.epfl.labos.iu.orm.QueryComposer;
-import ch.epfl.labos.iu.orm.StringSorter;
 
 public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStream<T>
 {
@@ -157,14 +153,14 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       return super.avg(aggregate);
    }
    
-   @Override
-   public <U> U selectAggregates(AggregateSelect<T, U> aggregate)
-   {
-      U val = queryComposer.selectAggregates(aggregate);
-      if (val != null) return val;
-      return super.selectAggregates(aggregate);
-   }
-   
+//   @Override
+//   public <U> U selectAggregates(AggregateSelect<T, U> aggregate)
+//   {
+//      U val = queryComposer.selectAggregates(aggregate);
+//      if (val != null) return val;
+//      return super.selectAggregates(aggregate);
+//   }
+//   
    @Override
    public <V extends Comparable<V>> JinqStream<T> sortedBy(
          JinqStream.CollectComparable<T, V> sorter)
