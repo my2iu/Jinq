@@ -35,12 +35,11 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
       throw new TypedValueVisitorException("Unhandled symbolic execution operation: " + val);
    }
 
-//   @Override public JPQLQuery<?> argValue(TypedValue.ArgValue val, SymbExPassDown in) throws TypedValueVisitorException
-//   {
-//      int index = val.getIndex();
-//      return argHandler.handleArg(index, val.getType());
-//   }
-
+   @Override public JPQLQuery<?> argValue(TypedValue.ArgValue val, SymbExPassDown in) throws TypedValueVisitorException
+   {
+      int index = val.getIndex();
+      return argHandler.handleSubQueryArg(index, val.getType());
+   }
 
    @Override public JPQLQuery<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
