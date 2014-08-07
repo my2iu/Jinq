@@ -10,9 +10,9 @@ import org.jinq.jpa.jpqlquery.SimpleRowReader;
 
 public class LimitSkipTransform extends JPQLNoLambdaQueryTransform
 {
-   public LimitSkipTransform(MetamodelUtil metamodel, boolean isLimit, long n)
+   public LimitSkipTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isLimit, long n)
    {
-      super(metamodel);
+      super(metamodel, alternateClassLoader);
       constraint = n;
       this.isLimit = isLimit;
    }

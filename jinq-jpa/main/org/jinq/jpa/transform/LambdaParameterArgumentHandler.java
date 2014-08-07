@@ -46,14 +46,13 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/math/BigInteger"));
    }
 
-   
    public LambdaParameterArgumentHandler(LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
    {
       this.lambda = lambda;
       this.metamodel = metamodel;
-      this.hasInQueryStreamSource = hasInQueryStreamSource; 
-      numLambdaCapturedArgs = lambda.serializedLambda.capturedArgs.length;
-      numLambdaArgs = Type.getArgumentTypes(lambda.serializedLambda.implMethodSignature).length;
+      this.hasInQueryStreamSource = hasInQueryStreamSource;
+      numLambdaCapturedArgs = lambda.getNumCapturedArgs();
+      numLambdaArgs = lambda.getNumLambdaArgs();
    }
 
    protected ColumnExpressions<?> handleLambdaArg(int argIndex, Type argType) throws TypedValueVisitorException
@@ -66,6 +65,8 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
    {
       if (argIndex < numLambdaCapturedArgs)
       {
+         if (lambda == null)
+            throw new TypedValueVisitorException("No lambda source was supplied where parameters can be extracted");
          // Currently, we only support parameters of a few small simple types.
          // We should also support more complex types (e.g. entities) and allow
          // fields/methods of those entities to be called in the query (code

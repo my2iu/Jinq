@@ -5,6 +5,7 @@ import org.jinq.jpa.jpqlquery.AggregateFunctionExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
+import org.jinq.jpa.jpqlquery.SelectOnly;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 
@@ -13,37 +14,42 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
 {
-   public MultiAggregateTransform(MetamodelUtil metamodel)
+   public MultiAggregateTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
    {
-      super(metamodel);
+      super(metamodel, alternateClassLoader);
    }
    
    @Override
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo[] lambdas) throws QueryTransformException
    {
-//      try  {
+      try  {
          if (query.isSelectFromWhere())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
 
+            SelectOnly<V> streamTee = new SelectOnly<>();
+            streamTee.cols = sfw.cols;
+            JPQLQuery<?> [] aggregatedQueryEntry = new JPQLQuery<?>[lambdas.length];
+
             for (int n = 0; n < lambdas.length; n++)
             {
-               SymbExToAggregationSubQuery translator = new SymbExToAggregationSubQuery(metamodel, 
-                     new AggregateStreamLambdaArgumentHandler(lambdas[n], metamodel, false));
+               LambdaInfo lambda = lambdas[n];
+
+               SymbExToAggregationSubQuery translator = new SymbExToAggregationSubQuery(metamodel, alternateClassLoader,  
+                     new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], metamodel, false));
+
+               // TODO: Handle this case by translating things to use SELECT CASE 
+               if (lambda.symbolicAnalysis.paths.size() > 1) 
+                  throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
+
+               SymbExPassDown passdown = SymbExPassDown.with(null, false);
+               JPQLQuery<U> returnQuery = (JPQLQuery<U>)PathAnalysisSimplifier
+                     .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
+                     .visit(translator, passdown);
                
+               aggregatedQueryEntry[n] = returnQuery;
             }
 
-//                        SymbExToColumns translator = new SymbExToColumns(metamodel, 
-//                  new SelectFromWhereLambdaArgumentHandler(sfw, lambda, metamodel, false));
-//
-//            // TODO: Handle this case by translating things to use SELECT CASE 
-//            if (lambda.symbolicAnalysis.paths.size() > 1) 
-//               throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
-//            
-//            SymbExPassDown passdown = SymbExPassDown.with(null, false);
-//            ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)PathAnalysisSimplifier
-//                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
-//                  .visit(translator, passdown);
 //
 //            // Create the new query, merging in the analysis of the method
 //            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy(); 
@@ -84,10 +90,10 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
 
          }
          throw new QueryTransformException("Existing query cannot be transformed further");
-//      } catch (TypedValueVisitorException e)
-//      {
-//         throw new QueryTransformException(e);
-//      }
+      } catch (TypedValueVisitorException e)
+      {
+         throw new QueryTransformException(e);
+      }
    }
 
 }

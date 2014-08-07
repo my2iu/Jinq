@@ -10,8 +10,17 @@ import org.jinq.jpa.MetamodelUtil;
 public class JPQLQueryTransform
 {
    final MetamodelUtil metamodel;
-   JPQLQueryTransform(MetamodelUtil metamodel)
+   
+   /**
+    * When dealing with subqueries, we may need to inspect the code of
+    * lambdas used in the subquery. This may require us to use a special 
+    * class loader to extract that code.
+    */
+   final ClassLoader alternateClassLoader;
+   
+   JPQLQueryTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
    {
       this.metamodel = metamodel;
+      this.alternateClassLoader = alternateClassLoader;
    }
 }

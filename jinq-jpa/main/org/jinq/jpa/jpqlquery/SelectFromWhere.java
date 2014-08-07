@@ -3,12 +3,10 @@ package org.jinq.jpa.jpqlquery;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectFromWhere<T> extends JPQLQuery<T>
+public class SelectFromWhere<T> extends SelectOnly<T>
 {
-   public ColumnExpressions<T> cols;
    public List<From> froms = new ArrayList<>();
    public Expression where;
-   public boolean isAggregated = false;
    public List<SortingParameters> sort = new ArrayList<>();
    public long limit = -1;
    public long skip = -1;

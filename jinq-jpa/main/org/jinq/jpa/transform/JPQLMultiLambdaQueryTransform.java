@@ -6,9 +6,9 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
 public class JPQLMultiLambdaQueryTransform extends JPQLQueryTransform
 {
 
-   JPQLMultiLambdaQueryTransform(MetamodelUtil metamodel)
+   JPQLMultiLambdaQueryTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
    {
-      super(metamodel);
+      super(metamodel, alternateClassLoader);
    }
    
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo [] lambdas) throws QueryTransformException

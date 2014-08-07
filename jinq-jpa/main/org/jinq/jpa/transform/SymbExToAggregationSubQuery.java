@@ -13,6 +13,7 @@ import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
@@ -23,11 +24,13 @@ public class SymbExToAggregationSubQuery extends TypedValueVisitor<SymbExPassDow
 {
    final MetamodelUtil metamodel;
    final SymbExArgumentHandler argHandler;
+   final ClassLoader alternateClassLoader; 
    
-   SymbExToAggregationSubQuery(MetamodelUtil metamodel, SymbExArgumentHandler argumentHandler)
+   SymbExToAggregationSubQuery(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SymbExArgumentHandler argumentHandler)
    {
       this.metamodel = metamodel;
       this.argHandler = argumentHandler;
+      this.alternateClassLoader = alternateClassLoader;
    }
    
    @Override public JPQLQuery<?> defaultValue(TypedValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -77,9 +80,32 @@ public class SymbExToAggregationSubQuery extends TypedValueVisitor<SymbExPassDow
       {
          SymbExPassDown passdown = SymbExPassDown.with(val, false);
          JPQLQuery<?> subQuery = val.base.visit(this, passdown);
+         
+         // Extract the lambda used
+         LambdaInfo lambda = null;
+         if (val.args.size() > 0)
+         {
+            if (!(val.args.get(0) instanceof LambdaFactory))
+               throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
+            LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
+            try {
+               lambda = LambdaInfo.analyzeMethod(metamodel, alternateClassLoader, lambdaFactory.getLambdaMethod(), true);
+            } catch (Exception e)
+            {
+               throw new TypedValueVisitorException("Could not analyze the lambda code", e);
+            }
+         }
+            
+            
+         
          if (sig.equals(MethodChecker.streamSumInt))
          {
-            
+            try {
+               AggregateTransform.applyToSubquery(metamodel, AggregateTransform.AggregateType.SUM, subQuery, lambda);
+            } catch (QueryTransformException e)
+            {
+               throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);
+            }
          }
          
 //         if (lambdaContext.joins == null)

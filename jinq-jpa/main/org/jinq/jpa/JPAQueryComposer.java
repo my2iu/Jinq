@@ -263,7 +263,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
-      return applyTransformWithLambda(new WhereTransform(metamodel), test);
+      return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader), test);
    }
 
    @Override
@@ -278,40 +278,40 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <V extends Comparable<V>> QueryComposer<T> sortedBy(
          CollectComparable<T, V> sorter, boolean isAscending)
    {
-      return applyTransformWithLambda(new SortingTransform(metamodel, isAscending), sorter);
+      return applyTransformWithLambda(new SortingTransform(metamodel, hints.lambdaClassLoader, isAscending), sorter);
    }
 
    @Override
    public QueryComposer<T> limit(long n)
    {
-      return applyTransformWithLambda(new LimitSkipTransform(metamodel, true, n));
+      return applyTransformWithLambda(new LimitSkipTransform(metamodel, hints.lambdaClassLoader, true, n));
    }
 
    @Override
    public QueryComposer<T> skip(long n)
    {
-      return applyTransformWithLambda(new LimitSkipTransform(metamodel, false, n));
+      return applyTransformWithLambda(new LimitSkipTransform(metamodel, hints.lambdaClassLoader, false, n));
    }
 
    @Override
    public <U> QueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
-      return applyTransformWithLambda(new SelectTransform(metamodel), selectLambda);
+      return applyTransformWithLambda(new SelectTransform(metamodel, hints.lambdaClassLoader), selectLambda);
    }
 
    @Override
    public <U> QueryComposer<Pair<T, U>> join(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
-      return applyTransformWithLambda(new JoinTransform(metamodel, false), joinLambda);
+      return applyTransformWithLambda(new JoinTransform(metamodel, hints.lambdaClassLoader, false), joinLambda);
    }
 
    @Override
    public <U> QueryComposer<Pair<T, U>> join(
          org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> joinLambda)
    {
-      return applyTransformWithLambda(new JoinTransform(metamodel, true), joinLambda);
+      return applyTransformWithLambda(new JoinTransform(metamodel, hints.lambdaClassLoader, true), joinLambda);
    }
 
    @Override
@@ -335,7 +335,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public Long count()
    {
-      JPAQueryComposer<Long> result = applyTransformWithLambda(new CountTransform(metamodel));
+      JPAQueryComposer<Long> result = applyTransformWithLambda(new CountTransform(metamodel, hints.lambdaClassLoader));
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 
@@ -346,7 +346,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <V extends Number & Comparable<V>> Number sum(
          CollectNumber<T, V> aggregate, Class<V> collectClass)
    {
-      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, AggregateTransform.AggregateType.SUM), aggregate);
+      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, hints.lambdaClassLoader, AggregateTransform.AggregateType.SUM), aggregate);
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 
@@ -356,7 +356,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public <V extends Comparable<V>> V max(CollectComparable<T, V> aggregate)
    {
-      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, AggregateTransform.AggregateType.MAX), aggregate);
+      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, hints.lambdaClassLoader, AggregateTransform.AggregateType.MAX), aggregate);
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 
@@ -366,7 +366,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public <V extends Comparable<V>> V min(CollectComparable<T, V> aggregate)
    {
-      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, AggregateTransform.AggregateType.MIN), aggregate);
+      JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(metamodel, hints.lambdaClassLoader, AggregateTransform.AggregateType.MIN), aggregate);
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 
@@ -377,7 +377,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <V extends Number & Comparable<V>> Double avg(
          CollectNumber<T, V> aggregate)
    {
-      JPAQueryComposer<Double> result = applyTransformWithLambda(new AggregateTransform(metamodel, AggregateTransform.AggregateType.AVG), aggregate);
+      JPAQueryComposer<Double> result = applyTransformWithLambda(new AggregateTransform(metamodel, hints.lambdaClassLoader, AggregateTransform.AggregateType.AVG), aggregate);
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 
@@ -399,7 +399,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    {
       Object [] groupingLambdas = new Object[aggregates.length];
       System.arraycopy(aggregates, 0, groupingLambdas, 0, aggregates.length);
-      JPAQueryComposer<Object[]> result = applyTransformWithLambdas(new MultiAggregateTransform(metamodel), groupingLambdas);
+      JPAQueryComposer<Object[]> result = applyTransformWithLambdas(new MultiAggregateTransform(metamodel, hints.lambdaClassLoader), groupingLambdas);
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 

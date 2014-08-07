@@ -3,6 +3,8 @@ package org.jinq.jpa.transform;
 import java.io.IOException;
 
 import org.jinq.jpa.MetamodelUtil;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
@@ -56,7 +58,33 @@ public class LambdaInfo
          return null;
       }
    }
-   
+
+   /**
+    * Used to analyze a lambda when we only have the name of the method used in the lambda
+    * and not an actual reference to the lambda. 
+    */
+   public static LambdaInfo analyzeMethod(MetamodelUtil metamodel, ClassLoader alternateClassLoader, Handle lambdaHandle, boolean throwExceptionOnFailure)
+   {
+      // TODO: The part below will need to be moved to a separate method.
+      //   That way, we can used the serialized lambda info to check if
+      //   we've cached the results of this analysis already without needing
+      //   to redo all this analysis.
+      try {
+         MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, lambdaHandle.getOwner(), lambdaHandle.getName(), lambdaHandle.getDesc());
+         if (analysis == null) 
+         {
+            if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
+            return null;
+         }
+         return new LambdaInfo(null, null, analysis, -1);
+      } 
+      catch (Exception e)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code", e);
+         return null;
+      }
+   }
+
    private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SerializedLambda lambda) throws IOException, AnalyzerException 
    {
       if (lambda == null) return null;
@@ -83,6 +111,22 @@ public class LambdaInfo
       this.serializedLambda = serializedLambda;
       this.symbolicAnalysis = symbolicAnalysis;
       this.lambdaIndex = lambdaIndex;
+   }
+   
+   public int getNumCapturedArgs()
+   {
+      // TODO: Handle sublambdas with parameters correctly
+      if (serializedLambda == null)
+         return 0;
+      return serializedLambda.capturedArgs.length;
+   }
+   
+   public int getNumLambdaArgs()
+   {
+      // TODO: Handle sublambdas with parameters correctly
+      if (serializedLambda == null)
+         return 1;
+      return Type.getArgumentTypes(serializedLambda.implMethodSignature).length;
    }
    
    public Object getCapturedArg(int argIndex)

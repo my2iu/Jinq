@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.SelectOnly;
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -14,15 +15,18 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
  */
 public class AggregateStreamLambdaArgumentHandler extends LambdaParameterArgumentHandler
 {
-   public AggregateStreamLambdaArgumentHandler(LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   SelectOnly<?> select;
+   
+   public AggregateStreamLambdaArgumentHandler(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
    {
       super(lambda, metamodel, hasInQueryStreamSource);
+      this.select = select;
    }
    
    @Override
    public JPQLQuery<?> handleSubQueryArg(int argIndex, Type argType)
          throws TypedValueVisitorException
    {
-      return super.handleSubQueryArg(argIndex, argType);
+      return select;
    }
 }

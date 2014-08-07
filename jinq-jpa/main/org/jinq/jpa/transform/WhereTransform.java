@@ -15,9 +15,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class WhereTransform extends JPQLOneLambdaQueryTransform
 {
-   public WhereTransform(MetamodelUtil metamodel)
+   public WhereTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
    {
-      super(metamodel);
+      super(metamodel, alternateClassLoader);
    }
    
    @Override
@@ -28,7 +28,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, 
-                  new SelectFromWhereLambdaArgumentHandler(sfw, where, metamodel, false));
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, metamodel, false));
             Expression methodExpr = null;
             for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
             {

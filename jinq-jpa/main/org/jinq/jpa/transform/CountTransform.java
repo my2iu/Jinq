@@ -10,9 +10,9 @@ import org.jinq.jpa.jpqlquery.SimpleRowReader;
 
 public class CountTransform extends JPQLNoLambdaQueryTransform
 {
-   public CountTransform(MetamodelUtil metamodel)
+   public CountTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
    {
-      super(metamodel);
+      super(metamodel, alternateClassLoader);
    }
    
    @Override

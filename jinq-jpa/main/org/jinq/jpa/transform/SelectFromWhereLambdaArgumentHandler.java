@@ -3,6 +3,7 @@ package org.jinq.jpa.transform;
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
+import org.jinq.jpa.jpqlquery.SelectOnly;
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -15,12 +16,22 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
  */
 public class SelectFromWhereLambdaArgumentHandler extends LambdaParameterArgumentHandler
 {
-   SelectFromWhere<?> sfw;
+   ColumnExpressions<?> cols;
    
-   public SelectFromWhereLambdaArgumentHandler(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   public static SelectFromWhereLambdaArgumentHandler fromSelectFromWhere(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   {
+      return new SelectFromWhereLambdaArgumentHandler(sfw.cols, lambda, metamodel, hasInQueryStreamSource);
+   }
+
+   public static SelectFromWhereLambdaArgumentHandler fromSelectOnly(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   {
+      return new SelectFromWhereLambdaArgumentHandler(select.cols, lambda, metamodel, hasInQueryStreamSource);
+   }
+
+   private SelectFromWhereLambdaArgumentHandler(ColumnExpressions<?> cols, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
    {
       super(lambda, metamodel, hasInQueryStreamSource);
-      this.sfw = sfw;
+      this.cols = cols;
    }
    
    @Override
@@ -30,6 +41,6 @@ public class SelectFromWhereLambdaArgumentHandler extends LambdaParameterArgumen
       //    because I think JPQL lets you substitute the same parameter into multiple locations
       //    in a query (unlike JDBC), which means we don't need separate state for query fragments
       //    that appear multiple times in the query tree.
-      return sfw.cols;
+      return cols;
    }
 }

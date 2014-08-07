@@ -14,9 +14,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public class JoinTransform extends JPQLOneLambdaQueryTransform
 {
    boolean withSource;
-   public JoinTransform(MetamodelUtil metamodel, boolean withSource)
+   public JoinTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean withSource)
    {
-      super(metamodel);
+      super(metamodel, alternateClassLoader);
       this.withSource = withSource;
    }
    
@@ -42,7 +42,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
             SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, 
-                  new SelectFromWhereLambdaArgumentHandler(sfw, lambda, metamodel, withSource));
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, withSource));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 

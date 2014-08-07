@@ -10,9 +10,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SortingTransform extends JPQLOneLambdaQueryTransform
 {
-   public SortingTransform(MetamodelUtil metamodel, boolean isAscending)
+   public SortingTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isAscending)
    {
-      super(metamodel);
+      super(metamodel, alternateClassLoader);
       this.isAscending = isAscending;
    }
 
@@ -26,7 +26,7 @@ public class SortingTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, 
-                  new SelectFromWhereLambdaArgumentHandler(sfw, lambda, metamodel, false));
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, false));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 
