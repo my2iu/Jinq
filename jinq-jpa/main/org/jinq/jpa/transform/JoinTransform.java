@@ -41,7 +41,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
-            SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, 
+            SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, alternateClassLoader, 
                   SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, withSource));
 
             // TODO: Handle this case by translating things to use SELECT CASE 

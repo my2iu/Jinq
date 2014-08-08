@@ -8,7 +8,6 @@ import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SelectOnly;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 
-import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
@@ -28,13 +27,13 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
 
             SelectOnly<V> streamTee = new SelectOnly<>();
             streamTee.cols = sfw.cols;
-            SelectOnly<?> [] aggregatedQueryEntries = new SelectOnly<?>[lambdas.length];
+            ColumnExpressions<?> [] aggregatedQueryEntries = new ColumnExpressions<?>[lambdas.length];
 
             for (int n = 0; n < lambdas.length; n++)
             {
                LambdaInfo lambda = lambdas[n];
 
-               SymbExToAggregationSubQuery translator = new SymbExToAggregationSubQuery(metamodel, alternateClassLoader,  
+               SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
                      new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], metamodel, false));
 
                // TODO: Handle this case by translating things to use SELECT CASE 
@@ -42,13 +41,10 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
                   throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
 
                SymbExPassDown passdown = SymbExPassDown.with(null, false);
-               JPQLQuery<U> returnQuery = (JPQLQuery<U>)PathAnalysisSimplifier
-                     .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
-                     .visit(translator, passdown);
+               ColumnExpressions<?> returnQuery = simplifyAndTranslateMainPathToColumns(lambda, translator, passdown);
                
-               if (!(returnQuery instanceof SelectOnly))
-                  throw new QueryTransformException("Expecting a SelectOnly query from the aggregation"); 
-               aggregatedQueryEntries[n] = (SelectOnly<?>)returnQuery;
+               // TODO: Confirm that the result actually contains an aggregate
+               aggregatedQueryEntries[n] = returnQuery;
             }
 
             // Create the new query, merging in the analysis of the method
@@ -56,10 +52,10 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
             toReturn.isAggregated = true;
             RowReader<?> [] readers = new RowReader<?>[aggregatedQueryEntries.length];
             for (int n = 0; n < readers.length; n++)
-               readers[n] = aggregatedQueryEntries[n].getRowReader();
+               readers[n] = aggregatedQueryEntries[n].reader;
             ColumnExpressions<U> cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(readers));
             for (int n = 0; n < readers.length; n++)
-               cols.columns.addAll(aggregatedQueryEntries[n].cols.columns);
+               cols.columns.addAll(aggregatedQueryEntries[n].columns);
             toReturn.cols = cols;
             return toReturn;
          }

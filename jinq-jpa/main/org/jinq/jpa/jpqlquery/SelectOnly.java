@@ -1,6 +1,5 @@
 package org.jinq.jpa.jpqlquery;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SelectOnly<T> extends JPQLQuery<T>

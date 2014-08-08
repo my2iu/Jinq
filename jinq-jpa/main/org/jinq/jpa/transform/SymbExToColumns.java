@@ -7,15 +7,20 @@ import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
+import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
+import org.jinq.jpa.jpqlquery.SelectFromWhere;
+import org.jinq.jpa.jpqlquery.SelectOnly;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 import org.jinq.jpa.jpqlquery.UnaryExpression;
 import org.objectweb.asm.Type;
 
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
@@ -26,11 +31,13 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
 {
    final MetamodelUtil metamodel;
    final SymbExArgumentHandler argHandler;
-   
-   SymbExToColumns(MetamodelUtil metamodel, SymbExArgumentHandler argumentHandler)
+   final ClassLoader alternateClassLoader; 
+
+   SymbExToColumns(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SymbExArgumentHandler argumentHandler)
    {
       this.metamodel = metamodel;
       this.argHandler = argumentHandler;
+      this.alternateClassLoader = alternateClassLoader;
    }
    
    @Override public ColumnExpressions<?> defaultValue(TypedValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -264,6 +271,19 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
 //      }
    }
    
+   private boolean isAggregateMethod(MethodSignature sig)
+   {
+      return sig.equals(MethodChecker.streamSumInt)
+            || sig.equals(MethodChecker.streamSumDouble)
+            || sig.equals(MethodChecker.streamSumLong)
+            || sig.equals(MethodChecker.streamSumBigInteger)
+            || sig.equals(MethodChecker.streamSumBigDecimal)
+            || sig.equals(MethodChecker.streamMax)
+            || sig.equals(MethodChecker.streamMin)
+            || sig.equals(MethodChecker.streamAvg)
+            || sig.equals(MethodChecker.streamCount);
+   }
+   
    @Override public ColumnExpressions<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
@@ -347,6 +367,60 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             || sig.equals(TransformationClassAnalyzer.newBigDecimalBigInteger))
       {
          throw new TypedValueVisitorException("New BigDecimals can only be created in the context of numeric promotion");
+      }
+      else if (isAggregateMethod(sig))
+      {
+         SymbExPassDown passdown = SymbExPassDown.with(val, false);
+         
+         // Check out what stream we're aggregating
+         SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, alternateClassLoader,
+               argHandler);
+         JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
+         
+         // Extract the lambda used
+         LambdaInfo lambda = null;
+         if (val.args.size() > 0)
+         {
+            if (!(val.args.get(0) instanceof LambdaFactory))
+               throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
+            LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
+            try {
+               lambda = LambdaInfo.analyzeMethod(metamodel, alternateClassLoader, lambdaFactory.getLambdaMethod(), true);
+            } catch (Exception e)
+            {
+               throw new TypedValueVisitorException("Could not analyze the lambda code", e);
+            }
+         }
+            
+         try {
+            AggregateTransform transform;
+            if (sig.equals(MethodChecker.streamSumInt)
+                  || sig.equals(MethodChecker.streamSumLong)
+                  || sig.equals(MethodChecker.streamSumDouble)
+                  || sig.equals(MethodChecker.streamSumBigDecimal)
+                  || sig.equals(MethodChecker.streamSumBigInteger))
+               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.SUM);
+            else if (sig.equals(MethodChecker.streamMax))
+               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.MAX);
+            else if (sig.equals(MethodChecker.streamMin))
+               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.MIN);
+            else if (sig.equals(MethodChecker.streamAvg))
+               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.AVG);
+            else if (sig.equals(MethodChecker.streamCount))
+               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.COUNT);
+            else
+               throw new TypedValueVisitorException("Unhandled aggregate operation");
+            JPQLQuery<?> aggregatedQuery = transform.applyAggregationToSubquery(subQuery, lambda); 
+
+            // Return the aggregated columns that we've now calculated
+            if (!(aggregatedQuery instanceof SelectOnly))
+               throw new TypedValueVisitorException("Only simply SelectOnly subqueries can be aggregated");
+            SelectOnly<?> select = (SelectOnly<?>)aggregatedQuery;
+            return select.cols;
+         } catch (QueryTransformException e)
+         {
+            throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);
+         }
       }
 //      else if (entityInfo.dbSetMethods.contains(sig))
 //      {

@@ -13,6 +13,7 @@ import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
+import org.jinq.tuples.Tuple5;
 import org.junit.Test;
 
 public class JinqJPAAggregateTest extends JinqJPATestBase
@@ -121,12 +122,23 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
                   stream -> stream.avg(c -> c.getSalary())));
       assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
       
-//      assertEquals(new Tuple3<>(5, 30, 520), 
-//            streams.streamAll(em, Customer.class)
-//               .aggregate(stream -> stream.count(),
-//                  stream -> stream.min(c -> c.getSalary()),
-//                  stream -> stream.max(c -> c.getSalary())));
-//      assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
+      assertEquals(new Tuple3<>(5l, 30, 500), 
+            streams.streamAll(em, Customer.class)
+               .aggregate(stream -> stream.count(),
+                  stream -> stream.min(c -> c.getSalary()),
+                  stream -> stream.max(c -> c.getSalary())));
+      assertEquals("SELECT COUNT(1), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
+   }
+
+   @Test
+   public void testMultiAggregateNoAggregate()
+   {
+      assertEquals(new Tuple3<>(5l, 30, 500), 
+            streams.streamAll(em, Customer.class)
+               .aggregate(stream -> stream.count(),
+                  stream -> 30,
+                  stream -> 500));
+      assertEquals("SELECT COUNT(1), 30, 500 FROM Customer A", query);
    }
 
 }

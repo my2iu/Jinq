@@ -23,11 +23,13 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
 {
    final MetamodelUtil metamodel;
    final SymbExArgumentHandler argHandler;
+   final ClassLoader alternateClassLoader;
    
-   SymbExToSubQuery(MetamodelUtil metamodel, SymbExArgumentHandler argumentHandler)
+   SymbExToSubQuery(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SymbExArgumentHandler argumentHandler)
    {
       this.metamodel = metamodel;
       this.argHandler = argumentHandler;
+      this.alternateClassLoader = alternateClassLoader;
    }
    
    @Override public JPQLQuery<?> defaultValue(TypedValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -77,7 +79,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
          if (metamodel.isPluralAttributeLinkMethod(sig))
          {
             String linkName = metamodel.nLinkMethodToLinkName(sig);
-            SymbExToColumns translator = new SymbExToColumns(metamodel, argHandler);
+            SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, argHandler);
             
             SymbExPassDown passdown = SymbExPassDown.with(val, false);
             ColumnExpressions<?> nLinkBase = val.base.visit(translator, passdown);

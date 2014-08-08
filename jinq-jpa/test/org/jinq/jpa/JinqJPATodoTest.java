@@ -9,9 +9,6 @@ import org.junit.Test;
 public class JinqJPATodoTest 
 {
    @Test
-   public void testMultiAggregate() {}
-
-   @Test
    public void testGrouping() {}
    
    @Test

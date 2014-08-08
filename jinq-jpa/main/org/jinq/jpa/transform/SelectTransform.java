@@ -22,7 +22,7 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
          if (query.isSelectFromWhere())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            SymbExToColumns translator = new SymbExToColumns(metamodel, 
+            SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
                   SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, false));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
@@ -30,9 +30,7 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
                throw new QueryTransformException("Can only handle a single path in a SELECT at the moment");
             
             SymbExPassDown passdown = SymbExPassDown.with(null, false);
-            ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)PathAnalysisSimplifier
-                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
-                  .visit(translator, passdown);
+            ColumnExpressions<U> returnExpr = simplifyAndTranslateMainPathToColumns(lambda, translator, passdown);
 
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();

@@ -1,6 +1,10 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
+import org.jinq.jpa.jpqlquery.ColumnExpressions;
+
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 /**
  * Subclasses of this class are used to hold the logic for applying
@@ -22,5 +26,13 @@ public class JPQLQueryTransform
    {
       this.metamodel = metamodel;
       this.alternateClassLoader = alternateClassLoader;
+   }
+
+   protected <U> ColumnExpressions<U> simplifyAndTranslateMainPathToColumns(LambdaInfo lambda, SymbExToColumns translator,
+         SymbExPassDown passdown) throws TypedValueVisitorException
+   {
+      return (ColumnExpressions<U>)PathAnalysisSimplifier
+            .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
+            .visit(translator, passdown);
    }
 }
