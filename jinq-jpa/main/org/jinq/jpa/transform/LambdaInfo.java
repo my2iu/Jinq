@@ -1,6 +1,7 @@
 package org.jinq.jpa.transform;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.jinq.jpa.MetamodelUtil;
 import org.objectweb.asm.Handle;
@@ -11,6 +12,7 @@ import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisFactory;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
 import com.user00.thunk.SerializedLambda;
 
@@ -22,7 +24,15 @@ public class LambdaInfo
 {
    Object Lambda;
    SerializedLambda serializedLambda;
+   /**
+    * Some lambdas are from sublambdas inside other lambdas. In that
+    * case, we don't have the actual captured args, but we know how the 
+    * captured args are determined from the parent.
+    */
+   List<TypedValue> indirectCapturedArgs;
    MethodAnalysisResults symbolicAnalysis;
+   int numCapturedArgs;
+   int numLambdaArgs;
    
    /**
     * JPAQueryComposer stores the lambdas that are chained together to create a query in a list.
@@ -63,7 +73,7 @@ public class LambdaInfo
     * Used to analyze a lambda when we only have the name of the method used in the lambda
     * and not an actual reference to the lambda. 
     */
-   public static LambdaInfo analyzeMethod(MetamodelUtil metamodel, ClassLoader alternateClassLoader, Handle lambdaHandle, boolean throwExceptionOnFailure)
+   public static LambdaInfo analyzeMethod(MetamodelUtil metamodel, ClassLoader alternateClassLoader, Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, boolean throwExceptionOnFailure)
    {
       // TODO: The part below will need to be moved to a separate method.
       //   That way, we can used the serialized lambda info to check if
@@ -76,7 +86,8 @@ public class LambdaInfo
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
             return null;
          }
-         return new LambdaInfo(null, null, analysis, -1);
+         // TODO: Handle lambda arguments properly
+         return new LambdaInfo(analysis, indirectCapturedArgs, Type.getArgumentTypes(lambdaHandle.getDesc()).length);
       } 
       catch (Exception e)
       {
@@ -111,22 +122,37 @@ public class LambdaInfo
       this.serializedLambda = serializedLambda;
       this.symbolicAnalysis = symbolicAnalysis;
       this.lambdaIndex = lambdaIndex;
+      this.numCapturedArgs = serializedLambda.capturedArgs.length;
+      this.numLambdaArgs = Type.getArgumentTypes(serializedLambda.implMethodSignature).length;
    }
-   
+
+   LambdaInfo(MethodAnalysisResults symbolicAnalysis, List<TypedValue> indirectCapturedArgs, int numLambdaArgs)
+   {
+      this.symbolicAnalysis = symbolicAnalysis;
+      this.lambdaIndex = -1;
+      this.indirectCapturedArgs = indirectCapturedArgs;
+      this.numCapturedArgs = indirectCapturedArgs.size();
+      this.numLambdaArgs = numLambdaArgs;
+   }
+
    public int getNumCapturedArgs()
    {
-      // TODO: Handle sublambdas with parameters correctly
-      if (serializedLambda == null)
-         return 0;
-      return serializedLambda.capturedArgs.length;
+      return numCapturedArgs;
    }
    
    public int getNumLambdaArgs()
    {
-      // TODO: Handle sublambdas with parameters correctly
-      if (serializedLambda == null)
-         return 1;
-      return Type.getArgumentTypes(serializedLambda.implMethodSignature).length;
+      return numLambdaArgs;
+   }
+
+   public boolean hasLambdaObject()
+   {
+      return serializedLambda != null;
+   }
+   
+   public TypedValue getIndirectCapturedArg(int argIndex)
+   {
+      return indirectCapturedArgs.get(argIndex);
    }
    
    public Object getCapturedArg(int argIndex)

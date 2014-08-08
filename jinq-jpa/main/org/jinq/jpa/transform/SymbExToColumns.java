@@ -385,7 +385,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
                throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
             LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
             try {
-               lambda = LambdaInfo.analyzeMethod(metamodel, alternateClassLoader, lambdaFactory.getLambdaMethod(), true);
+               lambda = LambdaInfo.analyzeMethod(metamodel, alternateClassLoader, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
             } catch (Exception e)
             {
                throw new TypedValueVisitorException("Could not analyze the lambda code", e);

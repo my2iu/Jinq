@@ -67,6 +67,9 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       {
          if (lambda == null)
             throw new TypedValueVisitorException("No lambda source was supplied where parameters can be extracted");
+         if (!lambda.hasLambdaObject())
+            throw new TypedValueVisitorException("Parameters in subqueries are not supported yet");
+         
          // Currently, we only support parameters of a few small simple types.
          // We should also support more complex types (e.g. entities) and allow
          // fields/methods of those entities to be called in the query (code

@@ -1,5 +1,6 @@
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -337,7 +338,7 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
             assert(insn instanceof MethodInsnNode);
             MethodInsnNode methodInsn = (MethodInsnNode)insn;
             boolean isVirtualCall = (insn.getOpcode() != INVOKESTATIC);
-            List<TypedValue> args = new Vector<TypedValue>();
+            List<TypedValue> args = new ArrayList<TypedValue>();
             for (int n = (isVirtualCall? 1:0); n < values.size(); n++)
                args.add((TypedValue)values.get(n));
             MethodSignature sig = new MethodSignature(methodInsn.owner, methodInsn.name, methodInsn.desc);
@@ -370,7 +371,7 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
             // Return the Lambda creation result
             Handle lambdaMethod = (Handle)invokeInsn.bsmArgs[1];
             Type functionalInterface = Type.getReturnType(invokeInsn.desc);
-            return new LambdaFactory(functionalInterface, lambdaMethod);
+            return new LambdaFactory(functionalInterface, lambdaMethod, new ArrayList<>((List<TypedValue>)values));
          }
          case MULTIANEWARRAY:
          default:
