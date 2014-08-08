@@ -1,18 +1,8 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
-import org.jinq.jpa.jpqlquery.ColumnExpressions;
-import org.jinq.jpa.jpqlquery.Expression;
-import org.jinq.jpa.jpqlquery.From;
-import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
-import org.jinq.jpa.jpqlquery.ReadFieldExpression;
-import org.jinq.jpa.jpqlquery.SelectFromWhere;
-import org.jinq.jpa.jpqlquery.SimpleRowReader;
-import org.objectweb.asm.Type;
 
-import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
@@ -53,29 +43,13 @@ public class SymbExToAggregationSubQuery extends TypedValueVisitor<SymbExPassDow
             || sig.equals(MethodChecker.streamSumBigDecimal)
             || sig.equals(MethodChecker.streamMax)
             || sig.equals(MethodChecker.streamMin)
-            || sig.equals(MethodChecker.streamAvg);
+            || sig.equals(MethodChecker.streamAvg)
+            || sig.equals(MethodChecker.streamCount);
    }
    
    @Override public JPQLQuery<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
-//      if (MetamodelUtil.inQueryStream.equals(sig))
-//      {
-//         if (!(val.base instanceof TypedValue.ArgValue))
-//            throw new TypedValueVisitorException("InQueryStreamSource comes from unknown source");
-//         int index = ((TypedValue.ArgValue)val.base).getIndex();
-//         if (!argHandler.checkIsInQueryStreamSource(index))
-//            throw new TypedValueVisitorException("InQueryStreamSource comes from unknown source");
-//         if (!(val.args.get(0) instanceof ConstantValue.ClassConstant))
-//            throw new TypedValueVisitorException("Streaming an unknown type");
-//         Type type = ((ConstantValue.ClassConstant)val.args.get(0)).val;
-//         String entityName = metamodel.entityNameFromClassName(type.getClassName());
-//         if (entityName == null)
-//            throw new TypedValueVisitorException("Streaming an unknown type");
-//         return JPQLQuery.findAllEntities(entityName);
-//      }
-//      else
-
       if (isAggregateMethod(sig))
       {
          SymbExPassDown passdown = SymbExPassDown.with(val, false);
@@ -96,36 +70,26 @@ public class SymbExToAggregationSubQuery extends TypedValueVisitor<SymbExPassDow
             }
          }
             
+         try {
+            if (sig.equals(MethodChecker.streamSumInt)
+                  || sig.equals(MethodChecker.streamSumLong)
+                  || sig.equals(MethodChecker.streamSumDouble)
+                  || sig.equals(MethodChecker.streamSumBigDecimal)
+                  || sig.equals(MethodChecker.streamSumBigInteger))
+               return AggregateTransform.applyToSubquery(metamodel, AggregateTransform.AggregateType.SUM, subQuery, lambda);
+            else if (sig.equals(MethodChecker.streamMax))
+               return AggregateTransform.applyToSubquery(metamodel, AggregateTransform.AggregateType.MAX, subQuery, lambda);
+            else if (sig.equals(MethodChecker.streamMin))
+               return AggregateTransform.applyToSubquery(metamodel, AggregateTransform.AggregateType.MIN, subQuery, lambda);
+            else if (sig.equals(MethodChecker.streamAvg))
+               return AggregateTransform.applyToSubquery(metamodel, AggregateTransform.AggregateType.AVG, subQuery, lambda);
+            else if (sig.equals(MethodChecker.streamCount))
+               return AggregateTransform.applyToSubquery(metamodel, AggregateTransform.AggregateType.COUNT, subQuery, lambda);
             
-         
-         if (sig.equals(MethodChecker.streamSumInt))
+         } catch (QueryTransformException e)
          {
-            try {
-               AggregateTransform.applyToSubquery(metamodel, AggregateTransform.AggregateType.SUM, subQuery, lambda);
-            } catch (QueryTransformException e)
-            {
-               throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);
-            }
+            throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);
          }
-         
-//         if (lambdaContext.joins == null)
-//            throw new TypedValueVisitorException("Need a join handler here for subqueries just in case there's an embedded navigational query: " + val);
-/*
-         if (sig.equals(TransformationClassAnalyzer.streamSumInt)
-               || sig.equals(TransformationClassAnalyzer.streamMax)
-               || sig.equals(TransformationClassAnalyzer.streamMin))
-         {
-            // TODO: do subqueries need to be copied before being passed in here?
-            SQLQuery<Integer> newQuery = null;
-            if (sig.equals(TransformationClassAnalyzer.streamSumInt))
-               newQuery = queryMethodHandler.sumInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-            else if (sig.equals(TransformationClassAnalyzer.streamMax))
-               newQuery = queryMethodHandler.max(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-            else if (sig.equals(TransformationClassAnalyzer.streamMin))
-               newQuery = queryMethodHandler.min(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-            return handleAggregationSubQuery(val, newQuery);
-         }
- */
          throw new TypedValueVisitorException("Unhandled aggregate operation");
       }
       return super.virtualMethodCallValue(val, in);

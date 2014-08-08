@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple;
 
 import ch.epfl.labos.iu.orm.DBSet.AggregateDouble;
 import ch.epfl.labos.iu.orm.DBSet.AggregateGroup;
@@ -622,10 +623,10 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
 //            () -> transformer.selectAggregates(query.copy(), nextLambdaParamIndex, aggregate, emSource));
 //   }
 //
-   public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates)
+   public <U extends Tuple> U multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates)
    {
       // TODO: Implement caching for this.
-      SQLQuery<Object[]> newQuery = transformer.multiaggregate(query.copy(), nextLambdaParamIndex, aggregates, emSource);
+      SQLQuery<U> newQuery = transformer.multiaggregate(query.copy(), nextLambdaParamIndex, aggregates, emSource);
       if (newQuery == null) return null;
       List<ParameterLocation> [] paramLocs = new ArrayList[aggregates.length];
       Object[][] newParams = params;

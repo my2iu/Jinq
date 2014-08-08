@@ -1,6 +1,6 @@
 package org.jinq.tuples;
 
-public class Tuple8<A, B, C, D, E, F, G, H>
+public class Tuple8<A, B, C, D, E, F, G, H> extends Tuple
 {
    final A one;
    final B two;
@@ -32,6 +32,12 @@ public class Tuple8<A, B, C, D, E, F, G, H>
       this.eight = eight;
    }
    
+   @Override
+   public String toString()
+   {
+      return "Tuple3(" + getOne() + "," + getTwo() + "," + getThree() + "," + getFour() + "," + getFive() + "," + getSix() + "," + getSeven() + "," + getEight() + ")";
+   }
+
    public boolean equals(Object obj)
    {
       if ( this == obj) return true;

@@ -1,12 +1,8 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
-import org.jinq.jpa.jpqlquery.AggregateFunctionExpression;
-import org.jinq.jpa.jpqlquery.ColumnExpressions;
-import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
-import org.jinq.jpa.jpqlquery.SimpleRowReader;
 
 public class LimitSkipTransform extends JPQLNoLambdaQueryTransform
 {

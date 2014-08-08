@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple;
 import org.jinq.tuples.Tuple3;
 
 public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
@@ -296,16 +297,16 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return recordedExceptions.values();
    }
 
-   @Override
-   public <U> U aggregate(AggregateSelect<T, U> aggregate1)
-   {
-      AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
-            {
-               aggregate1
-            };
-      Object [] results = multiaggregate(aggregates);
-      return (U)results[0];
-   }
+//   @Override
+//   public <U> U aggregate(AggregateSelect<T, U> aggregate1)
+//   {
+//      AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
+//            {
+//               aggregate1
+//            };
+//      Object [] results = multiaggregate(aggregates);
+//      return (U)results[0];
+//   }
    
    @Override
    public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1, AggregateSelect<T, V> aggregate2)
@@ -314,8 +315,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
             {
                aggregate1, aggregate2
             };
-      Object [] results = multiaggregate(aggregates);
-      return new Pair<>((U)results[0], (V)results[1]);
+      return  multiaggregate(aggregates);
    }
 
    @Override
@@ -326,11 +326,10 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
             {
                aggregate1, aggregate2, aggregate3
             };
-      Object [] results = multiaggregate(aggregates);
-      return new Tuple3<>((U)results[0], (V)results[1], (W)results[2]);
+      return multiaggregate(aggregates);
    }
 
-   Object[] multiaggregate(AggregateSelect<T, ?>[] aggregates)
+   <U extends Tuple> U multiaggregate(AggregateSelect<T, ?>[] aggregates)
    {
       final int MAX_QUEUE_SIZE = 100;
       final Object DONE = new Object();
@@ -425,7 +424,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
             Thread.currentThread().interrupt();
          }
       }
-      return results;
+      return Tuple.createTuple(results);
    }
 
    @Override

@@ -1,6 +1,6 @@
 package org.jinq.tuples;
 
-public class Tuple3<A, B, C>
+public class Tuple3<A, B, C> extends Tuple
 {
    final A one;
    final B two;
@@ -15,6 +15,12 @@ public class Tuple3<A, B, C>
       this.one = one;
       this.two = two;
       this.three = three;
+   }
+   
+   @Override
+   public String toString()
+   {
+      return "Tuple3(" + getOne() + "," + getTwo() + "," + getThree() + ")";
    }
    
    public boolean equals(Object obj)

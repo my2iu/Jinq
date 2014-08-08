@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Vector;
 
 
-public class Pair<T, U>
+public class Pair<T, U> extends Tuple
 {
    final T one;
    final U two;
@@ -34,6 +34,12 @@ public class Pair<T, U>
       Pair<?,?> pair = (Pair<?,?>)obj;
       return this.one.equals(pair.one)
          && this.two.equals(pair.two);
+   }
+   
+   @Override
+   public String toString()
+   {
+      return "Pair(" + getOne() + "," + getTwo() + ")";
    }
    
    public int hashCode()

@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
 import org.jinq.tuples.Tuple5;
@@ -169,7 +170,7 @@ public abstract class SQLReader<T>
          return false;
       }
    }
-   public static class TupleSQLReader<U> extends SQLReader<U>
+   public static class TupleSQLReader<U extends Tuple> extends SQLReader<U>
    {
       SQLReader[] subreaders;
       
@@ -226,21 +227,7 @@ public abstract class SQLReader<T>
 
       U createTuple(Object[]data)
       {
-         switch(subreaders.length)
-         {
-            case 2:
-               return (U)new Pair(data[0], data[1]);
-            case 3:
-               return (U)new Tuple3(data[0], data[1], data[2]);
-            case 4:
-               return (U)new Tuple4(data[0], data[1], data[2], data[3]);
-            case 5:
-               return (U)new Tuple5(data[0], data[1], data[2], data[3], data[4]);
-            case 8:
-               return (U)new Tuple8(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
-            default:
-               throw new IllegalArgumentException("Creating a tuple with a SQLReader with unknown size " + subreaders.length);
-         }
+         return Tuple.createTuple(data);
       }
       @Override public U readData(ResultSet result, int column) throws SQLException
       {
@@ -271,7 +258,7 @@ public abstract class SQLReader<T>
          String tupleName = getTupleInternalName();
          return tupleName.equals(internalName);
       }
-      public static <T> TupleSQLReader<T> createReaderForTuple(String tupleInternalName, SQLReader...subreaders)
+      public static <T extends Tuple> TupleSQLReader<T> createReaderForTuple(String tupleInternalName, SQLReader...subreaders)
       {
          if ("org/jinq/tuples/Pair".equals(tupleInternalName))
             return new PairSQLReader(subreaders[0], subreaders[1]);
@@ -286,6 +273,22 @@ public abstract class SQLReader<T>
          else
             throw new IllegalArgumentException("Creating a tuple with a SQLReader with unknown size " + subreaders.length);
       }
+      public static <T extends Tuple> TupleSQLReader<T> createReaderForTuple(SQLReader...subreaders)
+      {
+         if (subreaders.length == 2)
+            return new PairSQLReader(subreaders[0], subreaders[1]);
+         else if (subreaders.length == 3)
+            return new Tuple3SQLReader(subreaders[0], subreaders[1], subreaders[2]);
+         else if (subreaders.length == 4)
+            return new Tuple4SQLReader(subreaders[0], subreaders[1], subreaders[2], subreaders[3]);
+         else if (subreaders.length == 5)
+            return new Tuple5SQLReader(subreaders[0], subreaders[1], subreaders[2], subreaders[3], subreaders[4]);
+         else if (subreaders.length == 8)
+            return new Tuple8SQLReader(subreaders[0], subreaders[1], subreaders[2], subreaders[3], subreaders[4], subreaders[5], subreaders[6], subreaders[7]);
+         else
+            throw new IllegalArgumentException("Creating a tuple with a SQLReader with unknown size " + subreaders.length);
+      }
+
    }
    public static class PairSQLReader<U,V> extends TupleSQLReader<Pair<U,V>>
    {

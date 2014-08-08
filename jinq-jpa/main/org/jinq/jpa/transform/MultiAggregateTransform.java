@@ -1,12 +1,11 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
-import org.jinq.jpa.jpqlquery.AggregateFunctionExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SelectOnly;
-import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
@@ -29,7 +28,7 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
 
             SelectOnly<V> streamTee = new SelectOnly<>();
             streamTee.cols = sfw.cols;
-            JPQLQuery<?> [] aggregatedQueryEntry = new JPQLQuery<?>[lambdas.length];
+            SelectOnly<?> [] aggregatedQueryEntries = new SelectOnly<?>[lambdas.length];
 
             for (int n = 0; n < lambdas.length; n++)
             {
@@ -47,47 +46,22 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
                      .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
                      .visit(translator, passdown);
                
-               aggregatedQueryEntry[n] = returnQuery;
+               if (!(returnQuery instanceof SelectOnly))
+                  throw new QueryTransformException("Expecting a SelectOnly query from the aggregation"); 
+               aggregatedQueryEntries[n] = (SelectOnly<?>)returnQuery;
             }
 
-//
-//            // Create the new query, merging in the analysis of the method
-//            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy(); 
-//            toReturn.isAggregated = true;
-//            toReturn.cols = ColumnExpressions.singleColumn(
-//                  new SimpleRowReader<>(), 
-//                  new AggregateFunctionExpression(returnExpr.getOnlyColumn(), aggregateFunction)); 
-//            return toReturn;
-            
-            
-            
-            
-//
-//            // TODO: Handle this case by translating things to use SELECT CASE 
-//            if (lambda.symbolicAnalysis.paths.size() > 1) 
-//               throw new QueryTransformException("Can only handle a single path in a JOIN at the moment");
-//            
-//            SymbExPassDown passdown = SymbExPassDown.with(null, false);
-//            JPQLQuery<U> returnExpr = (JPQLQuery<U>)PathAnalysisSimplifier
-//                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
-//                  .visit(translator, passdown);
-//
-//            // Create the new query, merging in the analysis of the method
-//            
-//            // Check if the subquery is simply a stream of all of a certain entity
-//            if (isSimpleFrom(returnExpr))
-//            {
-//               SelectFromWhere<?> toMerge = (SelectFromWhere<?>)returnExpr;
-//               SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
-//               toReturn.froms.add(toMerge.froms.get(0));
-//               toReturn.cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(TupleRowReader.PAIR_CLASS, sfw.cols.reader, toMerge.cols.reader));
-//               toReturn.cols.columns.addAll(sfw.cols.columns);
-//               toReturn.cols.columns.addAll(toMerge.cols.columns);
-//               return toReturn;
-//            }
-//            
-//            // Handle other types of subqueries
-
+            // Create the new query, merging in the analysis of the method
+            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy(); 
+            toReturn.isAggregated = true;
+            RowReader<?> [] readers = new RowReader<?>[aggregatedQueryEntries.length];
+            for (int n = 0; n < readers.length; n++)
+               readers[n] = aggregatedQueryEntries[n].getRowReader();
+            ColumnExpressions<U> cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(readers));
+            for (int n = 0; n < readers.length; n++)
+               cols.columns.addAll(aggregatedQueryEntries[n].cols.columns);
+            toReturn.cols = cols;
+            return toReturn;
          }
          throw new QueryTransformException("Existing query cannot be transformed further");
       } catch (TypedValueVisitorException e)

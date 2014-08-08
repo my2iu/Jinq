@@ -128,6 +128,12 @@ public class TupleRowReader<T> implements RowReader<T>
 
    
  */
+   
+   public static <T> TupleRowReader<T> createReaderForTuple(RowReader<?>...subreaders)
+   {
+      return new TupleRowReader<T>(subreaders);
+   }
+
    public static <T> TupleRowReader<T> createReaderForTuple(String tupleInternalName, RowReader<?>...subreaders)
    {
       if (PAIR_CLASS.equals(tupleInternalName)) {

@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple;
 
 import ch.epfl.labos.iu.orm.QueryComposer;
 
@@ -202,9 +203,9 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
    
    @Override
-   Object[] multiaggregate(AggregateSelect<T, ?>[] aggregates)
+   <U extends Tuple> U multiaggregate(AggregateSelect<T, ?>[] aggregates)
    {
-      Object [] vals = queryComposer.multiaggregate(aggregates);
+      U vals = queryComposer.multiaggregate(aggregates);
       if (vals != null) return vals;
       return super.multiaggregate(aggregates);
    }

@@ -32,6 +32,7 @@ import org.jinq.orm.stream.JinqStream.CollectComparable;
 import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple;
 
 import ch.epfl.labos.iu.orm.QueryComposer;
 
@@ -394,12 +395,12 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
 //   }
 //
    @Override
-   public Object[] multiaggregate(
+   public <U extends Tuple> U multiaggregate(
          org.jinq.orm.stream.JinqStream.AggregateSelect<T, ?>[] aggregates)
    {
       Object [] groupingLambdas = new Object[aggregates.length];
       System.arraycopy(aggregates, 0, groupingLambdas, 0, aggregates.length);
-      JPAQueryComposer<Object[]> result = applyTransformWithLambdas(new MultiAggregateTransform(metamodel, hints.lambdaClassLoader), groupingLambdas);
+      JPAQueryComposer<U> result = applyTransformWithLambdas(new MultiAggregateTransform(metamodel, hints.lambdaClassLoader), groupingLambdas);
       if (result != null)
          return result.executeAndGetSingleResult();
       translationFail(); 

@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple;
 
 public interface QueryComposer<T>
 {
@@ -37,7 +38,7 @@ public interface QueryComposer<T>
    public <V extends Number & Comparable<V>> Double avg(JinqStream.CollectNumber<T, V> aggregate);
 //   public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate);
    
-   public Object[] multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);
+   public <U extends Tuple> U multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);
    
    public void setHint(String name, Object val);
 

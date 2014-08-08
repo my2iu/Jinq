@@ -3,6 +3,8 @@ package org.jinq.jpa.transform;
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.AggregateFunctionExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
+import org.jinq.jpa.jpqlquery.ConstantExpression;
+import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SelectOnly;
@@ -68,26 +70,35 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
          if (query instanceof SelectOnly)
          {
             SelectOnly<V> select = (SelectOnly<V>)query;
-            // TODO: Handle parameters on the SelectOnly
-            SymbExToColumns translator = new SymbExToColumns(metamodel, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, metamodel, false));
+            Expression aggregatedExpression = null;
+            if (type != AggregateType.COUNT)
+            {
+               // TODO: Handle parameters on the SelectOnly
+               SymbExToColumns translator = new SymbExToColumns(metamodel, 
+                     SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, metamodel, false));
 
-            // TODO: Handle this case by translating things to use SELECT CASE 
-            if (lambda.symbolicAnalysis.paths.size() > 1) 
-               throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
-            
-            SymbExPassDown passdown = SymbExPassDown.with(null, false);
-            ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)PathAnalysisSimplifier
-                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
-                  .visit(translator, passdown);
+               // TODO: Handle this case by translating things to use SELECT CASE 
+               if (lambda.symbolicAnalysis.paths.size() > 1) 
+                  throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
+               
+               SymbExPassDown passdown = SymbExPassDown.with(null, false);
+               ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)PathAnalysisSimplifier
+                     .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
+                     .visit(translator, passdown);
+               aggregatedExpression = returnExpr.getOnlyColumn(); 
+            }
+            else
+            {
+               aggregatedExpression = new ConstantExpression("1");
+            }
 
-//            // Create the new query, merging in the analysis of the method
-//            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy(); 
-//            toReturn.isAggregated = true;
-//            toReturn.cols = ColumnExpressions.singleColumn(
-//                  new SimpleRowReader<>(), 
-//                  new AggregateFunctionExpression(returnExpr.getOnlyColumn(), aggregateFunction)); 
-//            return toReturn;
+            // Create the new query, merging in the analysis of the method
+            SelectOnly<U> toReturn = (SelectOnly<U>)select.shallowCopy(); 
+            toReturn.isAggregated = true;
+            toReturn.cols = ColumnExpressions.singleColumn(
+                  new SimpleRowReader<>(), 
+                  new AggregateFunctionExpression(aggregatedExpression, type.name())); 
+            return toReturn;
          }
          throw new QueryTransformException("Existing query cannot be transformed further");
       } catch (TypedValueVisitorException e)

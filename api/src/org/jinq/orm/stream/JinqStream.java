@@ -82,7 +82,7 @@ public interface JinqStream<T> extends Stream<T>
       public V aggregateSelect(JinqStream<U> val);
    }
 //   public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
-   public <U> U aggregate(AggregateSelect<T, U> aggregate1);
+//   public <U> U aggregate(AggregateSelect<T, U> aggregate1);
    public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1,
          AggregateSelect<T, V> aggregate2);
    public <U, V, W> Tuple3<U, V, W> aggregate(AggregateSelect<T, U> aggregate1,

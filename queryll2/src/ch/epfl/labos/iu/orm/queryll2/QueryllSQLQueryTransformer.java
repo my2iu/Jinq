@@ -12,6 +12,7 @@ import org.jinq.orm.stream.JinqStream.AggregateSelect;
 import org.jinq.orm.stream.JinqStream.CollectComparable;
 import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 
@@ -1146,7 +1147,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    }
    
    @Override
-   public <T> SQLQuery<Object[]> multiaggregate(SQLQuery<T> query,
+   public <T, U extends Tuple> SQLQuery<U> multiaggregate(SQLQuery<T> query,
          int lambdaThisIndex, AggregateSelect<T, ?>[] aggregates,
          Object emSource)
    {
@@ -1188,12 +1189,12 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
                return null;
             }
          }
-         sfw.reader = new SQLReader.ArrayTupleSQLReader(readers);
+         sfw.reader = SQLReader.TupleSQLReader.createReaderForTuple(readers);
          ArrayList<SQLFragment> finalColumns = new ArrayList<>();
          for (int n = 0; n < aggregates.length; n++)
             finalColumns.addAll(columns[n]);
          sfw.columns = finalColumns;
-         return (SQLQuery<Object[]>)sfw;
+         return (SQLQuery<U>)sfw;
       }
       return null;
    }
