@@ -10,6 +10,7 @@ import org.jinq.jpa.jpqlquery.ParameterExpression;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.objectweb.asm.Type;
 
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 /**
@@ -23,6 +24,7 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
    LambdaInfo lambda;
    MetamodelUtil metamodel;
    boolean hasInQueryStreamSource;
+   SymbExArgumentHandler parentArgumentScope;
    final int numLambdaCapturedArgs;
    final int numLambdaArgs;
    
@@ -46,18 +48,59 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/math/BigInteger"));
    }
 
-   public LambdaParameterArgumentHandler(LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   public LambdaParameterArgumentHandler(LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       this.lambda = lambda;
       this.metamodel = metamodel;
       this.hasInQueryStreamSource = hasInQueryStreamSource;
       numLambdaCapturedArgs = lambda.getNumCapturedArgs();
       numLambdaArgs = lambda.getNumLambdaArgs();
+      this.parentArgumentScope = parentArgumentScope;
    }
 
    protected ColumnExpressions<?> handleLambdaArg(int argIndex, Type argType) throws TypedValueVisitorException
    {
       throw new TypedValueVisitorException("Unhandled lambda arguments");
+   }
+   
+   protected ColumnExpressions<?> handleIndirectLambdaArg(int argIndex, Type argType) throws TypedValueVisitorException
+   {
+      // The actual value for the parameter is not available because this is a sub-lambda.
+      // Extract the parent scope to see how the parameter is used in the parent lambda
+      TypedValue paramVal = lambda.getIndirectCapturedArg(argIndex);
+      
+      // Right now, we only support sub-lambda parameters that are simply passthroughs for
+      // parameters defined in the parent lambda.
+      if (paramVal instanceof TypedValue.ArgValue)
+      {
+         TypedValue.ArgValue paramArg = (TypedValue.ArgValue)paramVal; 
+         int parentArgIndex = paramArg.getIndex();
+         if (parentArgumentScope == null)
+            throw new TypedValueVisitorException("Cannot find a parent scope to determine how to access as sublambda's parent parameters.");
+         // TODO: Right now, we need to be careful about the scope of parent lambdas. Since we only support
+         // limited usage of parameters for sublambdas, it's not a problem yet, but more complicated usages
+         // might be problematic. (Might have to pass additional parameteres to handleArg etc.)
+         return parentArgumentScope.handleArg(parentArgIndex, argType);
+      }
+      else
+      {
+         throw new TypedValueVisitorException("Jinq can only passthrough parent lambda parameters directly to sub-lambdas. Sublambdas cannot take parameters that involve computation.");
+      }
+   }
+   
+   protected ColumnExpressions<?> getAndValidateArg(int argIndex, Type argType) throws TypedValueVisitorException
+   {
+      // Currently, we only support parameters of a few small simple types.
+      // We should also support more complex types (e.g. entities) and allow
+      // fields/methods of those entities to be called in the query (code
+      // motion will be used to push those field accesses or method calls
+      // outside the query where they will be evaluated and then passed in
+      // as a parameter)
+      if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) && !metamodel.isKnownEnumType(argType.getInternalName()))
+         throw new TypedValueVisitorException("Accessing a field with unhandled type");
+
+      return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+            new ParameterExpression(lambda.lambdaIndex, argIndex)); 
    }
    
    @Override
@@ -68,38 +111,11 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
          if (lambda == null)
             throw new TypedValueVisitorException("No lambda source was supplied where parameters can be extracted");
          if (!lambda.hasLambdaObject())
-            throw new TypedValueVisitorException("Parameters in subqueries are not supported yet");
+         {
+            return handleIndirectLambdaArg(argIndex, argType);
+         }
          
-         // Currently, we only support parameters of a few small simple types.
-         // We should also support more complex types (e.g. entities) and allow
-         // fields/methods of those entities to be called in the query (code
-         // motion will be used to push those field accesses or method calls
-         // outside the query where they will be evaluated and then passed in
-         // as a parameter)
-         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) && !metamodel.isKnownEnumType(argType.getInternalName()))
-            throw new TypedValueVisitorException("Accessing a field with unhandled type");
-
-         return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
-               new ParameterExpression(lambda.lambdaIndex, argIndex)); 
-
-/*         
-         try
-         {
-            // TODO: Careful here. ParameterLocation is relative to the base
-            // lambda, but if we arrive here from inside a nested query, "this"
-            // might refer to a lambda nested inside the base lambda. (Of course,
-            // nested queries with parameters aren't currently supported, so it
-            // doesn't matter.)
-            ParameterLocation paramLoc = ParameterLocation.createJava8LambdaArgAccess(val.getIndex(), lambdaIndex);
-            SQLColumnValues toReturn = new SQLColumnValues(allowedQueryParameterTypes.get(t));
-            assert(toReturn.getNumColumns() == 1);
-            toReturn.columns[0].add(new SQLSubstitution.ExternalParameterLink(paramLoc));
-            return toReturn;
-         } catch (Exception e)
-         {
-            throw new TypedValueVisitorException(e); 
-         } 
-*/
+         return getAndValidateArg(argIndex, argType);
       }
       else if (checkIsInQueryStreamSource(argIndex))
          throw new TypedValueVisitorException("Using InQueryStreamSource as data");

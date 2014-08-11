@@ -141,7 +141,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT COUNT(1), 30, 500 FROM Customer A", query);
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testMultiAggregateParameters()
    {
       int param = 1;
@@ -150,7 +150,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
                .aggregate(
                   stream -> stream.sumInteger(c -> c.getSalary() + param),
                   stream -> param + stream.avg(c -> c.getSalary())));
-      assertEquals("SELECT SUM(A.salary + :param0), :param0 + AVG(A.salary) FROM Customer A", query);
+      assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
    }
 
 }

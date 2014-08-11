@@ -42,7 +42,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
             SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, withSource));
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, null, withSource));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 

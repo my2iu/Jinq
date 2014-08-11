@@ -23,7 +23,7 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, false));
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, null, false));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 

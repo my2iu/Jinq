@@ -18,19 +18,19 @@ public class SelectFromWhereLambdaArgumentHandler extends LambdaParameterArgumen
 {
    ColumnExpressions<?> cols;
    
-   public static SelectFromWhereLambdaArgumentHandler fromSelectFromWhere(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   public static SelectFromWhereLambdaArgumentHandler fromSelectFromWhere(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
-      return new SelectFromWhereLambdaArgumentHandler(sfw.cols, lambda, metamodel, hasInQueryStreamSource);
+      return new SelectFromWhereLambdaArgumentHandler(sfw.cols, lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
    }
 
-   public static SelectFromWhereLambdaArgumentHandler fromSelectOnly(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   public static SelectFromWhereLambdaArgumentHandler fromSelectOnly(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
-      return new SelectFromWhereLambdaArgumentHandler(select.cols, lambda, metamodel, hasInQueryStreamSource);
+      return new SelectFromWhereLambdaArgumentHandler(select.cols, lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
    }
 
-   private SelectFromWhereLambdaArgumentHandler(ColumnExpressions<?> cols, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   private SelectFromWhereLambdaArgumentHandler(ColumnExpressions<?> cols, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
-      super(lambda, metamodel, hasInQueryStreamSource);
+      super(lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
       this.cols = cols;
    }
    
@@ -41,6 +41,8 @@ public class SelectFromWhereLambdaArgumentHandler extends LambdaParameterArgumen
       //    because I think JPQL lets you substitute the same parameter into multiple locations
       //    in a query (unlike JDBC), which means we don't need separate state for query fragments
       //    that appear multiple times in the query tree.
-      return cols;
+      if (argIndex == 0)
+         return cols;
+      throw new TypedValueVisitorException("Lambda trying to access unknown lambda parameter");
    }
 }

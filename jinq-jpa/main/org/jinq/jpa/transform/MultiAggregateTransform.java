@@ -34,7 +34,7 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
                LambdaInfo lambda = lambdas[n];
 
                SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
-                     new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], metamodel, false));
+                     new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], metamodel, null, false));
 
                // TODO: Handle this case by translating things to use SELECT CASE 
                if (lambda.symbolicAnalysis.paths.size() > 1) 

@@ -410,7 +410,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
                transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.COUNT);
             else
                throw new TypedValueVisitorException("Unhandled aggregate operation");
-            JPQLQuery<?> aggregatedQuery = transform.applyAggregationToSubquery(subQuery, lambda); 
+            JPQLQuery<?> aggregatedQuery = transform.applyAggregationToSubquery(subQuery, lambda, argHandler); 
 
             // Return the aggregated columns that we've now calculated
             if (!(aggregatedQuery instanceof SelectOnly))

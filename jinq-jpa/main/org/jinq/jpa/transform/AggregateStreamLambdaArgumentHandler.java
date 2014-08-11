@@ -17,16 +17,18 @@ public class AggregateStreamLambdaArgumentHandler extends LambdaParameterArgumen
 {
    SelectOnly<?> select;
    
-   public AggregateStreamLambdaArgumentHandler(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, boolean hasInQueryStreamSource)
+   public AggregateStreamLambdaArgumentHandler(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
-      super(lambda, metamodel, hasInQueryStreamSource);
+      super(lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
       this.select = select;
    }
    
    @Override
-   public JPQLQuery<?> handleSubQueryArg(int argIndex, Type argType)
+   protected JPQLQuery<?> handleLambdaSubQueryArg(int argIndex, Type argType) 
          throws TypedValueVisitorException
    {
-      return select;
+      if (argIndex == 0)
+         return select;
+      throw new TypedValueVisitorException("Lambda trying to access unknown lambda parameter");
    }
 }
