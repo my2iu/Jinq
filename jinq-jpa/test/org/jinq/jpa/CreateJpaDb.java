@@ -43,6 +43,7 @@ public class CreateJpaDb
       return createSale(customer, year, 1, 1, 1);
    }
 
+   @SuppressWarnings("deprecation")
    private Sale createSale(Customer customer, int year, int month, int day, int hour)
    {
       Instant instant = LocalDateTime.of(year, month, day, hour, 0).toInstant(ZoneOffset.UTC);

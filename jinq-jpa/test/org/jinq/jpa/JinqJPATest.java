@@ -15,7 +15,6 @@ import javax.persistence.Query;
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
-import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;

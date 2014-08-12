@@ -2,7 +2,6 @@ package org.jinq.jpa;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -146,6 +145,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Carol", sales.get(1).getOne().getName());
    }
 
+   @SuppressWarnings("deprecation")
    @Test
    public void testSqlDate()
    {
@@ -162,6 +162,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Carol", sales.get(1).getOne().getName());
    }
 
+   @SuppressWarnings("deprecation")
    @Test
    public void testSqlTime()
    {
@@ -178,6 +179,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Alice", sales.get(1).getOne().getName());
    }
 
+   @SuppressWarnings("deprecation")
    @Test
    public void testSqlTimestamp()
    {

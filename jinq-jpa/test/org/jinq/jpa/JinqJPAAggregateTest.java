@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
@@ -166,4 +167,17 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
    }
 
+   @Test(expected=IllegalArgumentException.class)
+   public void testGroup()
+   {
+    List<Tuple3<String, Long, Integer>> results =
+          streams.streamAll(em, Customer.class)
+          .group(c -> c.getCountry(),
+                (country, stream) -> stream.count(),
+                (country, stream) -> (Integer)stream.min(c -> c.getSalary()))
+          .toList();
+    results.sort((a, b) -> a.getOne().compareTo(b.getOne()));
+    assertEquals(4, results.size());
+    assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
+   }
 }

@@ -1,22 +1,12 @@
 package org.jinq.jpa;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.persistence.Query;
 
 import org.jinq.jpa.test.entities.Customer;
-import org.jinq.jpa.test.entities.Item;
-import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
-import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Test;
