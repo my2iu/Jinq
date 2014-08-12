@@ -1,6 +1,5 @@
 package org.jinq.orm.stream;
 
-import java.util.Collection;
 
 /**
  * Create a JinqStream of database data from inside the context of a 

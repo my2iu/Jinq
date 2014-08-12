@@ -142,6 +142,19 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    }
 
    @Test
+   public void testMultiAggregateTuple5()
+   {
+      assertEquals(new Tuple5<>(5l, 30, 500, 5l, 20), 
+            streams.streamAll(em, Customer.class)
+               .aggregate(stream -> stream.count(),
+                  stream -> stream.min(c -> c.getSalary()),
+                  stream -> stream.max(c -> c.getSalary()),
+                  stream -> stream.count(),
+                  stream -> 20));
+      assertEquals("SELECT COUNT(1), MIN(A.salary), MAX(A.salary), COUNT(1), 20 FROM Customer A", query);
+   }
+
+   @Test
    public void testMultiAggregateParameters()
    {
       int param = 1;

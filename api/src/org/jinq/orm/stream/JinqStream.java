@@ -9,6 +9,8 @@ import java.util.stream.Stream;
 
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
+import org.jinq.tuples.Tuple4;
+import org.jinq.tuples.Tuple5;
 
 public interface JinqStream<T> extends Stream<T>
 {
@@ -85,8 +87,23 @@ public interface JinqStream<T> extends Stream<T>
 //   public <U> U aggregate(AggregateSelect<T, U> aggregate1);
    public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1,
          AggregateSelect<T, V> aggregate2);
+   /**
+    * @see #aggregate(AggregateSelect, AggregateSelect)
+    */
    public <U, V, W> Tuple3<U, V, W> aggregate(AggregateSelect<T, U> aggregate1,
          AggregateSelect<T, V> aggregate2, AggregateSelect<T, W> aggregate3);
+   /**
+    * @see #aggregate(AggregateSelect, AggregateSelect)
+    */
+   public <U, V, W, X> Tuple4<U, V, W, X> aggregate(AggregateSelect<T, U> aggregate1,
+         AggregateSelect<T, V> aggregate2, AggregateSelect<T, W> aggregate3,
+         AggregateSelect<T, X> aggregate4);
+   /**
+    * @see #aggregate(AggregateSelect, AggregateSelect)
+    */
+   public <U, V, W, X, Y> Tuple5<U, V, W, X, Y> aggregate(AggregateSelect<T, U> aggregate1,
+         AggregateSelect<T, V> aggregate2, AggregateSelect<T, W> aggregate3,
+         AggregateSelect<T, X> aggregate4, AggregateSelect<T, Y> aggregate5);
 
    public <V extends Comparable<V>> JinqStream<T> sortedBy(CollectComparable<T, V> sortField);
    public <V extends Comparable<V>> JinqStream<T> sortedDescendingBy(CollectComparable<T, V> sortField);

@@ -19,6 +19,8 @@ import java.util.stream.StreamSupport;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 import org.jinq.tuples.Tuple3;
+import org.jinq.tuples.Tuple4;
+import org.jinq.tuples.Tuple5;
 
 public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
 {
@@ -120,6 +122,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return wrap(streamBuilder.build());
    }
 
+   @SuppressWarnings("unchecked")
    private static <V extends Number> V genericSum(V a, V b)
    {
       if (a == null) return b;
@@ -311,6 +314,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    @Override
    public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1, AggregateSelect<T, V> aggregate2)
    {
+      @SuppressWarnings("unchecked")
       AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
             {
                aggregate1, aggregate2
@@ -322,9 +326,38 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    public <U, V, W> Tuple3<U, V, W> aggregate(AggregateSelect<T, U> aggregate1,
          AggregateSelect<T, V> aggregate2, AggregateSelect<T, W> aggregate3)
    {
+      @SuppressWarnings("unchecked")
       AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
             {
                aggregate1, aggregate2, aggregate3
+            };
+      return multiaggregate(aggregates);
+   }
+
+
+   @Override
+   public <U, V, W, X> Tuple4<U, V, W, X> aggregate(
+         JinqStream.AggregateSelect<T, U> aggregate1, JinqStream.AggregateSelect<T, V> aggregate2,
+         JinqStream.AggregateSelect<T, W> aggregate3, JinqStream.AggregateSelect<T, X> aggregate4)
+   {
+      @SuppressWarnings("unchecked")
+      AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
+            {
+               aggregate1, aggregate2, aggregate3, aggregate4
+            };
+      return multiaggregate(aggregates);
+   }
+
+   @Override
+   public <U, V, W, X, Y> Tuple5<U, V, W, X, Y> aggregate(
+         JinqStream.AggregateSelect<T, U> aggregate1, JinqStream.AggregateSelect<T, V> aggregate2,
+         JinqStream.AggregateSelect<T, W> aggregate3, JinqStream.AggregateSelect<T, X> aggregate4,
+         JinqStream.AggregateSelect<T, Y> aggregate5)
+   {
+      @SuppressWarnings("unchecked")
+      AggregateSelect<T, ?>[] aggregates = new AggregateSelect[]
+            {
+               aggregate1, aggregate2, aggregate3, aggregate4, aggregate5
             };
       return multiaggregate(aggregates);
    }
