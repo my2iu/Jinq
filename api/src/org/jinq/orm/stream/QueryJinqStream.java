@@ -2,11 +2,16 @@ package org.jinq.orm.stream;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jinq.orm.stream.JinqStream.AggregateGroup;
+import org.jinq.orm.stream.JinqStream.Select;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 
@@ -74,14 +79,22 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       if (newComposer != null) return new QueryJinqStream<T>(newComposer, inQueryStreamSource);
       return super.unique();
    }
-   
+
    @Override
-   public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate)
+   protected <U, W extends Tuple> JinqStream<W> groupToTuple(Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
-      QueryComposer<Pair<U, V>> newComposer = queryComposer.group(select, aggregate);
-      if (newComposer != null) return new QueryJinqStream<Pair<U, V>>(newComposer, inQueryStreamSource);
-      return super.group(select, aggregate);
+      QueryComposer<W> newComposer = queryComposer.groupToTuple(select, aggregates);
+      if (newComposer != null) return new QueryJinqStream<W>(newComposer, inQueryStreamSource);
+      return super.groupToTuple(select, aggregates);
    }
+
+//   @Override
+//   public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate)
+//   {
+//      QueryComposer<Pair<U, V>> newComposer = queryComposer.group(select, aggregate);
+//      if (newComposer != null) return new QueryJinqStream<Pair<U, V>>(newComposer, inQueryStreamSource);
+//      return super.group(select, aggregate);
+//   }
    
    @Override
    public long count()

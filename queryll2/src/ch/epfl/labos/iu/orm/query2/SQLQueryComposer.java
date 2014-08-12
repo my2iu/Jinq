@@ -474,16 +474,20 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
    }
 
    public <U, V> QueryComposerWithLists<Pair<U, V>> group(Select<T, U> select,
-                                                 AggregateGroup<U, T, V> aggregate) 
+         AggregateGroup<U, T, V> aggregate) 
    {
       return composeQuery("group", select, aggregate, 
             () -> transformer.group(query.copy(), nextLambdaParamIndex, select, nextLambdaParamIndex + 1, aggregate, emSource));
    }
 
-   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select,
-         JinqStream.AggregateGroup<U, T, V> aggregate) 
+   @Override
+   public <U, W extends Tuple> QueryComposer<W> groupToTuple(
+         JinqStream.Select<T, U> select,
+         JinqStream.AggregateGroup<U, T, ?>[] aggregates)
    {
-      return composeQuery("group", select, aggregate, 
+      if (aggregates.length > 1) return null;
+      JinqStream.AggregateGroup<U, T, Object> aggregate = (JinqStream.AggregateGroup<U, T, Object>) aggregates[0];
+      return (QueryComposer<W>) composeQuery("group", select, aggregate, 
             () -> transformer.group(query.copy(), nextLambdaParamIndex, select, nextLambdaParamIndex + 1, aggregate, emSource));
    }
 

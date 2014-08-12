@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -103,23 +104,71 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return wrap(distinct());
    }
    
+   protected <U, W extends Tuple> JinqStream<W> groupToTuple(Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
+   {
+      Map<U, List<T>> groups = collect(Collectors.groupingBy(in -> select.select(in)));
+      final Stream.Builder<W> streamBuilder = Stream.builder();
+      for (Map.Entry<U, List<T>> entry: groups.entrySet())
+      {
+         Object[] groupAggregates = new Object[aggregates.length + 1];
+         for (int n = 0; n < aggregates.length; n++)
+            groupAggregates[n + 1] = aggregates[n].aggregateSelect(entry.getKey(), wrap(entry.getValue().stream()));
+         groupAggregates[0] = (Object)entry.getKey();
+         streamBuilder.accept(Tuple.createTuple(groupAggregates));
+      }
+      return (JinqStream<W>) wrap(streamBuilder.build());
+   }
+   
    @Override
    public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate)
    {
-      // TODO: This stream should be constructed on the fly
-      final Stream.Builder<Pair<U,V>> streamBuilder = Stream.builder();
-      
-      // TODO: Rewrite to use Collectors.groupingBy()
-      HashMap<U, List<T>> map = new HashMap<>();
-      forEach( val -> {
-         U group = select.select(val);
-         if (!map.containsKey(group))
-            map.put(group, new ArrayList<>());
-         map.get(group).add(val);
-      });
-      for (Map.Entry<U, List<T>> entry: map.entrySet())
-         streamBuilder.accept(new Pair<>(entry.getKey(), aggregate.aggregateSelect(entry.getKey(), wrap(entry.getValue().stream()))));
-      return wrap(streamBuilder.build());
+      @SuppressWarnings("unchecked")
+      AggregateGroup<U, T, ?>[] aggregates = new AggregateGroup[] {
+            aggregate
+      };
+      return groupToTuple(select, aggregates);
+   }
+   
+   @Override
+   public <U, V, W> JinqStream<Tuple3<U, V, W>> group(
+         JinqStream.Select<T, U> select,
+         JinqStream.AggregateGroup<U, T, V> aggregate1,
+         JinqStream.AggregateGroup<U, T, W> aggregate2)
+   {
+      @SuppressWarnings("unchecked")
+      AggregateGroup<U, T, ?>[] aggregates = new AggregateGroup[] {
+            aggregate1, aggregate2,
+      };
+      return groupToTuple(select, aggregates);
+   }
+
+   @Override
+   public <U, V, W, X> JinqStream<Tuple4<U, V, W, X>> group(
+         JinqStream.Select<T, U> select,
+         JinqStream.AggregateGroup<U, T, V> aggregate1,
+         JinqStream.AggregateGroup<U, T, W> aggregate2,
+         JinqStream.AggregateGroup<U, T, X> aggregate3)
+   {
+      @SuppressWarnings("unchecked")
+      AggregateGroup<U, T, ?>[] aggregates = new AggregateGroup[] {
+            aggregate1, aggregate2, aggregate3,
+      };
+      return groupToTuple(select, aggregates);
+   }
+
+   @Override
+   public <U, V, W, X, Y> JinqStream<Tuple5<U, V, W, X, Y>> group(
+         JinqStream.Select<T, U> select,
+         JinqStream.AggregateGroup<U, T, V> aggregate1,
+         JinqStream.AggregateGroup<U, T, W> aggregate2,
+         JinqStream.AggregateGroup<U, T, X> aggregate3,
+         JinqStream.AggregateGroup<U, T, Y> aggregate4)
+   {
+      @SuppressWarnings("unchecked")
+      AggregateGroup<U, T, ?>[] aggregates = new AggregateGroup[] {
+            aggregate1, aggregate2, aggregate3, aggregate4,
+      };
+      return groupToTuple(select, aggregates);
    }
 
    @SuppressWarnings("unchecked")
@@ -364,47 +413,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
 
    <U extends Tuple> U multiaggregate(AggregateSelect<T, ?>[] aggregates)
    {
-      final int MAX_QUEUE_SIZE = 100;
-      final Object DONE = new Object();
-      
-      // Make a copy of the input stream for each aggregate being calculated.
-      final JinqStream[] inputStreams = new JinqStream[aggregates.length];
-      final ArrayBlockingQueue<Object>[] inputQueues = new ArrayBlockingQueue[aggregates.length];
-      for (int n = 0; n < aggregates.length; n++)
-      {
-         inputQueues[n] = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE);
-      }
-      
-      Runnable startIterator = new Runnable() {
-         boolean isStarted = false;
-         @Override public synchronized void run()
-         {
-            if (isStarted) return;
-            isStarted = true;
-            new Thread() {
-               @Override public void run()
-               {
-                  forEach( val -> {
-                     for (int n = 0; n < inputQueues.length; n++)
-                     {
-                        try {
-                           inputQueues[n].put(val);
-                        } catch (InterruptedException e)
-                        {
-                           Thread.currentThread().interrupt();
-                        }
-                     }
-                  });
-                  try {
-                     for (int n = 0; n < inputQueues.length; n++)
-                        inputQueues[n].put(DONE);
-                  } catch (InterruptedException e)
-                  {
-                     Thread.currentThread().interrupt();
-                  }
-               }
-            }.start();
-         }};
+      IteratorTee<T> tee = new IteratorTee<>(this, aggregates.length);
       
       // Run each aggregator in a separate thread so that we can
       // use producer-consumer queues and hence avoid using too much
@@ -418,29 +427,10 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
          aggregateThreads[n] = new Thread() {
             @Override public void run()
             {
-               startIterator.run();
-               Iterator<T> inputIterator = new NextOnlyIterator<T>()
-                     {
-                        @Override
-                        protected void generateNext()
-                        {
-                           Object taken = DONE;
-                           try {
-                              taken = inputQueues[idx].take();
-                           } catch (InterruptedException e)
-                           {
-                              Thread.currentThread().interrupt();
-                           }
-                           if (taken == DONE)
-                              noMoreElements();
-                           else
-                              nextElement((T)taken);
-                        }
-                     };
-               JinqStream<T> stream = wrap(
-                     StreamSupport.stream(
+               JinqStream<T> stream = 
+                     wrap(StreamSupport.stream(
                            Spliterators.spliteratorUnknownSize(
-                                 inputIterator, 
+                                 tee.createIterator(idx), 
                                  Spliterator.CONCURRENT), 
                            false));
                results[idx] = fn.aggregateSelect(stream);
@@ -459,7 +449,75 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       }
       return Tuple.createTuple(results);
    }
-
+   
+   public static class IteratorTee<T> 
+   {
+      static final int MAX_QUEUE_SIZE = 100;
+      final Object DONE = new Object();
+      
+      ArrayBlockingQueue<Object>[] outputQueues;
+      Stream<T> inputStream;
+      public IteratorTee(Stream<T> inputStream, int size)
+      {
+         this.inputStream = inputStream;
+         outputQueues = new ArrayBlockingQueue[size];
+         for (int n = 0; n < size; n++)
+            outputQueues[n] = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE);
+      }
+      
+      boolean isStarted = false;
+      synchronized void startInputStreamPump()
+      {
+         if (isStarted) return;
+         isStarted = true;
+         new Thread() {
+            @Override public void run()
+            {
+               inputStream.forEach( val -> {
+                  for (int n = 0; n < outputQueues.length; n++)
+                  {
+                     try {
+                        outputQueues[n].put(val);
+                     } catch (InterruptedException e)
+                     {
+                        Thread.currentThread().interrupt();
+                     }
+                  }
+               });
+               try {
+                  for (int n = 0; n < outputQueues.length; n++)
+                     outputQueues[n].put(DONE);
+               } catch (InterruptedException e)
+               {
+                  Thread.currentThread().interrupt();
+               }
+            }
+         }.start();
+      }
+      public Iterator<T> createIterator(int idx)
+      {
+         return new NextOnlyIterator<T>()
+               {
+                  @Override
+                  protected void generateNext()
+                  {
+                     startInputStreamPump();
+                     Object taken = DONE;
+                     try {
+                        taken = outputQueues[idx].take();
+                     } catch (InterruptedException e)
+                     {
+                        Thread.currentThread().interrupt();
+                     }
+                     if (taken == DONE)
+                        noMoreElements();
+                     else
+                        nextElement((T)taken);
+                  }
+               };
+      }
+   }
+   
    @Override
    public JinqStream<T> setHint(String name, Object value)
    {

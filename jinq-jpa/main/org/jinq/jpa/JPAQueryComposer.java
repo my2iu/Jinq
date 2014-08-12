@@ -28,8 +28,10 @@ import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.SortingTransform;
 import org.jinq.jpa.transform.WhereTransform;
+import org.jinq.orm.stream.JinqStream.AggregateGroup;
 import org.jinq.orm.stream.JinqStream.CollectComparable;
 import org.jinq.orm.stream.JinqStream.CollectNumber;
+import org.jinq.orm.stream.JinqStream.Select;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
@@ -324,16 +326,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <U, V> QueryComposer<Pair<U, V>> group(
-         org.jinq.orm.stream.JinqStream.Select<T, U> select,
-         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, V> aggregate)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-   
-   @Override
    public Long count()
    {
       JPAQueryComposer<Long> result = applyTransformWithLambda(new CountTransform(metamodel, hints.lambdaClassLoader));
@@ -406,7 +398,16 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       translationFail(); 
       return null;
    }
-   
+
+   @Override
+   public <U, W extends Tuple> QueryComposer<W> groupToTuple(
+         Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
+   {
+      // TODO Auto-generated method stub
+      translationFail(); 
+      return null;
+   }
+
    @Override
    public void setHint(String name, Object val)
    {

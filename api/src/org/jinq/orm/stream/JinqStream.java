@@ -43,6 +43,19 @@ public interface JinqStream<T> extends Stream<T>
       public V aggregateSelect(W key, JinqStream<U> val);
    }
    public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate);
+   /** @see #group(Select, AggregateGroup) */
+   public <U, V, W> JinqStream<Tuple3<U, V, W>> group(Select<T, U> select, 
+         AggregateGroup<U, T, V> aggregate1, AggregateGroup<U, T, W> aggregate2);
+   /** @see #group(Select, AggregateGroup) */
+   public <U, V, W, X> JinqStream<Tuple4<U, V, W, X>> group(Select<T, U> select, 
+         AggregateGroup<U, T, V> aggregate1, AggregateGroup<U, T, W> aggregate2,
+         AggregateGroup<U, T, X> aggregate3);
+   /** @see #group(Select, AggregateGroup) */
+   public <U, V, W, X, Y> JinqStream<Tuple5<U, V, W, X, Y>> group(Select<T, U> select, 
+         AggregateGroup<U, T, V> aggregate1, AggregateGroup<U, T, W> aggregate2,
+         AggregateGroup<U, T, X> aggregate3, AggregateGroup<U, T, Y> aggregate4);
+
+   
    // TODO: This interface is a little iffy since the function can potentially return different number types
    // and things can't be checked until runtime, but Java type inferencing currently can't
    // disambiguate between different methods that take functions with different return types.

@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.JinqStream.AggregateGroup;
+import org.jinq.orm.stream.JinqStream.Select;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 
@@ -28,7 +30,7 @@ public interface QueryComposer<T>
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.JoinWithSource<T,U> join);
    public QueryComposer<T> unique();
-   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
+//   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 
    // returns null if the aggregates cannot be calculated
    public Long count();
@@ -39,7 +41,8 @@ public interface QueryComposer<T>
 //   public <U> U selectAggregates(JinqStream.AggregateSelect<T, U> aggregate);
    
    public <U extends Tuple> U multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);
-   
+   public <U, W extends Tuple> QueryComposer<W> groupToTuple(Select<T, U> select, JinqStream.AggregateGroup<U, T, ?>[] aggregates);
+
    public void setHint(String name, Object val);
 
 }
