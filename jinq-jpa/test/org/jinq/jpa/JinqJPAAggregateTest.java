@@ -167,7 +167,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testGroup()
    {
     List<Tuple3<String, Long, Integer>> results =
@@ -178,6 +178,9 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
           .toList();
     results.sort((a, b) -> a.getOne().compareTo(b.getOne()));
     assertEquals(4, results.size());
+    assertEquals(1, (long)results.get(0).getTwo());
+    assertEquals("Canada", results.get(0).getOne());
+    assertEquals(new Tuple3<>("Switzerland", 2l, 200), results.get(1));
     assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
    }
 }

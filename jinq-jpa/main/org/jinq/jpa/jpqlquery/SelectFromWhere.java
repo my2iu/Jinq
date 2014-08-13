@@ -30,17 +30,35 @@ public class SelectFromWhere<T> extends SelectOnly<T>
     */
    private List<GeneratedQueryParameter> queryParameters;
    
-   private void generateQuery()
+   protected void generateQuery()
    {
       QueryGenerationState queryState = new QueryGenerationState();
+
+      prepareQueryGeneration(queryState);
       
+      // Now generate the query
+      queryString = generateQueryContents(queryState);
+      queryParameters = queryState.parameters;
+   }
+   
+   protected void prepareQueryGeneration(QueryGenerationState queryState)
+   {
       // Generate aliases for each of the FROM entries
       for (From from: froms)
       {
          queryState.generateFromAlias(from);
       }
-      
-      // Now generate the query
+   }
+   
+   protected String generateQueryContents(QueryGenerationState queryState)
+   {
+      String query = generateSelectFromWhere(queryState);
+      query += generateSort(queryState);
+      return query;
+   }
+
+   protected String generateSelectFromWhere(QueryGenerationState queryState)
+   {
       String query = "";
       if (cols.getNumColumns() > 0)
       {
@@ -75,6 +93,12 @@ public class SelectFromWhere<T> extends SelectOnly<T>
          where.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
          query += queryState.queryString;
       }
+      return query;
+   }
+   
+   protected String generateSort(QueryGenerationState queryState)
+   {
+      String query = "";
       if (!sort.isEmpty())
       {
          query += " ORDER BY";
@@ -89,8 +113,7 @@ public class SelectFromWhere<T> extends SelectOnly<T>
             query += (sortParams.isAscending ? " ASC" : " DESC");
          }
       }
-      queryString = query;
-      queryParameters = queryState.parameters;
+      return query;
    }
    
    @Override
@@ -124,10 +147,16 @@ public class SelectFromWhere<T> extends SelectOnly<T>
    {
       return !isAggregated && limit < 0 && skip < 0;
    }
-
-   public SelectFromWhere<T> shallowCopy()
+   
+   public <U> GroupedSelectFromWhere<T, U> shallowCopyWithGrouping()
    {
-      SelectFromWhere<T> copy = new SelectFromWhere<>();
+      GroupedSelectFromWhere<T, U> copy = new GroupedSelectFromWhere<>();
+      copySelectFromWhereTo(copy);
+      return copy;
+   }
+
+   protected void copySelectFromWhereTo(SelectFromWhere<T> copy)
+   {
       copy.cols = cols;
       copy.froms.addAll(froms);
       copy.where = where;
@@ -135,6 +164,12 @@ public class SelectFromWhere<T> extends SelectOnly<T>
       copy.sort.addAll(sort);
       copy.limit = limit;
       copy.skip = skip;
+   }
+   
+   public SelectFromWhere<T> shallowCopy()
+   {
+      SelectFromWhere<T> copy = new SelectFromWhere<>();
+      copySelectFromWhereTo(copy);
       return copy;
    }
    

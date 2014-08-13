@@ -17,6 +17,7 @@ import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.transform.AggregateTransform;
 import org.jinq.jpa.transform.CountTransform;
+import org.jinq.jpa.transform.GroupingTransform;
 import org.jinq.jpa.transform.JPQLMultiLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
@@ -403,9 +404,10 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <U, W extends Tuple> QueryComposer<W> groupToTuple(
          Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
+      Object [] groupingLambdas = new Object[aggregates.length + 1];
+      groupingLambdas[0] = select;
+      System.arraycopy(aggregates, 0, groupingLambdas, 1, aggregates.length);
+      return applyTransformWithLambdas(new GroupingTransform(metamodel, hints.lambdaClassLoader), groupingLambdas);
    }
 
    @Override
