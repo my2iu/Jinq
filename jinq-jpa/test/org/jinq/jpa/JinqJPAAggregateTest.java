@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -182,5 +183,67 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
     assertEquals("Canada", results.get(0).getOne());
     assertEquals(new Tuple3<>("Switzerland", 2l, 200), results.get(1));
     assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
+   }
+   
+   @Test
+   public void testGroupSortLimit()
+   {
+    List<Tuple3<String, Long, Integer>> results =
+          streams.streamAll(em, Customer.class)
+          .group(c -> c.getCountry(),
+                (country, stream) -> stream.count(),
+                (country, stream) -> (Integer)stream.min(c -> c.getSalary()))
+          .sortedBy(g -> g.getOne())
+          .skip(1)
+          .limit(1)
+          .toList();
+    assertEquals(1, results.size());
+    assertEquals(new Tuple3<>("Switzerland", 2l, 200), results.get(0));
+    assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country ASC", query);
+   }
+   
+   @Test 
+   public void testGroupByLinkEntity()
+   {
+      List<Pair<Customer, Long>> results = 
+            streams.streamAll(em, Sale.class)
+                  .group(s -> s.getCustomer(), 
+                        (c, stream) -> stream.count())
+                  .toList();
+      results.sort(Comparator.<Pair<Customer, Long>, Long>comparing(group -> group.getTwo())
+            .thenComparing(group -> group.getOne().getName()));
+      assertEquals(4, results.size());
+      assertEquals("Dave", results.get(0).getOne().getName());
+      assertEquals(2, (long)results.get(2).getTwo());
+      assertEquals("Alice", results.get(2).getOne().getName());
+      assertEquals("SELECT A.customer, COUNT(1) FROM Sale A GROUP BY A.customer", query);
+   }
+   
+   @Test 
+   public void testGroupByMixKeyAggregate()
+   {
+      List<Pair<String, Long>> results = 
+            streams.streamAll(em, Sale.class)
+                  .group(s -> new Pair<String, Integer>(s.getCustomer().getName(), s.getCustomer().getSalary()), 
+                        (c, stream) -> c.getTwo() + stream.count())
+                  .select(group -> new Pair<>(group.getOne().getOne(), group.getTwo()))
+                  .toList();
+      results.sort(Comparator.comparing(group -> group.getOne()));
+      assertEquals(new Pair<>("Alice", 202l),
+            results.get(0));
+      assertEquals("SELECT A.customer.name, A.customer.salary + COUNT(1) FROM Sale A GROUP BY A.customer.name, A.customer.salary", query);
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testSortGroupByFail()
+   {
+      // Cannot do a group by after a sort
+      List<Pair<String, Long>> results = 
+            streams.streamAll(em, Customer.class)
+                  .sortedBy(c -> c.getName())
+                  .group(c -> c.getCountry(), 
+                        (c, stream) -> stream.count())
+                  .toList();
+      assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country", query);
    }
 }

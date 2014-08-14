@@ -109,6 +109,11 @@ public class SelectOnly<T> extends JPQLQuery<T>
       return false;
    }
    
+   public boolean isSelectFromWhereGroup()
+   {
+      return false;
+   }
+
    public boolean canSort()
    {
       return false;

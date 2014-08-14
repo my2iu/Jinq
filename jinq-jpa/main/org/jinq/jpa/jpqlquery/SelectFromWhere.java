@@ -142,10 +142,11 @@ public class SelectFromWhere<T> extends SelectOnly<T>
    {
       return !isAggregated && sort.isEmpty() && limit < 0 && skip < 0;
    }
-   
+
    public boolean canSort()
    {
-      return !isAggregated && limit < 0 && skip < 0;
+      return ((this.getClass() == SelectFromWhere.class && !isAggregated) || (this instanceof GroupedSelectFromWhere))
+            && limit < 0 && skip < 0;
    }
    
    public <U> GroupedSelectFromWhere<T, U> shallowCopyWithGrouping()

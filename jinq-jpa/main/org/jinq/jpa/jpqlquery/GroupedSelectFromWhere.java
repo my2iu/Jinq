@@ -28,9 +28,16 @@ public class GroupedSelectFromWhere<T, U> extends SelectFromWhere<T>
       return query;
    }
    
+   @Override
    public boolean isSelectFromWhere()
    {
       return false;
+   }
+
+   @Override
+   public boolean isSelectFromWhereGroup()
+   {
+      return sort.isEmpty() && limit < 0 && skip < 0;
    }
    
    public GroupedSelectFromWhere<T, U> shallowCopy()
