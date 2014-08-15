@@ -18,7 +18,7 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
    {
       try  {
-         if (query.isSelectFromWhere() || query.isSelectFromWhereGroup())
+         if (query.isSelectFromWhere() || query.isSelectFromWhereGroupHaving())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 

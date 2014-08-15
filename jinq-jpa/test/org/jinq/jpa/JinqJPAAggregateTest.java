@@ -234,16 +234,34 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT A.customer.name, A.customer.salary + COUNT(1) FROM Sale A GROUP BY A.customer.name, A.customer.salary", query);
    }
 
+   @Test 
+   public void testGroupByHaving()
+   {
+      List<Pair<String, Long>> results = 
+            streams.streamAll(em, Lineorder.class)
+                  .where(lo -> "Screws".equals(lo.getItem().getName()))
+                  .select(lo -> lo.getSale())
+                  .group(s -> new Pair<String, Integer>(s.getCustomer().getName(), s.getCustomer().getSalary()), 
+                        (c, stream) -> c.getTwo() + stream.count())
+                  .where(group -> group.getTwo() < 220)
+                  .select(group -> new Pair<>(group.getOne().getOne(), group.getTwo()))
+                  .sortedBy(group -> group.getOne())
+                  .toList();
+      assertEquals(2, results.size());
+      assertEquals(new Pair<>("Alice", 201l),
+            results.get(0));
+      assertEquals("SELECT A.sale.customer.name, A.sale.customer.salary + COUNT(1) FROM Lineorder A WHERE 'Screws' = A.item.name GROUP BY A.sale.customer.name, A.sale.customer.salary HAVING A.sale.customer.salary + COUNT(1) < 220 ORDER BY A.sale.customer.name ASC", query);
+   }
+
    @Test(expected=IllegalArgumentException.class)
    public void testSortGroupByFail()
    {
       // Cannot do a group by after a sort
-      List<Pair<String, Long>> results = 
-            streams.streamAll(em, Customer.class)
-                  .sortedBy(c -> c.getName())
-                  .group(c -> c.getCountry(), 
-                        (c, stream) -> stream.count())
-                  .toList();
+      streams.streamAll(em, Customer.class)
+            .sortedBy(c -> c.getName())
+            .group(c -> c.getCountry(), 
+                  (c, stream) -> stream.count())
+            .toList();
       assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country", query);
    }
 }

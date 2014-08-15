@@ -109,7 +109,7 @@ public class SelectOnly<T> extends JPQLQuery<T>
       return false;
    }
    
-   public boolean isSelectFromWhereGroup()
+   public boolean isSelectFromWhereGroupHaving()
    {
       return false;
    }
