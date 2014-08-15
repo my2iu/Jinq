@@ -139,6 +139,14 @@ public class SampleMain
          .sumInteger(lo -> lo.getQuantity()) );
       out.println();
       
+      // Sorting and limit
+      out.println("TOP 3 CUSTOMERS WITH HIGHEST SALARY");
+      customers()
+         .sortedDescendingBy(c -> c.getSalary())
+         .limit(3)
+         .forEach(c -> out.println(c.getName() + " " + c.getSalary()));
+      out.println();
+      
       em.close();
    }
 }
