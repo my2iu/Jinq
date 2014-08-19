@@ -14,11 +14,11 @@ import org.jinq.tuples.Tuple5;
 
 public interface JinqStream<T> extends Stream<T>
 {
-   public static interface Where<U, E extends Exception> extends Serializable {
+   @FunctionalInterface public static interface Where<U, E extends Exception> extends Serializable {
       public boolean where(U obj) throws E;
    }
    public <E extends Exception> JinqStream<T> where(Where<T, E> test);
-   public static interface Select<U, V> extends Serializable {
+   @FunctionalInterface public static interface Select<U, V> extends Serializable {
       public V select(U val);
    }
    public <U> JinqStream<U> select(Select<T, U> select);
@@ -30,16 +30,16 @@ public interface JinqStream<T> extends Stream<T>
    // TODO: Perhaps only providing a join(DBSet<U> other) is safer because
    // I think it will translate into valid SQL code, but it prevents people from
    // using navigational queries e.g. customers.join(customer -> customer.getPurchases);
-   public static interface Join<U, V> extends Serializable {
+   @FunctionalInterface public static interface Join<U, V> extends Serializable {
       public JinqStream<V> join(U val);
    }
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join);
-   public static interface JoinWithSource<U, V> extends Serializable {
+   @FunctionalInterface public static interface JoinWithSource<U, V> extends Serializable {
       public JinqStream<V> join(U val, InQueryStreamSource source);
    }
    public <U> JinqStream<Pair<T, U>> join(JoinWithSource<T,U> join);
    public JinqStream<T> unique();
-   public static interface AggregateGroup<W, U, V> extends Serializable {
+   @FunctionalInterface public static interface AggregateGroup<W, U, V> extends Serializable {
       public V aggregateSelect(W key, JinqStream<U> val);
    }
    public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select, AggregateGroup<U, T, V> aggregate);
@@ -64,10 +64,10 @@ public interface JinqStream<T> extends Stream<T>
 
    // These interfaces are used to define the lambdas used as parameters to various aggregation
    // operations.
-   public static interface CollectNumber<U, V extends Number & Comparable<V>> extends Serializable {
+   @FunctionalInterface public static interface CollectNumber<U, V extends Number & Comparable<V>> extends Serializable {
       public V aggregate(U val);
    }
-   public static interface CollectComparable<U, V extends Comparable<V>> extends Serializable {
+   @FunctionalInterface public static interface CollectComparable<U, V extends Comparable<V>> extends Serializable {
       public V aggregate(U val);
    }
    public static interface CollectInteger<U> extends CollectNumber<U, Integer> {}
@@ -93,7 +93,7 @@ public interface JinqStream<T> extends Stream<T>
    public <V extends Comparable<V>> V min(CollectComparable<T, V> aggregate);
    public <V extends Number & Comparable<V>> Double avg(CollectNumber<T, V> aggregate);
    
-   public static interface AggregateSelect<U, V> extends Serializable {
+   @FunctionalInterface public static interface AggregateSelect<U, V> extends Serializable {
       public V aggregateSelect(JinqStream<U> val);
    }
 //   public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
