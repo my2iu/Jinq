@@ -39,7 +39,7 @@ public class SerializedLambda implements Serializable {
       }
     }
 
-    public static SerializedLambda extractLambda(Object lambda)
+    public static SerializedLambda extractLambda(Object lambda) throws Exception
     {
       try {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
@@ -57,8 +57,7 @@ public class SerializedLambda implements Serializable {
           return (SerializedLambda)o;
         return null;
       } catch(Exception e) {
-        e.printStackTrace();
-        return null;
+        throw new Exception(e);
       }
       
     }

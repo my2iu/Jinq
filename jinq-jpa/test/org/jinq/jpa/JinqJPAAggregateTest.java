@@ -264,4 +264,14 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
             .toList();
       assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country", query);
    }
+   
+   @Test(expected=IllegalArgumentException.class)
+   public void testSubQuery()
+   {
+      List<Sale> sales = streams.streamAll(em, Sale.class)
+            .where( s -> streams.streamAll(em, Sale.class).max(ss -> ss.getSaleid()) == s.getSaleid())
+            .toList();
+      assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))", query);
+      assertEquals(1, sales.size());
+   }
 }

@@ -43,9 +43,16 @@ public class LambdaInfo
    
    public static LambdaInfo analyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, Object lambda, int lambdaIndex, boolean throwExceptionOnFailure)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(lambda);
-      if (s == null) 
-      {
+      SerializedLambda s;
+      try {
+         s = SerializedLambda.extractLambda(lambda);
+         if (s == null) 
+         {
+            if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda");
+            return null;
+         }
+      } catch (Exception e)
+      { 
          if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda");
          return null;
       }

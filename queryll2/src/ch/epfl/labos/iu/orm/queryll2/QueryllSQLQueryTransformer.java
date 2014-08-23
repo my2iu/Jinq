@@ -63,6 +63,17 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       this.entityInfo = entityInfo;
       this.runtimeAnalyzer = runtimeAnalyzer;
    }
+
+   private static SerializedLambda extractLambda(Object lambda)
+   {
+      try {
+         return SerializedLambda.extractLambda(lambda);
+      } catch (Exception e)
+      {
+         return null;
+      }
+   }
+
    
    /* (non-Javadoc)
     * @see ch.epfl.labos.iu.orm.queryll2.StaticMethodAnalysisStorage#storeMethodAnalysis(java.lang.String, java.lang.String, ch.epfl.labos.iu.orm.queryll2.MethodAnalysisResults)
@@ -193,7 +204,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       }
       static ParamsToJava8LambdaDescription fromLambda(Object lambda)
       {
-         SerializedLambda s = SerializedLambda.extractLambda(lambda);
+         SerializedLambda s = extractLambda(lambda);
          if (s != null)
             return ParamsToJava8LambdaDescription.fromSerializedLambda(s);
          return new ParamsToJava8LambdaDescription();
@@ -480,7 +491,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    public <T> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex, Where<T> test, Object emSource)
    {
       MethodAnalysisResults analysis = null;
-      SerializedLambda s = SerializedLambda.extractLambda(test);
+      SerializedLambda s = extractLambda(test);
       if (s != null)
       {
          analysis = runtimeAnalyzer.analyzeLambda(s);
@@ -498,7 +509,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    // Version of where analysis used by JinqStream.where()
    public <T, E extends Exception> SQLQuery<T> where(SQLQuery<T> query, int lambdaThisIndex, JinqStream.Where<T, E> test, Object emSource)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(test);
+      SerializedLambda s = extractLambda(test);
       if (s == null) return null;
       MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
       if (analysis == null) return null;
@@ -614,7 +625,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    public <T, U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex,
          JinqStream.Select<T, U> select, Object emSource)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(select);
+      SerializedLambda s = extractLambda(select);
       if (s == null) return null;
       MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
       if (analysis == null) return null;
@@ -624,7 +635,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    public <T, U> SQLQuery<U> select(SQLQuery<T> query, int lambdaThisIndex, Select<T, U> select, Object emSource)
    {
       MethodAnalysisResults analysis = null;
-      SerializedLambda s = SerializedLambda.extractLambda(select);
+      SerializedLambda s = extractLambda(select);
       if (s != null)
       {
          analysis = runtimeAnalyzer.analyzeLambda(s);
@@ -840,7 +851,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    MethodAnalysisResults analyzeSimpleAggregateLambda(Object aggregate, Map<String, MethodAnalysisResults> aggregateAnalysisBaseClasses)
    {
       MethodAnalysisResults analysis = null;
-      SerializedLambda s = SerializedLambda.extractLambda(aggregate);
+      SerializedLambda s = extractLambda(aggregate);
       if (s != null)
       {
          analysis = runtimeAnalyzer.analyzeLambda(s);
@@ -1023,7 +1034,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
          int lambdaThisIndex, JinqStream.Join<T, U> join,
          Object emSource)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(join);
+      SerializedLambda s = extractLambda(join);
       if (s == null) return null;
       MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
       if (analysis == null) return null;
@@ -1032,7 +1043,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    
    public <T, U> SQLQuery<Pair<T, U>> join(SQLQuery<T> query, int lambdaThisIndex, Join<T, U> join, Object emSource)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(join);
+      SerializedLambda s = extractLambda(join);
       MethodAnalysisResults analysis;
       if (s != null)
       {
@@ -1093,7 +1104,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
    public <T, U> SQLQuery<U> selectAggregates(SQLQuery<T> query,
          int lambdaThisIndex, JinqStream.AggregateSelect<T, U> select, Object emSource)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(select);
+      SerializedLambda s = extractLambda(select);
       if (s == null) return null;
       MethodAnalysisResults analysis = runtimeAnalyzer.analyzeLambda(s);
       if (analysis == null) return null;
@@ -1102,7 +1113,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
 
    public <T,U> SQLQuery<U> selectAggregates(SQLQuery<T> query, int lambdaThisIndex, DBSet.AggregateSelect<T,U> select, Object emSource)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(select);
+      SerializedLambda s = extractLambda(select);
       MethodAnalysisResults analysis;
       if (s != null)
       {
@@ -1155,7 +1166,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
       MethodAnalysisResults [] analyses = new MethodAnalysisResults[aggregates.length];
       for (int n = 0; n < aggregates.length; n++)
       {
-         s[n] = SerializedLambda.extractLambda(aggregates[n]);
+         s[n] = extractLambda(aggregates[n]);
          if (s[n] == null) return null;
          analyses[n] = runtimeAnalyzer.analyzeLambda(s[n]);
          if (analyses[n] == null) return null;
@@ -1207,12 +1218,12 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
          JinqStream.AggregateGroup<U, T, V> aggregate,
          Object emSource)
    {
-      SerializedLambda sSelect = SerializedLambda.extractLambda(select);
+      SerializedLambda sSelect = extractLambda(select);
       if (sSelect == null) return null;
       MethodAnalysisResults analysisForSelect = runtimeAnalyzer.analyzeLambda(sSelect);
       if (analysisForSelect == null) return null;
 
-      SerializedLambda sAggregate = SerializedLambda.extractLambda(aggregate);
+      SerializedLambda sAggregate = extractLambda(aggregate);
       if (sAggregate == null) return null;
       MethodAnalysisResults analysisForGroup = runtimeAnalyzer.analyzeLambda(sAggregate);
       if (analysisForGroup == null) return null;
@@ -1229,7 +1240,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
                                                AggregateGroup<U, T, V> aggregate,
                                                Object emSource)
    {
-      SerializedLambda sSelect = SerializedLambda.extractLambda(select);
+      SerializedLambda sSelect = extractLambda(select);
       MethodAnalysisResults analysisForSelect;
       if (sSelect != null)
       {
@@ -1243,7 +1254,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
          analysisForSelect = selectAnalysis.get(selectClassName);
       }
 
-      SerializedLambda sAggregate = SerializedLambda.extractLambda(aggregate);
+      SerializedLambda sAggregate = extractLambda(aggregate);
       MethodAnalysisResults analysisForGroup;
       if (sAggregate != null)
       {
@@ -1386,7 +1397,7 @@ public class QueryllSQLQueryTransformer implements SQLQueryTransforms, StaticMet
 
    MethodAnalysisResults analyzeSorterLambda(Object sorterLambda, Map<String, MethodAnalysisResults> preAnalyzedClasses)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(sorterLambda);
+      SerializedLambda s = extractLambda(sorterLambda);
       MethodAnalysisResults analysis;
       if (s != null)
       {

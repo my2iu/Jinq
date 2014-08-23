@@ -24,7 +24,14 @@ public class LambdaInfo
    
    public static LambdaInfo analyze(MetamodelUtil metamodel, Object lambda)
    {
-      SerializedLambda s = SerializedLambda.extractLambda(lambda);
+      SerializedLambda s;
+      try {
+         s = SerializedLambda.extractLambda(lambda);
+      }
+      catch (Exception e)
+      {
+         return null;
+      }
       if (s == null) return null;
       // TODO: The part below will need to be moved to a separate method.
       //   That way, we can used the serialized lambda info to check if

@@ -395,4 +395,22 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(3, lineorders.size());
       assertEquals("Lawnmowers", lineorders.get(0).getItem().getName());
    }
+   
+   @Test(expected=IllegalArgumentException.class)
+   public void testNull()
+   {
+      streams.streamAll(em, Sale.class)
+            .where(s -> s.getCustomer() == null)
+            .toList();
+      assertEquals("SELECT A FROM Sale A WHERE ISNULL(A.customer)", query);
+   }
+   
+   @Test(expected=IllegalArgumentException.class)
+   public void testNonNull()
+   {
+      streams.streamAll(em, Supplier.class)
+            .where(s -> s.getCountry() != null)
+            .toList();
+      assertEquals("SELECT A FROM Supplier A WHERE NOTNULL(A.country)", query);
+   }
 }

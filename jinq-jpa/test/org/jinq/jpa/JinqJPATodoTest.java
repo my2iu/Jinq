@@ -9,9 +9,6 @@ import org.junit.Test;
 public class JinqJPATodoTest 
 {
    @Test
-   public void testGrouping() {}
-   
-   @Test
    public void testSubqueries() {}
    
    @Test
