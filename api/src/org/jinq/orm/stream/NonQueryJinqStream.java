@@ -2,7 +2,6 @@ package org.jinq.orm.stream;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,7 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -66,6 +64,21 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
                // Throw a runtime exception to try and kill the stream?
                throw new RuntimeException(e);
             }} ));
+   }
+
+   @Override
+   public <E extends Exception> JinqStream<T> where(
+         org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
+   {
+      return wrap(filter(val -> { 
+         try { 
+            return test.where(val, inQueryStreamSource); 
+         } catch (Exception e) {
+            // Record that an exception occurred
+            propagateException(test, e);
+            // Throw a runtime exception to try and kill the stream?
+            throw new RuntimeException(e);
+         }} ));
    }
 
    @Override

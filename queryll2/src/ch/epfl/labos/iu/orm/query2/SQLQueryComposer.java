@@ -534,6 +534,14 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
             null, () -> transformer.where(query.copy(), nextLambdaParamIndex, test, emSource));
    }
 
+   @Override
+   public <E extends Exception> QueryComposer<T> where(
+         JinqStream.WhereWithSource<T, E> test)
+   {
+      // Not supported
+      return null;
+   }
+
    public <E extends Exception> QueryComposer<T> where(JinqStream.Where<T, E> test)
    {
       return composeQuery("where", test,

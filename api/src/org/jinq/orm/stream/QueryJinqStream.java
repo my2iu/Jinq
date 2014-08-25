@@ -2,16 +2,11 @@ package org.jinq.orm.stream;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
-import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.jinq.orm.stream.JinqStream.AggregateGroup;
-import org.jinq.orm.stream.JinqStream.Select;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 
@@ -48,6 +43,15 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       return super.where(test);
    }
 
+   @Override
+   public <E extends Exception> JinqStream<T> where(
+         org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
+   {
+      QueryComposer<T> newComposer = queryComposer.where(test);
+      if (newComposer != null) return new QueryJinqStream<T>(newComposer, inQueryStreamSource);
+      return super.where(test);
+   }
+   
    @Override
    public <U> JinqStream<U> select(Select<T, U> select)
    {

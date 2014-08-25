@@ -13,6 +13,7 @@ import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
+import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple5;
@@ -266,21 +267,31 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    }
    
    @Test(expected=IllegalArgumentException.class)
-   public void testSubQuery()
+   public void testSubQueryWithSource()
    {
       List<Sale> sales = streams.streamAll(em, Sale.class)
-            .where( s -> streams.streamAll(em, Sale.class).max(ss -> ss.getSaleid()) == s.getSaleid())
+            .where( (s, source) -> source.stream(Sale.class).max(ss -> ss.getSaleid()) == s.getSaleid())
             .toList();
       assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))", query);
       assertEquals(1, sales.size());
    }
-   
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testSubQueryWithNavigationalLink()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+            .where( c -> JinqStream.from(c.getSales()).count() > 1)
+            .toList();
+      assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))", query);
+      assertEquals(1, customers.size());
+   }
+
    @Test(expected=IllegalArgumentException.class)
    public void testSubQueryNoAggregation()
    {
       List<Customer> customers = streams.streamAll(em, Customer.class)
-            .where( c -> 
-                  c.getDebt() < streams.streamAll(em, Customer.class)
+            .where( (c, source) -> 
+                  c.getDebt() < source.stream(Customer.class)
                         .where(c2 -> c2.getName().equals("Alice"))
                         .select(c2 -> c2.getDebt())
                         .getOnlyValue() )

@@ -267,7 +267,13 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
-      return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader), test);
+      return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader, false), test);
+   }
+   
+   @Override
+   public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
+   {
+      return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader, true), test);
    }
 
    @Override

@@ -17,7 +17,11 @@ public interface JinqStream<T> extends Stream<T>
    @FunctionalInterface public static interface Where<U, E extends Exception> extends Serializable {
       public boolean where(U obj) throws E;
    }
+   @FunctionalInterface public static interface WhereWithSource<U, E extends Exception> extends Serializable {
+      public boolean where(U obj, InQueryStreamSource source) throws E;
+   }
    public <E extends Exception> JinqStream<T> where(Where<T, E> test);
+   public <E extends Exception> JinqStream<T> where(WhereWithSource<T, E> test);
    @FunctionalInterface public static interface Select<U, V> extends Serializable {
       public V select(U val);
    }
@@ -33,10 +37,10 @@ public interface JinqStream<T> extends Stream<T>
    @FunctionalInterface public static interface Join<U, V> extends Serializable {
       public JinqStream<V> join(U val);
    }
-   public <U> JinqStream<Pair<T, U>> join(Join<T,U> join);
    @FunctionalInterface public static interface JoinWithSource<U, V> extends Serializable {
       public JinqStream<V> join(U val, InQueryStreamSource source);
    }
+   public <U> JinqStream<Pair<T, U>> join(Join<T,U> join);
    public <U> JinqStream<Pair<T, U>> join(JoinWithSource<T,U> join);
    public JinqStream<T> unique();
    @FunctionalInterface public static interface AggregateGroup<W, U, V> extends Serializable {
