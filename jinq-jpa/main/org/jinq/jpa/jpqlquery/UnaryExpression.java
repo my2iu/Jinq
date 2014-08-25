@@ -3,24 +3,40 @@ package org.jinq.jpa.jpqlquery;
 public class UnaryExpression extends Expression
 {
    final Expression operand;
-   final String operator;
-   public UnaryExpression(String operator, Expression operand)
+   final String prefixOperator;
+   final String postfixOperator;
+   private UnaryExpression(String prefixOperator, String postfixOperator, Expression operand)
    {
-      this.operator = operator;
+      this.prefixOperator = prefixOperator;
+      this.postfixOperator = postfixOperator;
       this.operand = operand;
+   }
+   
+   public static UnaryExpression prefix(String operator, Expression operand)
+   {
+      return new UnaryExpression(operator, "", operand);
+   }
+
+   public static UnaryExpression postfix(String operator, Expression operand)
+   {
+      return new UnaryExpression("", operator, operand);
    }
 
    @Override
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
+      String operator = prefixOperator + postfixOperator;
       String precedenceString = operator;
       if (operator.equals("-"))
          precedenceString = "-unary";
       OperatorPrecedenceLevel precedence = OperatorPrecedenceLevel.forOperator(precedenceString);
       if (!precedence.hasPrecedence(operatorPrecedenceScope))
          queryState.appendQuery("(");
-      queryState.appendQuery(operator + " ");
+      if (!prefixOperator.isEmpty())
+         queryState.appendQuery(prefixOperator + " ");
       operand.generateQuery(queryState, precedence);
+      if (!postfixOperator.isEmpty())
+         queryState.appendQuery(" " + postfixOperator);
 
       if (!precedence.hasPrecedence(operatorPrecedenceScope))
          queryState.appendQuery(")");

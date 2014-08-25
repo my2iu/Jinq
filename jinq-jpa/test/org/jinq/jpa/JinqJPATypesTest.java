@@ -396,21 +396,23 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Lawnmowers", lineorders.get(0).getItem().getName());
    }
    
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testNull()
    {
+      // TODO: I'm not sure if translating == NULL to "IS NULL" is the best route to go
+      // Although it is the most intuitive, it isn't consistent with JPQL NULL handling rules
       streams.streamAll(em, Sale.class)
             .where(s -> s.getCustomer() == null)
             .toList();
-      assertEquals("SELECT A FROM Sale A WHERE ISNULL(A.customer)", query);
+      assertEquals("SELECT A FROM Sale A WHERE A.customer IS NULL", query);
    }
    
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testNonNull()
    {
       streams.streamAll(em, Supplier.class)
-            .where(s -> s.getCountry() != null)
+            .where(s -> null != s.getCountry())
             .toList();
-      assertEquals("SELECT A FROM Supplier A WHERE NOTNULL(A.country)", query);
+      assertEquals("SELECT A FROM Supplier A WHERE A.country IS NOT NULL", query);
    }
 }

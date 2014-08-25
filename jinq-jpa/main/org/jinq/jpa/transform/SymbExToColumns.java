@@ -10,16 +10,15 @@ import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
-import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SelectOnly;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 import org.jinq.jpa.jpqlquery.UnaryExpression;
 import org.objectweb.asm.Type;
 
-import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue.NullConstant;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
@@ -89,12 +88,17 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             new ConstantExpression("'"+ val.val.replaceAll("'", "''") +"'")); 
    }
    
+   @Override public ColumnExpressions<?> nullConstantValue(NullConstant val, SymbExPassDown in) throws TypedValueVisitorException
+   {
+      throw new TypedValueVisitorException("Unexpected NULL value");
+   }
+   
    @Override public ColumnExpressions<?> unaryMathOpValue(TypedValue.UnaryMathOpValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       SymbExPassDown passdown = SymbExPassDown.with(val, false);
       ColumnExpressions<?> left = val.operand.visit(this, passdown);
       return ColumnExpressions.singleColumn(left.reader,
-            new UnaryExpression(val.op.getOpString(), left.getOnlyColumn())); 
+            UnaryExpression.prefix(val.op.getOpString(), left.getOnlyColumn())); 
    }
 
    @Override public ColumnExpressions<?> notOpValue(TypedValue.NotValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -102,7 +106,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       SymbExPassDown passdown = SymbExPassDown.with(val, true);
       ColumnExpressions<?> left = val.operand.visit(this, passdown);
       return ColumnExpressions.singleColumn(left.reader,
-            new UnaryExpression("NOT", left.getOnlyColumn())); 
+            UnaryExpression.prefix("NOT", left.getOnlyColumn())); 
    }
 
    @Override public ColumnExpressions<?> getStaticFieldValue(TypedValue.GetStaticFieldValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -210,27 +214,48 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       throw new IllegalArgumentException("Cannot skip an unknown widening cast type");
    }
 
+   private <U> ColumnExpressions<U> binaryOpWithNull(String opString, TypedValue leftVal, TypedValue rightVal, SymbExPassDown passdown) throws TypedValueVisitorException
+   {
+      if (!("=".equals(opString) || "<>".equals(opString)))
+         throw new TypedValueVisitorException("Unhandled operation involving NULL");
+      if (leftVal instanceof ConstantValue.NullConstant && rightVal instanceof ConstantValue.NullConstant)
+         throw new TypedValueVisitorException("Cannot handle comparisons involving two NULLs");
+      TypedValue operandVal;
+      if (leftVal instanceof ConstantValue.NullConstant)
+         operandVal = rightVal;
+      else
+         operandVal = leftVal;
+      ColumnExpressions<U> operand = (ColumnExpressions<U>)operandVal.visit(this, passdown);
+      if ("=".equals(opString))
+         return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+               UnaryExpression.postfix("IS NULL", operand.getOnlyColumn())); 
+      else
+         return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+               UnaryExpression.postfix("IS NOT NULL", operand.getOnlyColumn())); 
+   }
+   
    private <U> ColumnExpressions<U> binaryOpWithNumericPromotion(String opString, TypedValue leftVal, TypedValue rightVal, SymbExPassDown passdown) throws TypedValueVisitorException
    {
       boolean isFinalTypeFromLeft = true;
+      // Handle operations with NULL separately
+      if (leftVal instanceof ConstantValue.NullConstant || rightVal instanceof ConstantValue.NullConstant)
+         return binaryOpWithNull(opString, leftVal, rightVal, passdown);
       // Check if we have a valid numeric promotion (i.e. one side has a widening cast
       // to match the type of the other side).
-      if (!(leftVal instanceof ConstantValue.NullConstant || rightVal instanceof ConstantValue.NullConstant))
+      assert(leftVal.getType().equals(rightVal.getType()));
+      if (isWideningCast(leftVal))
       {
-         assert(leftVal.getType().equals(rightVal.getType()));
-         if (isWideningCast(leftVal))
+         if (!isWideningCast(rightVal))
          {
-            if (!isWideningCast(rightVal))
-            {
-               leftVal = skipWideningCast(leftVal);
-               isFinalTypeFromLeft = false;
-            }
-         }
-         else if (isWideningCast(rightVal))
-         {
-            rightVal = skipWideningCast(rightVal);
+            leftVal = skipWideningCast(leftVal);
+            isFinalTypeFromLeft = false;
          }
       }
+      else if (isWideningCast(rightVal))
+      {
+         rightVal = skipWideningCast(rightVal);
+      }
+      // Actually translate the expressions now
       ColumnExpressions<U> left = (ColumnExpressions<U>)leftVal.visit(this, passdown);
       ColumnExpressions<U> right = (ColumnExpressions<U>)rightVal.visit(this, passdown);
       return ColumnExpressions.singleColumn(isFinalTypeFromLeft ? left.reader : right.reader,

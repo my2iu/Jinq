@@ -274,4 +274,19 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))", query);
       assertEquals(1, sales.size());
    }
+   
+   @Test(expected=IllegalArgumentException.class)
+   public void testSubQueryNoAggregation()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+            .where( c -> 
+                  c.getDebt() < streams.streamAll(em, Customer.class)
+                        .where(c2 -> c2.getName().equals("Alice"))
+                        .select(c2 -> c2.getDebt())
+                        .getOnlyValue() )
+            .toList();
+      assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))", query);
+      assertEquals(1, customers.size());
+      assertEquals("Eve", customers.get(0).getName());
+   }
 }
