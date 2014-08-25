@@ -215,23 +215,21 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       boolean isFinalTypeFromLeft = true;
       // Check if we have a valid numeric promotion (i.e. one side has a widening cast
       // to match the type of the other side).
-      if (!leftVal.getType().equals(rightVal.getType()))
+      if (!(leftVal instanceof ConstantValue.NullConstant || rightVal instanceof ConstantValue.NullConstant))
       {
-         System.out.println(leftVal.getType() + " " + leftVal);
-         System.out.println(rightVal.getType() + " " + rightVal);
-      }
-      assert(leftVal.getType().equals(rightVal.getType()));
-      if (isWideningCast(leftVal))
-      {
-         if (!isWideningCast(rightVal))
+         assert(leftVal.getType().equals(rightVal.getType()));
+         if (isWideningCast(leftVal))
          {
-            leftVal = skipWideningCast(leftVal);
-            isFinalTypeFromLeft = false;
+            if (!isWideningCast(rightVal))
+            {
+               leftVal = skipWideningCast(leftVal);
+               isFinalTypeFromLeft = false;
+            }
          }
-      }
-      else if (isWideningCast(rightVal))
-      {
-         rightVal = skipWideningCast(rightVal);
+         else if (isWideningCast(rightVal))
+         {
+            rightVal = skipWideningCast(rightVal);
+         }
       }
       ColumnExpressions<U> left = (ColumnExpressions<U>)leftVal.visit(this, passdown);
       ColumnExpressions<U> right = (ColumnExpressions<U>)rightVal.visit(this, passdown);
