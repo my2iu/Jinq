@@ -266,7 +266,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country", query);
    }
    
-   @Test//(expected=IllegalArgumentException.class, message="")
+   @Test
    public void testSubQueryWithSource()
    {
       List<Sale> sales = streams.streamAll(em, Sale.class)
@@ -276,7 +276,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals(1, sales.size());
    }
 
-   @Test//(expected=IllegalArgumentException.class)
+   @Test
    public void testSubQueryWithNavigationalLink()
    {
       List<Customer> customers = streams.streamAll(em, Customer.class)
