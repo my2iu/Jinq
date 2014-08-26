@@ -1,5 +1,7 @@
 package org.jinq.jpa.jpqlquery;
 
+import org.jinq.jpa.jpqlquery.Expression.QueryGenerationPreparationPhase;
+
 public class BinaryExpression extends Expression
 {
    final Expression left;
@@ -27,4 +29,12 @@ public class BinaryExpression extends Expression
          queryState.appendQuery(")");
    }
 
+   @Override
+   public void prepareQueryGeneration(
+         QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      left.prepareQueryGeneration(preparePhase, queryState);
+      right.prepareQueryGeneration(preparePhase, queryState);
+   }
 }

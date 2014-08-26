@@ -272,7 +272,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       List<Sale> sales = streams.streamAll(em, Sale.class)
             .where( (s, source) -> source.stream(Sale.class).max(ss -> ss.getSaleid()) == s.getSaleid())
             .toList();
-      assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))", query);
+      assertEquals("SELECT A FROM Sale A WHERE (SELECT MAX(B.saleid) FROM Sale B) = A.saleid", query);
       assertEquals(1, sales.size());
    }
 
@@ -281,9 +281,12 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    {
       List<Customer> customers = streams.streamAll(em, Customer.class)
             .where( c -> JinqStream.from(c.getSales()).count() > 1)
+            .sortedBy( c -> c.getName() )
             .toList();
-      assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))", query);
-      assertEquals(1, customers.size());
+      assertEquals("SELECT A FROM Customer A WHERE (SELECT COUNT(1) FROM A.sales B) > 1 ORDER BY A.name ASC", query);
+      assertEquals(2, customers.size());
+      assertEquals("Alice", customers.get(0).getName());
+      assertEquals("Carol", customers.get(1).getName());
    }
 
    @Test(expected=IllegalArgumentException.class)

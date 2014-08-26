@@ -1,5 +1,7 @@
 package org.jinq.jpa.jpqlquery;
 
+import org.jinq.jpa.jpqlquery.Expression.QueryGenerationPreparationPhase;
+
 public class AggregateFunctionExpression extends Expression
 {
    final Expression base;
@@ -17,5 +19,13 @@ public class AggregateFunctionExpression extends Expression
       queryState.appendQuery("(");
       base.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
       queryState.appendQuery(")");
+   }
+
+   @Override
+   public void prepareQueryGeneration(
+         QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      base.prepareQueryGeneration(preparePhase, queryState);
    }
 }

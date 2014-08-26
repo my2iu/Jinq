@@ -13,4 +13,12 @@ public class FromAliasExpression extends Expression
    {
       queryState.appendQuery(queryState.getFromAlias(from));
    }
+   
+   @Override
+   public void prepareQueryGeneration(
+         QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      // Nothing to do.
+   }
 }

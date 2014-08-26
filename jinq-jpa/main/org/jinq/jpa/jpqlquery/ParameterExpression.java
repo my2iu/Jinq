@@ -1,5 +1,6 @@
 package org.jinq.jpa.jpqlquery;
 
+
 public class ParameterExpression extends Expression
 {
    private int lambdaIndex;
@@ -16,5 +17,13 @@ public class ParameterExpression extends Expression
    {
       String paramName = queryState.registerParameter(this, lambdaIndex, argIndex);
       queryState.appendQuery(":" + paramName);
+   }
+   
+   @Override
+   public void prepareQueryGeneration(
+         QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      // Nothing to do.
    }
 }

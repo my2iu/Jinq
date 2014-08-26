@@ -5,35 +5,40 @@ public class GroupedSelectFromWhere<T, U> extends SelectFromWhere<T>
    public ColumnExpressions<U> groupingCols;
    public Expression having;
 
-   protected String generateQueryContents(QueryGenerationState queryState)
+   @Override
+   protected void prepareQueryGeneration(Expression.QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
    {
-      String query = generateSelectFromWhere(queryState);
-      query += generateGroupBy(queryState);
-      query += generateSort(queryState);
-      return query;
+      super.prepareQueryGeneration(preparePhase, queryState);
+      for (Expression col: groupingCols.columns)
+         col.prepareQueryGeneration(preparePhase, queryState);
+      if (having != null)
+         having.prepareQueryGeneration(preparePhase, queryState);
    }
    
-   protected String generateGroupBy(QueryGenerationState queryState)
+   protected String generateQueryContents(QueryGenerationState queryState)
    {
-      String query = "";
-      query += " GROUP BY ";
+      generateSelectFromWhere(queryState);
+      generateGroupBy(queryState);
+      generateSort(queryState);
+      return queryState.queryString;
+   }
+   
+   protected void generateGroupBy(QueryGenerationState queryState)
+   {
+      queryState.queryString += " GROUP BY ";
       boolean isFirst = true;
       for (Expression col: groupingCols.columns)
       {
-         if (!isFirst) query += ", ";
+         if (!isFirst) queryState.queryString += ", ";
          isFirst = false;
-         queryState.queryString = "";
          col.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
-         query += queryState.queryString;
       }
       if (having != null)
       {
-         query += " HAVING ";
-         queryState.queryString = "";
+         queryState.queryString += " HAVING ";
          having.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
-         query += queryState.queryString;
       }
-      return query;
    }
    
    @Override

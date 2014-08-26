@@ -1,5 +1,6 @@
 package org.jinq.jpa.jpqlquery;
 
+
 public class SubqueryExpression extends Expression
 {
    SelectFromWhere<?> subquery;
@@ -15,8 +16,16 @@ public class SubqueryExpression extends Expression
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
       queryState.appendQuery("(");
-//      left.generateQuery(queryState, precedence);
+      subquery.generateQueryContents(queryState);
       queryState.appendQuery(")");
       
+   }
+
+   @Override
+   public void prepareQueryGeneration(
+         QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      subquery.prepareQueryGeneration(preparePhase, queryState);
    }
 }

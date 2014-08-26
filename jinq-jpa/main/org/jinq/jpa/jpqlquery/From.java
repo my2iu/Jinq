@@ -3,6 +3,16 @@ package org.jinq.jpa.jpqlquery;
 public abstract class From implements JPQLFragment
 {
    abstract void generateFromString(QueryGenerationState queryState);
+
+   protected void prepareQueryGeneration(Expression.QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      if (preparePhase == Expression.QueryGenerationPreparationPhase.FROM)
+      {
+         // Generate aliases for each of the FROM entries
+         queryState.generateFromAlias(this);
+      }
+   }
    
    public static From forEntity(String entityName)
    {
@@ -23,7 +33,7 @@ public abstract class From implements JPQLFragment
       String entityName;
       void generateFromString(QueryGenerationState queryState)
       {
-         queryState.queryString = entityName;
+         queryState.queryString += entityName;
       }
    }
    

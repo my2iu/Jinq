@@ -1,5 +1,7 @@
 package org.jinq.jpa.jpqlquery;
 
+import org.jinq.jpa.jpqlquery.Expression.QueryGenerationPreparationPhase;
+
 public class ReadFieldExpression extends Expression
 {
    final Expression base;
@@ -21,5 +23,13 @@ public class ReadFieldExpression extends Expression
       queryState.appendQuery(field);
       if (!precedence.hasPrecedence(operatorPrecedenceScope))
          queryState.appendQuery(")");
+   }
+
+   @Override
+   public void prepareQueryGeneration(
+         QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      base.prepareQueryGeneration(preparePhase, queryState);
    }
 }

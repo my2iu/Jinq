@@ -1,5 +1,6 @@
 package org.jinq.jpa.jpqlquery;
 
+
 public class ConstantExpression extends Expression
 {
    String text;
@@ -12,5 +13,13 @@ public class ConstantExpression extends Expression
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
       queryState.appendQuery(text);
+   }
+
+   @Override
+   public void prepareQueryGeneration(
+         QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      // Nothing to do.
    }
 }

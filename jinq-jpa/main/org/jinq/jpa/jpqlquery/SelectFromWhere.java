@@ -43,77 +43,82 @@ public class SelectFromWhere<T> extends SelectOnly<T>
    
    protected void prepareQueryGeneration(QueryGenerationState queryState)
    {
-      // Generate aliases for each of the FROM entries
+      prepareQueryGeneration(Expression.QueryGenerationPreparationPhase.FROM, queryState);
+   }
+   
+   protected void prepareQueryGeneration(Expression.QueryGenerationPreparationPhase preparePhase,
+         QueryGenerationState queryState)
+   {
+      for (Expression col: cols.columns)
+      {
+         col.prepareQueryGeneration(preparePhase, queryState);
+      }      
       for (From from: froms)
       {
-         queryState.generateFromAlias(from);
+         from.prepareQueryGeneration(preparePhase, queryState);
+      }
+      if (where != null)
+         where.prepareQueryGeneration(preparePhase, queryState);
+      for (SortingParameters sortParams: sort)
+      {
+         sortParams.expr.prepareQueryGeneration(preparePhase, queryState);
       }
    }
    
    protected String generateQueryContents(QueryGenerationState queryState)
    {
-      String query = generateSelectFromWhere(queryState);
-      query += generateSort(queryState);
-      return query;
+      generateSelectFromWhere(queryState);
+      generateSort(queryState);
+      return queryState.queryString;
    }
 
-   protected String generateSelectFromWhere(QueryGenerationState queryState)
+   protected void generateSelectFromWhere(QueryGenerationState queryState)
    {
-      String query = "";
       if (cols.getNumColumns() > 0)
       {
-         query += "SELECT ";
+         queryState.queryString += "SELECT ";
          boolean isFirst = true;
          for (Expression col: cols.columns)
          {
-            if (!isFirst) query += ", ";
+            if (!isFirst) queryState.queryString += ", ";
             isFirst = false;
-            queryState.queryString = "";
             col.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
-            query += queryState.queryString;
          }
       }
       if (froms.size() > 0)
       {
-         query += " FROM ";
+         queryState.queryString += " FROM ";
          boolean isFirst = true;
          for (From from: froms)
          {
-            if (!isFirst) query += ", ";
+            if (!isFirst) queryState.queryString += ", ";
             isFirst = false;
-            queryState.queryString = "";
             from.generateFromString(queryState);
-            query += queryState.queryString + " " + queryState.getFromAlias(from);
+            queryState.queryString += " " + queryState.getFromAlias(from);
          }
       }
       if (where != null)
       {
-         query += " WHERE ";
-         queryState.queryString = "";
+         queryState.queryString += " WHERE ";
          where.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
-         query += queryState.queryString;
       }
-      return query;
    }
    
-   protected String generateSort(QueryGenerationState queryState)
+   protected void generateSort(QueryGenerationState queryState)
    {
-      String query = "";
       if (!sort.isEmpty())
       {
-         query += " ORDER BY";
+         queryState.queryString += " ORDER BY";
          boolean isFirst = true;
          for (SortingParameters sortParams: sort)
          {
-            if (!isFirst) query += ",";
+            if (!isFirst) queryState.queryString += ",";
             isFirst = false;
-            queryState.queryString = " ";
+            queryState.queryString += " ";
             sortParams.expr.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
-            query += queryState.queryString;
-            query += (sortParams.isAscending ? " ASC" : " DESC");
+            queryState.queryString += (sortParams.isAscending ? " ASC" : " DESC");
          }
       }
-      return query;
    }
    
    @Override
