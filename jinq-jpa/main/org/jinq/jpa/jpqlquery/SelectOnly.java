@@ -118,6 +118,11 @@ public class SelectOnly<T> extends JPQLQuery<T>
    {
       return false;
    }
+   
+   public boolean isValidSubquery()
+   {
+      return false;
+   }
 
    public SelectOnly<T> shallowCopy()
    {

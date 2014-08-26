@@ -7,11 +7,14 @@ import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
+import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
+import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SelectOnly;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
+import org.jinq.jpa.jpqlquery.SubqueryExpression;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 import org.jinq.jpa.jpqlquery.UnaryExpression;
 import org.objectweb.asm.Type;
@@ -434,12 +437,28 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             else
                throw new TypedValueVisitorException("Unhandled aggregate operation");
             JPQLQuery<?> aggregatedQuery = transform.applyAggregationToSubquery(subQuery, lambda, argHandler); 
-
             // Return the aggregated columns that we've now calculated
-            if (aggregatedQuery.getClass() != SelectOnly.class)
-               throw new TypedValueVisitorException("Only simply SelectOnly subqueries can be aggregated");
-            SelectOnly<?> select = (SelectOnly<?>)aggregatedQuery;
-            return select.cols;
+            if (aggregatedQuery.getClass() == SelectOnly.class)
+            {
+               SelectOnly<?> select = (SelectOnly<?>)aggregatedQuery;
+               return select.cols;
+            }
+            else if (aggregatedQuery.isValidSubquery() && aggregatedQuery instanceof SelectFromWhere) 
+            {
+               SelectFromWhere<?> sfw = (SelectFromWhere<?>)aggregatedQuery;
+               ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
+               for (Expression col: sfw.cols.columns)
+               {
+                  SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
+                  oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
+                  toReturn.columns.add(SubqueryExpression.from(oneColQuery));
+               }
+               return toReturn;
+            }
+            else
+            {
+               throw new TypedValueVisitorException("Unknown subquery type");
+            }
          } catch (QueryTransformException e)
          {
             throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);

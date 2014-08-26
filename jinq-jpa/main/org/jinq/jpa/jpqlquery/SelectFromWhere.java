@@ -149,6 +149,12 @@ public class SelectFromWhere<T> extends SelectOnly<T>
             && limit < 0 && skip < 0;
    }
    
+   public boolean isValidSubquery()
+   {
+      return limit < 0 && skip < 0 && sort.isEmpty();
+   }
+
+   
    public <U> GroupedSelectFromWhere<T, U> shallowCopyWithGrouping()
    {
       GroupedSelectFromWhere<T, U> copy = new GroupedSelectFromWhere<>();
