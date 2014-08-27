@@ -15,10 +15,13 @@ public class SubqueryExpression extends Expression
    @Override
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
-      queryState.appendQuery("(");
+      // There's some quirk with precedence levels and ORDER BY requiring that the subquery not be in brackets
+      OperatorPrecedenceLevel precedence = OperatorPrecedenceLevel.JPQL_ORDER_BY_UNRESTRICTED_OPERATOR_PRECEDENCE;
+      if (!precedence.hasPrecedence(operatorPrecedenceScope))
+         queryState.appendQuery("(");
       subquery.generateQueryContents(queryState);
-      queryState.appendQuery(")");
-      
+      if (!precedence.hasPrecedence(operatorPrecedenceScope))
+         queryState.appendQuery(")");
    }
 
    @Override

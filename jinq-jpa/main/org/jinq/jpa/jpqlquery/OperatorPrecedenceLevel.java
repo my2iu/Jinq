@@ -35,6 +35,7 @@ public class OperatorPrecedenceLevel
    
    private static final int JPQL_UNKNOWN_PRECEDENCE_LEVEL = -1;
    private static final String JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE_STRING = "unrestricted";
+   private static final String JPQL_ORDER_BY_UNRESTRICTED_OPERATOR_PRECEDENCE_STRING = "unrestricted for order by";
    static final Map<String, Integer> JPQL_OPERATOR_PRECEDENCE = new HashMap<>();
    static {
       JPQL_OPERATOR_PRECEDENCE.put(".", 10);
@@ -70,9 +71,12 @@ public class OperatorPrecedenceLevel
       JPQL_OPERATOR_PRECEDENCE.put("OR", 3200);
       
       JPQL_OPERATOR_PRECEDENCE.put(JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE_STRING, 1000000);
+      JPQL_OPERATOR_PRECEDENCE.put(JPQL_ORDER_BY_UNRESTRICTED_OPERATOR_PRECEDENCE_STRING, 1000010);
    }
    public static final OperatorPrecedenceLevel JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE = 
          OperatorPrecedenceLevel.forOperator(JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE_STRING);
+   public static final OperatorPrecedenceLevel JPQL_ORDER_BY_UNRESTRICTED_OPERATOR_PRECEDENCE = 
+         OperatorPrecedenceLevel.forOperator(JPQL_ORDER_BY_UNRESTRICTED_OPERATOR_PRECEDENCE_STRING);
    public static final OperatorPrecedenceLevel JPQL_UNKNOWN_PRECEDENCE = 
          OperatorPrecedenceLevel.forOperator("");
 

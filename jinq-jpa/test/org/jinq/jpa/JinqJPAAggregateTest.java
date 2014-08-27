@@ -289,9 +289,27 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("Carol", customers.get(1).getName());
    }
 
+   @Test
+   public void testSubQueryWithNavigationalLinkInSelect()
+   {
+      List<Pair<Customer, Long>> customers = streams.streamAll(em, Customer.class)
+            .select( c -> new Pair<>(c, JinqStream.from(c.getSales()).count()))
+            .sortedBy( c -> c.getOne().getName() )
+            .sortedBy( c -> c.getTwo())
+            .toList();
+// EclipseLink on Derby is returning the result of the subquery as an integer and not a long, causing a cast problem here
+//      customers.sort(Comparator.comparing(pair -> pair.getOne().getName()));
+//      customers.sort(Comparator.comparing(pair -> pair.getTwo()));
+      assertEquals("SELECT B, (SELECT COUNT(1) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(1) FROM B.sales A ASC), B.name ASC", query);
+      assertEquals(5, customers.size());
+// EclipseLink on Derby just isn't handling the sorting by subqueries very well, so the result doesn't
+// seem to be sorted correctly
+   }
+
    @Test(expected=IllegalArgumentException.class)
    public void testSubQueryNoAggregation()
    {
+      // Not implemented yet
       List<Customer> customers = streams.streamAll(em, Customer.class)
             .where( (c, source) -> 
                   c.getDebt() < source.stream(Customer.class)

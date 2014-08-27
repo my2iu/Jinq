@@ -21,6 +21,8 @@ class QueryGenerationState
     */
    public String generateFromAlias(From from)
    {
+      if (fromAliases.containsKey(from))
+         return fromAliases.get(from);
       String alias = nextTableAlias();
       fromAliases.put(from, alias);
       return alias;
