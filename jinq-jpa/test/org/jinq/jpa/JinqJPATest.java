@@ -1,6 +1,7 @@
 package org.jinq.jpa;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -18,6 +19,7 @@ import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class JinqJPATest extends JinqJPATestBase
@@ -256,5 +258,16 @@ public class JinqJPATest extends JinqJPATestBase
       List results = q.getResultList();
 //      for (Object o : results)
 //         System.out.println(o);
+   }
+   
+   @Test
+   public void testJPQLLike()
+   {
+      assertTrue(JPQL.like("hello", "h%"));
+      assertTrue(JPQL.like("hello", "h_llo"));
+      assertFalse(JPQL.like("hllo", "h_llo"));
+      assertTrue(JPQL.like("[b]hello", "[b]h_llo"));
+      assertTrue(JPQL.like("m%hello", "mmm%h_llo", "m"));
+      assertFalse(JPQL.like("mdfshello", "mmm%h_llo", "m"));
    }
 }
