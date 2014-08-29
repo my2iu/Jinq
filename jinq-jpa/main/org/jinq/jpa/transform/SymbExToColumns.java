@@ -8,6 +8,7 @@ import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.Expression;
+import org.jinq.jpa.jpqlquery.FunctionExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
@@ -313,20 +314,6 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
    @Override public ColumnExpressions<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
-//      if (TransformationClassAnalyzer.stringEquals.equals(sig))
-//      {
-//         assert(false); // This should never happen because the simplifier should eliminate these
-//         SQLColumnValues sql = new SQLColumnValues(new SQLReader.BooleanSQLReader());
-//         sql.add("(");
-//         sql.add(val.base.visit(this, in));
-//         sql.add(")");
-//         sql.add(" = ");
-//         sql.add("(");
-//         sql.add(val.args.get(0).visit(this, in));
-//         sql.add(")");
-//         return sql;
-//      }
-//      else 
       if (TransformationClassAnalyzer.newPair.equals(sig)
             || TransformationClassAnalyzer.newTuple3.equals(sig)
             || TransformationClassAnalyzer.newTuple4.equals(sig)
@@ -464,98 +451,32 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);
          }
       }
-//      else if (entityInfo.dbSetMethods.contains(sig))
-//      {
-//         if (lambdaContext.joins == null)
-//            throw new TypedValueVisitorException("Need a join handler here for subqueries just in case there's an embedded navigational query: " + val);
-//         // TODO: Handle checking out the constructor and verifying how
-//         // parameters pass through the constructor
-//         SQLQuery subQuery = val.base.visit(subQueryHandler, in);
-//         if (sig.equals(TransformationClassAnalyzer.dbsetSumInt)
-//               || sig.equals(TransformationClassAnalyzer.dbsetMaxInt))
-//         {
-//            // TODO: do subqueries need to be copied before being passed in here?
-//            SQLQuery<Integer> newQuery = null;
-//            if (sig.equals(TransformationClassAnalyzer.dbsetSumInt))
-//               newQuery = queryMethodHandler.sumInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-//            else if (sig.equals(TransformationClassAnalyzer.dbsetMaxInt))
-//               newQuery = queryMethodHandler.maxInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-//            return handleAggregationSubQuery(val, newQuery);
-//         }
-//         // TODO: Implement other aggregation functions
-//         throw new TypedValueVisitorException("Unhandled DBSet operation");
-//      }
-//      else if (entityInfo.jinqStreamMethods.contains(sig))
-//      {
-//         if (lambdaContext.joins == null)
-//            throw new TypedValueVisitorException("Need a join handler here for subqueries just in case there's an embedded navigational query: " + val);
-//         // TODO: Handle checking out the constructor and verifying how
-//         // parameters pass through the constructor
-//         SQLQuery subQuery = val.base.visit(subQueryHandler, in);
-//         if (sig.equals(TransformationClassAnalyzer.streamSumInt)
-//               || sig.equals(TransformationClassAnalyzer.streamMaxInt))
-//         {
-//            // TODO: do subqueries need to be copied before being passed in here?
-//            SQLQuery<Integer> newQuery = null;
-//            if (sig.equals(TransformationClassAnalyzer.streamSumInt))
-//               newQuery = queryMethodHandler.sumInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-//            else if (sig.equals(TransformationClassAnalyzer.streamMaxInt))
-//               newQuery = queryMethodHandler.maxInt(subQuery, val.args.get(0), lambdaContext.joins.getEntityManager());
-//            return handleAggregationSubQuery(val, newQuery);
-//         }
-//         // TODO: Implement other aggregation functions
-//         throw new TypedValueVisitorException("Unhandled DBSet operation");
-//      }
-//      else if (entityInfo.N111Methods.containsKey(sig))
-//      {
-//         SQLColumnValues base = val.base.visit(this, in);
-//         ORMInformation.N111NavigationalLink link = entityInfo.N111Methods.get(sig);
-//         if (lambdaContext.joins == null)
-//            throw new TypedValueVisitorException("Cannot handle navigational queries in this context: " + val);
-//         assert(link.joinInfo.size() == 1);
-//         // See if we've already done this join and can reuse it
-//         List<SQLFragment> fromKey = new ArrayList<SQLFragment>();
-//         for (int n = 0; n < link.joinInfo.get(0).fromColumns.size(); n++)
-//         {
-//            String fromCol = link.joinInfo.get(0).fromColumns.get(n);
-//            int fromColIdx = base.reader.getColumnIndexForColumnName(fromCol);
-//            if (fromColIdx < 0) throw new TypedValueVisitorException("Cannot find column for navigational query: " + val);
-//            fromKey.add(base.getColumn(fromColIdx));
-//         }
-//         SQLSubstitution.FromReference from = lambdaContext.joins.findExistingJoin(link.fromEntity, link.name, fromKey);
-//         if (from == null)
-//         {
-//            from = lambdaContext.joins.addFrom(link.joinInfo.get(0).toTableName);
-//            for (int n = 0; n < link.joinInfo.get(0).fromColumns.size(); n++)
-//            {
-//               SQLFragment where = new SQLFragment();
-//               String fromCol = link.joinInfo.get(0).fromColumns.get(n);
-//               String toCol = link.joinInfo.get(0).toColumns.get(n);
-//               int fromColIdx = base.reader.getColumnIndexForColumnName(fromCol);
-//               if (fromColIdx < 0) throw new TypedValueVisitorException("Cannot find column for navigational query: " + val);
-//               where.add("(");
-//               where.add(base.getColumn(fromColIdx));
-//               where.add(") = (");
-//               where.add(from);
-//               where.add("." + toCol);
-//               where.add(")");
-//               lambdaContext.joins.addWhere(where);
-//            }
-//            lambdaContext.joins.addCachedJoin(link.fromEntity, link.name, fromKey, from);
-//         }
-//         EntityManagerBackdoor em = lambdaContext.joins.getEntityManager();
-//         SQLColumnValues joinedEntity = new SQLColumnValues<T>(em.getReaderForEntity(link.toEntity));
-//         String []columnNames = em.getEntityColumnNames(link.toEntity); 
-//         for (int n = 0; n < columnNames.length; n++)
-//         {
-//            SQLFragment fragment = new SQLFragment();
-//            fragment.add(from);
-//            fragment.add("." + columnNames[n]);
-//            joinedEntity.columns[n] = fragment;
-//         }
-//         return joinedEntity;
-////         throw new TypedValueVisitorException("Unhandled N:1 or 1:1 navigational query:" + val);
-//      }
+      else if (MethodChecker.jpqlFunctionMethods.contains(sig))
+      {
+         if (sig.equals(MethodChecker.bigDecimalAbs)
+               || sig.equals(MethodChecker.bigIntegerAbs))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+            ColumnExpressions<?> base = val.base.visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  FunctionExpression.singleParam("ABS", base.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.stringToUpper))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+            ColumnExpressions<?> base = val.base.visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  FunctionExpression.singleParam("UPPER", base.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.stringToLower))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+            ColumnExpressions<?> base = val.base.visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  FunctionExpression.singleParam("LOWER", base.getOnlyColumn())); 
+         }
+         throw new TypedValueVisitorException("Do not know how to translate the method " + sig + " into a JPQL function");
+      }
       else
          return super.virtualMethodCallValue(val, in);
    }
@@ -577,18 +498,37 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       {
          throw new TypedValueVisitorException("New BigIntegers can only be created in the context of numeric promotion");
       }
-//      else if (TransformationClassAnalyzer.stringLike.equals(sig))
-//      {
-//         SQLColumnValues sql = new SQLColumnValues(new SQLReader.BooleanSQLReader());
-//         sql.add("(");
-//         sql.add(val.args.get(0).visit(this, in));
-//         sql.add(")");
-//         sql.add(" LIKE ");
-//         sql.add("(");
-//         sql.add(val.args.get(1).visit(this, in));
-//         sql.add(")");
-//         return sql;
-//      }
+      else if (MethodChecker.jpqlFunctionStaticMethods.contains(sig))
+      {
+         if (sig.equals(MethodChecker.jpqlLike))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+            ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
+            ColumnExpressions<?> pattern = val.args.get(1).visit(this, passdown);
+            return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+                  new BinaryExpression("LIKE", base.getOnlyColumn(), pattern.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.mathAbsDouble)
+               || sig.equals(MethodChecker.mathAbsInt)
+               || sig.equals(MethodChecker.mathAbsLong))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+            ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  FunctionExpression.singleParam("ABS", base.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.mathSqrt))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+            TypedValue baseVal = val.args.get(0);
+            if (isWideningCast(baseVal))
+               baseVal = skipWideningCast(baseVal);
+            ColumnExpressions<?> base = baseVal.visit(this, passdown);
+            return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+                  FunctionExpression.singleParam("SQRT", base.getOnlyColumn())); 
+         }
+         throw new TypedValueVisitorException("Do not know how to translate the method " + sig + " into a JPQL function");
+      }
       else
          return super.staticMethodCallValue(val, in);
    }
