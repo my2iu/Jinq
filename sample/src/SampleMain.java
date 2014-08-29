@@ -146,7 +146,16 @@ public class SampleMain
          .limit(3)
          .forEach(c -> out.println(c.getName() + " " + c.getSalary()));
       out.println();
-      
+
+      // Grouping
+      out.println("Number of Screws bought by each customer");
+      lineorders()
+         .where(lo -> lo.getItem().getName().equals("Screws"))
+         .group( lo -> lo.getSale().getCustomer().getName(),
+               (name, los) -> los.sumInteger(lo -> lo.getQuantity()))
+         .forEach(pair -> out.println(pair.getOne() + " " + pair.getTwo()));
+      out.println();
+
       em.close();
    }
 }
