@@ -50,4 +50,11 @@ public class UnaryExpression extends Expression
    {
       operand.prepareQueryGeneration(preparePhase, queryState);
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      UnaryExpression o = (UnaryExpression)obj; 
+      return operand.equals(o.operand) && prefixOperator.equals(o.prefixOperator) && postfixOperator.equals(o.postfixOperator);
+   }
 }

@@ -31,4 +31,11 @@ public class ReadFieldExpression extends Expression
    {
       base.prepareQueryGeneration(preparePhase, queryState);
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      ReadFieldExpression o = (ReadFieldExpression)obj; 
+      return field.equals(o.field) && base.equals(o.base);
+   }
 }

@@ -13,4 +13,10 @@ public abstract class Expression
    }
    
    public abstract void prepareQueryGeneration(QueryGenerationPreparationPhase preparePhase, QueryGenerationState queryState);
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      return true;
+   }
 }

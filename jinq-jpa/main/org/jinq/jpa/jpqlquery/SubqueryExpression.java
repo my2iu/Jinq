@@ -31,4 +31,12 @@ public class SubqueryExpression extends Expression
    {
       subquery.prepareQueryGeneration(preparePhase, queryState);
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      SubqueryExpression o = (SubqueryExpression)obj;
+      // TODO: Recurse into the subquery and test properly for equality
+      return subquery.equals(o.subquery);
+   }
 }

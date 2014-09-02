@@ -36,4 +36,11 @@ public class BinaryExpression extends Expression
       left.prepareQueryGeneration(preparePhase, queryState);
       right.prepareQueryGeneration(preparePhase, queryState);
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      BinaryExpression o = (BinaryExpression)obj; 
+      return operator.equals(o.operator) && left.equals(o.left) && right.equals(o.right);
+   }
 }

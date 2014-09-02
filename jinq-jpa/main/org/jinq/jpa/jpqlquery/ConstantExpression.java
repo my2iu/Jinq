@@ -22,4 +22,11 @@ public class ConstantExpression extends Expression
    {
       // Nothing to do.
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      ConstantExpression o = (ConstantExpression)obj; 
+      return text.equals(o.text);
+   }
 }

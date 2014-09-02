@@ -30,4 +30,11 @@ public class FunctionExpression extends Expression
    {
       base.prepareQueryGeneration(preparePhase, queryState);
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      FunctionExpression o = (FunctionExpression)obj; 
+      return functionName.equals(o.functionName) && base.equals(o.base);
+   }
 }

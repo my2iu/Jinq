@@ -21,4 +21,11 @@ public class FromAliasExpression extends Expression
    {
       // Nothing to do.
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      FromAliasExpression o = (FromAliasExpression)obj; 
+      return from.equals(o.from);
+   }
 }

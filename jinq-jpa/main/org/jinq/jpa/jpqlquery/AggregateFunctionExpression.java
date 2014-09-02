@@ -27,4 +27,11 @@ public class AggregateFunctionExpression extends Expression
    {
       base.prepareQueryGeneration(preparePhase, queryState);
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      AggregateFunctionExpression o = (AggregateFunctionExpression)obj; 
+      return base.equals(o.base) && aggregateName.equals(o.aggregateName);
+   }
 }

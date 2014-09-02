@@ -44,4 +44,15 @@ public class CaseWhenExpression extends Expression
          c.result.prepareQueryGeneration(preparePhase, queryState);
       }
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      CaseWhenExpression o = (CaseWhenExpression)obj; 
+      if (cases.size() != o.cases.size()) return false;
+      for (int n = 0; n < cases.size(); n++)
+         if (!cases.get(n).condition.equals(o.cases.get(n).condition) || !cases.get(n).result.equals(o.cases.get(n).result))
+            return false;
+      return true;
+   }
 }

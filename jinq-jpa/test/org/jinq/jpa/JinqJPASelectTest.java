@@ -110,4 +110,19 @@ public class JinqJPASelectTest extends JinqJPATestBase
       assertEquals(6, results.size());
       assertEquals("Alice", results.get(0).getName());
    }
+   
+   @Test
+   public void testSelectCase()
+   {
+      List<Pair<String, String>> customers = streams.streamAll(em, Customer.class)
+            .select(c -> new Pair<>(c.getName(), c.getCountry().equals("UK") ? "UK" : "NotUK"))
+            .sortedBy(p -> p.getOne())
+            .sortedBy(p -> p.getTwo())
+            .toList();
+      assertEquals("SELECT A.name, CASE WHEN A.country <> 'UK' THEN 'NotUK' ELSE 'UK' END FROM Customer A ORDER BY CASE WHEN A.country <> 'UK' THEN 'NotUK' ELSE 'UK' END ASC, A.name ASC", query);
+      assertEquals(5, customers.size());
+      assertEquals("UK", customers.get(4).getTwo());
+      assertEquals("NotUK", customers.get(3).getTwo());
+   }
+
 }

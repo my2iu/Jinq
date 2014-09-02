@@ -220,24 +220,21 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(2, suppliers.size());
       assertEquals("Conglomerate", suppliers.get(0).getOne().getName());
       assertEquals("HW Supplier", suppliers.get(1).getOne().getName());
-
+   }
+   
+   @Test(expected=ClassCastException.class)
+   public void testBooleanOperations()
+   {
       // Comparisons in a SELECT must be converted to a CASE...WHEN... or something
-      // TODO: Handle this case
-      try {
-         suppliers = streams.streamAll(em, Supplier.class)
-               .where(s -> s.getHasFreeShipping())
-               .select(s -> new Pair<>(s, s.getHasFreeShipping() != true))
-               .toList();
-         assertEquals("SELECT A, A.hasFreeShipping FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
-         assertEquals(1, suppliers.size());
-         assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
-         assertTrue(suppliers.get(0).getTwo());
-      }
-      catch (RuntimeException e)
-      {
-         // Expected: This case isn't handled yet
-      }
-
+      // TODO: CASE...WHEN... is now done, but I'm not sure how to convert the 1 and 0 constants into booleans
+      List<Pair<Supplier, Boolean>> suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> s.getHasFreeShipping())
+            .select(s -> new Pair<>(s, s.getHasFreeShipping() != true))
+            .toList();
+      assertEquals("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN 1 ELSE 0 END FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
+      assertEquals(1, suppliers.size());
+      assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
+      assertTrue(suppliers.get(0).getTwo());
    }
    
    @Test

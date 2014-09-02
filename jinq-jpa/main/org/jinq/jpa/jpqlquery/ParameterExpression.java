@@ -26,4 +26,11 @@ public class ParameterExpression extends Expression
    {
       // Nothing to do.
    }
+   
+   @Override public boolean equals(Object obj)
+   {
+      if (!getClass().equals(obj.getClass())) return false;
+      ParameterExpression o = (ParameterExpression)obj; 
+      return lambdaIndex == o.lambdaIndex && argIndex == o.argIndex;
+   }
 }
