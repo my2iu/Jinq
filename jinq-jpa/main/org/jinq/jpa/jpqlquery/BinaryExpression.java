@@ -1,6 +1,5 @@
 package org.jinq.jpa.jpqlquery;
 
-import org.jinq.jpa.jpqlquery.Expression.QueryGenerationPreparationPhase;
 
 public class BinaryExpression extends Expression
 {

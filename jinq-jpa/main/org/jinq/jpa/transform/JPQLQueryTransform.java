@@ -1,9 +1,13 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
+import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
+import org.jinq.jpa.jpqlquery.Expression;
 
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysis;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 /**
@@ -31,8 +35,33 @@ public class JPQLQueryTransform
    protected <U> ColumnExpressions<U> simplifyAndTranslateMainPathToColumns(LambdaInfo lambda, SymbExToColumns translator,
          SymbExPassDown passdown) throws TypedValueVisitorException
    {
+      return simplifyAndTranslatePathToColumns(lambda, 0, translator, passdown);
+   }
+   
+   protected <U> ColumnExpressions<U> simplifyAndTranslatePathToColumns(LambdaInfo lambda, int pathIdx, SymbExToColumns translator,
+         SymbExPassDown passdown) throws TypedValueVisitorException
+   {
       return (ColumnExpressions<U>)PathAnalysisSimplifier
-            .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
+            .simplify(lambda.symbolicAnalysis.paths.get(pathIdx).getReturnValue(), metamodel.comparisonMethods)
             .visit(translator, passdown);
+   }
+
+   protected Expression pathConditionsToExpr(SymbExToColumns translator,
+         PathAnalysis path) throws TypedValueVisitorException
+   {
+      Expression conditionExpr = null;
+      for (TypedValue cmp: path.getConditions())
+      {
+         SymbExPassDown passdown = SymbExPassDown.with(null, true);
+         ColumnExpressions<?> col = cmp.visit(translator, passdown);
+         if (!col.isSingleColumn()) 
+            throw new TypedValueVisitorException("Expecting a single column result for path condition");
+         Expression expr = col.getOnlyColumn();
+         if (conditionExpr != null)
+            conditionExpr = new BinaryExpression("AND", conditionExpr, expr);
+         else
+            conditionExpr = expr;
+      }
+      return conditionExpr;
    }
 }

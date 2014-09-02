@@ -96,18 +96,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          }
          
          // Handle where path conditions
-         Expression conditionExpr = null;
-         for (TypedValue cmp: path.getConditions())
-         {
-            SymbExPassDown passdown = SymbExPassDown.with(null, true);
-            ColumnExpressions<?> col = cmp.visit(translator, passdown);
-            if (!col.isSingleColumn()) return null;
-            Expression expr = col.getOnlyColumn();
-            if (conditionExpr != null)
-               conditionExpr = new BinaryExpression("AND", conditionExpr, expr);
-            else
-               conditionExpr = expr;
-         }
+         Expression conditionExpr = pathConditionsToExpr(translator, path);
          
          // Merge path conditions and return value to create a value for the path
          Expression pathExpr = returnExpr;
@@ -127,5 +116,4 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
       }
       return methodExpr;
    }
-
 }
