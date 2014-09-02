@@ -48,12 +48,12 @@ public class LambdaInfo
          s = SerializedLambda.extractLambda(lambda);
          if (s == null) 
          {
-            if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda");
+            if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda. This error sometimes occurs because your lambda references objects that aren't Serializable.");
             return null;
          }
       } catch (Exception e)
       { 
-         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda");
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda. This error sometimes occurs because your lambda references objects that aren't Serializable.");
          return null;
       }
       // TODO: The part below will need to be moved to a separate method.
@@ -95,8 +95,13 @@ public class LambdaInfo
          }
          // TODO: Handle lambda arguments properly
          return new LambdaInfo(analysis, indirectCapturedArgs, Type.getArgumentTypes(lambdaHandle.getDesc()).length);
-      } 
-      catch (Exception e)
+      }
+      catch (IOException e)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Encountered problems when trying to load the code for your lambdas. You may need to supply a lambdaClassLoader hint to Jinq to help it find your lambdas.", e);
+         return null;
+      }
+      catch (AnalyzerException e)
       {
          if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code", e);
          return null;
