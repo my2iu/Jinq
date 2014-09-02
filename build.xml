@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="Jinq" default="RunDemo">
+<project name="Jinq" default="Zip">
 
 	<property name="asm" location="lib/asm-all-5.0.1.jar"/>
 	<property name="derby" location="lib/derby.jar"/>
@@ -46,70 +46,10 @@
 		</javac>
 	</target>
 
-	<target name="Generate Demo ORM Entities" depends="Build Jinq Mini-ORM">
-		<mkdir dir="demogen/src/com/example/orm/test/entities"/>
-		<java classname="ch.epfl.labos.iu.orm.tools.EntityGenerator" fork="true">
-			<classpath>
-				<pathelement location="lib/miniorm.jar"/>
-			</classpath>
-			<arg file="demosrc/src/entities.xml"/>
-			<arg path="demogen/src"/>
-		</java>
-	</target>
-
-	<target name="Build Demo" depends="Generate Demo ORM Entities,Build Jinq">
-		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
-			<classpath>
-				<pathelement location="${asm}"/>
-				<pathelement location="bin"/>
-			</classpath>
-			<src path="demogen/src"/>
-			<src path="demosrc/src"/>
-		</javac>
-	</target>
-
-	<target name="Create Demo Derby DB Data (Optional)">
-		<mkdir dir="${derbydata}"/>
-		<java fork="true" classname="org.apache.derby.tools.ij" dir="${derbydata}">
-			<classpath>
-				<pathelement location="${derby}"/>
-				<pathelement location="${derbytools}"/>
-			</classpath>
-			<jvmarg value="-Dij.driver=org.apache.derby.jdbc.EmbeddedDriver"/>
-			<arg file="demosrc/src/entities.sql"/>
-			<jvmarg value="-Dij.user=APP"/>
-			<jvmarg value="-Dij.password=APP"/>
-		</java>
-	</target>	
-
-	<target name="RunDemo" depends="Build Demo">
-		<java classname="Main" dir="bin" fork="true">
-			<classpath>
-				<pathelement location="${asm}"/>
-				<pathelement location="bin"/>
-			</classpath>
-			<arg value="-nodb"/>  
-		</java>
-	</target>
-
-	<!-- Runs the demo above, but actually sends the queries to a Derby database to run -->
-	<target name="RunDemoWithDb" depends="Build Demo,Create Demo Derby DB Data (Optional)">
-		<java classname="Main" dir="bin" fork="true">
-			<classpath>
-				<pathelement location="${asm}"/>
-				<pathelement location="${derby}"/>
-				<pathelement location="bin"/>
-			</classpath>
-			<arg value="-db"/> 
-			<sysproperty key="derby.system.home" path="${derbydata}"/>
-		</java>
-	</target>
-
 	<target name="Clean">
 		<delete includeemptydirs="true" quiet="true">
 			<fileset dir="bin"/>
 			<fileset dir="jarbin"/>
-			<fileset dir="demogen/src"/>
 			<fileset dir="sample/bin"/>
 			<fileset dir="sample/target"/>
 		</delete>
@@ -142,10 +82,9 @@
 		</tstamp>
 		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,demogen/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**,*/target/**,sample/bin/**,**/derby.log"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**,*/target/**,sample/bin/**,**/derby.log"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
-			<zipfileset file="demogen/pom.xml" prefix="Jinq/demogen"/>
 			<zipfileset dir="lib/lib" fullpath="Jinq/lib"/>
 		</zip>
 	</target>
