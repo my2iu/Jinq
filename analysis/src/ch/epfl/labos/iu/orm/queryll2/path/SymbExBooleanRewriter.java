@@ -4,6 +4,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueRewriterWalker;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.StaticMethodCallValue;
 
 /**
  * Java uses integers for booleans. This rewriter will rewrite integer
@@ -39,6 +40,14 @@ public class SymbExBooleanRewriter extends TypedValueRewriterWalker<Boolean, Run
             public Boolean notOpValue(TypedValue.NotValue val, Boolean in) 
             {
                return true;
+            }
+            @Override
+            public Boolean staticMethodCallValue(StaticMethodCallValue val,
+                  Boolean in) throws RuntimeException
+            {
+               if (val.getSignature().equals(TransformationClassAnalyzer.booleanValueOf))
+                  return true;
+               return super.staticMethodCallValue(val, in);
             }
             @Override
             public Boolean binaryOpValue(TypedValue.BinaryOperationValue val, Boolean in) 

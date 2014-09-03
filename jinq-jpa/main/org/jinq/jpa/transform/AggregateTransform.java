@@ -39,12 +39,7 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
             SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
                   SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, null, false));
 
-            // TODO: Handle this case by translating things to use SELECT CASE 
-            if (lambda.symbolicAnalysis.paths.size() > 1) 
-               throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
-            
-            SymbExPassDown passdown = SymbExPassDown.with(null, false);
-            ColumnExpressions<U> returnExpr = simplifyAndTranslateMainPathToColumns(lambda, translator, passdown);
+            ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy(); 
@@ -74,12 +69,7 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
                SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
                      SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, metamodel, parentArgumentScope, false));
 
-               // TODO: Handle this case by translating things to use SELECT CASE 
-               if (lambda.symbolicAnalysis.paths.size() > 1) 
-                  throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
-               
-               SymbExPassDown passdown = SymbExPassDown.with(null, false);
-               ColumnExpressions<U> returnExpr = simplifyAndTranslateMainPathToColumns(lambda, translator, passdown);
+               ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
                aggregatedExpression = returnExpr.getOnlyColumn(); 
             }
             else

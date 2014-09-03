@@ -48,13 +48,8 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
                SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
                      new GroupingLambdasArgumentHandler(keySelect, streamTee, lambdas[n], metamodel, null, false));
 
-               // TODO: Handle this case by translating things to use SELECT CASE 
-               if (lambda.symbolicAnalysis.paths.size() > 1) 
-                  throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
+               ColumnExpressions<U> returnQuery = makeSelectExpression(translator, lambda);
 
-               SymbExPassDown passdown = SymbExPassDown.with(null, false);
-               ColumnExpressions<?> returnQuery = simplifyAndTranslateMainPathToColumns(lambda, translator, passdown);
-               
                // TODO: Confirm that the result actually contains an aggregate
                aggregatedQueryEntries[n] = returnQuery;
             }

@@ -36,12 +36,7 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
                SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
                      new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], metamodel, null, false));
 
-               // TODO: Handle this case by translating things to use SELECT CASE 
-               if (lambda.symbolicAnalysis.paths.size() > 1) 
-                  throw new QueryTransformException("Can only handle a single path in an aggregate function at the moment");
-
-               SymbExPassDown passdown = SymbExPassDown.with(null, false);
-               ColumnExpressions<?> returnQuery = simplifyAndTranslateMainPathToColumns(lambda, translator, passdown);
+               ColumnExpressions<U> returnQuery = makeSelectExpression(translator, lambda);
                
                // TODO: Confirm that the result actually contains an aggregate
                aggregatedQueryEntries[n] = returnQuery;

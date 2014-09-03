@@ -226,12 +226,13 @@ public class JinqJPATypesTest extends JinqJPATestBase
    public void testBooleanOperations()
    {
       // Comparisons in a SELECT must be converted to a CASE...WHEN... or something
-      // TODO: CASE...WHEN... is now done, but I'm not sure how to convert the 1 and 0 constants into booleans
+      // TODO: CASE...WHEN... is now done, and I've inserted a little hack to convert the 1 and 0 constants 
+      //    into booleans, but EclipseLink is treating TRUE and FALSE and integers in the return type.
       List<Pair<Supplier, Boolean>> suppliers = streams.streamAll(em, Supplier.class)
             .where(s -> s.getHasFreeShipping())
             .select(s -> new Pair<>(s, s.getHasFreeShipping() != true))
             .toList();
-      assertEquals("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN 1 ELSE 0 END FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
+      assertEquals("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN TRUE ELSE FALSE END FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
       assertEquals(1, suppliers.size());
       assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
       assertTrue(suppliers.get(0).getTwo());
