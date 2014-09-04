@@ -29,11 +29,11 @@ public class Tuple3<A, B, C> extends Tuple
       
       if (! (obj instanceof Tuple3)) return false;
       
-      Tuple3 tuple = (Tuple3)obj;
-      
-      return this.one.equals(tuple.one)
-         && this.two.equals(tuple.two)
-         && this.three.equals(tuple.three);
+      Tuple3<?,?,?> tuple = (Tuple3<?,?,?>)obj;
+
+      return (this.one == null ? tuple.one == null : this.one.equals(tuple.one))
+            && (this.two == null ? tuple.two == null : this.two.equals(tuple.two))
+            && (this.three == null ? tuple.three == null : this.three.equals(tuple.three));
    }
    
    public int hashCode()

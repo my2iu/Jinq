@@ -30,6 +30,7 @@ public interface QueryComposer<T>
    public <U> QueryComposer<U> select(JinqStream.Select<T, U> select);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.JoinWithSource<T,U> join);
+   public <U> QueryComposer<Pair<T, U>> leftOuterJoin(JinqStream.Join<T,U> join);
    public QueryComposer<T> unique();
 //   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 

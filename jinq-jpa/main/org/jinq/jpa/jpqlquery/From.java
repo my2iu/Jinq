@@ -28,6 +28,13 @@ public abstract class From implements JPQLFragment
       return from;
    }
 
+   public static FromNavigationalLinksLeftOuterJoin forNavigationalLinksLeftOuterJoin(FromNavigationalLinks link)
+   {
+      FromNavigationalLinksLeftOuterJoin from = new FromNavigationalLinksLeftOuterJoin();
+      from.links = link.links;
+      return from;
+   }
+
    public static class FromEntity extends From
    {
       String entityName;
@@ -38,6 +45,15 @@ public abstract class From implements JPQLFragment
    }
    
    public static class FromNavigationalLinks extends From
+   {
+      Expression links;
+      void generateFromString(QueryGenerationState queryState)
+      {
+         links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+      }
+   }
+
+   public static class FromNavigationalLinksLeftOuterJoin extends From
    {
       Expression links;
       void generateFromString(QueryGenerationState queryState)

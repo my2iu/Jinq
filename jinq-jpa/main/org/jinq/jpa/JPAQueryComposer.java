@@ -25,6 +25,7 @@ import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
 import org.jinq.jpa.transform.MultiAggregateTransform;
+import org.jinq.jpa.transform.OuterJoinTransform;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.SortingTransform;
@@ -322,6 +323,13 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> joinLambda)
    {
       return applyTransformWithLambda(new JoinTransform(metamodel, hints.lambdaClassLoader, true), joinLambda);
+   }
+   
+   @Override
+   public <U> QueryComposer<Pair<T, U>> leftOuterJoin(
+         org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
+   {
+      return applyTransformWithLambda(new OuterJoinTransform(metamodel, hints.lambdaClassLoader), joinLambda);
    }
 
    @Override

@@ -502,7 +502,15 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
       return composeQuery("join", join,
             null, () -> transformer.join(query.copy(), nextLambdaParamIndex, join, emSource));
    }
-   
+
+   @Override
+   public <U> QueryComposer<Pair<T, U>> leftOuterJoin(
+         org.jinq.orm.stream.JinqStream.Join<T, U> join)
+   {
+      // Not supported
+      return null;
+   }
+
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.JoinWithSource<T,U> join)
    {
       // Not supported

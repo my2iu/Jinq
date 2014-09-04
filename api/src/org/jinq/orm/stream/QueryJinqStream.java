@@ -77,6 +77,14 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
 
    @Override
+   public <U> JinqStream<Pair<T, U>> leftOuterJoin(Join<T,U> join)
+   {
+      QueryComposer<Pair<T, U>> newComposer = queryComposer.leftOuterJoin(join);
+      if (newComposer != null) return new QueryJinqStream<Pair<T, U>>(newComposer, inQueryStreamSource);
+      return super.leftOuterJoin(join);
+   }
+
+   @Override
    public JinqStream<T> unique()
    {
       QueryComposer<T> newComposer = queryComposer.unique();

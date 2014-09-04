@@ -2,6 +2,8 @@ package org.jinq.test.query;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -70,6 +72,14 @@ public class NonQueryJinqStreamTest
    public void testAvg()
    {
       assertEquals(3, new NonQueryJinqStream<>( Stream.of(1, 2, 3, 4, 5)).avg(n -> n), 0.001);
+   }
+
+   @Test
+   public void testLeftOuterJoin()
+   {
+      List<Pair<Integer, Integer>> list = new NonQueryJinqStream<>(Stream.of(0, 1))
+            .leftOuterJoin(n -> JinqStream.from(Collections.<Integer>nCopies(n, 1))).toList(); 
+      assertEquals(Arrays.asList(new Pair<>(0, null), new Pair<>(1, 1)), list);
    }
 
 }

@@ -32,12 +32,12 @@ public class Tuple4<A, B, C, D> extends Tuple
       
       if (! (obj instanceof Tuple4)) return false;
       
-      Tuple4 tuple = (Tuple4)obj;
+      Tuple4<?,?,?,?> tuple = (Tuple4<?,?,?,?>)obj;
       
-      return this.one.equals(tuple.one)
-         && this.two.equals(tuple.two)
-         && this.three.equals(tuple.three)
-         && this.four.equals(tuple.four);
+      return (this.one == null ? tuple.one == null : this.one.equals(tuple.one))
+            && (this.two == null ? tuple.two == null : this.two.equals(tuple.two))
+            && (this.three == null ? tuple.three == null : this.three.equals(tuple.three))
+            && (this.four == null ? tuple.four == null : this.four.equals(tuple.four));
    }
    
    public int hashCode()

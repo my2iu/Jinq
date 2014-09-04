@@ -36,13 +36,13 @@ public class Tuple5<A, B, C, D, E> extends Tuple
       
       if (! (obj instanceof Tuple5)) return false;
       
-      Tuple5 tuple = (Tuple5)obj;
-      
-      return this.one.equals(tuple.one)
-         && this.two.equals(tuple.two)
-         && this.three.equals(tuple.three)
-         && this.four.equals(tuple.four)
-         && this.five.equals(tuple.five);
+      Tuple5<?,?,?,?,?> tuple = (Tuple5<?,?,?,?,?>)obj;
+
+      return (this.one == null ? tuple.one == null : this.one.equals(tuple.one))
+            && (this.two == null ? tuple.two == null : this.two.equals(tuple.two))
+            && (this.three == null ? tuple.three == null : this.three.equals(tuple.three))
+            && (this.four == null ? tuple.four == null : this.four.equals(tuple.four))
+            && (this.five == null ? tuple.five == null : this.five.equals(tuple.five));
    }
    
    public int hashCode()

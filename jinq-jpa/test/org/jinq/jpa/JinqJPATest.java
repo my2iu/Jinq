@@ -77,7 +77,6 @@ public class JinqJPATest extends JinqJPATestBase
    @Test
    public void testJoinNMLink()
    {
-      // TODO: Support not implemented yet
       List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
             .where(i -> i.getName().equals("Widgets"))
             .join(i -> JinqStream.from(i.getSuppliers()))
@@ -93,7 +92,6 @@ public class JinqJPATest extends JinqJPATestBase
    @Test
    public void testJoin11NMLink()
    {
-      // TODO: Support not implemented yet
       List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
             .join(lo -> JinqStream.from(lo.getItem().getSuppliers()))
             .where(pair -> pair.getOne().getSale().getCustomer().getName().equals("Alice"))
@@ -120,6 +118,22 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Widgets", results.get(0).getOne().getName());
       assertEquals("Talent", results.get(1).getTwo().getName());
       assertEquals("Widgets", results.get(1).getOne().getName());
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testOuterJoin()
+   {
+      throw new IllegalArgumentException();
+//      List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
+//            .where(i -> i.getName().equals("Widgets"))
+//            .leftOuterJoin(i -> JinqStream.from(i.getSuppliers()))
+//            .toList();
+//      assertEquals("SELECT A, B FROM Item A, A.suppliers B WHERE A.name = 'Widgets'", query);
+//      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
+//      assertEquals(2, results.size());
+//      assertEquals("Widgets", results.get(0).getOne().getName());
+//      assertEquals("Conglomerate", results.get(0).getTwo().getName());
+//      assertEquals("HW Supplier", results.get(1).getTwo().getName());
    }
 
    @Test

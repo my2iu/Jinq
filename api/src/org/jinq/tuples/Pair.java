@@ -32,8 +32,8 @@ public class Pair<T, U> extends Tuple
       if (! (obj instanceof Pair)) return false;
       
       Pair<?,?> pair = (Pair<?,?>)obj;
-      return this.one.equals(pair.one)
-         && this.two.equals(pair.two);
+      return (this.one == null ? pair.one == null : this.one.equals(pair.one))
+         && (this.two == null ? pair.two == null : this.two.equals(pair.two));
    }
    
    @Override

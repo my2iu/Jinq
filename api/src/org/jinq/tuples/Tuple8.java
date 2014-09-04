@@ -44,16 +44,16 @@ public class Tuple8<A, B, C, D, E, F, G, H> extends Tuple
       
       if (! (obj instanceof Tuple8)) return false;
       
-      Tuple8 tuple = (Tuple8)obj;
+      Tuple8<?,?,?,?,?,?,?,?> tuple = (Tuple8<?,?,?,?,?,?,?,?>)obj;
       
-      return this.one.equals(tuple.one)
-         && this.two.equals(tuple.two)
-         && this.three.equals(tuple.three)
-         && this.four.equals(tuple.four)
-         && this.five.equals(tuple.five)
-         && this.six.equals(tuple.six)
-         && this.seven.equals(tuple.seven)
-         && this.eight.equals(tuple.eight);
+      return (this.one == null ? tuple.one == null : this.one.equals(tuple.one))
+            && (this.two == null ? tuple.two == null : this.two.equals(tuple.two))
+            && (this.three == null ? tuple.three == null : this.three.equals(tuple.three))
+            && (this.four == null ? tuple.four == null : this.four.equals(tuple.four))
+            && (this.five == null ? tuple.five == null : this.five.equals(tuple.five))
+            && (this.six == null ? tuple.six == null : this.six.equals(tuple.six))
+            && (this.seven == null ? tuple.seven == null : this.seven.equals(tuple.seven))
+            && (this.eight == null ? tuple.eight == null : this.eight.equals(tuple.eight));
    }
    
    public int hashCode()

@@ -112,6 +112,21 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    }
 
    @Override
+   public <U> JinqStream<Pair<T, U>> leftOuterJoin(Join<T,U> join)
+   {
+      // TODO: This stream should be constructed on the fly
+      final Stream.Builder<Pair<T,U>> streamBuilder = Stream.builder();
+      forEach( left -> {
+         if (join.join(left).count() > 0)
+            join.join(left).forEach( right -> 
+               { streamBuilder.accept(new Pair<>(left, right)); });
+         else
+            streamBuilder.accept(new Pair<>(left, null));
+         });
+      return wrap(streamBuilder.build());
+   }
+
+   @Override
    public JinqStream<T> unique()
    {
       return wrap(distinct());
