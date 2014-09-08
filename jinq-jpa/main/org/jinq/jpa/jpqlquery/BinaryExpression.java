@@ -43,4 +43,10 @@ public class BinaryExpression extends Expression
       BinaryExpression o = (BinaryExpression)obj; 
       return operator.equals(o.operator) && left.equals(o.left) && right.equals(o.right);
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitBinary(this);
+   }
 }

@@ -29,4 +29,10 @@ public class ConstantExpression extends Expression
       ConstantExpression o = (ConstantExpression)obj; 
       return text.equals(o.text);
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitConstant(this);
+   }
 }

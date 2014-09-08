@@ -28,4 +28,10 @@ public class FromAliasExpression extends Expression
       FromAliasExpression o = (FromAliasExpression)obj; 
       return from.equals(o.from);
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitFromAlias(this);
+   }
 }

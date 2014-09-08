@@ -14,6 +14,8 @@ public abstract class Expression
    
    public abstract void prepareQueryGeneration(QueryGenerationPreparationPhase preparePhase, QueryGenerationState queryState);
    
+   public abstract void visit(ExpressionVisitor visitor);
+   
    @Override public boolean equals(Object obj)
    {
       if (!getClass().equals(obj.getClass())) return false;

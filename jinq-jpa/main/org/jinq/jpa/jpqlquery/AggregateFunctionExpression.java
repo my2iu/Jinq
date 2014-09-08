@@ -34,4 +34,10 @@ public class AggregateFunctionExpression extends Expression
       AggregateFunctionExpression o = (AggregateFunctionExpression)obj; 
       return base.equals(o.base) && aggregateName.equals(o.aggregateName);
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitAggregateFunction(this);
+   }
 }

@@ -37,4 +37,10 @@ public class FunctionExpression extends Expression
       FunctionExpression o = (FunctionExpression)obj; 
       return functionName.equals(o.functionName) && base.equals(o.base);
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitFunction(this);
+   }
 }

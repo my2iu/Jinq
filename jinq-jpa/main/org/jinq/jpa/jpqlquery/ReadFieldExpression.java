@@ -3,8 +3,8 @@ package org.jinq.jpa.jpqlquery;
 
 public class ReadFieldExpression extends Expression
 {
-   final Expression base;
-   final String field;
+   public final Expression base;
+   public final String field;
    public ReadFieldExpression(Expression base, String field)
    {
       this.base = base;
@@ -37,5 +37,11 @@ public class ReadFieldExpression extends Expression
       if (!getClass().equals(obj.getClass())) return false;
       ReadFieldExpression o = (ReadFieldExpression)obj; 
       return field.equals(o.field) && base.equals(o.base);
+   }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitReadField(this);
    }
 }

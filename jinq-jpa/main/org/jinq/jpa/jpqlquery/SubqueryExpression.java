@@ -39,4 +39,10 @@ public class SubqueryExpression extends Expression
       // TODO: Recurse into the subquery and test properly for equality
       return subquery.equals(o.subquery);
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitSubquery(this);
+   }
 }

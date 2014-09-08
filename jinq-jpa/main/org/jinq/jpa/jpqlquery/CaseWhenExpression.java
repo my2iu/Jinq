@@ -55,4 +55,10 @@ public class CaseWhenExpression extends Expression
             return false;
       return true;
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitCaseWhen(this);
+   }
 }

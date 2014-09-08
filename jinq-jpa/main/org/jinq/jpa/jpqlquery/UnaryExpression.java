@@ -57,4 +57,10 @@ public class UnaryExpression extends Expression
       UnaryExpression o = (UnaryExpression)obj; 
       return operand.equals(o.operand) && prefixOperator.equals(o.prefixOperator) && postfixOperator.equals(o.postfixOperator);
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitUnary(this);
+   }
 }

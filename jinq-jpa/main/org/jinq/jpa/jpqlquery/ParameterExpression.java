@@ -33,4 +33,10 @@ public class ParameterExpression extends Expression
       ParameterExpression o = (ParameterExpression)obj; 
       return lambdaIndex == o.lambdaIndex && argIndex == o.argIndex;
    }
+
+   @Override
+   public void visit(ExpressionVisitor visitor)
+   {
+      visitor.visitParameter(this);
+   }
 }

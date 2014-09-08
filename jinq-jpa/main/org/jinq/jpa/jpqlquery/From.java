@@ -37,7 +37,7 @@ public abstract class From implements JPQLFragment
 
    public static class FromEntity extends From
    {
-      String entityName;
+      public String entityName;
       void generateFromString(QueryGenerationState queryState)
       {
          queryState.queryString += entityName;
@@ -46,7 +46,7 @@ public abstract class From implements JPQLFragment
    
    public static class FromNavigationalLinks extends From
    {
-      Expression links;
+      public Expression links;
       void generateFromString(QueryGenerationState queryState)
       {
          links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
@@ -55,7 +55,7 @@ public abstract class From implements JPQLFragment
 
    public static class FromNavigationalLinksLeftOuterJoin extends From
    {
-      Expression links;
+      public Expression links;
       void generateFromString(QueryGenerationState queryState)
       {
          links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
