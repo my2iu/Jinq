@@ -164,6 +164,17 @@ public class MetamodelUtil
    }
 
    /**
+    * Given a method used to read a field of an entity, this returns whether
+    * the field is an association type (i.e. represents a 1:1 or N:1 link)
+    * @param sig
+    * @return
+    */
+   public boolean isFieldMethodAssociationType(MethodSignature sig)
+   {
+      return fieldMethods.get(sig).isAssociation();
+   }
+
+   /**
     * Returns true if a method is used to get a plural attribute field from an entity
     * @param sig
     * @return

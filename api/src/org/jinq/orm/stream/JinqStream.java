@@ -166,4 +166,12 @@ public interface JinqStream<T> extends Stream<T>
    {
       return new NonQueryJinqStream<>(collection.stream());
    }
+
+   /**
+    * Creates a JinqStream containing a single object. 
+    */
+   public static <U> JinqStream<U> of(U value)
+   {
+      return new NonQueryJinqStream<>(Stream.of(value));
+   }
 }

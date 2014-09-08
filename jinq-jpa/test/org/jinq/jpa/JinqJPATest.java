@@ -150,12 +150,24 @@ public class JinqJPATest extends JinqJPATestBase
    @Test
    public void testOuterJoin11()
    {
-//      List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
-//            .leftOuterJoin(lo -> JinqStream.from(lo.getItem()))
-//            .toList();
-//      assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item.suppliers B WHERE A.item.name = 'Widgets'", query);
-//      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
-//      assertEquals(2, results.size());
+      List<Pair<Lineorder, Item>> results = streams.streamAll(em, Lineorder.class)
+            .leftOuterJoin(lo -> JinqStream.of(lo.getItem()))
+            .where(pair -> pair.getTwo().getName().equals("Talent"))
+            .toList();
+      assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name = 'Talent'", query);
+      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
+      assertEquals(1, results.size());
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testOuterJoinField()
+   {
+      // Cannot do outer joins on normal fields. Only navigational links.
+      List<Pair<Customer, String>> results = streams.streamAll(em, Customer.class)
+            .leftOuterJoin(c -> JinqStream.of(c.getCountry()))
+            .toList();
+      assertEquals("SELECT A, B FROM Customer A LEFT OUTER JOIN A.country B", query);
+      assertEquals(5, results.size());
    }
 
    @Test

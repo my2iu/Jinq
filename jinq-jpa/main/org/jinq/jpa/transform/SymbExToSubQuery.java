@@ -69,16 +69,18 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
     * if unknownVal is not a handled navigational link, null will be 
     * returned. Otherwise, a query representing the link will be returned
     */
-   private JPQLQuery<?> handlePossibleNNavigationalLink(TypedValue unknownVal, SymbExPassDown in) throws TypedValueVisitorException
+   private JPQLQuery<?> handlePossibleNavigationalLink(TypedValue unknownVal, boolean expectingPluralLink, SymbExPassDown in) throws TypedValueVisitorException
    {
       // Figure out if it's an 1:N or N:M navigational link
       if (unknownVal instanceof MethodCallValue.VirtualMethodCallValue)
       {
          MethodCallValue.VirtualMethodCallValue val = (MethodCallValue.VirtualMethodCallValue)unknownVal;
          MethodSignature sig = val.getSignature();
-         if (metamodel.isPluralAttributeLinkMethod(sig))
+         if ((expectingPluralLink && metamodel.isPluralAttributeLinkMethod(sig))
+               || (!expectingPluralLink && metamodel.isSingularAttributeFieldMethod(sig) && metamodel.isFieldMethodAssociationType(sig))) 
          {
-            String linkName = metamodel.nLinkMethodToLinkName(sig);
+            String linkName = expectingPluralLink ? 
+                  metamodel.nLinkMethodToLinkName(sig) : metamodel.fieldMethodToFieldName(sig);
             SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, argHandler);
             
             SymbExPassDown passdown = SymbExPassDown.with(val, false);
@@ -102,7 +104,6 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
             query.froms.add(from);
             return query;
          }
-         
       }
       return null;
    }
@@ -112,7 +113,12 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
       MethodSignature sig = val.getSignature();
       if (sig.equals(TransformationClassAnalyzer.streamFrom))
       {
-         JPQLQuery<?> nLink = handlePossibleNNavigationalLink(val.args.get(0), in);
+         JPQLQuery<?> nLink = handlePossibleNavigationalLink(val.args.get(0), true, in);
+         if (nLink != null) return nLink;
+      }
+      else if (sig.equals(TransformationClassAnalyzer.streamOf))
+      {
+         JPQLQuery<?> nLink = handlePossibleNavigationalLink(val.args.get(0), false, in);
          if (nLink != null) return nLink;
       }
 //      if (sig.equals(TransformationClassAnalyzer.integerValueOf)
