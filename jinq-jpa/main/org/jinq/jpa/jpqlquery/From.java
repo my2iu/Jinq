@@ -56,8 +56,11 @@ public abstract class From implements JPQLFragment
    public static class FromNavigationalLinksLeftOuterJoin extends From
    {
       public Expression links;
+      
+      @Override
       void generateFromString(QueryGenerationState queryState)
       {
+         queryState.queryString += " LEFT OUTER JOIN ";
          links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
       }
    }

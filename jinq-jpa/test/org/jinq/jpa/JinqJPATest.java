@@ -120,20 +120,42 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Widgets", results.get(1).getOne().getName());
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testOuterJoin()
    {
-      throw new IllegalArgumentException();
-//      List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
-//            .where(i -> i.getName().equals("Widgets"))
-//            .leftOuterJoin(i -> JinqStream.from(i.getSuppliers()))
+      List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
+            .where(i -> i.getName().equals("Widgets"))
+            .leftOuterJoin(i -> JinqStream.from(i.getSuppliers()))
+            .toList();
+      assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN A.suppliers B WHERE A.name = 'Widgets'", query);
+      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
+      assertEquals(2, results.size());
+      assertEquals("Widgets", results.get(0).getOne().getName());
+      assertEquals("Conglomerate", results.get(0).getTwo().getName());
+      assertEquals("HW Supplier", results.get(1).getTwo().getName());
+   }
+
+   @Test
+   public void testOuterJoinChain()
+   {
+      List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
+            .where(lo -> lo.getItem().getName().equals("Talent"))
+            .leftOuterJoin(lo -> JinqStream.from(lo.getItem().getSuppliers()))
+            .toList();
+      assertEquals("SELECT A, C FROM Lineorder A, A.item B LEFT OUTER JOIN B.suppliers C WHERE A.item.name = 'Talent'", query);
+      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
+      assertEquals(1, results.size());
+   }
+
+   @Test
+   public void testOuterJoin11()
+   {
+//      List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
+//            .leftOuterJoin(lo -> JinqStream.from(lo.getItem()))
 //            .toList();
-//      assertEquals("SELECT A, B FROM Item A, A.suppliers B WHERE A.name = 'Widgets'", query);
+//      assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item.suppliers B WHERE A.item.name = 'Widgets'", query);
 //      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
 //      assertEquals(2, results.size());
-//      assertEquals("Widgets", results.get(0).getOne().getName());
-//      assertEquals("Conglomerate", results.get(0).getTwo().getName());
-//      assertEquals("HW Supplier", results.get(1).getTwo().getName());
    }
 
    @Test

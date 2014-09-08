@@ -2,9 +2,13 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
+import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.From.FromNavigationalLinksLeftOuterJoin;
+import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.ReadFieldExpression;
+import org.jinq.jpa.jpqlquery.RecursiveExpressionVisitor;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 
@@ -16,6 +20,45 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
    public OuterJoinTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
    {
       super(metamodel, alternateClassLoader);
+   }
+
+   private boolean isChainedLink(Expression links)
+   {
+      if (links instanceof ReadFieldExpression)
+         return ((ReadFieldExpression)links).base instanceof ReadFieldExpression;
+      return false;
+   }
+   
+
+   private boolean isLeftOuterJoinCompatible(SelectFromWhere<?> toMerge)
+   {
+      From from = toMerge.froms.get(0);
+      if (!(from instanceof From.FromNavigationalLinks))
+         return false;
+      Expression navLink = ((From.FromNavigationalLinks)from).links;
+      while (!(navLink instanceof FromAliasExpression))
+      {
+         if (!(navLink instanceof ReadFieldExpression))
+            return false;
+         navLink = ((ReadFieldExpression)navLink).base;
+      }
+      return true;
+   }
+   
+   private void rewriteFromAliases(SelectFromWhere<?> toMerge, From oldFrom, From newFrom)
+   {
+      for (Expression expr: toMerge.cols.columns)
+      {
+         expr.visit(new RecursiveExpressionVisitor() {
+            @Override
+            public void visitFromAlias(FromAliasExpression expr)
+            {
+               if (expr.from == oldFrom)
+                  expr.from = newFrom;
+               super.visitFromAlias(expr);
+            }
+         });
+      }
    }
    
    @Override
@@ -46,10 +89,21 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
                SelectFromWhere<?> toMerge = (SelectFromWhere<?>)returnExpr;
                SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
                From from = toMerge.froms.get(0);
-               if (!(from instanceof From.FromNavigationalLinks))
+               if (!isLeftOuterJoinCompatible(toMerge))
                   throw new QueryTransformException("Left outer join must be applied to a navigational link");
                From.FromNavigationalLinksLeftOuterJoin outerJoinFrom = From.forNavigationalLinksLeftOuterJoin((From.FromNavigationalLinks)from);
+               if (isChainedLink(outerJoinFrom.links))
+               {
+                  // The left outer join only applies to the end part of
+                  // links. So we'll pull off the earlier part of the chain
+                  // and make them a separate alias.
+                  ReadFieldExpression outerLinks = (ReadFieldExpression)outerJoinFrom.links;
+                  From baseFrom = From.forNavigationalLinks(outerLinks.base);
+                  toReturn.froms.add(baseFrom);
+                  outerJoinFrom.links = new ReadFieldExpression(new FromAliasExpression(baseFrom), outerLinks.field);
+               }
                toReturn.froms.add(outerJoinFrom);
+               rewriteFromAliases(toMerge, from, outerJoinFrom);
                toReturn.cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(TupleRowReader.PAIR_CLASS, sfw.cols.reader, toMerge.cols.reader));
                toReturn.cols.columns.addAll(sfw.cols.columns);
                toReturn.cols.columns.addAll(toMerge.cols.columns);

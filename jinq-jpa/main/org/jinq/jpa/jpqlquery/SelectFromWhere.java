@@ -91,7 +91,11 @@ public class SelectFromWhere<T> extends SelectOnly<T>
          boolean isFirst = true;
          for (From from: froms)
          {
-            if (!isFirst) queryState.queryString += ", ";
+            if (!isFirst)
+            {
+               if (!(from instanceof From.FromNavigationalLinksLeftOuterJoin))
+                  queryState.queryString += ", ";
+            }
             isFirst = false;
             from.generateFromString(queryState);
             queryState.queryString += " " + queryState.getFromAlias(from);
