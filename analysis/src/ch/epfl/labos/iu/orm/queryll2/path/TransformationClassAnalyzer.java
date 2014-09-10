@@ -23,6 +23,8 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
 public class TransformationClassAnalyzer
 {
+   public static final int MAX_PATHS = 64;
+   
    // Mapping of transformation classes to the name of the method
    // containing the actual transformation
    public static Map<String, String> TransformationClassMethods =
@@ -342,7 +344,9 @@ public class TransformationClassAnalyzer
       // TODO: Check for instructions causing side-effects
       
       // Break the code into paths
-      List<CodePath> paths = CodePath.breakIntoPaths(cfg, m, cl.name);
+      List<CodePath> paths = CodePath.breakIntoPaths(cfg, m, cl.name, MAX_PATHS);
+      if (paths == null)
+         return null;
       
       // Symbolically execute each path to figure out what each path does
       U analysis = pathAnalysisFactory.createMethodAnalysisResults();

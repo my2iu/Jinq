@@ -50,7 +50,7 @@ public class CodePath
    // Methods for constructing code paths from a method (assumes there are no loops) 
    
    // Returns false on encountering something that can't be analyzed properly
-   static boolean breakIntoPaths(List<CodePath> paths, List<PathInstruction> previousInstructions, int index, CFG cfg, MethodNode m)
+   static boolean breakIntoPaths(List<CodePath> paths, List<PathInstruction> previousInstructions, int index, CFG cfg, MethodNode m, int maxPaths)
    {
       // Get the next instruction and check if we can handle it
       AbstractInsnNode instruction = m.instructions.get(index);
@@ -71,13 +71,13 @@ public class CodePath
                branchIndex = next;
          // Add the instruction to the path, recurse, then remove the instruction
          previousInstructions.add(PathInstruction.branch(instruction, true));
-         if (!breakIntoPaths(paths, previousInstructions, branchIndex, cfg, m))
+         if (!breakIntoPaths(paths, previousInstructions, branchIndex, cfg, m, maxPaths))
             return false;
          previousInstructions.remove(previousInstructions.size() - 1);
 
          // Add the instruction to the path, recurse, then remove the instruction
          previousInstructions.add(PathInstruction.branch(instruction, false));
-         if (!breakIntoPaths(paths, previousInstructions, nextIndex, cfg, m))
+         if (!breakIntoPaths(paths, previousInstructions, nextIndex, cfg, m, maxPaths))
             return false;
          previousInstructions.remove(previousInstructions.size() - 1);
       }
@@ -87,7 +87,7 @@ public class CodePath
          assert(cfg.succsOf(index).size() == 1);
          int nextIndex = cfg.succsOf(index).get(0);
          previousInstructions.add(new PathInstruction(instruction));
-         if (!breakIntoPaths(paths, previousInstructions, nextIndex, cfg, m))
+         if (!breakIntoPaths(paths, previousInstructions, nextIndex, cfg, m, maxPaths))
             return false;
          previousInstructions.remove(previousInstructions.size() - 1);
       }
@@ -98,16 +98,18 @@ public class CodePath
          paths.add(new CodePath(previousInstructions));
          previousInstructions.remove(previousInstructions.size() - 1);
          
-         // TODO: Abort if there are too many paths
+         // Abort if there are too many paths
+         if (paths.size() > maxPaths)
+            return false;
       }
       
       return true;
    }
-   static List<CodePath> breakIntoPaths(CFG cfg, MethodNode m, String name)
+   static List<CodePath> breakIntoPaths(CFG cfg, MethodNode m, String name, int maxPaths)
    {
       List<CodePath> paths = new ArrayList<CodePath>();
       List<PathInstruction> instructions = new ArrayList<PathInstruction>();
-      if (!breakIntoPaths(paths, instructions, 0, cfg, m))
+      if (!breakIntoPaths(paths, instructions, 0, cfg, m, maxPaths))
          return null;
       return paths;
    }

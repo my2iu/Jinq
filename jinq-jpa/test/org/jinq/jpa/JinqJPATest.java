@@ -241,6 +241,21 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Carol", results.get(1).getName());
    }
 
+   @Test(expected=IllegalArgumentException.class)
+   public void testTooManyPaths()
+   {
+      List<Customer> results = streams.streamAll(em, Customer.class)
+            .where(c -> (c.getName().equals("Alice") && c.getSalary() == 5)
+                  || (c.getName().equals("Bob") && c.getSalary() == 6)
+                  || (c.getName().equals("Dave") && c.getSalary() == 7)
+                  || (c.getName().equals("Eve") && c.getSalary() == 8)
+                  || (c.getName().equals("Carol") && c.getSalary() == 9)
+                  || (c.getName().equals("Alice") && c.getSalary() == 10)
+                  || (c.getName().equals("Bob") && c.getSalary() == 11)
+                  || (c.getName().equals("Carol") && c.getSalary() == 12))
+            .toList();
+   }
+
    @Test
    public void testJPQLNumericPromotion()
    {
@@ -283,7 +298,7 @@ public class JinqJPATest extends JinqJPATestBase
       obj = em.createQuery("SELECT A.total + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
       assertTrue(obj instanceof Double);  // BigDecimal + decimal constant = Double
    }
-   
+
    @Test
    public void testJPQL()
    {
