@@ -27,9 +27,6 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature stringToUpper = new MethodSignature("java/lang/String", "toUpperCase", "()Ljava/lang/String;");
    public final static MethodSignature stringToLower = new MethodSignature("java/lang/String", "toLowerCase", "()Ljava/lang/String;");
    public final static MethodSignature stringValueOfObject = new MethodSignature("java/lang/String", "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
-   public final static MethodSignature newStringBuilderString = new MethodSignature("java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
-   public final static MethodSignature stringBuilderAppendString = new MethodSignature("java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
-   public final static MethodSignature stringBuilderToString = new MethodSignature("java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
    final static Set<MethodSignature> jpqlFunctionMethods = new HashSet<>();
    final static Set<MethodSignature> jpqlFunctionStaticMethods = new HashSet<>();
    static {
@@ -43,9 +40,6 @@ class MethodChecker implements PathAnalysisMethodChecker
       jpqlFunctionMethods.add(bigIntegerAbs);
       jpqlFunctionMethods.add(stringToUpper);
       jpqlFunctionMethods.add(stringToLower);
-      jpqlFunctionMethods.add(newStringBuilderString);
-      jpqlFunctionMethods.add(stringBuilderAppendString);
-      jpqlFunctionMethods.add(stringBuilderToString);
    }
    
    public final static MethodSignature streamSumInt = TransformationClassAnalyzer.streamSumInt;

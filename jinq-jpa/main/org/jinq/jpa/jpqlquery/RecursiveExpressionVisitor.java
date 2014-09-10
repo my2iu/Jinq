@@ -45,7 +45,8 @@ public class RecursiveExpressionVisitor extends ExpressionVisitor
    @Override
    public void visitFunction(FunctionExpression expr)
    {
-      expr.base.visit(this);
+      for (Expression arg: expr.arguments)
+         arg.visit(this);
       super.visitFunction(expr);
    }
 

@@ -17,6 +17,8 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.Value;
 
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
+
 public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opcodes
 {
    public BasicSymbolicInterpreter(int api)
@@ -350,6 +352,8 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
                MethodCallValue.VirtualMethodCallValue toReturn;
                toReturn = new MethodCallValue.VirtualMethodCallValue(methodInsn.owner, methodInsn.name, methodInsn.desc, args, base);
                if (toReturn.isConstructor() && linkedFrame != null)
+                  linkedFrame.replaceValues(base, toReturn);
+               else if (TransformationClassAnalyzer.stringBuilderAppendString.equals(sig))
                   linkedFrame.replaceValues(base, toReturn);
                return toReturn;
             }

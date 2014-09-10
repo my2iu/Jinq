@@ -1,6 +1,8 @@
 package org.jinq.jpa.transform;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jinq.jpa.MetamodelUtil;
@@ -463,19 +465,50 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          }
          else if (sig.equals(MethodChecker.stringToUpper))
          {
-            SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
             ColumnExpressions<?> base = val.base.visit(this, passdown);
             return ColumnExpressions.singleColumn(base.reader,
                   FunctionExpression.singleParam("UPPER", base.getOnlyColumn())); 
          }
          else if (sig.equals(MethodChecker.stringToLower))
          {
-            SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
             ColumnExpressions<?> base = val.base.visit(this, passdown);
             return ColumnExpressions.singleColumn(base.reader,
                   FunctionExpression.singleParam("LOWER", base.getOnlyColumn())); 
          }
          throw new TypedValueVisitorException("Do not know how to translate the method " + sig + " into a JPQL function");
+      }
+      else if (sig.equals(TransformationClassAnalyzer.stringBuilderToString))
+      {
+         List<ColumnExpressions<?>> concatenatedStrings = new ArrayList<>();
+         MethodCallValue.VirtualMethodCallValue baseVal = val;
+         while (true)
+         {
+            if (!(baseVal.base instanceof MethodCallValue.VirtualMethodCallValue))
+               throw new TypedValueVisitorException("Unexpected use of StringBuilder");
+            baseVal = (MethodCallValue.VirtualMethodCallValue)baseVal.base;
+            if (baseVal.getSignature().equals(TransformationClassAnalyzer.newStringBuilderString))
+            {
+               SymbExPassDown passdown = SymbExPassDown.with(val, false);
+               concatenatedStrings.add(baseVal.args.get(0).visit(this, passdown));
+               break;
+            }
+            else if (baseVal.getSignature().equals(TransformationClassAnalyzer.stringBuilderAppendString))
+            {
+               SymbExPassDown passdown = SymbExPassDown.with(val, false);
+               concatenatedStrings.add(baseVal.args.get(0).visit(this, passdown));
+            }
+            else
+               throw new TypedValueVisitorException("Unexpected use of StringBuilder");
+         }
+         
+         if (concatenatedStrings.size() == 1)
+            return concatenatedStrings.get(0);
+         Expression head = concatenatedStrings.get(concatenatedStrings.size() - 1).getOnlyColumn();
+         for (int n = concatenatedStrings.size() - 2; n >= 0 ; n--)
+            head = FunctionExpression.twoParam("CONCAT", head, concatenatedStrings.get(n).getOnlyColumn());
+         return ColumnExpressions.singleColumn(new SimpleRowReader<>(), head);
       }
       else
          return super.virtualMethodCallValue(val, in);
@@ -497,6 +530,14 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       else if (sig.equals(TransformationClassAnalyzer.bigIntegerValueOfLong))
       {
          throw new TypedValueVisitorException("New BigIntegers can only be created in the context of numeric promotion");
+      }
+      else if (sig.equals(MethodChecker.stringValueOfObject))
+      {
+         if (!val.args.get(0).getType().equals(Type.getObjectType("java/lang/String")))
+            throw new TypedValueVisitorException("Do not know how to convert type " + val.args.get(0).getType() + " to a string");
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+         ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
+         return base;
       }
       else if (MethodChecker.jpqlFunctionStaticMethods.contains(sig))
       {

@@ -344,7 +344,19 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals(1, customers.size());
       assertEquals("ALICE", customers.get(0));
    }
-   
+
+   @Test
+   public void testJPQLStringConcat()
+   {
+      List<String> customers = streams.streamAll(em, Customer.class)
+         .select( c -> c.getName() + " " + c.getCountry())
+         .sortedBy( s -> s)
+         .toList();
+      assertEquals("SELECT CONCAT(CONCAT(A.name, ' '), A.country) FROM Customer A ORDER BY CONCAT(CONCAT(A.name, ' '), A.country) ASC", query);
+      assertEquals(5, customers.size());
+      assertEquals("Alice Switzerland", customers.get(0));
+   }
+
    @Test
    public void testJPQLNumberFunctions()
    {
