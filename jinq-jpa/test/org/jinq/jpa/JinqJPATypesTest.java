@@ -232,7 +232,8 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .where(s -> s.getHasFreeShipping())
             .select(s -> new Pair<>(s, s.getHasFreeShipping() != true))
             .toList();
-      assertEquals("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN TRUE ELSE FALSE END FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
+      assertTrue("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN TRUE ELSE FALSE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query)
+            || "SELECT A, CASE WHEN A.hasFreeShipping = TRUE THEN FALSE ELSE TRUE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query));
       assertEquals(1, suppliers.size());
       assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
       assertTrue(suppliers.get(0).getTwo());

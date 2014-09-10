@@ -1,5 +1,7 @@
 package ch.epfl.labos.iu.orm.queryll2.path;
 
+import org.objectweb.asm.Type;
+
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueRewriterWalker;
@@ -53,6 +55,8 @@ public class SymbExBooleanRewriter extends TypedValueRewriterWalker<Boolean, Run
             public Boolean binaryOpValue(TypedValue.BinaryOperationValue val, Boolean in) 
             {
                if ("AND".equals(val.operation) || "OR".equals(val.operation))
+                  return true;
+               if (val.left.getType() == Type.BOOLEAN_TYPE || val.right.getType() == Type.BOOLEAN_TYPE)
                   return true;
                return defaultValue(val, in);
             }
