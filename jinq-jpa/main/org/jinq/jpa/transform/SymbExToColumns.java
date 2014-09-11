@@ -272,6 +272,18 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
    {
       if (val.op == TypedValue.MathOpValue.Op.cmp)
          throw new TypedValueVisitorException("cmp operator was not converted to a boolean operator");
+      if (val.op == TypedValue.MathOpValue.Op.mod)
+      {
+         if (val.left.getType().equals(Type.INT_TYPE) || val.right.getType().equals(Type.INT_TYPE))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            ColumnExpressions<?> left = (ColumnExpressions<?>)val.left.visit(this, passdown);
+            ColumnExpressions<?> right = (ColumnExpressions<?>)val.right.visit(this, passdown);
+            return ColumnExpressions.singleColumn(left.reader,
+                  FunctionExpression.twoParam("MOD", left.getOnlyColumn(), right.getOnlyColumn()));
+         }
+         throw new TypedValueVisitorException("mod operator cannot be used for the given types.");
+      }
       SymbExPassDown passdown = SymbExPassDown.with(val, false);
       return binaryOpWithNumericPromotion(val.sqlOpString(), val.left, val.right, passdown);
    }
@@ -477,6 +489,44 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             return ColumnExpressions.singleColumn(base.reader,
                   FunctionExpression.singleParam("LOWER", base.getOnlyColumn())); 
          }
+         else if (sig.equals(MethodChecker.stringLength))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            ColumnExpressions<?> base = val.base.visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  FunctionExpression.singleParam("LENGTH", base.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.stringTrim))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            ColumnExpressions<?> base = val.base.visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  FunctionExpression.singleParam("TRIM", base.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.stringSubstring))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            ColumnExpressions<?> base = val.base.visit(this, passdown);
+            ColumnExpressions<?> startIndex = val.args.get(0).visit(this, passdown);
+            ColumnExpressions<?> endIndex = val.args.get(1).visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  FunctionExpression.threeParam("SUBSTRING", 
+                        base.getOnlyColumn(),
+                        new BinaryExpression("+", startIndex.getOnlyColumn(), new ConstantExpression("1")),
+                        new BinaryExpression("-", endIndex.getOnlyColumn(), startIndex.getOnlyColumn())));
+         }
+         else if (sig.equals(MethodChecker.stringIndexOf))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            ColumnExpressions<?> base = val.base.visit(this, passdown);
+            ColumnExpressions<?> search = val.args.get(0).visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  new BinaryExpression("-", 
+                        FunctionExpression.twoParam("LOCATE", 
+                              search.getOnlyColumn(),
+                              base.getOnlyColumn())
+                        , new ConstantExpression("1")));
+         }
          throw new TypedValueVisitorException("Do not know how to translate the method " + sig + " into a JPQL function");
       }
       else if (sig.equals(TransformationClassAnalyzer.stringBuilderToString))
@@ -492,6 +542,10 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             {
                SymbExPassDown passdown = SymbExPassDown.with(val, false);
                concatenatedStrings.add(baseVal.args.get(0).visit(this, passdown));
+               break;
+            }
+            else if (baseVal.getSignature().equals(TransformationClassAnalyzer.newStringBuilder))
+            {
                break;
             }
             else if (baseVal.getSignature().equals(TransformationClassAnalyzer.stringBuilderAppendString))

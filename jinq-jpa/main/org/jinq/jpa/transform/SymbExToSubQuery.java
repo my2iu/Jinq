@@ -121,16 +121,6 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
          JPQLQuery<?> nLink = handlePossibleNavigationalLink(val.args.get(0), false, in);
          if (nLink != null) return nLink;
       }
-//      if (sig.equals(TransformationClassAnalyzer.integerValueOf)
-//            || sig.equals(TransformationClassAnalyzer.longValueOf)
-//            || sig.equals(TransformationClassAnalyzer.doubleValueOf)
-//            || sig.equals(TransformationClassAnalyzer.booleanValueOf))
-//      {
-//         // Integer.valueOf() to be like a cast and assume it's correct
-//         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
-//         ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
-//         return base;
-//      }
       return super.staticMethodCallValue(val, in);
    }
 

@@ -276,6 +276,9 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case DCMPL:
          case DCMPG: 
             return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.cmp, Type.INT_TYPE, (TypedValue)value1, (TypedValue)value2);
+         case IREM: 
+         case LREM: 
+            return new TypedValue.MathOpValue(TypedValue.MathOpValue.Op.mod, Type.INT_TYPE, (TypedValue)value1, (TypedValue)value2);
          case IALOAD:
          case LALOAD: 
          case FALOAD: 
@@ -284,8 +287,6 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          case BALOAD: 
          case CALOAD: 
          case SALOAD: 
-         case IREM: 
-         case LREM: 
          case FREM: 
          case DREM: 
          case ISHL: 

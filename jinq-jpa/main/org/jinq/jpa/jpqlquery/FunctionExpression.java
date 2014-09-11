@@ -25,6 +25,16 @@ public class FunctionExpression extends Expression
       func.functionName = name;
       return func;
    }
+   
+   public static FunctionExpression threeParam(String name, Expression param1, Expression param2, Expression param3)
+   {
+      FunctionExpression func = new FunctionExpression();
+      func.arguments.add(param1);
+      func.arguments.add(param2);
+      func.arguments.add(param3);
+      func.functionName = name;
+      return func;
+   }
 
    @Override
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)

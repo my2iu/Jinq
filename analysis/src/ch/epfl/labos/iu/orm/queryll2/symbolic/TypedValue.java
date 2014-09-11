@@ -259,7 +259,7 @@ public class TypedValue implements Value
    {
       public enum Op
       {
-         plus ("+"), minus("-"), mul("*"), div("/"), cmp("cmp");
+         plus ("+"), minus("-"), mul("*"), div("/"), mod("%"), cmp("cmp");
          
          private Op(String opString)
          {

@@ -27,6 +27,12 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature stringToUpper = new MethodSignature("java/lang/String", "toUpperCase", "()Ljava/lang/String;");
    public final static MethodSignature stringToLower = new MethodSignature("java/lang/String", "toLowerCase", "()Ljava/lang/String;");
    public final static MethodSignature stringValueOfObject = new MethodSignature("java/lang/String", "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
+   public final static MethodSignature stringTrim = new MethodSignature("java/lang/String", "trim", "()Ljava/lang/String;");
+   public final static MethodSignature stringLength = new MethodSignature("java/lang/String", "length", "()I");
+   public final static MethodSignature stringSubstring = new MethodSignature("java/lang/String", "substring", "(II)Ljava/lang/String;");
+   public final static MethodSignature stringIndexOf = new MethodSignature("java/lang/String", "indexOf", "(Ljava/lang/String;)I");
+// TODO: I'm not sure how to cast integers to strings in JPQL   
+//   public final static MethodSignature stringBuilderAppendInt = new MethodSignature("java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;");
    final static Set<MethodSignature> jpqlFunctionMethods = new HashSet<>();
    final static Set<MethodSignature> jpqlFunctionStaticMethods = new HashSet<>();
    static {
@@ -40,6 +46,10 @@ class MethodChecker implements PathAnalysisMethodChecker
       jpqlFunctionMethods.add(bigIntegerAbs);
       jpqlFunctionMethods.add(stringToUpper);
       jpqlFunctionMethods.add(stringToLower);
+      jpqlFunctionMethods.add(stringTrim);
+      jpqlFunctionMethods.add(stringLength);
+      jpqlFunctionMethods.add(stringSubstring);
+      jpqlFunctionMethods.add(stringIndexOf);
    }
    
    public final static MethodSignature streamSumInt = TransformationClassAnalyzer.streamSumInt;

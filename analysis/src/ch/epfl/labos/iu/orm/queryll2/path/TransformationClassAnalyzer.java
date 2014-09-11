@@ -63,6 +63,7 @@ public class TransformationClassAnalyzer
    public final static MethodSignature stringEquals = new MethodSignature("java/lang/String", "equals", "(Ljava/lang/Object;)Z");
    public final static MethodSignature stringLike = new MethodSignature("ch/epfl/labos/iu/orm/Util", "SQLStringLike", "(Ljava/lang/String;Ljava/lang/String;)Z");
    public final static MethodSignature newStringBuilderString = new MethodSignature("java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
+   public final static MethodSignature newStringBuilder = new MethodSignature("java/lang/StringBuilder", "<init>", "()V");
    public final static MethodSignature stringBuilderAppendString = new MethodSignature("java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
    public final static MethodSignature stringBuilderToString = new MethodSignature("java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
    public final static MethodSignature dateEquals = new MethodSignature("java/util/Date", "equals", "(Ljava/lang/Object;)Z");
@@ -162,6 +163,7 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(stringEquals);
       KnownSafeStaticMethods.add(stringLike);
       KnownSafeMethods.add(newStringBuilderString);
+      KnownSafeMethods.add(newStringBuilder);
       KnownSafeMethods.add(stringBuilderAppendString);
       KnownSafeMethods.add(stringBuilderToString);
       KnownSafeMethods.add(dateEquals);

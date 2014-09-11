@@ -337,12 +337,12 @@ public class JinqJPATest extends JinqJPATestBase
    public void testJPQLStringFunctions()
    {
       List<String> customers = streams.streamAll(em, Customer.class)
-         .where(c -> JPQL.like(c.getName(), "A_i%ce"))
-         .select( c -> c.getName().toUpperCase())
+         .where(c -> JPQL.like(c.getName(), "A_i%ce") && c.getName().length() > c.getName().indexOf("l"))
+         .select( c -> c.getName().toUpperCase().trim() + c.getCountry().substring(0, 1))
          .toList();
-      assertEquals("SELECT UPPER(A.name) FROM Customer A WHERE A.name LIKE 'A_i%ce'", query);
+      assertEquals("SELECT CONCAT(TRIM(UPPER(A.name)), SUBSTRING(A.country, 0 + 1, 1 - 0)) FROM Customer A WHERE A.name LIKE 'A_i%ce' AND LENGTH(A.name) > LOCATE('l', A.name) - 1", query);
       assertEquals(1, customers.size());
-      assertEquals("ALICE", customers.get(0));
+      assertEquals("ALICES", customers.get(0));
    }
 
    @Test
@@ -361,9 +361,9 @@ public class JinqJPATest extends JinqJPATestBase
    public void testJPQLNumberFunctions()
    {
       List<Double> customers = streams.streamAll(em, Customer.class)
-         .select( c -> Math.abs(c.getSalary() + Math.sqrt(c.getDebt())))
+         .select( c -> Math.abs(c.getSalary() + Math.sqrt(c.getDebt())) + (c.getSalary() % c.getDebt()))
          .toList();
-      assertEquals("SELECT ABS(A.salary + SQRT(A.debt)) FROM Customer A", query);
+      assertEquals("SELECT ABS(A.salary + SQRT(A.debt)) + MOD(A.salary, A.debt) FROM Customer A", query);
       assertEquals(5, customers.size());
    }
 }
