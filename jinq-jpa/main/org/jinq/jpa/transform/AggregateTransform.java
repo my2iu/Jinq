@@ -14,7 +14,6 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class AggregateTransform extends JPQLOneLambdaQueryTransform
 {
-   // TODO: Should I include count() here too?
    public enum AggregateType
    {
       SUM, AVG, MAX, MIN,
@@ -36,17 +35,27 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
          if (query.isSelectFromWhere())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, null, false));
-
-            ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
-
+            Expression aggregatedExpr;
+            if (type != AggregateType.COUNT)
+            {
+               SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
+                     SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, null, false));
+               aggregatedExpr = makeSelectExpression(translator, lambda).getOnlyColumn();
+            }
+            else
+            {
+               if (sfw.cols.isSingleColumn())
+                  aggregatedExpr = sfw.cols.getOnlyColumn();
+               else
+                  aggregatedExpr = new ConstantExpression("1");
+            }
+            
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy(); 
             toReturn.isAggregated = true;
             toReturn.cols = ColumnExpressions.singleColumn(
                   new SimpleRowReader<>(), 
-                  new AggregateFunctionExpression(returnExpr.getOnlyColumn(), type.name())); 
+                  new AggregateFunctionExpression(aggregatedExpr, type.name())); 
             return toReturn;
          }
          throw new QueryTransformException("Existing query cannot be transformed further");
@@ -62,7 +71,7 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
          if (query instanceof SelectOnly)
          {
             SelectOnly<V> select = (SelectOnly<V>)query;
-            Expression aggregatedExpression = null;
+            Expression aggregatedExpr = null;
             if (type != AggregateType.COUNT)
             {
                // TODO: Handle parameters on the SelectOnly
@@ -70,11 +79,14 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
                      SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, metamodel, parentArgumentScope, false));
 
                ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
-               aggregatedExpression = returnExpr.getOnlyColumn(); 
+               aggregatedExpr = returnExpr.getOnlyColumn(); 
             }
             else
             {
-               aggregatedExpression = new ConstantExpression("1");
+               if (select.cols.isSingleColumn())
+                  aggregatedExpr = select.cols.getOnlyColumn();
+               else
+                  aggregatedExpr = new ConstantExpression("1");
             }
 
             // Create the new query, merging in the analysis of the method
@@ -82,7 +94,7 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
             toReturn.isAggregated = true;
             toReturn.cols = ColumnExpressions.singleColumn(
                   new SimpleRowReader<>(), 
-                  new AggregateFunctionExpression(aggregatedExpression, type.name())); 
+                  new AggregateFunctionExpression(aggregatedExpr, type.name())); 
             return toReturn;
          }
          throw new QueryTransformException("Existing query cannot be transformed further");

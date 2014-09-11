@@ -26,18 +26,28 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    {
       long count = streams.streamAll(em, Customer.class)
             .count();
-      assertEquals("SELECT COUNT(1) FROM Customer A", query);
+      assertEquals("SELECT COUNT(A) FROM Customer A", query);
       assertEquals(5, count);
    }
-   
+
    @Test
    public void testCountWhere()
    {
       long count = streams.streamAll(em, Customer.class)
             .where(c -> c.getCountry().equals("UK") )
             .count();
-      assertEquals("SELECT COUNT(1) FROM Customer A WHERE A.country = 'UK'", query);
+      assertEquals("SELECT COUNT(A) FROM Customer A WHERE A.country = 'UK'", query);
       assertEquals(1, count);
+   }
+
+   @Test
+   public void testCountMultipleFields()
+   {
+      long count = streams.streamAll(em, Customer.class)
+            .select(c -> new Pair<>(c.getName(), c.getCountry()))
+            .count();
+      assertEquals("SELECT COUNT(1) FROM Customer A", query);
+      assertEquals(5, count);
    }
 
    @Test
@@ -140,7 +150,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
                .aggregate(stream -> stream.count(),
                   stream -> stream.min(c -> c.getSalary()),
                   stream -> stream.max(c -> c.getSalary())));
-      assertEquals("SELECT COUNT(1), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
+      assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
    }
 
    @Test
@@ -151,7 +161,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
                .aggregate(stream -> stream.count(),
                   stream -> 30,
                   stream -> 500));
-      assertEquals("SELECT COUNT(1), 30, 500 FROM Customer A", query);
+      assertEquals("SELECT COUNT(A), 30, 500 FROM Customer A", query);
    }
 
    @Test
@@ -164,7 +174,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
                   stream -> stream.max(c -> c.getSalary()),
                   stream -> stream.count(),
                   stream -> 20));
-      assertEquals("SELECT COUNT(1), MIN(A.salary), MAX(A.salary), COUNT(1), 20 FROM Customer A", query);
+      assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary), COUNT(A), 20 FROM Customer A", query);
    }
 
    @Test
@@ -218,7 +228,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
     assertEquals(1, (long)results.get(0).getTwo());
     assertEquals("Canada", results.get(0).getOne());
     assertEquals(new Tuple3<>("Switzerland", 2l, 200), results.get(1));
-    assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
+    assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
    }
    
    @Test
@@ -235,7 +245,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
           .toList();
     assertEquals(1, results.size());
     assertEquals(new Tuple3<>("Switzerland", 2l, 200), results.get(0));
-    assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country ASC", query);
+    assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country ASC", query);
    }
    
    @Test 
@@ -252,7 +262,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("Dave", results.get(0).getOne().getName());
       assertEquals(2, (long)results.get(2).getTwo());
       assertEquals("Alice", results.get(2).getOne().getName());
-      assertEquals("SELECT A.customer, COUNT(1) FROM Sale A GROUP BY A.customer", query);
+      assertEquals("SELECT A.customer, COUNT(A) FROM Sale A GROUP BY A.customer", query);
    }
    
    @Test 
@@ -267,7 +277,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       results.sort(Comparator.comparing(group -> group.getOne()));
       assertEquals(new Pair<>("Alice", 202l),
             results.get(0));
-      assertEquals("SELECT A.customer.name, A.customer.salary + COUNT(1) FROM Sale A GROUP BY A.customer.name, A.customer.salary", query);
+      assertEquals("SELECT A.customer.name, A.customer.salary + COUNT(A) FROM Sale A GROUP BY A.customer.name, A.customer.salary", query);
    }
 
    @Test 
@@ -286,7 +296,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals(2, results.size());
       assertEquals(new Pair<>("Alice", 201l),
             results.get(0));
-      assertEquals("SELECT A.sale.customer.name, A.sale.customer.salary + COUNT(1) FROM Lineorder A WHERE 'Screws' = A.item.name GROUP BY A.sale.customer.name, A.sale.customer.salary HAVING A.sale.customer.salary + COUNT(1) < 220 ORDER BY A.sale.customer.name ASC", query);
+      assertEquals("SELECT A.sale.customer.name, A.sale.customer.salary + COUNT(A.sale) FROM Lineorder A WHERE 'Screws' = A.item.name GROUP BY A.sale.customer.name, A.sale.customer.salary HAVING A.sale.customer.salary + COUNT(A.sale) < 220 ORDER BY A.sale.customer.name ASC", query);
    }
 
    @Test(expected=IllegalArgumentException.class)
@@ -318,7 +328,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
             .where( c -> JinqStream.from(c.getSales()).count() > 1)
             .sortedBy( c -> c.getName() )
             .toList();
-      assertEquals("SELECT A FROM Customer A WHERE (SELECT COUNT(1) FROM A.sales B) > 1 ORDER BY A.name ASC", query);
+      assertEquals("SELECT A FROM Customer A WHERE (SELECT COUNT(B) FROM A.sales B) > 1 ORDER BY A.name ASC", query);
       assertEquals(2, customers.size());
       assertEquals("Alice", customers.get(0).getName());
       assertEquals("Carol", customers.get(1).getName());
@@ -335,7 +345,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
 // EclipseLink on Derby is returning the result of the subquery as an integer and not a long, causing a cast problem here
 //      customers.sort(Comparator.comparing(pair -> pair.getOne().getName()));
 //      customers.sort(Comparator.comparing(pair -> pair.getTwo()));
-      assertEquals("SELECT B, (SELECT COUNT(1) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(1) FROM B.sales A ASC), B.name ASC", query);
+      assertEquals("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A ASC), B.name ASC", query);
       assertEquals(5, customers.size());
 // EclipseLink on Derby just isn't handling the sorting by subqueries very well, so the result doesn't
 // seem to be sorted correctly
