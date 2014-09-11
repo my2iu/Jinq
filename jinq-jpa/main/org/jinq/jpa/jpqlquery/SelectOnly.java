@@ -6,6 +6,7 @@ public class SelectOnly<T> extends JPQLQuery<T>
 {
    public ColumnExpressions<T> cols;
    public boolean isAggregated = false;
+   public boolean isDistinct = false;
    
 //   /**
 //    * After a JPQL query is generated, this stores the resulting query string.  
@@ -117,6 +118,11 @@ public class SelectOnly<T> extends JPQLQuery<T>
    public boolean canSort()
    {
       return false;
+   }
+   
+   public boolean canDistinct()
+   {
+      return !isAggregated && !isDistinct;
    }
    
    public boolean isValidSubquery()

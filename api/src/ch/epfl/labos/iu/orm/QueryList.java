@@ -306,7 +306,7 @@ public class QueryList<T> extends LazySet<T>
    {
       if (queryComposer != null && !isRealized())
       {
-         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.unique();
+         QueryComposerWithLists<T> newComposer = (QueryComposerWithLists<T>)queryComposer.distinct();
          if (newComposer != null) return new QueryList<T>(newComposer);
       }
       return super.unique();

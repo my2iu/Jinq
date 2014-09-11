@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jinq.jpa.test.entities.Customer;
+import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
@@ -124,5 +125,17 @@ public class JinqJPASelectTest extends JinqJPATestBase
       assertEquals("UK", customers.get(4).getTwo());
       assertEquals("NotUK", customers.get(3).getTwo());
    }
-
+   
+   @Test
+   public void testSelectDistinct()
+   {
+      List<String> itemsSold = streams.streamAll(em, Lineorder.class)
+            .select(lo -> lo.getItem().getName())
+            .distinct()
+            .sortedBy(name -> name)
+            .toList();
+      assertEquals("SELECT DISTINCT A.item.name FROM Lineorder A ORDER BY A.item.name ASC", query);
+      assertEquals(5, itemsSold.size());
+      assertEquals("Lawnmowers", itemsSold.get(0));
+   }
 }

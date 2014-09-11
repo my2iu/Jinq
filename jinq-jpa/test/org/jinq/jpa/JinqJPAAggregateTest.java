@@ -179,6 +179,31 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
    }
 
+   @Test(expected=IllegalArgumentException.class)
+   public void testMultiAggregateParametersWithDistinct()
+   {
+      // Not supported yet
+      assertEquals(new Pair<>(5l, 610l), 
+            streams.streamAll(em, Customer.class)
+               .aggregate(
+                  stream -> stream.distinct().count(),
+                  stream -> stream.select(c -> c.getDebt()).distinct().sumInteger(s -> s)));
+      assertEquals("SELECT COUNT(DISTINCT A), AVG(DISTINCT A.salary) FROM Customer A", query);
+   }
+
+   @Test
+   public void testSelectDistinct()
+   {
+      List<String> itemsSold = streams.streamAll(em, Lineorder.class)
+            .select(lo -> lo.getItem().getName())
+            .distinct()
+            .sortedBy(name -> name)
+            .toList();
+      assertEquals("SELECT DISTINCT A.item.name FROM Lineorder A ORDER BY A.item.name ASC", query);
+      assertEquals(5, itemsSold.size());
+      assertEquals("Lawnmowers", itemsSold.get(0));
+   }
+
    @Test
    public void testGroup()
    {

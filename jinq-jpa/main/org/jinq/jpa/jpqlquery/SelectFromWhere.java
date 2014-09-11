@@ -77,6 +77,8 @@ public class SelectFromWhere<T> extends SelectOnly<T>
       if (cols.getNumColumns() > 0)
       {
          queryState.queryString += "SELECT ";
+         if (isDistinct)
+            queryState.queryString += "DISTINCT ";
          boolean isFirst = true;
          for (Expression col: cols.columns)
          {
@@ -155,7 +157,7 @@ public class SelectFromWhere<T> extends SelectOnly<T>
    
    public boolean isSelectFromWhere()
    {
-      return !isAggregated && sort.isEmpty() && limit < 0 && skip < 0;
+      return !isAggregated && sort.isEmpty() && limit < 0 && skip < 0 && !isDistinct;
    }
 
    public boolean canSort()
@@ -164,11 +166,15 @@ public class SelectFromWhere<T> extends SelectOnly<T>
             && limit < 0 && skip < 0;
    }
    
+   public boolean canDistinct()
+   {
+      return isSelectFromWhere();
+   }
+   
    public boolean isValidSubquery()
    {
       return limit < 0 && skip < 0 && sort.isEmpty();
    }
-
    
    public <U> GroupedSelectFromWhere<T, U> shallowCopyWithGrouping()
    {
@@ -186,6 +192,7 @@ public class SelectFromWhere<T> extends SelectOnly<T>
       copy.sort.addAll(sort);
       copy.limit = limit;
       copy.skip = skip;
+      copy.isDistinct = isDistinct;
    }
    
    public SelectFromWhere<T> shallowCopy()

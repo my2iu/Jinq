@@ -529,7 +529,7 @@ public class SQLQueryComposer<T> implements QueryComposerWithLists<T>
             null, () -> transformer.select(query.copy(), nextLambdaParamIndex, select, emSource));
    }
 
-   public QueryComposer<T> unique()
+   public QueryComposer<T> distinct()
    {
       if (transformer == null) return null;
       // TODO Auto-generated method stub

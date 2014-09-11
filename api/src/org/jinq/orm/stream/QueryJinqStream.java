@@ -85,14 +85,6 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
 
    @Override
-   public JinqStream<T> unique()
-   {
-      QueryComposer<T> newComposer = queryComposer.unique();
-      if (newComposer != null) return new QueryJinqStream<T>(newComposer, inQueryStreamSource);
-      return super.unique();
-   }
-
-   @Override
    protected <U, W extends Tuple> JinqStream<W> groupToTuple(Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
       QueryComposer<W> newComposer = queryComposer.groupToTuple(select, aggregates);
@@ -219,6 +211,14 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       QueryComposer<T> newComposer = queryComposer.skip(n);
       if (newComposer != null) return new QueryJinqStream<>(newComposer, inQueryStreamSource);
       return super.skip(n);
+   }
+   
+   @Override 
+   public JinqStream<T> distinct()
+   {
+      QueryComposer<T> newComposer = queryComposer.distinct();
+      if (newComposer != null) return new QueryJinqStream<T>(newComposer, inQueryStreamSource);
+      return super.distinct();
    }
 
    @Override

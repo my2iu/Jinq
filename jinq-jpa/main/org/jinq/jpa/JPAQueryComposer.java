@@ -17,6 +17,7 @@ import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.transform.AggregateTransform;
 import org.jinq.jpa.transform.CountTransform;
+import org.jinq.jpa.transform.DistinctTransform;
 import org.jinq.jpa.transform.GroupingTransform;
 import org.jinq.jpa.transform.JPQLMultiLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
@@ -305,6 +306,12 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
+   public QueryComposer<T> distinct()
+   {
+      return applyTransformWithLambda(new DistinctTransform(metamodel, hints.lambdaClassLoader, true));
+   }
+
+   @Override
    public <U> QueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
@@ -330,14 +337,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
       return applyTransformWithLambda(new OuterJoinTransform(metamodel, hints.lambdaClassLoader), joinLambda);
-   }
-
-   @Override
-   public QueryComposer<T> unique()
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
    }
 
    @Override

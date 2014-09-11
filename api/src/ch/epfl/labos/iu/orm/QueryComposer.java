@@ -23,6 +23,7 @@ public interface QueryComposer<T>
          JinqStream.CollectComparable<T, V> sorter, boolean isAscending);
    public QueryComposer<T> limit(long n);
    public QueryComposer<T> skip(long n);
+   public QueryComposer<T> distinct();
    
    // New stuff for Queryll2
    public <E extends Exception> QueryComposer<T> where(JinqStream.Where<T, E> test);
@@ -31,7 +32,6 @@ public interface QueryComposer<T>
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.JoinWithSource<T,U> join);
    public <U> QueryComposer<Pair<T, U>> leftOuterJoin(JinqStream.Join<T,U> join);
-   public QueryComposer<T> unique();
 //   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 
    // returns null if the aggregates cannot be calculated

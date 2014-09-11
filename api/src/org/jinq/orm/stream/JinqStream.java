@@ -43,7 +43,6 @@ public interface JinqStream<T> extends Stream<T>
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join);
    public <U> JinqStream<Pair<T, U>> join(JoinWithSource<T,U> join);
    public <U> JinqStream<Pair<T, U>> leftOuterJoin(Join<T,U> join);
-   public JinqStream<T> unique();
    @FunctionalInterface public static interface AggregateGroup<W, U, V> extends Serializable {
       public V aggregateSelect(W key, JinqStream<U> val);
    }
@@ -129,6 +128,7 @@ public interface JinqStream<T> extends Stream<T>
    // Overriding the Stream API versions to return a JinqStream instead, so it's easier to chain them
    @Override public JinqStream<T> skip(long n);
    @Override public JinqStream<T> limit(long n);
+   @Override public JinqStream<T> distinct();
 
    public T getOnlyValue();
    public JinqStream<T> with(T toAdd);

@@ -126,12 +126,6 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return wrap(streamBuilder.build());
    }
 
-   @Override
-   public JinqStream<T> unique()
-   {
-      return wrap(distinct());
-   }
-   
    protected <U, W extends Tuple> JinqStream<W> groupToTuple(Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
       Map<U, List<T>> groups = collect(Collectors.groupingBy(in -> select.select(in)));
@@ -330,6 +324,12 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    public JinqStream<T> limit(long n)
    {
       return wrap(super.limit(n));
+   }
+   
+   @Override 
+   public JinqStream<T> distinct()
+   {
+      return wrap(distinct());
    }
 
    @Override
