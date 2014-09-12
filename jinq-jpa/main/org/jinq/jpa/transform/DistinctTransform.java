@@ -7,13 +7,18 @@ import org.jinq.jpa.jpqlquery.SelectOnly;
 
 public class DistinctTransform extends JPQLNoLambdaQueryTransform
 {
-   public DistinctTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isLimit)
+   public DistinctTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
    {
       super(metamodel, alternateClassLoader);
    }
    
    @Override
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
+   {
+      return apply(query, null);
+   }
+   
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       if (query.canDistinct())
       {
@@ -27,5 +32,4 @@ public class DistinctTransform extends JPQLNoLambdaQueryTransform
       }
       throw new QueryTransformException("Existing query cannot be transformed further");
    }
-
 }

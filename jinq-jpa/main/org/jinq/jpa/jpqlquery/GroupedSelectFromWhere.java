@@ -53,6 +53,7 @@ public class GroupedSelectFromWhere<T, U> extends SelectFromWhere<T>
       return sort.isEmpty() && limit < 0 && skip < 0;
    }
    
+   @Override
    public GroupedSelectFromWhere<T, U> shallowCopy()
    {
       GroupedSelectFromWhere<T, U> copy = new GroupedSelectFromWhere<>();

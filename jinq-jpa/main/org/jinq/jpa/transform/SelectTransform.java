@@ -1,14 +1,10 @@
 package org.jinq.jpa.transform;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jinq.jpa.MetamodelUtil;
-import org.jinq.jpa.jpqlquery.CaseWhenExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
-import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
+import org.jinq.jpa.jpqlquery.SelectOnly;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
@@ -22,17 +18,36 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
    @Override
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
    {
+      return apply(query, lambda, null);
+   }
+
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
+   {
       try  {
          if (query.isSelectFromWhere() || query.isSelectFromWhereGroupHaving())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, null, false));
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, false));
 
             ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
+            // TODO: translator.transform() should return multiple columns, not just one thing
+            toReturn.cols = returnExpr;
+            return toReturn;
+         }
+         else if (query.isSelectOnly())
+         {
+            SelectOnly<V> sfw = (SelectOnly<V>)query;
+            SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
+                  SelectFromWhereLambdaArgumentHandler.fromSelectOnly(sfw, lambda, metamodel, parentArgumentScope, false));
+
+            ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
+
+            // Create the new query, merging in the analysis of the method
+            SelectOnly<U> toReturn = (SelectOnly<U>)sfw.shallowCopy();
             // TODO: translator.transform() should return multiple columns, not just one thing
             toReturn.cols = returnExpr;
             return toReturn;

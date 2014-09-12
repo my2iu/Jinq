@@ -2,8 +2,10 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
+import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SelectOnly;
+import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -16,6 +18,8 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
  */
 public class SelectFromWhereLambdaArgumentHandler extends LambdaParameterArgumentHandler
 {
+   final static ColumnExpressions<?> passthroughColsForTesting = ColumnExpressions.singleColumn(new SimpleRowReader(), new ConstantExpression("PASSTHROUGH TEST"));
+   
    ColumnExpressions<?> cols;
    
    public static SelectFromWhereLambdaArgumentHandler fromSelectFromWhere(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
@@ -26,6 +30,11 @@ public class SelectFromWhereLambdaArgumentHandler extends LambdaParameterArgumen
    public static SelectFromWhereLambdaArgumentHandler fromSelectOnly(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       return new SelectFromWhereLambdaArgumentHandler(select.cols, lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
+   }
+
+   public static SelectFromWhereLambdaArgumentHandler forPassthroughTest(LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
+   {
+      return new SelectFromWhereLambdaArgumentHandler(passthroughColsForTesting, lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
    }
 
    private SelectFromWhereLambdaArgumentHandler(ColumnExpressions<?> cols, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)

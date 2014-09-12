@@ -189,16 +189,35 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testMultiAggregateParametersWithDistinct()
    {
-      // Not supported yet
-      assertEquals(new Pair<>(5l, 610l), 
+      // Derby doesn't allow for more than one aggregation of distinct things at the same time,
+      // so we'll break the test up into two cases.
+      assertEquals(new Pair<>(5l, 710l), 
             streams.streamAll(em, Customer.class)
                .aggregate(
                   stream -> stream.distinct().count(),
+                  stream -> stream.select(c -> c.getDebt()).sumInteger(s -> s)));
+      assertEquals("SELECT COUNT(DISTINCT A), SUM(A.debt) FROM Customer A", query);
+
+      assertEquals(new Pair<>(5l, 610l), 
+            streams.streamAll(em, Customer.class)
+               .aggregate(
+                  stream -> stream.count(),
                   stream -> stream.select(c -> c.getDebt()).distinct().sumInteger(s -> s)));
-      assertEquals("SELECT COUNT(DISTINCT A), AVG(DISTINCT A.salary) FROM Customer A", query);
+      assertEquals("SELECT COUNT(A), SUM(DISTINCT A.debt) FROM Customer A", query);
+   }
+   
+   @Test(expected=IllegalArgumentException.class)
+   public void testMultiAggregateParametersWithDistinctDisallowed()
+   {
+      // You can only aggregate a distinct stream if you pass the contents of the stream directly to the aggregation function.
+      assertEquals(610l, 
+            (long)streams.streamAll(em, Customer.class)
+                  .select(c -> c.getDebt())
+                  .distinct()
+                  .sumInteger(s -> s + 1));
    }
 
    @Test

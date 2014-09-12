@@ -27,6 +27,7 @@ public abstract class JPQLQuery<T> implements JPQLFragment
     * @return true iff the query is a simple select...from...where style query
     */
    public abstract boolean isSelectFromWhere();
+   public abstract boolean isSelectOnly();
    public abstract boolean isSelectFromWhereGroupHaving();
    public abstract boolean canSort();
    public abstract boolean canDistinct();
@@ -35,6 +36,7 @@ public abstract class JPQLQuery<T> implements JPQLFragment
    
    public abstract String getQueryString();
    public abstract List<GeneratedQueryParameter> getQueryParameters();
+   public abstract JPQLQuery<T> shallowCopy();
 
    public abstract RowReader<T> getRowReader();
    

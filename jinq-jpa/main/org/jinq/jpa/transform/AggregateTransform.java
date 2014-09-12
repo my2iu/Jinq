@@ -31,55 +31,40 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
    @Override
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
    {
-      try  {
-         if (query.isSelectFromWhere())
-         {
-            SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            Expression aggregatedExpr;
-            if (type != AggregateType.COUNT)
-            {
-               SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                     SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, null, false));
-               aggregatedExpr = makeSelectExpression(translator, lambda).getOnlyColumn();
-            }
-            else
-            {
-               if (sfw.cols.isSingleColumn())
-                  aggregatedExpr = sfw.cols.getOnlyColumn();
-               else
-                  aggregatedExpr = new ConstantExpression("1");
-            }
-            
-            // Create the new query, merging in the analysis of the method
-            SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy(); 
-            toReturn.isAggregated = true;
-            toReturn.cols = ColumnExpressions.singleColumn(
-                  new SimpleRowReader<>(), 
-                  new AggregateFunctionExpression(aggregatedExpr, type.name())); 
-            return toReturn;
-         }
-         throw new QueryTransformException("Existing query cannot be transformed further");
-      } catch (TypedValueVisitorException e)
-      {
-         throw new QueryTransformException(e);
-      }
+      return applyAggregationToSubquery(query, lambda, null);
    }
 
    public <U, V> JPQLQuery<U> applyAggregationToSubquery(JPQLQuery<V> query, LambdaInfo lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
-         if (query instanceof SelectOnly)
+         if (query.isSelectFromWhere() || query instanceof SelectOnly)
          {
             SelectOnly<V> select = (SelectOnly<V>)query;
             Expression aggregatedExpr = null;
+            SymbExArgumentHandler argumentHandler;
             if (type != AggregateType.COUNT)
             {
-               // TODO: Handle parameters on the SelectOnly
-               SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                     SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, metamodel, parentArgumentScope, false));
-
-               ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
-               aggregatedExpr = returnExpr.getOnlyColumn(); 
+               if (select.isDistinct)
+               {
+                  // Can only perform an aggregation like SUM() or AVG() on distinct streams if we don't
+                  // further modify those streams (i.e. we just pass the data through directly).
+                  argumentHandler = SelectFromWhereLambdaArgumentHandler.forPassthroughTest(lambda, metamodel, parentArgumentScope, false);
+                  SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, argumentHandler);
+                  aggregatedExpr = makeSelectExpression(translator, lambda).getOnlyColumn();
+                  if (aggregatedExpr != SelectFromWhereLambdaArgumentHandler.passthroughColsForTesting.getOnlyColumn())
+                     throw new TypedValueVisitorException("Applying an aggregation to a distinct stream, but modifying the stream after the distinct but before the aggregation");
+               }
+               if (select.isSelectFromWhere())
+               {
+                  SelectFromWhere<V> sfw = (SelectFromWhere<V>)select;
+                  argumentHandler = SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, false);
+               }
+               else // if (query instanceof SelectOnly)
+               {
+                  argumentHandler = SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, metamodel, parentArgumentScope, false);
+               }
+               SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, argumentHandler);
+               aggregatedExpr = makeSelectExpression(translator, lambda).getOnlyColumn();
             }
             else
             {
@@ -88,13 +73,12 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
                else
                   aggregatedExpr = new ConstantExpression("1");
             }
-
             // Create the new query, merging in the analysis of the method
             SelectOnly<U> toReturn = (SelectOnly<U>)select.shallowCopy(); 
             toReturn.isAggregated = true;
             toReturn.cols = ColumnExpressions.singleColumn(
                   new SimpleRowReader<>(), 
-                  new AggregateFunctionExpression(aggregatedExpr, type.name())); 
+                  new AggregateFunctionExpression(aggregatedExpr, type.name(), select.isDistinct)); 
             return toReturn;
          }
          throw new QueryTransformException("Existing query cannot be transformed further");

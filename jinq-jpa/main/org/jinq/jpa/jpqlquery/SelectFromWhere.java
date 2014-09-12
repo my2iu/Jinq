@@ -159,6 +159,11 @@ public class SelectFromWhere<T> extends SelectOnly<T>
    {
       return !isAggregated && sort.isEmpty() && limit < 0 && skip < 0 && !isDistinct;
    }
+   
+   public boolean isSelectOnly()
+   {
+      return false;
+   }
 
    public boolean canSort()
    {
@@ -195,6 +200,7 @@ public class SelectFromWhere<T> extends SelectOnly<T>
       copy.isDistinct = isDistinct;
    }
    
+   @Override
    public SelectFromWhere<T> shallowCopy()
    {
       SelectFromWhere<T> copy = new SelectFromWhere<>();

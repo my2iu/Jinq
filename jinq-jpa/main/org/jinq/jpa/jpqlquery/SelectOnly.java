@@ -110,6 +110,11 @@ public class SelectOnly<T> extends JPQLQuery<T>
       return false;
    }
    
+   public boolean isSelectOnly()
+   {
+      return !isDistinct && !isAggregated;
+   }
+
    public boolean isSelectFromWhereGroupHaving()
    {
       return false;

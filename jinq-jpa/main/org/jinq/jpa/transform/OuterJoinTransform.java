@@ -4,7 +4,6 @@ import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.From;
-import org.jinq.jpa.jpqlquery.From.FromNavigationalLinksLeftOuterJoin;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;

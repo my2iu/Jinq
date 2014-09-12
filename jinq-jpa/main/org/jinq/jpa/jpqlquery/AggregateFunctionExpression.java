@@ -5,10 +5,12 @@ public class AggregateFunctionExpression extends Expression
 {
    final Expression base;
    final String aggregateName;
-   public AggregateFunctionExpression(Expression base, String aggregateName)
+   final boolean isDistinct;
+   public AggregateFunctionExpression(Expression base, String aggregateName, boolean isDistinct)
    {
       this.base = base;
       this.aggregateName = aggregateName;
+      this.isDistinct = isDistinct;
    }
    
    @Override
@@ -16,6 +18,8 @@ public class AggregateFunctionExpression extends Expression
    {
       queryState.appendQuery(aggregateName);
       queryState.appendQuery("(");
+      if (isDistinct)
+         queryState.appendQuery("DISTINCT ");
       base.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
       queryState.appendQuery(")");
    }
@@ -32,7 +36,7 @@ public class AggregateFunctionExpression extends Expression
    {
       if (!getClass().equals(obj.getClass())) return false;
       AggregateFunctionExpression o = (AggregateFunctionExpression)obj; 
-      return base.equals(o.base) && aggregateName.equals(o.aggregateName);
+      return base.equals(o.base) && aggregateName.equals(o.aggregateName) && isDistinct == o.isDistinct;
    }
 
    @Override

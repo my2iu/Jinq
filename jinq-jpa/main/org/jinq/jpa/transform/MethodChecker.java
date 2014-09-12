@@ -61,6 +61,8 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature streamMin = TransformationClassAnalyzer.streamMin;
    public final static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/JinqStream", "avg", "(Lorg/jinq/orm/stream/JinqStream$CollectNumber;)Ljava/lang/Double;");
    public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/JinqStream", "count", "()J");
+   public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/JinqStream", "distinct", "()Lorg/jinq/orm/stream/JinqStream;");
+   public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/JinqStream", "select", "(Lorg/jinq/orm/stream/JinqStream$Select;)Lorg/jinq/orm/stream/JinqStream;");
    
    private static final Set<MethodSignature> subqueryMethods = 
          new HashSet<>();
@@ -74,6 +76,8 @@ class MethodChecker implements PathAnalysisMethodChecker
       subqueryMethods.add(streamMin);
       subqueryMethods.add(streamAvg);
       subqueryMethods.add(streamCount);
+      subqueryMethods.add(streamDistinct);
+      subqueryMethods.add(streamSelect);
    }
    
    MethodChecker(Set<Class<?>> safeMethodAnnotations,

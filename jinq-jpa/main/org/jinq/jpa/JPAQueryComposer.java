@@ -308,7 +308,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    @Override
    public QueryComposer<T> distinct()
    {
-      return applyTransformWithLambda(new DistinctTransform(metamodel, hints.lambdaClassLoader, true));
+      return applyTransformWithLambda(new DistinctTransform(metamodel, hints.lambdaClassLoader));
    }
 
    @Override
