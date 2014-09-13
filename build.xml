@@ -25,27 +25,6 @@
 		</javac>
 	</target>
 
-	<target name="Build Jinq Mini-ORM">
-		<mkdir dir="bin"/>
-		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
-			<src path="orm/src"/>
-		</javac>
-		<jar destfile="lib/miniorm.jar">
-			<fileset dir="bin"/>
-			<fileset dir="orm/src" includes="**/*.xslt"/>
-		</jar>
-	</target>
-
-	<target name="Build Jinq" depends="Build Jinq API,Build Jinq Analysis Framework">
-		<mkdir dir="bin"/>
-		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
-			<classpath>
-				<pathelement location="${asm}"/>
-			</classpath>
-			<src path="queryll2/src"/>
-		</javac>
-	</target>
-
 	<target name="Clean">
 		<delete includeemptydirs="true" quiet="true">
 			<fileset dir="bin"/>
@@ -65,14 +44,11 @@
 			</classpath>
 			<src path="analysis/src"/>
 			<src path="api/src"/>
-			<src path="queryll2/src"/>
-			<src path="orm/src"/>
 			<src path="jinq-jpa/main"/>
 			<src path="jinq-jooq/main"/>
 		</javac>
 		<jar destfile="sample/lib/jinq-all.jar">
 			<fileset dir="jarbin"/>
-			<fileset dir="orm/src" includes="**/*.xslt"/>
 		</jar>
 	</target>
 	

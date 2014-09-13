@@ -2,12 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="analysis/src"/>
 	<classpathentry kind="src" path="api/src"/>
-	<classpathentry kind="src" path="queryll2/src"/>
 	<classpathentry kind="src" path="jinq-jpa/main"/>
 	<classpathentry kind="src" path="jinq-jpa/test"/>
 	<classpathentry kind="src" path="sample/src"/>
-	<classpathentry kind="src" path="orm/src"/>
-	<classpathentry kind="src" path="queryll2/test"/>
 	<classpathentry kind="src" path="api/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
