@@ -18,7 +18,7 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo[] lambdas) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
          if (query.isSelectFromWhere())
@@ -34,7 +34,7 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
                LambdaInfo lambda = lambdas[n];
 
                SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
-                     new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], metamodel, null, false));
+                     new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], metamodel, parentArgumentScope, false));
 
                ColumnExpressions<U> returnQuery = makeSelectExpression(translator, lambda);
                

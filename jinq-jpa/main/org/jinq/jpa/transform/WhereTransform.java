@@ -24,13 +24,13 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo where) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo where, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
          if (query.isSelectFromWhere())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            Expression methodExpr = computeWhereReturnExpr(where, sfw);
+            Expression methodExpr = computeWhereReturnExpr(where, sfw, parentArgumentScope);
             
             // Create the new query, merging in the analysis of the method
             SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
@@ -43,7 +43,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          else if (query.isSelectFromWhereGroupHaving())
          {
             GroupedSelectFromWhere<V, ?> sfw = (GroupedSelectFromWhere<V, ?>)query;
-            Expression methodExpr = computeWhereReturnExpr(where, sfw);
+            Expression methodExpr = computeWhereReturnExpr(where, sfw, parentArgumentScope);
             
             // Create the new query, merging in the analysis of the method
             GroupedSelectFromWhere<U, ?> toReturn = (GroupedSelectFromWhere<U, ?>)sfw.shallowCopy();
@@ -62,11 +62,11 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
    }
 
    private <V> Expression computeWhereReturnExpr(LambdaInfo where,
-         SelectFromWhere<V> sfw) throws TypedValueVisitorException,
+         SelectFromWhere<V> sfw, SymbExArgumentHandler parentArgumentScope) throws TypedValueVisitorException,
          QueryTransformException
    {
       SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-            SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, metamodel, null, withSource));
+            SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, metamodel, parentArgumentScope, withSource));
       Expression methodExpr = null;
       for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
       {

@@ -21,7 +21,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
    }
 
    
-   private <U, V, W> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo groupingLambda, LambdaInfo[] lambdas) throws QueryTransformException
+   private <U, V, W> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo groupingLambda, LambdaInfo[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
          if (query.isSelectFromWhere())
@@ -30,7 +30,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
 
             // Figure out the columns needed for the key value
             SelectTransform keyTransform = new SelectTransform(metamodel, alternateClassLoader);
-            JPQLQuery<W> keyQuery = keyTransform.apply(query, groupingLambda);
+            JPQLQuery<W> keyQuery = keyTransform.apply(query, groupingLambda, parentArgumentScope);
             if (!keyQuery.isSelectFromWhere())
                throw new QueryTransformException("Expecting the result of the key calculation to be a SelectFromWhere query"); 
             SelectOnly<W> keySelect = new SelectOnly<>();
@@ -46,7 +46,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
                LambdaInfo lambda = lambdas[n];
 
                SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
-                     new GroupingLambdasArgumentHandler(keySelect, streamTee, lambdas[n], metamodel, null, false));
+                     new GroupingLambdasArgumentHandler(keySelect, streamTee, lambdas[n], metamodel, parentArgumentScope, false));
 
                ColumnExpressions<U> returnQuery = makeSelectExpression(translator, lambda);
 
@@ -77,9 +77,9 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
    }
 
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo[] lambdas) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
-      return apply(query, lambdas[0], Arrays.copyOfRange(lambdas, 1, lambdas.length));
+      return apply(query, lambdas[0], Arrays.copyOfRange(lambdas, 1, lambdas.length), parentArgumentScope);
    }
 
 }

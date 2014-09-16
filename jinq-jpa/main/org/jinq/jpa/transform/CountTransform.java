@@ -13,9 +13,9 @@ public class CountTransform extends JPQLNoLambdaQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
-      return transform.apply(query, null);
+      return transform.apply(query, null, parentArgumentScope);
    }
 
 }

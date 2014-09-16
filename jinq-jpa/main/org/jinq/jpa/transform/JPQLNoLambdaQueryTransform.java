@@ -11,7 +11,7 @@ public class JPQLNoLambdaQueryTransform extends JPQLQueryTransform
       super(metamodel, alternateClassLoader);
    }
    
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       return null;
    }

@@ -219,7 +219,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLNoLambdaQueryTransform transform)
    {
       try {
-         JPQLQuery<U> newQuery = transform.apply(query);
+         JPQLQuery<U> newQuery = transform.apply(query, null);
          if (newQuery == null) { translationFail(); return null; }
          return new JPAQueryComposer<>(this, newQuery, lambdas);
       }
@@ -235,7 +235,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
       LambdaInfo lambdaInfo = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, lambda, lambdas.size(), hints.dieOnError);
       if (lambdaInfo == null) { translationFail(); return null; }
       try {
-         JPQLQuery<U> newQuery = transform.apply(query, lambdaInfo);
+         JPQLQuery<U> newQuery = transform.apply(query, lambdaInfo, null);
          if (newQuery == null) { translationFail(); return null; }
          return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfo);
       }
@@ -255,7 +255,7 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
          if (lambdaInfos[n] == null) { translationFail(); return null; }
       }
       try {
-         JPQLQuery<U> newQuery = transform.apply(query, lambdaInfos);
+         JPQLQuery<U> newQuery = transform.apply(query, lambdaInfos, null);
          if (newQuery == null) { translationFail(); return null; }
          return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfos);
       }

@@ -12,12 +12,6 @@ public class DistinctTransform extends JPQLNoLambdaQueryTransform
       super(metamodel, alternateClassLoader);
    }
    
-   @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
-   {
-      return apply(query, null);
-   }
-   
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       if (query.canDistinct())

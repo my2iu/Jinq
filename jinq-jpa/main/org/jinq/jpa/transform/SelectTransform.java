@@ -15,12 +15,6 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
       super(metamodel, alternateClassLoader);
    }
    
-   @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda) throws QueryTransformException
-   {
-      return apply(query, lambda, null);
-   }
-
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {

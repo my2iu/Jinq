@@ -17,7 +17,7 @@ public class LimitSkipTransform extends JPQLNoLambdaQueryTransform
    long constraint;
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       if (query instanceof SelectFromWhere)
       {
