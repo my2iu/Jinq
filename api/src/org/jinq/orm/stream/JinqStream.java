@@ -25,7 +25,11 @@ public interface JinqStream<T> extends Stream<T>
    @FunctionalInterface public static interface Select<U, V> extends Serializable {
       public V select(U val);
    }
+   @FunctionalInterface public static interface SelectWithSource<U, V> extends Serializable {
+      public V select(U val, InQueryStreamSource source);
+   }
    public <U> JinqStream<U> select(Select<T, U> select);
+   public <U> JinqStream<U> select(SelectWithSource<T, U> select);
    // TODO: Joins are somewhat dangerous because certain types of joins that are
    // expressible here are NOT expressible in SQL. (Moving a join into
    // a from clause is only possible if the join does not access variables from
@@ -131,7 +135,6 @@ public interface JinqStream<T> extends Stream<T>
    @Override public JinqStream<T> distinct();
 
    public T getOnlyValue();
-   public JinqStream<T> with(T toAdd);
    
    // TODO: Should toList() throw an exception?
    public List<T> toList();

@@ -49,7 +49,9 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
    private boolean isStreamMethod(MethodSignature sig)
    {
       return sig.equals(MethodChecker.streamDistinct)
-            || sig.equals(MethodChecker.streamSelect);
+            || sig.equals(MethodChecker.streamSelect)
+            || sig.equals(MethodChecker.streamWhere)
+            || sig.equals(MethodChecker.streamJoin);
    }
    
    @Override public JPQLQuery<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -101,7 +103,17 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
             }
             else if (sig.equals(MethodChecker.streamSelect))
             {
-               SelectTransform transform = new SelectTransform(metamodel, alternateClassLoader);
+               SelectTransform transform = new SelectTransform(metamodel, alternateClassLoader, false);
+               transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+            }
+            else if (sig.equals(MethodChecker.streamWhere))
+            {
+               WhereTransform transform = new WhereTransform(metamodel, alternateClassLoader, false);
+               transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+            }
+            else if (sig.equals(MethodChecker.streamJoin))
+            {
+               JoinTransform transform = new JoinTransform(metamodel, alternateClassLoader, false);
                transformedQuery = transform.apply(subQuery, lambda, argHandler); 
             }
             else

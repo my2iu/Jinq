@@ -279,14 +279,6 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public QueryComposer<T> with(T toAdd)
-   {
-      // TODO Auto-generated method stub
-      translationFail(); 
-      return null;
-   }
-
-   @Override
    public <V extends Comparable<V>> QueryComposer<T> sortedBy(
          CollectComparable<T, V> sorter, boolean isAscending)
    {
@@ -315,7 +307,14 @@ public class JPAQueryComposer<T> implements QueryComposer<T>
    public <U> QueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
-      return applyTransformWithLambda(new SelectTransform(metamodel, hints.lambdaClassLoader), selectLambda);
+      return applyTransformWithLambda(new SelectTransform(metamodel, hints.lambdaClassLoader, false), selectLambda);
+   }
+
+   @Override
+   public <U> QueryComposer<U> select(
+         org.jinq.orm.stream.JinqStream.SelectWithSource<T, U> selectLambda)
+   {
+      return applyTransformWithLambda(new SelectTransform(metamodel, hints.lambdaClassLoader, true), selectLambda);
    }
 
    @Override

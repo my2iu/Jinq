@@ -10,9 +10,11 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SelectTransform extends JPQLOneLambdaQueryTransform
 {
-   public SelectTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
+   boolean withSource;
+   public SelectTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean withSource)
    {
       super(metamodel, alternateClassLoader);
+      this.withSource = withSource;
    }
    
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
@@ -22,7 +24,7 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, false));
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, withSource));
 
             ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 

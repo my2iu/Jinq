@@ -369,6 +369,25 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
 // EclipseLink on Derby just isn't handling the sorting by subqueries very well, so the result doesn't
 // seem to be sorted correctly
    }
+   
+   @Test
+   public void testSubQueryWithSelectSourceAndWhere()
+   {
+      List<Pair<String, Object>> sales = streams.streamAll(em, Customer.class)
+            .where( c -> JinqStream.from(c.getSales()).join(s -> JinqStream.from(s.getLineorders())).where(p -> p.getTwo().getItem().getName().equals("Widgets")).count() > 0)
+            .select( (c, source) -> new Pair<String, Object>(c.getName(), source.stream(Customer.class).where( c2 -> c2.getSalary() > c.getSalary()).count()) )
+            .sortedBy( pair -> pair.getOne())
+            .toList();
+      assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C, C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
+      assertEquals("Alice", sales.get(0).getOne());
+      assertEquals("Carol", sales.get(1).getOne());
+      assertEquals("Eve", sales.get(2).getOne());
+      // EclipseLink returns Integers instead of Longs here for some reason
+      // So we need this workaround to use Numbers instead to avoid a ClassCastException.
+      assertEquals(3, ((Number)sales.get(0).getTwo()).longValue());
+      assertEquals(2, ((Number)sales.get(1).getTwo()).longValue());
+      assertEquals(4, ((Number)sales.get(2).getTwo()).longValue());
+   }
 
    @Test(expected=IllegalArgumentException.class)
    public void testSubQueryNoAggregation()

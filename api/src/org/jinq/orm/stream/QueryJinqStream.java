@@ -7,6 +7,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jinq.orm.stream.JinqStream.SelectWithSource;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 
@@ -59,7 +60,15 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       if (newComposer != null) return new QueryJinqStream<U>(newComposer, inQueryStreamSource);
       return super.select(select);
    }
-   
+
+   @Override
+   public <U> JinqStream<U> select(SelectWithSource<T, U> select)
+   {
+      QueryComposer<U> newComposer = queryComposer.select(select);
+      if (newComposer != null) return new QueryJinqStream<U>(newComposer, inQueryStreamSource);
+      return super.select(select);
+   }
+
    @Override
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join)
    {

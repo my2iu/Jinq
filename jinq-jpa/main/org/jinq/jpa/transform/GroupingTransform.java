@@ -29,7 +29,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
 
             // Figure out the columns needed for the key value
-            SelectTransform keyTransform = new SelectTransform(metamodel, alternateClassLoader);
+            SelectTransform keyTransform = new SelectTransform(metamodel, alternateClassLoader, false);
             JPQLQuery<W> keyQuery = keyTransform.apply(query, groupingLambda, parentArgumentScope);
             if (!keyQuery.isSelectFromWhere())
                throw new QueryTransformException("Expecting the result of the key calculation to be a SelectFromWhere query"); 

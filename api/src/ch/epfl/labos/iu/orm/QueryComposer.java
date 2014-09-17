@@ -18,7 +18,6 @@ public interface QueryComposer<T>
    
    // Returns a new query with the given operation integrated in
    // (or returns null if the given operation cannot be integrated)
-   public QueryComposer<T> with(T toAdd);
    public <V extends Comparable<V>> QueryComposer<T> sortedBy(
          JinqStream.CollectComparable<T, V> sorter, boolean isAscending);
    public QueryComposer<T> limit(long n);
@@ -29,6 +28,7 @@ public interface QueryComposer<T>
    public <E extends Exception> QueryComposer<T> where(JinqStream.Where<T, E> test);
    public <E extends Exception> QueryComposer<T> where(JinqStream.WhereWithSource<T, E> test);
    public <U> QueryComposer<U> select(JinqStream.Select<T, U> select);
+   public <U> QueryComposer<U> select(JinqStream.SelectWithSource<T, U> select);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.JoinWithSource<T,U> join);
    public <U> QueryComposer<Pair<T, U>> leftOuterJoin(JinqStream.Join<T,U> join);

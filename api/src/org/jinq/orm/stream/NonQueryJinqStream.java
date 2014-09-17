@@ -88,6 +88,12 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    }
 
    @Override
+   public <U> JinqStream<U> select(SelectWithSource<T, U> select)
+   {
+      return wrap(map( val -> select.select(val, inQueryStreamSource) ));
+   }
+
+   @Override
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join)
    {
       // TODO: This stream should be constructed on the fly
@@ -338,13 +344,6 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       List<T> vals = collect(Collectors.toList());
       if (vals.size() == 1) return vals.get(0);
       throw new NoSuchElementException();
-   }
-   
-   @Override
-   public JinqStream<T> with(T toAdd)
-   {
-      return wrap(
-            Stream.concat(this, Stream.of(toAdd)));
    }
    
    @Override
