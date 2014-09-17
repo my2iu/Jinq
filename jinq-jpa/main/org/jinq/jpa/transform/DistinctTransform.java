@@ -2,7 +2,6 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
-import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.SelectOnly;
 
 public class DistinctTransform extends JPQLNoLambdaQueryTransform

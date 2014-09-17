@@ -7,7 +7,6 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.jinq.orm.stream.JinqStream.SelectWithSource;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 
