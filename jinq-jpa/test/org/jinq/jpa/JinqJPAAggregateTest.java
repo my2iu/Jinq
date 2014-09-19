@@ -389,10 +389,16 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals(4, ((Number)sales.get(2).getTwo()).longValue());
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
+   public void testSubQueryFrom()
+   {
+      // Subqueries in FROM clauses are generally not supported in JPQL
+      // (and what support there exists is usually pretty poor.)
+   }
+
+   @Test
    public void testSubQueryNoAggregation()
    {
-      // Not implemented yet
       List<Customer> customers = streams.streamAll(em, Customer.class)
             .where( (c, source) -> 
                   c.getDebt() < source.stream(Customer.class)
@@ -400,7 +406,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
                         .select(c2 -> c2.getDebt())
                         .getOnlyValue() )
             .toList();
-      assertEquals("SELECT B.SaleId AS COL1, B.Date AS COL2, B.CustomerId AS COL3 FROM Sales AS B WHERE ((((SELECT MAX(A.SaleId) AS COL4 FROM Sales AS A)) = (B.SaleId)))", query);
+      assertEquals("SELECT A FROM Customer A WHERE A.debt < (SELECT B.debt FROM Customer B WHERE B.name = 'Alice')", query);
       assertEquals(1, customers.size());
       assertEquals("Eve", customers.get(0).getName());
    }

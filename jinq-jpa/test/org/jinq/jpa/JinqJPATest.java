@@ -315,7 +315,9 @@ public class JinqJPATest extends JinqJPATestBase
       // Query q = em.createQuery("SELECT B, (SELECT COUNT(1) FROM B.sales C) FROM Customer B ORDER BY (SELECT COUNT(1) FROM B.sales C ASC), B.name ASC"); // Subqueries in ORDER BY with everything in brackets are ok 
       // Query q = em.createQuery("SELECT B, (SELECT COUNT(1) FROM B.sales C) FROM Customer B ORDER BY (SELECT COUNT(1) FROM B.sales C) ASC, B.name ASC"); // Subqueries in ORDER BY with only the subquery in brackets but not ASC is bad
       // Query q = em.createQuery("SELECT B, (SELECT COUNT(1) FROM B.sales C) FROM Customer B ORDER BY ((SELECT COUNT(1) FROM B.sales C) ASC), B.name ASC"); // Subqueries in ORDER BY with things in proper bracket hierarchy is bad.
-      Query q = em.createQuery("SELECT COUNT(A), COUNT(B) FROM Customer A, A.Orders B");  // Checking to see if it matters what you stick inside the COUNT() function
+      // Query q = em.createQuery("SELECT COUNT(A), COUNT(B) FROM Customer A, A.Orders B");  // Checking to see if it matters what you stick inside the COUNT() function
+      // Query q = em.createQuery("SELECT B FROM Customer D, (SELECT DICTINCT A FROM Sale A) B");  // Trying to see how subqueries in a FROM work--it seems like subqueries in FROM are not implemented or barely working
+      Query q = em.createQuery("SELECT A.name FROM Customer A WHERE A.salary < (SELECT B.salary FROM Customer B WHERE B.name = 'Alice') ");  // Checking for JPQL support for subqueries returning a single value
 
       List results = q.getResultList();
 //      for (Object o : results)

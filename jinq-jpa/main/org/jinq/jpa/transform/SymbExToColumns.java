@@ -465,6 +465,30 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);
          }
       }
+      else if (sig.equals(MethodChecker.streamGetOnlyValue))
+      {
+         SymbExPassDown passdown = SymbExPassDown.with(val, false);
+         
+         // Check out what stream we're aggregating
+         SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, alternateClassLoader,
+               argHandler);
+         JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
+
+         if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 
+         {
+            SelectFromWhere<?> sfw = (SelectFromWhere<?>)subQuery;
+            ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
+            for (Expression col: sfw.cols.columns)
+            {
+               SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
+               oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
+               toReturn.columns.add(SubqueryExpression.from(oneColQuery));
+            }
+            return toReturn;
+         }
+
+         throw new TypedValueVisitorException("Cannot apply getOnlyValue() to the given subquery");
+      }
       else if (MethodChecker.jpqlFunctionMethods.contains(sig))
       {
          if (sig.equals(MethodChecker.bigDecimalAbs)
