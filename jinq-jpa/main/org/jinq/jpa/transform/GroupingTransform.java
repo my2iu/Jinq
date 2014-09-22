@@ -2,7 +2,6 @@ package org.jinq.jpa.transform;
 
 import java.util.Arrays;
 
-import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.GroupedSelectFromWhere;
 import org.jinq.jpa.jpqlquery.JPQLQuery;

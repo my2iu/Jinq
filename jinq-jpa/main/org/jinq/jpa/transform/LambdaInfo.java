@@ -3,7 +3,6 @@ package org.jinq.jpa.transform;
 import java.io.IOException;
 import java.util.List;
 
-import org.jinq.jpa.MetamodelUtil;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.analysis.AnalyzerException;

@@ -25,12 +25,14 @@ import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
 import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
+import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MultiAggregateTransform;
 import org.jinq.jpa.transform.OuterJoinTransform;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
 import org.jinq.jpa.transform.SortingTransform;
 import org.jinq.jpa.transform.WhereTransform;
+import org.jinq.orm.internal.QueryComposer;
 import org.jinq.orm.stream.JinqStream.AggregateGroup;
 import org.jinq.orm.stream.JinqStream.CollectComparable;
 import org.jinq.orm.stream.JinqStream.CollectNumber;
@@ -38,8 +40,6 @@ import org.jinq.orm.stream.JinqStream.Select;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
-
-import ch.epfl.labos.iu.orm.QueryComposer;
 
 /**
  * Holds a query and can apply the logic for composing JPQL queries. 
@@ -49,7 +49,7 @@ import ch.epfl.labos.iu.orm.QueryComposer;
  *
  * @param <T>
  */
-public class JPAQueryComposer<T> implements QueryComposer<T>
+class JPAQueryComposer<T> implements QueryComposer<T>
 {
    final MetamodelUtil metamodel;
    final EntityManager em;

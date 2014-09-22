@@ -1,4 +1,4 @@
-package org.jinq.jpa;
+package org.jinq.jpa.transform;
 
 import java.util.Arrays;
 import java.util.HashMap;

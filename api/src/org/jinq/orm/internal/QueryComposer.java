@@ -1,10 +1,9 @@
-package ch.epfl.labos.iu.orm;
+package org.jinq.orm.internal;
 
 import java.util.Iterator;
 import java.util.function.Consumer;
 
 import org.jinq.orm.stream.JinqStream;
-import org.jinq.orm.stream.JinqStream.AggregateGroup;
 import org.jinq.orm.stream.JinqStream.Select;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;

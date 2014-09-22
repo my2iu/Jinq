@@ -3,7 +3,6 @@ package org.jinq.jpa.transform;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.CaseWhenExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;

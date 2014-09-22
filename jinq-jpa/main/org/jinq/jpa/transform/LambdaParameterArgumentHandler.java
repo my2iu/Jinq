@@ -3,7 +3,6 @@ package org.jinq.jpa.transform;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jinq.jpa.MetamodelUtil;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ParameterExpression;

@@ -2,15 +2,30 @@ package org.jinq.jpa;
 
 import java.util.regex.Pattern;
 
+/**
+ * Provides Java implementations of certain JPQL functions.
+ *
+ */
 public class JPQL
 {
-   // In-memory implementation of JPQL like.
+   /**
+    * In-memory implementation of JPQL like.
+    * @param str string to search inside
+    * @param pattern pattern to look for inside string (uses JPQL/SQL like syntax)
+    * @return true iff the pattern in found in the string
+    */
    public static boolean like(String str, String pattern)
    {
       return like(str, pattern, "");
    }
    
-   // In-memory implementation of JPQL like.
+   /**
+    * In-memory implementation of JPQL like.
+    * @param str string to search inside
+    * @param pattern pattern to look for inside string (uses JPQL/SQL like syntax)
+    * @param escapeChar escape character that can be used to escape the special _ and % used in the pattern syntax 
+    * @return true iff the pattern in found in the string
+    */
    public static boolean like(String str, String pattern, String escapeChar)
    {
       String regex = "";
