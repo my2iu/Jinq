@@ -147,7 +147,8 @@ public interface JinqStream<T> extends Stream<T>
     * 
     * <pre>
     * {@code JinqStream<Country> stream = ...;
-    * JinqStream<Pair<Country, City>> result = stream.join(c -> JinqStream.from(c.getCities()));
+    * JinqStream<Pair<Country, City>> result = 
+    *    stream.join(c -> JinqStream.from(c.getCities()));
     * }
     * </pre>
     * 
@@ -177,8 +178,10 @@ public interface JinqStream<T> extends Stream<T>
     * 
     * <pre>
     * {@code JinqStream<Country> stream = ...;
-    * JinqStream<Pair<Country, Mountain>> result = stream.join(c -> JinqStream.from(c.getMountain()));
-    * JinqStream<Pair<Country, Mountain>> result = stream.join(c -> JinqStream.of(c.getHighestMountain()));
+    * JinqStream<Pair<Country, Mountain>> result = 
+    *    stream.join(c -> JinqStream.from(c.getMountain()));
+    * JinqStream<Pair<Country, Mountain>> result = 
+    *    stream.join(c -> JinqStream.of(c.getHighestMountain()));
     * }
     * </pre>
     * 
@@ -200,19 +203,56 @@ public interface JinqStream<T> extends Stream<T>
       public V aggregateSelect(W key, JinqStream<U> val);
    }
 
+   /**
+    * Groups together elements from the stream that share a common key.
+    * Aggregates can then be calculated over the elements in each group.
+    * 
+    * <pre>
+    * {@code JinqStream<City> stream = ...;
+    * JinqStream<Pair<String, Long>> result = 
+    *    stream.group(c -> c.getCountry(), (key, cities) -> cities.count());
+    * }
+    * </pre>
+    * 
+    * @param select
+    *           function applied to each element of the stream that returns the
+    *           key to be used to group elements together
+    * @param aggregate
+    *           function applied to each group and calculates an aggregate value
+    *           over the group. The function is passed the key for the group and
+    *           a JinqStream of elements contained inside that group. It should
+    *           return the aggregate value calculated for that group.
+    * @return a new stream containing a tuple for each group. The tuple contains
+    *         the key for the group and any calculated aggregate values.
+    */
    public <U, V> JinqStream<Pair<U, V>> group(Select<T, U> select,
          AggregateGroup<U, T, V> aggregate);
 
-   /** @see #group(Select, AggregateGroup) */
+   /**
+    * Calculates two aggregate values instead of one aggregate value for grouped
+    * stream elements.
+    * 
+    * @see #group(Select, AggregateGroup)
+    */
    public <U, V, W> JinqStream<Tuple3<U, V, W>> group(Select<T, U> select,
          AggregateGroup<U, T, V> aggregate1, AggregateGroup<U, T, W> aggregate2);
 
-   /** @see #group(Select, AggregateGroup) */
+   /**
+    * Calculates three aggregate values instead of one aggregate value for
+    * grouped stream elements.
+    * 
+    * @see #group(Select, AggregateGroup)
+    */
    public <U, V, W, X> JinqStream<Tuple4<U, V, W, X>> group(
          Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
          AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3);
 
-   /** @see #group(Select, AggregateGroup) */
+   /**
+    * Calculates four aggregate values instead of one aggregate value for
+    * grouped stream elements.
+    * 
+    * @see #group(Select, AggregateGroup)
+    */
    public <U, V, W, X, Y> JinqStream<Tuple5<U, V, W, X, Y>> group(
          Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
          AggregateGroup<U, T, W> aggregate2,
@@ -245,51 +285,121 @@ public interface JinqStream<T> extends Stream<T>
       public V aggregate(U val);
    }
 
+   @FunctionalInterface
    public static interface CollectInteger<U> extends CollectNumber<U, Integer>
    {
    }
 
+   @FunctionalInterface
    public static interface CollectLong<U> extends CollectNumber<U, Long>
    {
    }
 
+   @FunctionalInterface
    public static interface CollectDouble<U> extends CollectNumber<U, Double>
    {
    }
 
+   @FunctionalInterface
    public static interface CollectBigDecimal<U> extends
          CollectNumber<U, BigDecimal>
    {
    }
 
+   @FunctionalInterface
    public static interface CollectBigInteger<U> extends
          CollectNumber<U, BigInteger>
    {
    }
 
    // Having separate sum() methods for different types is messy but due to
-   // problems
-   // with Java's type inferencing and the fact that JPQL uses different return
-   // types
-   // for a sum than the types being summed over, this is the only way to do sum
-   // operations in a type-safe way.
+   // problems with Java's type inferencing and the fact that JPQL uses
+   // different return types for a sum than the types being summed over,
+   // this is the only way to do sum operations in a type-safe way.
+   /**
+    * Calculates a sum over the elements of a stream. Different sum methods are
+    * provided for calculating the sum of integer, long, double, BigDecimal, and
+    * BigInteger values.
+    * 
+    * <pre>
+    * {@code JinqStream<City> stream = ...;
+    * long totalPopulation = stream.sumInteger(c -> c.getPopulation()); 
+    * }
+    * </pre>
+    * 
+    * @param aggregate
+    *           function applied to each element of the stream. When passed an
+    *           element of the stream, it should return the value that should be
+    *           added to the sum.
+    * @return the sum of the values returned by the function
+    */
    public Long sumInteger(CollectInteger<T> aggregate);
 
+   /** @see #sumInteger(CollectInteger) */
    public Long sumLong(CollectLong<T> aggregate);
 
+   /** @see #sumInteger(CollectInteger) */
    public Double sumDouble(CollectDouble<T> aggregate);
 
+   /** @see #sumInteger(CollectInteger) */
    public BigDecimal sumBigDecimal(CollectBigDecimal<T> aggregate);
 
+   /** @see #sumInteger(CollectInteger) */
    public BigInteger sumBigInteger(CollectBigInteger<T> aggregate);
 
    // TODO: It's more type-safe to have separate maxDouble(), maxDate(), etc.
    // methods,
    // but it's too messy, so I'll provide this simpler max() method for now
+   /**
+    * Finds the largest or maximum element of a stream.
+    * 
+    * <pre>
+    * {@code JinqStream<Student> stream = ...;
+    * Date birthdayOfYoungest = stream.max(s -> s.getBirthday()); 
+    * }
+    * </pre>
+    * 
+    * @param aggregate
+    *           function applied to each element of the stream. When passed an
+    *           element of the stream, it should return the value that should be
+    *           compared.
+    * @return the maximum of the values returned by the function
+    */
    public <V extends Comparable<V>> V max(CollectComparable<T, V> aggregate);
 
+   /**
+    * Finds the smallest or minimum element of a stream.
+    * 
+    * <pre>
+    * {@code JinqStream<Student> stream = ...;
+    * Date birthdayOfYoungest = stream.max(s -> s.getBirthday()); 
+    * }
+    * </pre>
+    * 
+    * @see #max(CollectComparable)
+    * @param aggregate
+    *           function applied to each element of the stream. When passed an
+    *           element of the stream, it should return the value that should be
+    *           compared.
+    * @return the minimum of the values returned by the function
+    */
    public <V extends Comparable<V>> V min(CollectComparable<T, V> aggregate);
 
+   /**
+    * Finds the average of the element of a stream.
+    * 
+    * <pre>
+    * {@code JinqStream<Student> stream = ...;
+    * double averageAge = stream.avg(s -> s.getage()); 
+    * }
+    * </pre>
+    * 
+    * @param aggregate
+    *           function applied to each element of the stream. When passed an
+    *           element of the stream, it should return the value that should be
+    *           included in the average
+    * @return the average of the values returned by the function
+    */
    public <V extends Number & Comparable<V>> Double avg(
          CollectNumber<T, V> aggregate);
 
@@ -299,8 +409,26 @@ public interface JinqStream<T> extends Stream<T>
       public V aggregateSelect(JinqStream<U> val);
    }
 
-   // public <U> U selectAggregates(AggregateSelect<T, U> aggregate);
-   // public <U> U aggregate(AggregateSelect<T, U> aggregate1);
+   /**
+    * Calculates more than one aggregate function over the elements of the
+    * stream.
+    * 
+    * <pre>
+    * {@code JinqStream<City> stream = ...;
+    * Pair<Long, Long> result = stream.aggregate(
+    *    c -> c.sumInteger(c.getPopulation()),
+    *    c -> c.count()); 
+    * }
+    * </pre>
+    * 
+    * @param aggregate1
+    *           a function that takes a stream and returns the first calculated
+    *           aggregate value for the stream
+    * @param aggregate2
+    *           a function that takes a stream and returns a second calculated
+    *           aggregate value for the stream
+    * @return a tuple of the calculated aggregate values
+    */
    public <U, V> Pair<U, V> aggregate(AggregateSelect<T, U> aggregate1,
          AggregateSelect<T, V> aggregate2);
 
@@ -325,9 +453,32 @@ public interface JinqStream<T> extends Stream<T>
          AggregateSelect<T, W> aggregate3, AggregateSelect<T, X> aggregate4,
          AggregateSelect<T, Y> aggregate5);
 
+   /**
+    * Sorts the elements of a stream in ascending order based on the value
+    * returned. The sort is stable, so it is possible to sort the stream
+    * multiple times in order to have multiple sort keys. The last sort becomes
+    * the primary sort key, and earlier sorts become lesser keys.
+    * 
+    * @param sortField
+    *           function applied to each element of the stream. When passed an
+    *           element of the stream, it should return the value that should be
+    *           used as the sorting value of the element
+    * @return sorted stream
+    */
    public <V extends Comparable<V>> JinqStream<T> sortedBy(
          CollectComparable<T, V> sortField);
 
+   /**
+    * Sorts the elements of a stream in descending order based on the value
+    * returned.
+    * 
+    * @see #sortedBy(CollectComparable)
+    * @param sortField
+    *           function applied to each element of the stream. When passed an
+    *           element of the stream, it should return the value that should be
+    *           used as the sorting value of the element
+    * @return sorted stream
+    */
    public <V extends Comparable<V>> JinqStream<T> sortedDescendingBy(
          CollectComparable<T, V> sortField);
 
@@ -343,13 +494,25 @@ public interface JinqStream<T> extends Stream<T>
    public JinqStream<T> distinct();
 
    /**
+    * Counts the elements in the stream. If the stream contains only a single
+    * field of data (i.e. not a tuple) as derived from a database query, then
+    * the count will be of non-NULL elements only. If the stream contains more
+    * than one field of data (i.e. a tuple) or if the stream is streaming
+    * in-memory data, then the count will include NULL values.
+    * 
+    * @see Stream#count()
+    */
+   @Override
+   public long count();
+
+   /**
     * If the stream contains only a single value, this method will return that
     * value. This method is convenient for getting the results of queries that
     * contain only a single value. It is also useful in subqueries.
     * 
     * @return the single element contained in the stream
     * @throws java.util.NoSuchElementException
-    *            stream contains zero or more than one element 
+    *            stream contains zero or more than one element
     */
    public T getOnlyValue();
 
@@ -361,6 +524,13 @@ public interface JinqStream<T> extends Stream<T>
    // TODO: Should toList() throw an exception?
    public List<T> toList();
 
+   /**
+    * Returns the query that Jinq will send to the database to generate the
+    * values of the stream.
+    * 
+    * @return the database query string or <code>null</code> if Jinq cannot find
+    *         a database query equivalent to the contents of the stream.
+    */
    public String getDebugQueryString();
 
    /**
@@ -374,9 +544,11 @@ public interface JinqStream<T> extends Stream<T>
     * @param exception
     *           actual exception object
     */
-   @Deprecated public void propagateException(Object source, Throwable exception);
+   @Deprecated
+   public void propagateException(Object source, Throwable exception);
 
-   @Deprecated public Collection<Throwable> getExceptions();
+   @Deprecated
+   public Collection<Throwable> getExceptions();
 
    /**
     * Sets a hint on the stream for how the query should be executed
