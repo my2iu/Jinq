@@ -48,7 +48,7 @@
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq-jpa</artifactId>
-	  <version>0.9</version>
+	  <version>1.0rc1</version>
     </dependency>
     <dependency>
 	  <groupId>org.ow2.asm</groupId>
