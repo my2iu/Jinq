@@ -3,6 +3,8 @@ package com.example.jinq.sample.jpa.entities;
 import java.io.Serializable;
 
 import javax.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,8 +21,8 @@ public class Item implements Serializable {
    private String name;
    private double purchaseprice;
    private double saleprice;
-   private List<Supplier> suppliers;
-   private List<Lineorder> lineorders;
+   private List<Supplier> suppliers = new ArrayList<>();
+   private List<Lineorder> lineorders = new ArrayList<>();
    private ItemType type;
 
    public Item() {

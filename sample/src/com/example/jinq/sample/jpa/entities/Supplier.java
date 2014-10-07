@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,7 +20,7 @@ public class Supplier implements Serializable {
    private int supplierid;
    private String country;
    private String name;
-   private List<Item> items;
+   private List<Item> items = new ArrayList<>();
    private long revenue;
    private boolean hasFreeShipping;
    private byte[] signature;

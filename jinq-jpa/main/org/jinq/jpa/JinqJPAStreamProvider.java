@@ -1,13 +1,18 @@
 package org.jinq.jpa;
 
+import java.lang.reflect.Method;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jinq.jpa.transform.MetamodelUtil;
+import org.jinq.jpa.transform.MetamodelUtilAttribute;
 import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.QueryJinqStream;
+
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
 /**
  * Creates JinqStreams of JPA entities. 
@@ -53,5 +58,25 @@ public class JinqJPAStreamProvider
    public void setHint(String name, Object val)
    {
       hints.setHint(name, val);
+   }
+   
+   /**
+    * The Hibernate metamodel seems to hold incorrect information about
+    * composite keys or entities that use other entities as keys or something.
+    * This method provides a way for programmers to specify correct 
+    * information for those types of mappings.
+    * @param m entity method that Jinq should rewrite into a field access for queries
+    * @param fieldName name of the field that Jinq should use in queries when it encounters the method call
+    * @param isPlural whether the method returns a single entity or a collection of them
+    */
+   public void registerAssociationAttribute(Method m, String fieldName, boolean isPlural)
+   {
+      MetamodelUtilAttribute attrib = new MetamodelUtilAttribute(fieldName, true);
+      metamodel.insertAssociationAttribute(
+            new MethodSignature(
+                  org.objectweb.asm.Type.getInternalName(m.getDeclaringClass()),
+                  m.getName(),
+                  org.objectweb.asm.Type.getMethodDescriptor(m)),
+            attrib, isPlural);
    }
 }

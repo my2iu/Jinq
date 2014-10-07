@@ -1,7 +1,10 @@
 package org.jinq.jpa.test.entities;
 
 import java.io.Serializable;
+
 import javax.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -18,8 +21,8 @@ public class Item implements Serializable {
 	private String name;
 	private double purchaseprice;
 	private double saleprice;
-	private List<Supplier> suppliers;
-	private List<Lineorder> lineorders;
+	private List<Supplier> suppliers = new ArrayList<>();
+	private List<Lineorder> lineorders = new ArrayList<>();
 	private ItemType type;
 	
 	public Item() {
@@ -76,13 +79,9 @@ public class Item implements Serializable {
 	//bi-directional many-to-many association to Supplier
 	@ManyToMany
 	@JoinTable(
-		name="ITEMSUPPLIERS"
-		, joinColumns={
-			@JoinColumn(name="ITEMID")
-			}
-		, inverseJoinColumns={
-			@JoinColumn(name="SUPPLIERID")
-			}
+		name="ITEMSUPPLIERS",
+		joinColumns={ @JoinColumn(name="ITEMID") },
+		inverseJoinColumns={ @JoinColumn(name="SUPPLIERID") }
 		)
 	public List<Supplier> getSuppliers() {
 		return this.suppliers;

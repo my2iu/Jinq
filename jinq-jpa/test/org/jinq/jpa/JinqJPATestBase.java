@@ -10,6 +10,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.jinq.jpa.test.entities.Item;
+import org.jinq.jpa.test.entities.Lineorder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -30,6 +32,12 @@ public class JinqJPATestBase
    {
       entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
       streams = new JinqJPAStreamProvider(entityManagerFactory);
+      
+      // Hibernate seems to generate incorrect metamodel data for some types of
+      // associations, so we have to manually supply the correct information here.
+      streams.registerAssociationAttribute(Lineorder.class.getMethod("getItem"), "item", false);
+      streams.registerAssociationAttribute(Lineorder.class.getMethod("getSale"), "sale", false);
+      
       EntityManager em = entityManagerFactory.createEntityManager();
       new CreateJpaDb(em).createDatabase();
       em.close();
@@ -48,6 +56,7 @@ public class JinqJPATestBase
    public void setUp() throws Exception
    {
       em = entityManagerFactory.createEntityManager();
+      em.getTransaction().begin();
       queryList.clear();
       streams.setHint("exceptionOnTranslationFail", true);
       streams.setHint("queryLogger", new JPAQueryLogger() {
@@ -63,6 +72,7 @@ public class JinqJPATestBase
    @After
    public void tearDown() throws Exception
    {
+      em.getTransaction().commit();
       em.close();
    }
 }

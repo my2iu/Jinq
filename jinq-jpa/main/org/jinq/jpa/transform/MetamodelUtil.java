@@ -1,5 +1,6 @@
 package org.jinq.jpa.transform;
 
+import java.lang.reflect.Member;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,9 +9,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
@@ -25,8 +28,8 @@ public class MetamodelUtil
    final Metamodel metamodel;
 
    public final Set<Class<?>> safeMethodAnnotations;
-   final Map<MethodSignature, SingularAttribute<?,?>> fieldMethods;
-   final Map<MethodSignature, PluralAttribute<?,?,?>> nLinkMethods;
+   final Map<MethodSignature, MetamodelUtilAttribute> fieldMethods;
+   final Map<MethodSignature, MetamodelUtilAttribute> nLinkMethods;
    public final Set<MethodSignature> safeMethods;
    public final Set<MethodSignature> safeStaticMethods;
    final Map<String, List<Enum<?>>> enums;
@@ -88,6 +91,21 @@ public class MetamodelUtil
       safeMethods.addAll(nLinkMethods.keySet());
    }
    
+   /**
+    * The Hibernate metamodel seems to hold incorrect information about
+    * composite keys or entities that use other entities as keys or something.
+    * This method provides a way for programmers to specify correct 
+    * information for those types of mappings.
+    */
+   public void insertAssociationAttribute(MethodSignature sig, MetamodelUtilAttribute attribute, boolean isPlural)
+   {
+      if (isPlural)
+         nLinkMethods.put(sig, attribute);
+      else
+         fieldMethods.put(sig, attribute);
+      safeMethods.add(sig);
+   }
+   
    private void findMetamodelGetters()
    {
       for (EntityType<?> entity: metamodel.getEntities())
@@ -108,7 +126,7 @@ public class MetamodelUtil
                comparisonMethods.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);
                safeMethods.add(eqMethod);
             }
-            fieldMethods.put(methodSig, singularAttrib);
+            fieldMethods.put(methodSig, new MetamodelUtilAttribute(singularAttrib));
          }
          for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
          {
@@ -116,7 +134,7 @@ public class MetamodelUtil
                   org.objectweb.asm.Type.getInternalName(pluralAttrib.getJavaMember().getDeclaringClass()),
                   pluralAttrib.getJavaMember().getName(),
                   org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(pluralAttrib.getJavaType())));
-            nLinkMethods.put(methodSig, pluralAttrib);
+            nLinkMethods.put(methodSig, new MetamodelUtilAttribute(pluralAttrib));
          }
       }
    }

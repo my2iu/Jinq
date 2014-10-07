@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 public class Sale implements Serializable {
    private static final long serialVersionUID = 1L;
    private int saleid;
-   private List<Lineorder> lineorders;
+   private List<Lineorder> lineorders = new ArrayList<>();
    private Customer customer;
    private java.sql.Date sqlDate;
    private java.sql.Time sqlTime;
