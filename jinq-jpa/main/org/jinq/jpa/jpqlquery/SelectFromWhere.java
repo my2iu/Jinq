@@ -95,11 +95,12 @@ public class SelectFromWhere<T> extends SelectOnly<T>
          {
             if (!isFirst)
             {
-               if (!(from instanceof From.FromNavigationalLinksLeftOuterJoin))
+               if (!(from instanceof From.FromNavigationalLinksLeftOuterJoin)
+                     && !(from instanceof From.FromNavigationalLinks))
                   queryState.queryString += ", ";
             }
+            from.generateFromString(queryState, isFirst);
             isFirst = false;
-            from.generateFromString(queryState);
             queryState.queryString += " " + queryState.getFromAlias(from);
          }
       }

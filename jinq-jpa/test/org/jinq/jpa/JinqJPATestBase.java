@@ -72,7 +72,7 @@ public class JinqJPATestBase
    @After
    public void tearDown() throws Exception
    {
-      em.getTransaction().commit();
+      em.getTransaction().rollback();
       em.close();
    }
 }

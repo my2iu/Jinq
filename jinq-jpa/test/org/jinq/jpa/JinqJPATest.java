@@ -81,7 +81,7 @@ public class JinqJPATest extends JinqJPATestBase
             .where(i -> i.getName().equals("Widgets"))
             .join(i -> JinqStream.from(i.getSuppliers()))
             .toList();
-      assertEquals("SELECT A, B FROM Item A, A.suppliers B WHERE A.name = 'Widgets'", query);
+      assertEquals("SELECT A, B FROM Item A JOIN A.suppliers B WHERE A.name = 'Widgets'", query);
       Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
       assertEquals(2, results.size());
       assertEquals("Widgets", results.get(0).getOne().getName());
@@ -96,7 +96,7 @@ public class JinqJPATest extends JinqJPATestBase
             .join(lo -> JinqStream.from(lo.getItem().getSuppliers()))
             .where(pair -> pair.getOne().getSale().getCustomer().getName().equals("Alice"))
             .toList();
-      assertEquals("SELECT A, B FROM Lineorder A, A.item.suppliers B WHERE A.sale.customer.name = 'Alice'", query);
+      assertEquals("SELECT A, B FROM Lineorder A JOIN A.item.suppliers B WHERE A.sale.customer.name = 'Alice'", query);
       Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
       assertEquals(5, results.size());
       assertEquals("Conglomerate", results.get(1).getTwo().getName());
@@ -142,7 +142,7 @@ public class JinqJPATest extends JinqJPATestBase
             .where(lo -> lo.getItem().getName().equals("Talent"))
             .leftOuterJoin(lo -> JinqStream.from(lo.getItem().getSuppliers()))
             .toList();
-      assertEquals("SELECT A, C FROM Lineorder A, A.item B LEFT OUTER JOIN B.suppliers C WHERE A.item.name = 'Talent'", query);
+      assertEquals("SELECT A, C FROM Lineorder A JOIN A.item B LEFT OUTER JOIN B.suppliers C WHERE A.item.name = 'Talent'", query);
       Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
       assertEquals(1, results.size());
    }
@@ -317,7 +317,9 @@ public class JinqJPATest extends JinqJPATestBase
       // Query q = em.createQuery("SELECT B, (SELECT COUNT(1) FROM B.sales C) FROM Customer B ORDER BY ((SELECT COUNT(1) FROM B.sales C) ASC), B.name ASC"); // Subqueries in ORDER BY with things in proper bracket hierarchy is bad.
       // Query q = em.createQuery("SELECT COUNT(A), COUNT(B) FROM Customer A, A.Orders B");  // Checking to see if it matters what you stick inside the COUNT() function
       // Query q = em.createQuery("SELECT B FROM Customer D, (SELECT DICTINCT A FROM Sale A) B");  // Trying to see how subqueries in a FROM work--it seems like subqueries in FROM are not implemented or barely working
-      Query q = em.createQuery("SELECT A.name FROM Customer A WHERE A.salary < (SELECT B.salary FROM Customer B WHERE B.name = 'Alice') ");  // Checking for JPQL support for subqueries returning a single value
+      // Query q = em.createQuery("SELECT A.name FROM Customer A WHERE A.salary < (SELECT B.salary FROM Customer B WHERE B.name = 'Alice') ");  // Checking for JPQL support for subqueries returning a single value
+      // Query q = em.createQuery("SELECT A, B FROM Sale A join A.customer B WHERE B.name = 'Alice'");  // Hibernate seems to require you to actually use the "join" keyword when using a plural navigational link instead of letting you use commas.
+      Query q = em.createQuery("SELECT A, B FROM Item A join A.suppliers B WHERE A.name = 'Widgets'");  // Hibernate seems to require you to actually use the "join" keyword when using a plural navigational link instead of letting you use commas.
 
       List results = q.getResultList();
 //      for (Object o : results)

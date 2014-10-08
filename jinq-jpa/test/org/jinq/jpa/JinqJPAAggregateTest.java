@@ -378,7 +378,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
             .select( (c, source) -> new Pair<String, Object>(c.getName(), source.stream(Customer.class).where( c2 -> c2.getSalary() > c.getSalary()).count()) )
             .sortedBy( pair -> pair.getOne())
             .toList();
-      assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C, C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
+      assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
       assertEquals("Alice", sales.get(0).getOne());
       assertEquals("Carol", sales.get(1).getOne());
       assertEquals("Eve", sales.get(2).getOne());
