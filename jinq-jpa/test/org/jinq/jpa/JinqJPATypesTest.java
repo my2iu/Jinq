@@ -236,7 +236,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             || "SELECT A, CASE WHEN A.hasFreeShipping = TRUE THEN FALSE ELSE TRUE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query));
       assertEquals(1, suppliers.size());
       assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
-      assertTrue(suppliers.get(0).getTwo());
+      assertTrue(!suppliers.get(0).getTwo());
    }
    
    @Test
