@@ -25,12 +25,17 @@ public class SampleMain
 
    private EntityManager em;
 
-   public static void main(String[] args)
+   public static void main(String[] args) throws Exception
    {
       // Configure Jinq for the given JPA database connection
       entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
       SampleDbCreator.createDatabase(entityManagerFactory);
       streams = new JinqJPAStreamProvider(entityManagerFactory);
+      
+      // Hibernate seems to generate incorrect metamodel data for some types of
+      // associations, so we have to manually supply the correct information here.
+      streams.registerAssociationAttribute(Lineorder.class.getMethod("getItem"), "item", false);
+      streams.registerAssociationAttribute(Lineorder.class.getMethod("getSale"), "sale", false);
       
       // Configure Jinq to output the queries it executes
       streams.setHint("queryLogger", new JPAQueryLogger() {
