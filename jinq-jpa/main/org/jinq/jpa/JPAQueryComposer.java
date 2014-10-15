@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
@@ -222,9 +223,14 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLNoLambdaQueryTransform transform)
    {
       try {
-         JPQLQuery<U> newQuery = transform.apply(query, null);
-         if (newQuery == null) { translationFail(); return null; }
-         return new JPAQueryComposer<>(this, newQuery, lambdas);
+         Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag());
+         if (cachedQuery == null)
+         {
+            JPQLQuery<U> newQuery = transform.apply(query, null);
+            cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), Optional.ofNullable(newQuery));
+         }
+         if (!cachedQuery.isPresent()) { translationFail(); return null; }
+         return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas);
       }
       catch (QueryTransformException e)
       {

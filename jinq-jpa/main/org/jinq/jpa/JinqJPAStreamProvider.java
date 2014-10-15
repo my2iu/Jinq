@@ -1,6 +1,7 @@
 package org.jinq.jpa;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -46,12 +47,13 @@ public class JinqJPAStreamProvider
    public <U> JinqStream<U> streamAll(final EntityManager em, Class<U> entity)
    {
       String entityName = metamodel.entityNameFromClass(entity);
-      JPQLQuery<U> query = cachedQueries.findCachedFindAllEntities(entityName);
-      if (query == null)
+      Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findCachedFindAllEntities(entityName);
+      if (cachedQuery == null)
       {
-         query = JPQLQuery.findAllEntities(entityName);
-         query = cachedQueries.cacheFindAllEntities(entityName, query);
+         JPQLQuery<U> query = JPQLQuery.findAllEntities(entityName);
+         cachedQuery = cachedQueries.cacheFindAllEntities(entityName, Optional.of(query));
       }
+      JPQLQuery<U> query = (JPQLQuery<U>)cachedQuery.get();
       return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
                   metamodel, cachedQueries, em, hints, query),
             new InQueryStreamSource() {

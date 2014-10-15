@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 
@@ -16,6 +17,43 @@ public class JPAQueryComposerCache
     */
    private static class CacheKey
    {
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = 1;
+         result = prime * result
+               + ((baseQuery == null) ? 0 : baseQuery.hashCode());
+         result = prime
+               * result
+               + ((transformationType == null) ? 0 : transformationType
+                     .hashCode());
+         return result;
+      }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (obj == null)
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         CacheKey other = (CacheKey) obj;
+         if (baseQuery == null)
+         {
+            if (other.baseQuery != null)
+               return false;
+         } else if (!baseQuery.equals(other.baseQuery))
+            return false;
+         if (transformationType == null)
+         {
+            if (other.transformationType != null)
+               return false;
+         } else if (!transformationType.equals(other.transformationType))
+            return false;
+         return true;
+      }
       String transformationType;
       JPQLQuery<?> baseQuery;
    }
@@ -24,13 +62,13 @@ public class JPAQueryComposerCache
     * Map of cached query transforms. Maps from a description of the transform
     * to the cached result of the transform.
     */
-   Map<CacheKey, JPQLQuery<?>> cachedQueryTransforms = new HashMap<>();
+   Map<CacheKey, Optional<JPQLQuery<?>>> cachedQueryTransforms = new HashMap<>();
 
    /**
     * Map of cached queries for finding all the entities of a certain type. The
     * map maps from entity name to the corresponding query.
     */
-   Map<String, JPQLQuery<?>> cachedFindAllEntities = new HashMap<>();
+   Map<String, Optional<JPQLQuery<?>>> cachedFindAllEntities = new HashMap<>();
 
    /**
     * Looks up whether a certain transformation is already in the cache or not.
@@ -42,10 +80,31 @@ public class JPAQueryComposerCache
     * @return cached transformation result or null if this transformation hasn't
     *         been cached
     */
-   public <U, V> JPQLQuery<V> findInCache(JPQLQuery<U> base,
+   public Optional<JPQLQuery<?>> findInCache(JPQLQuery<?> base,
          String transformationType)
    {
-      return null;
+      return cacheQuery(base, transformationType, null);
+   }
+
+   /**
+    * Inserts a transformed query into the cache. If a cache entry is already present, it
+    * returns the cached entry; otherwise, it returns resultingQuery
+    * @param base query being transformed
+    * @param transformationType type of transformation applied to the query
+    * @param resultingQuery result of the transformation that should be cached
+    * @return the existing cached entry or resultingQuery if nothing is cached
+    */
+   public synchronized Optional<JPQLQuery<?>> cacheQuery(JPQLQuery<?> base,
+         String transformationType, Optional<JPQLQuery<?>> resultingQuery)
+   {
+      CacheKey key = new CacheKey();
+      key.transformationType = transformationType;
+      key.baseQuery = base;
+      if (cachedQueryTransforms.containsKey(key))
+         return cachedQueryTransforms.get(key);
+      if (resultingQuery != null)
+         cachedQueryTransforms.put(key, resultingQuery);
+      return resultingQuery;
    }
 
    /**
@@ -56,7 +115,7 @@ public class JPAQueryComposerCache
     *           name of the type of entity the query should return
     * @return the cached query or null if no query has been cached.
     */
-   public synchronized <U> JPQLQuery<U> findCachedFindAllEntities(
+   public synchronized Optional<JPQLQuery<?>> findCachedFindAllEntities(
          String entityName)
    {
       return cacheFindAllEntities(entityName, null);
@@ -75,11 +134,11 @@ public class JPAQueryComposerCache
     * @return if a query has already been cached, that query is returned;
     *         otherwise, queryToCache is inserted into the cache and returned.
     */
-   public synchronized <U> JPQLQuery<U> cacheFindAllEntities(String entityName,
-         JPQLQuery<U> queryToCache)
+   public synchronized Optional<JPQLQuery<?>> cacheFindAllEntities(
+         String entityName, Optional<JPQLQuery<?>> queryToCache)
    {
       if (cachedFindAllEntities.containsKey(entityName))
-         return (JPQLQuery<U>) cachedFindAllEntities.get(entityName);
+         return cachedFindAllEntities.get(entityName);
       if (queryToCache != null)
          cachedFindAllEntities.put(entityName, queryToCache);
       return queryToCache;
