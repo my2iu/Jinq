@@ -1,6 +1,5 @@
 package org.jinq.jpa.transform;
 
-import java.lang.reflect.Member;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,11 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
-import javax.persistence.metamodel.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;

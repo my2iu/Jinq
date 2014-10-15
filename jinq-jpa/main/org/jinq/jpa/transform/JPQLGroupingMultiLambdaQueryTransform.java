@@ -2,7 +2,7 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 
-public class JPQLGroupingMultiLambdaQueryTransform extends JPQLQueryTransform
+public abstract class JPQLGroupingMultiLambdaQueryTransform extends JPQLQueryTransform
 {
 
    JPQLGroupingMultiLambdaQueryTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)

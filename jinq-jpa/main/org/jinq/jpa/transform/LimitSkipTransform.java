@@ -43,4 +43,9 @@ public class LimitSkipTransform extends JPQLNoLambdaQueryTransform
       throw new QueryTransformException("Existing query cannot be transformed further");
    }
 
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return LimitSkipTransform.class.getName() + ":" + isLimit + ":" + constraint;
+   }
 }

@@ -81,4 +81,10 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
          throw new QueryTransformException(e);
       }
    }
+
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return AggregateTransform.class.getName() + ":" + type.name();
+   }
 }

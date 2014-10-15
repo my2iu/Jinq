@@ -59,5 +59,11 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
          throw new QueryTransformException(e);
       }
    }
+   
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return MultiAggregateTransform.class.getName();
+   }
 
 }

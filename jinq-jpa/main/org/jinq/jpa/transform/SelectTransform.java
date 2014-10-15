@@ -54,4 +54,9 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
       }
    }
 
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return SelectTransform.class.getName();
+   }
 }

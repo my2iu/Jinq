@@ -24,4 +24,11 @@ public class DistinctTransform extends JPQLNoLambdaQueryTransform
       }
       throw new QueryTransformException("Existing query cannot be transformed further");
    }
+   
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return DistinctTransform.class.getName();
+   }
+
 }

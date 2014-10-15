@@ -18,7 +18,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
  * a lambda to a JPQL query (e.g. how to apply a where lambda to
  * a JPQL query, producing a new JPQL query)
  */
-public class JPQLQueryTransform
+public abstract class JPQLQueryTransform
 {
    final MetamodelUtil metamodel;
    
@@ -136,4 +136,10 @@ public class JPQLQueryTransform
       }
       return conditionExpr;
    }
+   
+   /**
+    * Returns a String that can be used to identify the type of transformation being applied.
+    * This is useful for caching the effects of query transforms.
+    */
+   public abstract String getTransformationTypeCachingTag();
 }

@@ -116,5 +116,10 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
          throw new QueryTransformException(e);
       }
    }
-
+   
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return OuterJoinTransform.class.getName();
+   }
 }

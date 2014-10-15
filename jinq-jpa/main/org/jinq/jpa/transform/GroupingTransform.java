@@ -81,4 +81,10 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
       return apply(query, lambdas[0], Arrays.copyOfRange(lambdas, 1, lambdas.length), parentArgumentScope);
    }
 
+
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return GroupingTransform.class.getName();
+   }
 }

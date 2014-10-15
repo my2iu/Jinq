@@ -43,4 +43,9 @@ public class SortingTransform extends JPQLOneLambdaQueryTransform
       }
    }
 
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return SortingTransform.class.getName();
+   }
 }

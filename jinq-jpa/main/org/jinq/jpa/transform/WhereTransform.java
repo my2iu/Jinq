@@ -115,4 +115,10 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
       }
       return methodExpr;
    }
+
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return WhereTransform.class.getName();
+   }
 }

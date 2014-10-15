@@ -6,6 +6,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Metamodel;
 
+import org.jinq.jpa.jpqlquery.JPQLQuery;
+import org.jinq.jpa.transform.JPAQueryComposerCache;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
 import org.jinq.orm.stream.InQueryStreamSource;
@@ -20,6 +22,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 public class JinqJPAStreamProvider
 {
    MetamodelUtil metamodel;
+   JPAQueryComposerCache cachedQueries = new JPAQueryComposerCache();
    JinqJPAHints hints = new JinqJPAHints();
    
    public JinqJPAStreamProvider(EntityManagerFactory factory)
@@ -42,8 +45,15 @@ public class JinqJPAStreamProvider
     */
    public <U> JinqStream<U> streamAll(final EntityManager em, Class<U> entity)
    {
+      String entityName = metamodel.entityNameFromClass(entity);
+      JPQLQuery<U> query = cachedQueries.findCachedFindAllEntities(entityName);
+      if (query == null)
+      {
+         query = JPQLQuery.findAllEntities(entityName);
+         query = cachedQueries.cacheFindAllEntities(entityName, query);
+      }
       return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
-                  metamodel, em, hints, metamodel.entityNameFromClass(entity)),
+                  metamodel, cachedQueries, em, hints, query),
             new InQueryStreamSource() {
                @Override public <S> JinqStream<S> stream(Class<S> entityClass) {
                   return streamAll(em, entityClass);

@@ -17,4 +17,9 @@ public class CountTransform extends JPQLNoLambdaQueryTransform
       return transform.apply(query, null, parentArgumentScope);
    }
 
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return CountTransform.class.getName();
+   }
 }

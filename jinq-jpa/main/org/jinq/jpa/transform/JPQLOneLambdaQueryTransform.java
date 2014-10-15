@@ -2,7 +2,7 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 
-public class JPQLOneLambdaQueryTransform extends JPQLQueryTransform
+public abstract class JPQLOneLambdaQueryTransform extends JPQLQueryTransform
 {
 
    JPQLOneLambdaQueryTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)

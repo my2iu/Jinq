@@ -19,6 +19,7 @@ import org.jinq.jpa.transform.AggregateTransform;
 import org.jinq.jpa.transform.CountTransform;
 import org.jinq.jpa.transform.DistinctTransform;
 import org.jinq.jpa.transform.GroupingTransform;
+import org.jinq.jpa.transform.JPAQueryComposerCache;
 import org.jinq.jpa.transform.JPQLMultiLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
@@ -52,6 +53,7 @@ import org.jinq.tuples.Tuple;
 class JPAQueryComposer<T> implements QueryComposer<T>
 {
    final MetamodelUtil metamodel;
+   final JPAQueryComposerCache cachedQueries;
    final EntityManager em;
    final JPQLQuery<T> query;
    final JinqJPAHints hints;
@@ -66,12 +68,13 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 
    private JPAQueryComposer(JPAQueryComposer<?> base, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
-      this(base.metamodel, base.em, base.hints, query, chainedLambdas, additionalLambdas);
+      this(base.metamodel, base.cachedQueries, base.em, base.hints, query, chainedLambdas, additionalLambdas);
    }
 
-   private JPAQueryComposer(MetamodelUtil metamodel, EntityManager em, JinqJPAHints hints, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
+   private JPAQueryComposer(MetamodelUtil metamodel, JPAQueryComposerCache cachedQueries, EntityManager em, JinqJPAHints hints, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
       this.metamodel = metamodel;
+      this.cachedQueries = cachedQueries;
       this.em = em;
       this.query = query;
       lambdas.addAll(chainedLambdas);
@@ -80,9 +83,9 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       this.hints = new JinqJPAHints(hints);
    }
 
-   public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, EntityManager em, JinqJPAHints hints, String entityName)
+   public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, JPAQueryComposerCache cachedQueries, EntityManager em, JinqJPAHints hints, JPQLQuery<U> findAllQuery)
    {
-      return new JPAQueryComposer<>(metamodel, em, hints, JPQLQuery.findAllEntities(entityName), new ArrayList<>());
+      return new JPAQueryComposer<>(metamodel, cachedQueries, em, hints, findAllQuery, new ArrayList<>());
    }
 
    @Override

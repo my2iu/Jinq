@@ -75,4 +75,9 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
       }
    }
 
+   @Override 
+   public String getTransformationTypeCachingTag()
+   {
+      return JoinTransform.class.getName();
+   }
 }
