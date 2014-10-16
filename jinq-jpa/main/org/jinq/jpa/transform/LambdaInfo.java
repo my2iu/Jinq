@@ -82,4 +82,11 @@ public class LambdaInfo
       return LambdaAnalysis.fullyAnalyzeLambda(this, metamodel, alternateClassLoader, throwExceptionOnFailure);
    }
 
+   /**
+    * @return a string describing the source for the code of the lambda
+    */
+   public String getLambdaSourceString()
+   {
+      return serializedLambda.implClass + "#" + serializedLambda.implMethodName + serializedLambda.implMethodSignature; 
+   }
 }

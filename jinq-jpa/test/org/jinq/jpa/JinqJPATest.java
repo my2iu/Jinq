@@ -9,15 +9,19 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
+import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Supplier;
+import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.QueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Test;
 
@@ -254,6 +258,28 @@ public class JinqJPATest extends JinqJPATestBase
                   || (c.getName().equals("Bob") && c.getSalary() == 11)
                   || (c.getName().equals("Carol") && c.getSalary() == 12))
             .toList();
+   }
+   
+   @Test
+   public void testCaching()
+   {
+      // Ensure the base "find all customers" query is in the cache
+      streams.streamAll(em, Customer.class);
+      // Create a query composer for finding all customers.
+      Optional<JPQLQuery<?>> cachedQuery = streams.cachedQueries.findCachedFindAllEntities("Customer");
+      JPAQueryComposer<Customer> composer = JPAQueryComposer.findAllEntities(streams.metamodel, streams.cachedQueries, em, streams.hints, (JPQLQuery<Customer>)cachedQuery.get());
+      // Apply a where restriction to it
+      JPAQueryComposer<Customer> where1 = repeatedQuery(composer, 1);
+      JPAQueryComposer<Customer> where2 = repeatedQuery(composer, 2);
+      JPAQueryComposer<Customer> where3 = repeatedQuery(composer, 3);
+      // Check that the queries have the exact same underlying query object
+      assertTrue(where1.query == where2.query);
+      assertTrue(where2.query == where3.query);
+   }
+   
+   private JPAQueryComposer<Customer> repeatedQuery(JPAQueryComposer<Customer> composer, int param)
+   {
+      return composer.where(c -> c.getDebt() == param);
    }
 
    @Test

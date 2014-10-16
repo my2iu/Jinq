@@ -223,134 +223,150 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 
    private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLNoLambdaQueryTransform transform)
    {
-      try {
-         Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag());
-         if (cachedQuery == null)
-         {
-            JPQLQuery<U> newQuery = transform.apply(query, null);
-            cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), Optional.ofNullable(newQuery));
-         }
-         if (!cachedQuery.isPresent()) { translationFail(); return null; }
-         return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas);
-      }
-      catch (QueryTransformException e)
+      Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), null);
+      if (cachedQuery == null)
       {
-         translationFail(e);
-         return null;
+         JPQLQuery<U> newQuery = null;
+         try {
+            newQuery = transform.apply(query, null);
+         }
+         catch (QueryTransformException e)
+         {
+            translationFail(e);
+            // Fall through if we don't have a RuntimeException
+         }
+         cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), null, Optional.ofNullable(newQuery));
       }
+      if (!cachedQuery.isPresent()) { translationFail(); return null; }
+      return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas);
    }
    
    private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLOneLambdaQueryTransform transform, Object lambda)
    {
       LambdaInfo lambdaInfo = LambdaInfo.analyze(lambda, lambdas.size(), hints.dieOnError);
       if (lambdaInfo == null) { translationFail(); return null; }
-      LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
-      if (lambdaAnalysis == null) { translationFail(); return null; }
-      try {
-         JPQLQuery<U> newQuery = transform.apply(query, lambdaAnalysis, null);
-         if (newQuery == null) { translationFail(); return null; }
-         return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfo);
-      }
-      catch (QueryTransformException e)
+      Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()});
+      if (cachedQuery == null)
       {
-         translationFail(e);
-         return null;
+         LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
+         if (lambdaAnalysis == null) { translationFail(); return null; }
+         JPQLQuery<U> newQuery = null;
+         try {
+            newQuery = transform.apply(query, lambdaAnalysis, null);
+         }
+         catch (QueryTransformException e)
+         {
+            translationFail(e);
+            // Fall through if we don't have a RuntimeException
+         }
+         cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()}, Optional.ofNullable(newQuery));
       }
+      if (!cachedQuery.isPresent()) { translationFail(); return null; }
+      return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfo);
    }
 
    private <U> JPAQueryComposer<U> applyTransformWithLambdas(JPQLMultiLambdaQueryTransform transform, Object [] groupingLambdas)
    {
       LambdaInfo[] lambdaInfos = new LambdaInfo[groupingLambdas.length];
+      String [] lambdaSources = new String[lambdaInfos.length]; 
       for (int n = 0; n < groupingLambdas.length; n++)
       {
          lambdaInfos[n] = LambdaInfo.analyze(groupingLambdas[n], lambdas.size() + n, hints.dieOnError);
          if (lambdaInfos[n] == null) { translationFail(); return null; }
+         lambdaSources[n] = lambdaInfos[n].getLambdaSourceString();
       }
-      LambdaAnalysis[] lambdaAnalyses = new LambdaAnalysis[lambdaInfos.length];
-      for (int n = 0; n < lambdaInfos.length; n++)
+      
+      Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), lambdaSources);
+      if (cachedQuery == null)
       {
-         lambdaAnalyses[n] = lambdaInfos[n].fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
-         if (lambdaAnalyses[n] == null) { translationFail(); return null; }
+         LambdaAnalysis[] lambdaAnalyses = new LambdaAnalysis[lambdaInfos.length];
+         for (int n = 0; n < lambdaInfos.length; n++)
+         {
+            lambdaAnalyses[n] = lambdaInfos[n].fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
+            if (lambdaAnalyses[n] == null) { translationFail(); return null; }
+         }
+         JPQLQuery<U> newQuery = null;
+         try {
+            newQuery = transform.apply(query, lambdaAnalyses, null);
+         }
+         catch (QueryTransformException e)
+         {
+            translationFail(e);
+            // Fall through if we don't have a RuntimeException
+         }
+         cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), lambdaSources, Optional.ofNullable(newQuery));
       }
-      try {
-         JPQLQuery<U> newQuery = transform.apply(query, lambdaAnalyses, null);
-         if (newQuery == null) { translationFail(); return null; }
-         return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfos);
-      }
-      catch (QueryTransformException e)
-      {
-         translationFail(e);
-         return null;
-      }
+      if (!cachedQuery.isPresent()) { translationFail(); return null; }
+      return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfos);
    }
 
    @Override
-   public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
+   public <E extends Exception> JPAQueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
    {
       return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader, false), test);
    }
    
    @Override
-   public <E extends Exception> QueryComposer<T> where(org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
+   public <E extends Exception> JPAQueryComposer<T> where(org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
    {
       return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader, true), test);
    }
 
    @Override
-   public <V extends Comparable<V>> QueryComposer<T> sortedBy(
+   public <V extends Comparable<V>> JPAQueryComposer<T> sortedBy(
          CollectComparable<T, V> sorter, boolean isAscending)
    {
       return applyTransformWithLambda(new SortingTransform(metamodel, hints.lambdaClassLoader, isAscending), sorter);
    }
 
    @Override
-   public QueryComposer<T> limit(long n)
+   public JPAQueryComposer<T> limit(long n)
    {
       return applyTransformWithLambda(new LimitSkipTransform(metamodel, hints.lambdaClassLoader, true, n));
    }
 
    @Override
-   public QueryComposer<T> skip(long n)
+   public JPAQueryComposer<T> skip(long n)
    {
       return applyTransformWithLambda(new LimitSkipTransform(metamodel, hints.lambdaClassLoader, false, n));
    }
 
    @Override
-   public QueryComposer<T> distinct()
+   public JPAQueryComposer<T> distinct()
    {
       return applyTransformWithLambda(new DistinctTransform(metamodel, hints.lambdaClassLoader));
    }
 
    @Override
-   public <U> QueryComposer<U> select(
+   public <U> JPAQueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
    {
       return applyTransformWithLambda(new SelectTransform(metamodel, hints.lambdaClassLoader, false), selectLambda);
    }
 
    @Override
-   public <U> QueryComposer<U> select(
+   public <U> JPAQueryComposer<U> select(
          org.jinq.orm.stream.JinqStream.SelectWithSource<T, U> selectLambda)
    {
       return applyTransformWithLambda(new SelectTransform(metamodel, hints.lambdaClassLoader, true), selectLambda);
    }
 
    @Override
-   public <U> QueryComposer<Pair<T, U>> join(
+   public <U> JPAQueryComposer<Pair<T, U>> join(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
       return applyTransformWithLambda(new JoinTransform(metamodel, hints.lambdaClassLoader, false), joinLambda);
    }
 
    @Override
-   public <U> QueryComposer<Pair<T, U>> join(
+   public <U> JPAQueryComposer<Pair<T, U>> join(
          org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> joinLambda)
    {
       return applyTransformWithLambda(new JoinTransform(metamodel, hints.lambdaClassLoader, true), joinLambda);
    }
    
    @Override
-   public <U> QueryComposer<Pair<T, U>> leftOuterJoin(
+   public <U> JPAQueryComposer<Pair<T, U>> leftOuterJoin(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
       return applyTransformWithLambda(new OuterJoinTransform(metamodel, hints.lambdaClassLoader), joinLambda);
@@ -431,7 +447,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <U, W extends Tuple> QueryComposer<W> groupToTuple(
+   public <U, W extends Tuple> JPAQueryComposer<W> groupToTuple(
          Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
       Object [] groupingLambdas = new Object[aggregates.length + 1];

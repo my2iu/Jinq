@@ -1,5 +1,6 @@
 package org.jinq.jpa.transform;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class JPAQueryComposerCache
          int result = 1;
          result = prime * result
                + ((baseQuery == null) ? 0 : baseQuery.hashCode());
+         result = prime * result + Arrays.hashCode(lambdaSources);
          result = prime
                * result
                + ((transformationType == null) ? 0 : transformationType
@@ -46,6 +48,8 @@ public class JPAQueryComposerCache
                return false;
          } else if (!baseQuery.equals(other.baseQuery))
             return false;
+         if (!Arrays.equals(lambdaSources, other.lambdaSources))
+            return false;
          if (transformationType == null)
          {
             if (other.transformationType != null)
@@ -56,6 +60,7 @@ public class JPAQueryComposerCache
       }
       String transformationType;
       JPQLQuery<?> baseQuery;
+      String[] lambdaSources;
    }
 
    /**
@@ -77,13 +82,14 @@ public class JPAQueryComposerCache
     *           query being transformed
     * @param transformationType
     *           type of transformation being applied to the query
+    * @param lambdaSources array of descriptions of the lambdas used in the query
     * @return cached transformation result or null if this transformation hasn't
     *         been cached
     */
    public Optional<JPQLQuery<?>> findInCache(JPQLQuery<?> base,
-         String transformationType)
+         String transformationType, String[] lambdaSources)
    {
-      return cacheQuery(base, transformationType, null);
+      return cacheQuery(base, transformationType, lambdaSources, null);
    }
 
    /**
@@ -91,15 +97,18 @@ public class JPAQueryComposerCache
     * returns the cached entry; otherwise, it returns resultingQuery
     * @param base query being transformed
     * @param transformationType type of transformation applied to the query
+    * @param lambdaSources array of descriptions of the lambdas used in the query
     * @param resultingQuery result of the transformation that should be cached
     * @return the existing cached entry or resultingQuery if nothing is cached
     */
    public synchronized Optional<JPQLQuery<?>> cacheQuery(JPQLQuery<?> base,
-         String transformationType, Optional<JPQLQuery<?>> resultingQuery)
+         String transformationType, String[] lambdaSources, Optional<JPQLQuery<?>> resultingQuery)
    {
       CacheKey key = new CacheKey();
       key.transformationType = transformationType;
       key.baseQuery = base;
+      if (lambdaSources != null)
+         key.lambdaSources = Arrays.copyOf(lambdaSources, lambdaSources.length);
       if (cachedQueryTransforms.containsKey(key))
          return cachedQueryTransforms.get(key);
       if (resultingQuery != null)

@@ -35,7 +35,7 @@ public class JinqJPAStreamProvider
    {
       this.metamodel = new MetamodelUtil(metamodel);
    }
-
+   
    /**
     * Returns a stream of all the entities of a particular type in a
     * database.
