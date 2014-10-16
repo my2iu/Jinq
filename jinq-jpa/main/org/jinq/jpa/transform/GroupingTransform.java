@@ -20,7 +20,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
    }
 
    
-   private <U, V, W> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo groupingLambda, LambdaInfo[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
+   private <U, V, W> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis groupingLambda, LambdaAnalysis[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
          if (query.isSelectFromWhere())
@@ -42,7 +42,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
 
             for (int n = 0; n < lambdas.length; n++)
             {
-               LambdaInfo lambda = lambdas[n];
+               LambdaAnalysis lambda = lambdas[n];
 
                SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
                      new GroupingLambdasArgumentHandler(keySelect, streamTee, lambdas[n], metamodel, parentArgumentScope, false));
@@ -76,7 +76,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
    }
 
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       return apply(query, lambdas[0], Arrays.copyOfRange(lambdas, 1, lambdas.length), parentArgumentScope);
    }

@@ -404,14 +404,14 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
          
          // Extract the lambda used
-         LambdaInfo lambda = null;
+         LambdaAnalysis lambda = null;
          if (val.args.size() > 0)
          {
             if (!(val.args.get(0) instanceof LambdaFactory))
                throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
             LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
             try {
-               lambda = LambdaInfo.analyzeMethod(metamodel, alternateClassLoader, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
+               lambda = LambdaAnalysis.analyzeMethod(metamodel, alternateClassLoader, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
             } catch (Exception e)
             {
                throw new TypedValueVisitorException("Could not analyze the lambda code", e);

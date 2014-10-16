@@ -35,7 +35,7 @@ public abstract class JPQLQueryTransform
       this.alternateClassLoader = alternateClassLoader;
    }
 
-   protected <U> ColumnExpressions<U> makeSelectExpression(SymbExToColumns translator, LambdaInfo lambda) throws TypedValueVisitorException
+   protected <U> ColumnExpressions<U> makeSelectExpression(SymbExToColumns translator, LambdaAnalysis lambda) throws TypedValueVisitorException
    {
       // Handle the case where there is only one path
       if (lambda.symbolicAnalysis.paths.size() == 1)
@@ -104,13 +104,13 @@ public abstract class JPQLQueryTransform
       return toReturn;
    }
 
-   protected <U> ColumnExpressions<U> simplifyAndTranslateMainPathToColumns(LambdaInfo lambda, SymbExToColumns translator,
+   protected <U> ColumnExpressions<U> simplifyAndTranslateMainPathToColumns(LambdaAnalysis lambda, SymbExToColumns translator,
          SymbExPassDown passdown) throws TypedValueVisitorException
    {
       return simplifyAndTranslatePathToColumns(lambda, 0, translator, passdown);
    }
    
-   protected <U> ColumnExpressions<U> simplifyAndTranslatePathToColumns(LambdaInfo lambda, int pathIdx, SymbExToColumns translator,
+   protected <U> ColumnExpressions<U> simplifyAndTranslatePathToColumns(LambdaAnalysis lambda, int pathIdx, SymbExToColumns translator,
          SymbExPassDown passdown) throws TypedValueVisitorException
    {
       return (ColumnExpressions<U>)PathAnalysisSimplifier

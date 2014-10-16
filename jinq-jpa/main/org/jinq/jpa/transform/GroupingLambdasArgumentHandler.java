@@ -18,7 +18,7 @@ public class GroupingLambdasArgumentHandler extends LambdaParameterArgumentHandl
    SelectOnly<?> groupKey;
    SelectOnly<?> stream; 
    
-   public GroupingLambdasArgumentHandler(SelectOnly<?> groupKey, SelectOnly<?> stream, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
+   public GroupingLambdasArgumentHandler(SelectOnly<?> groupKey, SelectOnly<?> stream, LambdaAnalysis lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       super(lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
       this.groupKey = groupKey;

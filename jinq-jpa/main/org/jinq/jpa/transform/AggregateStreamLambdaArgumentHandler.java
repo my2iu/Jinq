@@ -16,7 +16,7 @@ public class AggregateStreamLambdaArgumentHandler extends LambdaParameterArgumen
 {
    SelectOnly<?> select;
    
-   public AggregateStreamLambdaArgumentHandler(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
+   public AggregateStreamLambdaArgumentHandler(SelectOnly<?> select, LambdaAnalysis lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       super(lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
       this.select = select;

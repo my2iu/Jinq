@@ -25,6 +25,7 @@ import org.jinq.jpa.transform.JPQLMultiLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
 import org.jinq.jpa.transform.JoinTransform;
+import org.jinq.jpa.transform.LambdaAnalysis;
 import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
 import org.jinq.jpa.transform.MetamodelUtil;
@@ -241,10 +242,12 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    
    private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLOneLambdaQueryTransform transform, Object lambda)
    {
-      LambdaInfo lambdaInfo = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, lambda, lambdas.size(), hints.dieOnError);
+      LambdaInfo lambdaInfo = LambdaInfo.analyze(lambda, lambdas.size(), hints.dieOnError);
       if (lambdaInfo == null) { translationFail(); return null; }
+      LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
+      if (lambdaAnalysis == null) { translationFail(); return null; }
       try {
-         JPQLQuery<U> newQuery = transform.apply(query, lambdaInfo, null);
+         JPQLQuery<U> newQuery = transform.apply(query, lambdaAnalysis, null);
          if (newQuery == null) { translationFail(); return null; }
          return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfo);
       }
@@ -260,11 +263,17 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       LambdaInfo[] lambdaInfos = new LambdaInfo[groupingLambdas.length];
       for (int n = 0; n < groupingLambdas.length; n++)
       {
-         lambdaInfos[n] = LambdaInfo.analyze(metamodel, hints.lambdaClassLoader, groupingLambdas[n], lambdas.size() + n, hints.dieOnError);
+         lambdaInfos[n] = LambdaInfo.analyze(groupingLambdas[n], lambdas.size() + n, hints.dieOnError);
          if (lambdaInfos[n] == null) { translationFail(); return null; }
       }
+      LambdaAnalysis[] lambdaAnalyses = new LambdaAnalysis[lambdaInfos.length];
+      for (int n = 0; n < lambdaInfos.length; n++)
+      {
+         lambdaAnalyses[n] = lambdaInfos[n].fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
+         if (lambdaAnalyses[n] == null) { translationFail(); return null; }
+      }
       try {
-         JPQLQuery<U> newQuery = transform.apply(query, lambdaInfos, null);
+         JPQLQuery<U> newQuery = transform.apply(query, lambdaAnalyses, null);
          if (newQuery == null) { translationFail(); return null; }
          return new JPAQueryComposer<>(this, newQuery, lambdas, lambdaInfos);
       }

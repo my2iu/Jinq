@@ -20,7 +20,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
  */
 public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
 {
-   LambdaInfo lambda;
+   LambdaAnalysis lambda;
    MetamodelUtil metamodel;
    boolean hasInQueryStreamSource;
    SymbExArgumentHandler parentArgumentScope;
@@ -47,7 +47,7 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/math/BigInteger"));
    }
 
-   public LambdaParameterArgumentHandler(LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
+   public LambdaParameterArgumentHandler(LambdaAnalysis lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       this.lambda = lambda;
       this.metamodel = metamodel;
@@ -99,7 +99,7 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
          throw new TypedValueVisitorException("Accessing a field with unhandled type");
 
       return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
-            new ParameterExpression(lambda.lambdaIndex, argIndex)); 
+            new ParameterExpression(lambda.getLambdaIndex(), argIndex)); 
    }
    
    @Override
@@ -109,7 +109,7 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       {
          if (lambda == null)
             throw new TypedValueVisitorException("No lambda source was supplied where parameters can be extracted");
-         if (!lambda.hasLambdaObject())
+         if (lambda.usesIndirectArgs())
          {
             return handleIndirectLambdaArg(argIndex, argType);
          }

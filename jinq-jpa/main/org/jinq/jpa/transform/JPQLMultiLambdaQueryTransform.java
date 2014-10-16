@@ -10,7 +10,7 @@ public abstract class JPQLMultiLambdaQueryTransform extends JPQLQueryTransform
       super(metamodel, alternateClassLoader);
    }
    
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo [] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis [] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       return null;
    }

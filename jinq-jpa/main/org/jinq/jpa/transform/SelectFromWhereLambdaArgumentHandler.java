@@ -21,22 +21,22 @@ public class SelectFromWhereLambdaArgumentHandler extends LambdaParameterArgumen
    
    ColumnExpressions<?> cols;
    
-   public static SelectFromWhereLambdaArgumentHandler fromSelectFromWhere(SelectFromWhere<?> sfw, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
+   public static SelectFromWhereLambdaArgumentHandler fromSelectFromWhere(SelectFromWhere<?> sfw, LambdaAnalysis lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       return new SelectFromWhereLambdaArgumentHandler(sfw.cols, lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
    }
 
-   public static SelectFromWhereLambdaArgumentHandler fromSelectOnly(SelectOnly<?> select, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
+   public static SelectFromWhereLambdaArgumentHandler fromSelectOnly(SelectOnly<?> select, LambdaAnalysis lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       return new SelectFromWhereLambdaArgumentHandler(select.cols, lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
    }
 
-   public static SelectFromWhereLambdaArgumentHandler forPassthroughTest(LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
+   public static SelectFromWhereLambdaArgumentHandler forPassthroughTest(LambdaAnalysis lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       return new SelectFromWhereLambdaArgumentHandler(passthroughColsForTesting, lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
    }
 
-   private SelectFromWhereLambdaArgumentHandler(ColumnExpressions<?> cols, LambdaInfo lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
+   private SelectFromWhereLambdaArgumentHandler(ColumnExpressions<?> cols, LambdaAnalysis lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
    {
       super(lambda, metamodel, parentArgumentScope, hasInQueryStreamSource);
       this.cols = cols;

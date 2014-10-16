@@ -33,7 +33,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
          if (query.isSelectFromWhere())

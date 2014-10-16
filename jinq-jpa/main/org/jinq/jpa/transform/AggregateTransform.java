@@ -28,7 +28,7 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
    private AggregateType type;
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
          if (query.isSelectFromWhere() || query instanceof SelectOnly)

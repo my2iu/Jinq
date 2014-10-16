@@ -23,7 +23,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
    }
    
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaInfo where, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
+   public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis where, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
          if (query.isSelectFromWhere())
@@ -60,7 +60,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
       }
    }
 
-   private <V> Expression computeWhereReturnExpr(LambdaInfo where,
+   private <V> Expression computeWhereReturnExpr(LambdaAnalysis where,
          SelectFromWhere<V> sfw, SymbExArgumentHandler parentArgumentScope) throws TypedValueVisitorException,
          QueryTransformException
    {
