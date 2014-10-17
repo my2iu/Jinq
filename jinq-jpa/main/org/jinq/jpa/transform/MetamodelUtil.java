@@ -1,5 +1,7 @@
 package org.jinq.jpa.transform;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -109,10 +111,17 @@ public class MetamodelUtil
       {
          for (SingularAttribute<?,?> singularAttrib: entity.getDeclaredSingularAttributes())
          {
-            Class<?> fieldJavaType = singularAttrib.getJavaType(); 
+            Class<?> fieldJavaType = singularAttrib.getJavaType();
+            Member javaMember = singularAttrib.getJavaMember();
+            String name = javaMember.getName(); 
+            if (javaMember instanceof Field)
+            {
+               // We'll have to guess the getter name based on the name of the field.
+               name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            }
             MethodSignature methodSig = new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(singularAttrib.getJavaMember().getDeclaringClass()),
-                  singularAttrib.getJavaMember().getName(),
+                  org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
+                  name,
                   org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(fieldJavaType)));
             if (fieldJavaType.isEnum())
             {
@@ -127,9 +136,16 @@ public class MetamodelUtil
          }
          for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
          {
+            Member javaMember = pluralAttrib.getJavaMember();
+            String name = javaMember.getName(); 
+            if (javaMember instanceof Field)
+            {
+               // We'll have to guess the getter name based on the name of the field.
+               name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            }
             MethodSignature methodSig = new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(pluralAttrib.getJavaMember().getDeclaringClass()),
-                  pluralAttrib.getJavaMember().getName(),
+                  org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
+                  javaMember.getName(),
                   org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(pluralAttrib.getJavaType())));
             nLinkMethods.put(methodSig, new MetamodelUtilAttribute(pluralAttrib));
          }
