@@ -86,7 +86,7 @@ public class JPAQueryComposerCache
     * @return cached transformation result or null if this transformation hasn't
     *         been cached
     */
-   public Optional<JPQLQuery<?>> findInCache(JPQLQuery<?> base,
+   public synchronized Optional<JPQLQuery<?>> findInCache(JPQLQuery<?> base,
          String transformationType, String[] lambdaSources)
    {
       return cacheQuery(base, transformationType, lambdaSources, null);

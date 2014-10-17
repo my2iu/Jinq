@@ -226,6 +226,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), null);
       if (cachedQuery == null)
       {
+         cachedQuery = Optional.empty();
          JPQLQuery<U> newQuery = null;
          try {
             newQuery = transform.apply(query, null);
@@ -233,9 +234,12 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          catch (QueryTransformException e)
          {
             translationFail(e);
-            // Fall through if we don't have a RuntimeException
          }
-         cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), null, Optional.ofNullable(newQuery));
+         finally 
+         {
+            // Always cache the resulting query, even if it is an error
+            cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), null, Optional.ofNullable(newQuery));
+         }
       }
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas);
@@ -248,18 +252,22 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()});
       if (cachedQuery == null)
       {
-         LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
-         if (lambdaAnalysis == null) { translationFail(); return null; }
+         cachedQuery = Optional.empty();
          JPQLQuery<U> newQuery = null;
          try {
+            LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
+            if (lambdaAnalysis == null) { translationFail(); return null; }
             newQuery = transform.apply(query, lambdaAnalysis, null);
          }
          catch (QueryTransformException e)
          {
             translationFail(e);
-            // Fall through if we don't have a RuntimeException
          }
-         cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()}, Optional.ofNullable(newQuery));
+         finally 
+         {
+            // Always cache the resulting query, even if it is an error
+            cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()}, Optional.ofNullable(newQuery));
+         }
       }
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfo);
@@ -279,22 +287,26 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), lambdaSources);
       if (cachedQuery == null)
       {
-         LambdaAnalysis[] lambdaAnalyses = new LambdaAnalysis[lambdaInfos.length];
-         for (int n = 0; n < lambdaInfos.length; n++)
-         {
-            lambdaAnalyses[n] = lambdaInfos[n].fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
-            if (lambdaAnalyses[n] == null) { translationFail(); return null; }
-         }
+         cachedQuery = Optional.empty();
          JPQLQuery<U> newQuery = null;
          try {
+            LambdaAnalysis[] lambdaAnalyses = new LambdaAnalysis[lambdaInfos.length];
+            for (int n = 0; n < lambdaInfos.length; n++)
+            {
+               lambdaAnalyses[n] = lambdaInfos[n].fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.dieOnError);
+               if (lambdaAnalyses[n] == null) { translationFail(); return null; }
+            }
             newQuery = transform.apply(query, lambdaAnalyses, null);
          }
          catch (QueryTransformException e)
          {
             translationFail(e);
-            // Fall through if we don't have a RuntimeException
          }
-         cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), lambdaSources, Optional.ofNullable(newQuery));
+         finally 
+         {
+            // Always cache the resulting query, even if it is an error
+            cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), lambdaSources, Optional.ofNullable(newQuery));
+         }
       }
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfos);
