@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 public class SerializedLambda implements Serializable {
     private static final long serialVersionUID = 0x6f61d0942c293685L;
@@ -18,23 +19,26 @@ public class SerializedLambda implements Serializable {
     public String implMethodName;
     public String implMethodSignature;
     
+    private final static byte[] serializedLambdaString = "java.lang.invoke.SerializedLambda".getBytes(StandardCharsets.US_ASCII);
+    private final static byte[] serializedLambdaStringReplacement = "com.user00.thunk.SerializedLambda".getBytes(StandardCharsets.US_ASCII);
+    
     private static void substituteSerializedLambda(byte[] data)
     {
-      String toMatch = "java.lang.invoke.SerializedLambda";
-      String toReplace = "com.user00.thunk.SerializedLambda";
+      byte[] toMatch = serializedLambdaString;
+      byte[] toReplace = serializedLambdaStringReplacement;
       // Replace this with Boyer-Moore or something like that (but not too
       // important because the strings are reasonable for a dumb linear search).
       nextchar:
-      for (int n = 0; n < data.length - toMatch.length(); n++)
+      for (int n = 0; n < data.length - toMatch.length; n++)
       {
-        for (int i = 0; i < toMatch.length(); i++)
+        for (int i = 0; i < toMatch.length; i++)
         {
-          if (data[n+i] != toMatch.codePointAt(i))
+          if (data[n+i] != toMatch[i])
             continue nextchar;
         }
         // Found a match, replace it with our version.
-        for (int i = 0; i < toMatch.length(); i++)
-          data[n+i] = (byte)toReplace.codePointAt(i);
+        for (int i = 0; i < toMatch.length; i++)
+          data[n+i] = toReplace[i];
         return;
       }
     }
@@ -42,7 +46,7 @@ public class SerializedLambda implements Serializable {
     public static SerializedLambda extractLambda(Object lambda) throws Exception
     {
       try {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream(2000);
         ObjectOutputStream out = new ObjectOutputStream(byteOut);
         out.writeObject(lambda);
         out.close();
