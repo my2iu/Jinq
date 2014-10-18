@@ -44,6 +44,6 @@ public interface QueryComposer<T>
    public <U extends Tuple> U multiaggregate(JinqStream.AggregateSelect<T, ?>[] aggregates);
    public <U, W extends Tuple> QueryComposer<W> groupToTuple(Select<T, U> select, JinqStream.AggregateGroup<U, T, ?>[] aggregates);
 
-   public void setHint(String name, Object val);
+   public boolean setHint(String name, Object val);
 
 }

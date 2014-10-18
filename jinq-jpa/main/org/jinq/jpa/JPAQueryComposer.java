@@ -223,7 +223,8 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 
    private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLNoLambdaQueryTransform transform)
    {
-      Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), null);
+      Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ?
+            cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), null) : null;
       if (cachedQuery == null)
       {
          cachedQuery = Optional.empty();
@@ -238,7 +239,9 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          finally 
          {
             // Always cache the resulting query, even if it is an error
-            cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), null, Optional.ofNullable(newQuery));
+            cachedQuery = Optional.ofNullable(newQuery);
+            if (hints.useCaching)
+               cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), null, cachedQuery);
          }
       }
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
@@ -249,7 +252,8 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    {
       LambdaInfo lambdaInfo = LambdaInfo.analyze(lambda, lambdas.size(), hints.dieOnError);
       if (lambdaInfo == null) { translationFail(); return null; }
-      Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()});
+      Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ?
+            cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()}) : null;
       if (cachedQuery == null)
       {
          cachedQuery = Optional.empty();
@@ -266,7 +270,9 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          finally 
          {
             // Always cache the resulting query, even if it is an error
-            cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()}, Optional.ofNullable(newQuery));
+            cachedQuery = Optional.ofNullable(newQuery);
+            if (hints.useCaching)
+               cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo.getLambdaSourceString()}, cachedQuery);
          }
       }
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
@@ -284,7 +290,8 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          lambdaSources[n] = lambdaInfos[n].getLambdaSourceString();
       }
       
-      Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), lambdaSources);
+      Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ? 
+            cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), lambdaSources) : null;
       if (cachedQuery == null)
       {
          cachedQuery = Optional.empty();
@@ -305,7 +312,9 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          finally 
          {
             // Always cache the resulting query, even if it is an error
-            cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), lambdaSources, Optional.ofNullable(newQuery));
+            cachedQuery = Optional.ofNullable(newQuery);
+            if (hints.useCaching)
+               cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), lambdaSources, cachedQuery);
          }
       }
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
@@ -469,8 +478,8 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public void setHint(String name, Object val)
+   public boolean setHint(String name, Object val)
    {
-      hints.setHint(name, val);
+      return hints.setHint(name, val);
    }
 }

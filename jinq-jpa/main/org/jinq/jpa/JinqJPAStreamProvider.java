@@ -47,11 +47,14 @@ public class JinqJPAStreamProvider
    public <U> JinqStream<U> streamAll(final EntityManager em, Class<U> entity)
    {
       String entityName = metamodel.entityNameFromClass(entity);
-      Optional<JPQLQuery<?>> cachedQuery = cachedQueries.findCachedFindAllEntities(entityName);
+      Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ?
+         cachedQuery = cachedQueries.findCachedFindAllEntities(entityName) : null;
       if (cachedQuery == null)
       {
          JPQLQuery<U> query = JPQLQuery.findAllEntities(entityName);
-         cachedQuery = cachedQueries.cacheFindAllEntities(entityName, Optional.of(query));
+         cachedQuery = Optional.of(query);
+         if (hints.useCaching)
+            cachedQuery = cachedQueries.cacheFindAllEntities(entityName, cachedQuery);
       }
       JPQLQuery<U> query = (JPQLQuery<U>)cachedQuery.get();
       return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
@@ -66,10 +69,11 @@ public class JinqJPAStreamProvider
     * Sets a hint for how queries should be executed by Jinq
     * @param name 
     * @param val
+    * @return true if the hint was valid
     */
-   public void setHint(String name, Object val)
+   public boolean setHint(String name, Object val)
    {
-      hints.setHint(name, val);
+      return hints.setHint(name, val);
    }
    
    /**
