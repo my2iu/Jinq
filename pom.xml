@@ -43,6 +43,7 @@
   	<module>api</module>
   	<module>analysis</module>
     <module>jinq-jpa</module>
+    <module>jinq-jpa-scala</module>
     <module>jinq-jooq</module>
   </modules>
   
