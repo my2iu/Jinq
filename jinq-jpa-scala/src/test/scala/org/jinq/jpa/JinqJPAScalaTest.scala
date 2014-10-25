@@ -12,19 +12,24 @@ import org.jinq.orm.stream.InQueryStreamSource
 import org.jinq.orm.stream.JinqStream
 import org.jinq.orm.stream.QueryJinqStream
 import org.jinq.tuples.Pair
-import org.junit.Test;
+import org.junit.Test
 import org.jinq.jpa.test.entities.Customer
+import javax.persistence.EntityManager
+import org.jinq.orm.stream.scala.JinqScalaStream
+import org.junit.BeforeClass
 
 class JinqJPAScalaTest extends JinqJPATestBase
 {
-  def streams = JinqJPATestBase.streams
+  def streamAll[U](em : EntityManager, entityClass:java.lang.Class[U]) : JinqScalaStream[U] = {
+    JinqJPATestBase.streams.streamAll(em, entityClass);
+  }
   
   @Test
   def testStreamEntities {
-    var customers = streams.streamAll(em, classOf[Customer]).toList()
-    Assert.assertEquals(5, customers.size())
+    var customers = streamAll(em, classOf[Customer]).toList()
+    Assert.assertEquals(5, customers.length)
   }
-  
+
 //  @Test
 //  def testSimpleWhere {
 //    var callTest:FunctionCallTest = new JavaSubclassFunctionCall
