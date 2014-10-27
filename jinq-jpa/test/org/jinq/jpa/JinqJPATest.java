@@ -21,6 +21,7 @@ import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.JinqStream.Where;
 import org.jinq.orm.stream.QueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Test;
@@ -279,7 +280,8 @@ public class JinqJPATest extends JinqJPATestBase
    
    private JPAQueryComposer<Customer> repeatedQuery(JPAQueryComposer<Customer> composer, int param)
    {
-      return composer.where(c -> c.getDebt() == param);
+      Where<Customer, RuntimeException> where = (c -> c.getDebt() == param);
+      return composer.where(where);
    }
 
    @Test

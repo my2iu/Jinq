@@ -24,12 +24,12 @@ public interface QueryComposer<T>
    public QueryComposer<T> distinct();
    
    // New stuff for Queryll2
-   public <E extends Exception> QueryComposer<T> where(JinqStream.Where<T, E> test);
-   public <E extends Exception> QueryComposer<T> where(JinqStream.WhereWithSource<T, E> test);
+   public <E extends Exception> QueryComposer<T> where(Object test);
+   public <E extends Exception> QueryComposer<T> whereWithSource(JinqStream.WhereWithSource<T, E> test);
    public <U> QueryComposer<U> select(JinqStream.Select<T, U> select);
-   public <U> QueryComposer<U> select(JinqStream.SelectWithSource<T, U> select);
+   public <U> QueryComposer<U> selectWithSource(JinqStream.SelectWithSource<T, U> select);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
-   public <U> QueryComposer<Pair<T, U>> join(JinqStream.JoinWithSource<T,U> join);
+   public <U> QueryComposer<Pair<T, U>> joinWithSource(JinqStream.JoinWithSource<T,U> join);
    public <U> QueryComposer<Pair<T, U>> leftOuterJoin(JinqStream.Join<T,U> join);
 //   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 

@@ -46,7 +46,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    public <E extends Exception> JinqStream<T> where(
          org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
    {
-      QueryComposer<T> newComposer = queryComposer.where(test);
+      QueryComposer<T> newComposer = queryComposer.whereWithSource(test);
       if (newComposer != null) return new QueryJinqStream<T>(newComposer, inQueryStreamSource);
       return super.where(test);
    }
@@ -62,7 +62,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    @Override
    public <U> JinqStream<U> select(SelectWithSource<T, U> select)
    {
-      QueryComposer<U> newComposer = queryComposer.select(select);
+      QueryComposer<U> newComposer = queryComposer.selectWithSource(select);
       if (newComposer != null) return new QueryJinqStream<U>(newComposer, inQueryStreamSource);
       return super.select(select);
    }
@@ -78,7 +78,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    @Override
    public <U> JinqStream<Pair<T, U>> join(JoinWithSource<T,U> join)
    {
-      QueryComposer<Pair<T, U>> newComposer = queryComposer.join(join);
+      QueryComposer<Pair<T, U>> newComposer = queryComposer.joinWithSource(join);
       if (newComposer != null) return new QueryJinqStream<Pair<T, U>>(newComposer, inQueryStreamSource);
       return super.join(join);
    }

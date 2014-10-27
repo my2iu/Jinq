@@ -322,13 +322,13 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <E extends Exception> JPAQueryComposer<T> where(org.jinq.orm.stream.JinqStream.Where<T, E> test)
+   public <E extends Exception> JPAQueryComposer<T> where(Object testLambda)
    {
-      return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader, false), test);
+      return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader, false), testLambda);
    }
    
    @Override
-   public <E extends Exception> JPAQueryComposer<T> where(org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
+   public <E extends Exception> JPAQueryComposer<T> whereWithSource(org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
    {
       return applyTransformWithLambda(new WhereTransform(metamodel, hints.lambdaClassLoader, true), test);
    }
@@ -366,7 +366,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <U> JPAQueryComposer<U> select(
+   public <U> JPAQueryComposer<U> selectWithSource(
          org.jinq.orm.stream.JinqStream.SelectWithSource<T, U> selectLambda)
    {
       return applyTransformWithLambda(new SelectTransform(metamodel, hints.lambdaClassLoader, true), selectLambda);
@@ -380,7 +380,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <U> JPAQueryComposer<Pair<T, U>> join(
+   public <U> JPAQueryComposer<Pair<T, U>> joinWithSource(
          org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> joinLambda)
    {
       return applyTransformWithLambda(new JoinTransform(metamodel, hints.lambdaClassLoader, true), joinLambda);
