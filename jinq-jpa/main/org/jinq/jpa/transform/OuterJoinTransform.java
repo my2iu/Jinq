@@ -76,7 +76,7 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
             
             SymbExPassDown passdown = SymbExPassDown.with(null, false);
             JPQLQuery<U> returnExpr = (JPQLQuery<U>)PathAnalysisSimplifier
-                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), config.metamodel.comparisonMethods)
+                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), config.getComparisonMethods())
                   .visit(translator, passdown);
 
             // Create the new query, merging in the analysis of the method

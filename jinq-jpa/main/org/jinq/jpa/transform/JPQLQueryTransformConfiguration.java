@@ -1,5 +1,10 @@
 package org.jinq.jpa.transform;
 
+import java.util.Map;
+
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
+
 public class JPQLQueryTransformConfiguration
 {
    public MetamodelUtil metamodel;
@@ -10,6 +15,12 @@ public class JPQLQueryTransformConfiguration
     */
    public ClassLoader alternateClassLoader;
    public boolean isObjectEqualsSafe;
+
+   public Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> 
+      getComparisonMethods()
+   {
+      return metamodel.getComparisonMethods(isObjectEqualsSafe);
+   }
 
    public JPQLQueryTransformConfiguration()
    {

@@ -33,6 +33,7 @@ public class MetamodelUtil
    public final Set<MethodSignature> safeStaticMethods;
    final Map<String, List<Enum<?>>> enums;
    public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
+   public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals; 
    
    public static final MethodSignature inQueryStream = new MethodSignature("org/jinq/orm/stream/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/JinqStream;");
    
@@ -88,6 +89,8 @@ public class MetamodelUtil
       findMetamodelGetters();
       safeMethods.addAll(fieldMethods.keySet());
       safeMethods.addAll(nLinkMethods.keySet());
+      comparisonMethodsWithObjectEquals = new HashMap<>(comparisonMethods);
+      comparisonMethodsWithObjectEquals.put(MethodChecker.objectEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
    }
    
    /**
@@ -254,5 +257,14 @@ public class MetamodelUtil
             return className.replace("/", ".") + "." + name;
       }
       return null;
+   }
+   
+   public Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> 
+      getComparisonMethods(boolean withObjectEquals)
+   {
+      if (withObjectEquals)
+         return comparisonMethodsWithObjectEquals;
+      else
+         return comparisonMethods;
    }
 }

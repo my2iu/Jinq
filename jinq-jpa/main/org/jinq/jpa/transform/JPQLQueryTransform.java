@@ -106,7 +106,7 @@ public abstract class JPQLQueryTransform
          SymbExPassDown passdown) throws TypedValueVisitorException
    {
       return (ColumnExpressions<U>)PathAnalysisSimplifier
-            .simplify(lambda.symbolicAnalysis.paths.get(pathIdx).getReturnValue(), config.metamodel.comparisonMethods)
+            .simplify(lambda.symbolicAnalysis.paths.get(pathIdx).getReturnValue(), config.getComparisonMethods())
             .visit(translator, passdown);
    }
 

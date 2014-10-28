@@ -130,7 +130,7 @@ public class LambdaAnalysis
       TransformationClassAnalyzer classAnalyzer = 
             new TransformationClassAnalyzer(className, alternateClassLoader);
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.comparisonMethods);
+      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe));
       return analysis;
    }
 
@@ -163,7 +163,7 @@ public class LambdaAnalysis
       if (matchingMethod == null)
          throw new AnalyzerException(null, "Could not find a lambda method with the expected name in the class");
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, Type.getMethodDescriptor(matchingMethod), pathAnalysisFactory);
-      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.comparisonMethods);
+      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe));
       return analysis;
    }
    
