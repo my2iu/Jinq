@@ -5,9 +5,9 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
 public abstract class JPQLNoLambdaQueryTransform extends JPQLQueryTransform
 {
 
-   JPQLNoLambdaQueryTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
+   JPQLNoLambdaQueryTransform(JPQLQueryTransformConfiguration config)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
    }
    
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException

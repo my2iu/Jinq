@@ -19,9 +19,9 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
       COUNT, // COUNT is only usable for multiaggregate and grouping subqueries
    }
    
-   public AggregateTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, AggregateType type)
+   public AggregateTransform(JPQLQueryTransformConfiguration config, AggregateType type)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
       this.type = type;
    }
    
@@ -42,8 +42,8 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
                {
                   // Can only perform an aggregation like SUM() or AVG() on distinct streams if we don't
                   // further modify those streams (i.e. we just pass the data through directly).
-                  argumentHandler = SelectFromWhereLambdaArgumentHandler.forPassthroughTest(lambda, metamodel, parentArgumentScope, false);
-                  SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, argumentHandler);
+                  argumentHandler = SelectFromWhereLambdaArgumentHandler.forPassthroughTest(lambda, config.metamodel, parentArgumentScope, false);
+                  SymbExToColumns translator = new SymbExToColumns(config, argumentHandler);
                   aggregatedExpr = makeSelectExpression(translator, lambda).getOnlyColumn();
                   if (aggregatedExpr != SelectFromWhereLambdaArgumentHandler.passthroughColsForTesting.getOnlyColumn())
                      throw new TypedValueVisitorException("Applying an aggregation to a distinct stream, but modifying the stream after the distinct but before the aggregation");
@@ -51,13 +51,13 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
                if (select.isSelectFromWhere())
                {
                   SelectFromWhere<V> sfw = (SelectFromWhere<V>)select;
-                  argumentHandler = SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, false);
+                  argumentHandler = SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, false);
                }
                else // if (query instanceof SelectOnly)
                {
-                  argumentHandler = SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, metamodel, parentArgumentScope, false);
+                  argumentHandler = SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, config.metamodel, parentArgumentScope, false);
                }
-               SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, argumentHandler);
+               SymbExToColumns translator = new SymbExToColumns(config, argumentHandler);
                aggregatedExpr = makeSelectExpression(translator, lambda).getOnlyColumn();
             }
             else

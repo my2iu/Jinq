@@ -18,10 +18,10 @@ import javax.persistence.EntityManager
 import org.jinq.orm.stream.scala.JinqScalaStream
 import org.junit.BeforeClass
 
-class JinqJPAScalaTest extends JinqJPATestBase
+class JinqJPAScalaTest extends JinqJPAScalaTestBase
 {
-  def streamAll[U](em : EntityManager, entityClass:java.lang.Class[U]) : JinqScalaStream[U] = {
-    JinqJPATestBase.streams.streamAll(em, entityClass);
+  private def streamAll[U](em : EntityManager, entityClass:java.lang.Class[U]) : JinqScalaStream[U] = {
+    JinqJPAScalaTestBase.streams.streamAll(em, entityClass);
   }
   
   @Test
@@ -30,11 +30,15 @@ class JinqJPAScalaTest extends JinqJPATestBase
     Assert.assertEquals(5, customers.length)
   }
 
-//  @Test
-//  def testSimpleWhere {
-//    var callTest:FunctionCallTest = new JavaSubclassFunctionCall
-//    callTest.func((a:Int) => a);
-//  }
+  @Test
+  def testSimpleWhere {
+    var customers = streamAll(em, classOf[Customer])
+      .where((c) => c.getCountry == "UK")
+      .toList();
+    Assert.assertEquals("SELECT A FROM Customer A WHERE A.country = 'UK'", query);
+    Assert.assertEquals(1, customers.length);
+    Assert.assertEquals("Dave", customers(0).getName());
+  }
   
 //   @Test
 //   public void testStreamEntities()

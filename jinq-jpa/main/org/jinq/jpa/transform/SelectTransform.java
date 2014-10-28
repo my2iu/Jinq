@@ -10,9 +10,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public class SelectTransform extends JPQLOneLambdaQueryTransform
 {
    boolean withSource;
-   public SelectTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean withSource)
+   public SelectTransform(JPQLQueryTransformConfiguration config, boolean withSource)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
       this.withSource = withSource;
    }
    
@@ -22,8 +22,8 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
          if (query.isSelectFromWhere() || query.isSelectFromWhereGroupHaving())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, withSource));
+            SymbExToColumns translator = new SymbExToColumns(config, 
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, withSource));
 
             ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 
@@ -36,8 +36,8 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
          else if (query.isSelectOnly())
          {
             SelectOnly<V> sfw = (SelectOnly<V>)query;
-            SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectOnly(sfw, lambda, metamodel, parentArgumentScope, false));
+            SymbExToColumns translator = new SymbExToColumns(config, 
+                  SelectFromWhereLambdaArgumentHandler.fromSelectOnly(sfw, lambda, config.metamodel, parentArgumentScope, false));
 
             ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 

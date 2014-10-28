@@ -268,7 +268,7 @@ public class JinqJPATest extends JinqJPATestBase
       streams.streamAll(em, Customer.class);
       // Create a query composer for finding all customers.
       Optional<JPQLQuery<?>> cachedQuery = streams.cachedQueries.findCachedFindAllEntities("Customer");
-      JPAQueryComposer<Customer> composer = JPAQueryComposer.findAllEntities(streams.metamodel, streams.cachedQueries, em, streams.hints, (JPQLQuery<Customer>)cachedQuery.get());
+      JPAQueryComposer<Customer> composer = JPAQueryComposer.findAllEntities(streams.metamodel, streams.cachedQueries, streams.lambdaAnalyzer, em, streams.hints, (JPQLQuery<Customer>)cachedQuery.get());
       // Apply a where restriction to it
       JPAQueryComposer<Customer> where1 = repeatedQuery(composer, 1);
       JPAQueryComposer<Customer> where2 = repeatedQuery(composer, 2);

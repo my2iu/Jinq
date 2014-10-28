@@ -13,10 +13,7 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.transform.JPAQueryComposerCache;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
-import org.jinq.orm.stream.InQueryStreamSource;
-import org.jinq.orm.stream.JinqStream;
-import org.jinq.orm.stream.QueryJinqStream;
-import org.jinq.orm.stream.scala.JinqScalaStream;
+import org.jinq.jpa.transform.ScalaLambdaAnalysisFactory;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
@@ -25,15 +22,18 @@ public class JinqJPAScalaStreamProvider
    MetamodelUtil metamodel;
    JPAQueryComposerCache cachedQueries = new JPAQueryComposerCache();
    JinqJPAHints hints = new JinqJPAHints();
+   ScalaLambdaAnalysisFactory lambdaAnalyzer = new ScalaLambdaAnalysisFactory(); 
    
    public JinqJPAScalaStreamProvider(EntityManagerFactory factory)
    {
       this(factory.getMetamodel());
+      hints.isObjectEqualsSafe = true;
    }
 
    public JinqJPAScalaStreamProvider(Metamodel metamodel)
    {
       this.metamodel = new MetamodelUtil(metamodel);
+      hints.isObjectEqualsSafe = true;
    }
    
    /**
@@ -58,7 +58,7 @@ public class JinqJPAScalaStreamProvider
       } 
       JPQLQuery<U> query = (JPQLQuery<U>)cachedQuery.get();
       return new JinqJPAScalaStream<>(JPAQueryComposer.findAllEntities(
-                  metamodel, cachedQueries, em, hints, query));//,
+                  metamodel, cachedQueries, lambdaAnalyzer, em, hints, query));//,
 //            new InQueryStreamSource() {
 //               @Override public <S> JinqStream<S> stream(Class<S> entityClass) {
 //                  return streamAll(em, entityClass);

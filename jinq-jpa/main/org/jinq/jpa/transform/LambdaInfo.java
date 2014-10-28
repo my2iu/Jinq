@@ -77,9 +77,9 @@ public class LambdaInfo
       return serializedLambda.capturedArgs[argIndex];
    }
 
-   public LambdaAnalysis fullyAnalyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean throwExceptionOnFailure)
+   public LambdaAnalysis fullyAnalyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
    {
-      return LambdaAnalysis.fullyAnalyzeLambda(this, metamodel, alternateClassLoader, throwExceptionOnFailure);
+      return LambdaAnalysis.fullyAnalyzeLambda(this, metamodel, alternateClassLoader, isObjectEqualsSafe, throwExceptionOnFailure);
    }
 
    /**

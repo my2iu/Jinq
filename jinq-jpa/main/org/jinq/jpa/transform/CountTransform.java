@@ -5,10 +5,10 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
 public class CountTransform extends JPQLNoLambdaQueryTransform
 {
    AggregateTransform transform;
-   public CountTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
+   public CountTransform(JPQLQueryTransformConfiguration config)
    {
-      super(metamodel, alternateClassLoader);
-      transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.COUNT);
+      super(config);
+      transform = new AggregateTransform(config, AggregateTransform.AggregateType.COUNT);
    }
    
    @Override

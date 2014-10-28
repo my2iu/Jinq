@@ -14,9 +14,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class GroupingTransform extends JPQLMultiLambdaQueryTransform
 {
-   public GroupingTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
+   public GroupingTransform(JPQLQueryTransformConfiguration config)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
    }
 
    
@@ -28,7 +28,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
 
             // Figure out the columns needed for the key value
-            SelectTransform keyTransform = new SelectTransform(metamodel, alternateClassLoader, false);
+            SelectTransform keyTransform = new SelectTransform(config, false);
             JPQLQuery<W> keyQuery = keyTransform.apply(query, groupingLambda, parentArgumentScope);
             if (!keyQuery.isSelectFromWhere())
                throw new QueryTransformException("Expecting the result of the key calculation to be a SelectFromWhere query"); 
@@ -44,8 +44,8 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
             {
                LambdaAnalysis lambda = lambdas[n];
 
-               SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
-                     new GroupingLambdasArgumentHandler(keySelect, streamTee, lambdas[n], metamodel, parentArgumentScope, false));
+               SymbExToColumns translator = new SymbExToColumns(config,  
+                     new GroupingLambdasArgumentHandler(keySelect, streamTee, lambdas[n], config.metamodel, parentArgumentScope, false));
 
                ColumnExpressions<U> returnQuery = makeSelectExpression(translator, lambda);
 

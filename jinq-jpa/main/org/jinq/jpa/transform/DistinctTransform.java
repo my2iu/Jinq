@@ -5,9 +5,9 @@ import org.jinq.jpa.jpqlquery.SelectOnly;
 
 public class DistinctTransform extends JPQLNoLambdaQueryTransform
 {
-   public DistinctTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
+   public DistinctTransform(JPQLQueryTransformConfiguration config)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
    }
    
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException

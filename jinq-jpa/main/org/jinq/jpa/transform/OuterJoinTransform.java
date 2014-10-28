@@ -15,9 +15,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
 {
-   public OuterJoinTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
+   public OuterJoinTransform(JPQLQueryTransformConfiguration config)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
    }
 
    private boolean isChainedLink(Expression links)
@@ -67,8 +67,8 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
-            SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, false));
+            SymbExToSubQuery translator = new SymbExToSubQuery(config, 
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, false));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 
@@ -76,7 +76,7 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
             
             SymbExPassDown passdown = SymbExPassDown.with(null, false);
             JPQLQuery<U> returnExpr = (JPQLQuery<U>)PathAnalysisSimplifier
-                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
+                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), config.metamodel.comparisonMethods)
                   .visit(translator, passdown);
 
             // Create the new query, merging in the analysis of the method

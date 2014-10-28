@@ -11,9 +11,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
 {
-   public MultiAggregateTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
+   public MultiAggregateTransform(JPQLQueryTransformConfiguration config)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
    }
    
    @Override
@@ -32,8 +32,8 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
             {
                LambdaAnalysis lambda = lambdas[n];
 
-               SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader,  
-                     new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], metamodel, parentArgumentScope, false));
+               SymbExToColumns translator = new SymbExToColumns(config,  
+                     new AggregateStreamLambdaArgumentHandler(streamTee, lambdas[n], config.metamodel, parentArgumentScope, false));
 
                ColumnExpressions<U> returnQuery = makeSelectExpression(translator, lambda);
                

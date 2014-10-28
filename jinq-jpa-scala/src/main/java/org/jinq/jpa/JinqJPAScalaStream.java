@@ -16,8 +16,10 @@ import scala.collection.immutable.List;
 
 public class JinqJPAScalaStream<T> implements JinqScalaStream<T>
 {
+   private static final String GENERIC_TRANSLATION_FAIL_MESSAGE = "Could not translate Scala code to a query";
    QueryComposer<T> queryComposer;
    InQueryStreamSource inQueryStreamSource;
+   
    public JinqJPAScalaStream(QueryComposer<T> query)
    {
       this(query, null);
@@ -32,8 +34,9 @@ public class JinqJPAScalaStream<T> implements JinqScalaStream<T>
    @Override
    public JinqJPAScalaStream<T> where(Function1<T, Object> fn)
    {
-      // TODO Auto-generated method stub
-      return null;
+      QueryComposer<T> newComposer = queryComposer.where(fn);
+      if (newComposer != null) return new JinqJPAScalaStream<T>(newComposer, inQueryStreamSource);
+      throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
    }
 
    @Override

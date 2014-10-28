@@ -16,14 +16,14 @@ import org.junit.Before
 import org.junit.BeforeClass;
 import _root_.scala.collection.mutable.ArrayBuffer
 
-object JinqJPATestBase {
+object JinqJPAScalaTestBase {
   var entityManagerFactory: EntityManagerFactory = null;
   var streams : JinqJPAScalaStreamProvider = null
 
    @BeforeClass
    def setUpBeforeClass() {
       entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
-      streams = new JinqJPAScalaStreamProvider(JinqJPATestBase.entityManagerFactory);
+      streams = new JinqJPAScalaStreamProvider(JinqJPAScalaTestBase.entityManagerFactory);
       
       // Hibernate seems to generate incorrect metamodel data for some types of
       // associations, so we have to manually supply the correct information here.
@@ -47,18 +47,18 @@ object JinqJPATestBase {
    
 
 }
-class JinqJPATestBase {
+class JinqJPAScalaTestBase {
    var em : EntityManager = null;
    var query : String = null;
    val queryList = new ArrayBuffer[String]();
    
    @Before
    def setUp() {
-      em = JinqJPATestBase.entityManagerFactory.createEntityManager();
+      em = JinqJPAScalaTestBase.entityManagerFactory.createEntityManager();
       em.getTransaction().begin();
       queryList.clear();
-      JinqJPATestBase.streams.setHint("exceptionOnTranslationFail", true);
-      JinqJPATestBase.streams.setHint("queryLogger", new JPAQueryLogger() {
+      JinqJPAScalaTestBase.streams.setHint("exceptionOnTranslationFail", true);
+      JinqJPAScalaTestBase.streams.setHint("queryLogger", new JPAQueryLogger() {
          def logQuery(q: String,
                positionParameters: Map[Integer, Object] ,
                namedParameters: Map[String, Object] )

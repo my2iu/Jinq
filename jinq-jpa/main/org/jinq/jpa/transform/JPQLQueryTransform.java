@@ -20,19 +20,11 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
  */
 public abstract class JPQLQueryTransform
 {
-   final MetamodelUtil metamodel;
-   
-   /**
-    * When dealing with subqueries, we may need to inspect the code of
-    * lambdas used in the subquery. This may require us to use a special 
-    * class loader to extract that code.
-    */
-   final ClassLoader alternateClassLoader;
-   
-   JPQLQueryTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader)
+   JPQLQueryTransformConfiguration config = new JPQLQueryTransformConfiguration();
+
+   JPQLQueryTransform(JPQLQueryTransformConfiguration config)
    {
-      this.metamodel = metamodel;
-      this.alternateClassLoader = alternateClassLoader;
+      this.config = config;
    }
 
    protected <U> ColumnExpressions<U> makeSelectExpression(SymbExToColumns translator, LambdaAnalysis lambda) throws TypedValueVisitorException
@@ -114,7 +106,7 @@ public abstract class JPQLQueryTransform
          SymbExPassDown passdown) throws TypedValueVisitorException
    {
       return (ColumnExpressions<U>)PathAnalysisSimplifier
-            .simplify(lambda.symbolicAnalysis.paths.get(pathIdx).getReturnValue(), metamodel.comparisonMethods)
+            .simplify(lambda.symbolicAnalysis.paths.get(pathIdx).getReturnValue(), config.metamodel.comparisonMethods)
             .visit(translator, passdown);
    }
 

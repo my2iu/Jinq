@@ -33,15 +33,13 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExpressions<?>, TypedValueVisitorException>
 {
-   final MetamodelUtil metamodel;
    final SymbExArgumentHandler argHandler;
-   final ClassLoader alternateClassLoader; 
+   final JPQLQueryTransformConfiguration config;
 
-   SymbExToColumns(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SymbExArgumentHandler argumentHandler)
+   SymbExToColumns(JPQLQueryTransformConfiguration config, SymbExArgumentHandler argumentHandler)
    {
-      this.metamodel = metamodel;
+      this.config = config;
       this.argHandler = argumentHandler;
-      this.alternateClassLoader = alternateClassLoader;
    }
    
    @Override public ColumnExpressions<?> defaultValue(TypedValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -117,9 +115,9 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
    @Override public ColumnExpressions<?> getStaticFieldValue(TypedValue.GetStaticFieldValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       // Check if we're just reading an enum constant
-      if (metamodel.isKnownEnumType(val.owner))
+      if (config.metamodel.isKnownEnumType(val.owner))
       {
-         String enumFullName = metamodel.getFullEnumConstantName(val.owner, val.name);
+         String enumFullName = config.metamodel.getFullEnumConstantName(val.owner, val.name);
          if (enumFullName != null)
             return ColumnExpressions.singleColumn(new SimpleRowReader<Enum<?>>(),
                   new ConstantExpression(enumFullName)); 
@@ -347,9 +345,9 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             toReturn.columns.addAll(vals[n].columns);
          return toReturn;
       }
-      else if (metamodel.isSingularAttributeFieldMethod(sig))
+      else if (config.metamodel.isSingularAttributeFieldMethod(sig))
       {
-         String fieldName = metamodel.fieldMethodToFieldName(sig);
+         String fieldName = config.metamodel.fieldMethodToFieldName(sig);
          SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
          ColumnExpressions<?> base = val.base.visit(this, passdown);
          if (in.isExpectingConditional &&
@@ -399,8 +397,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          SymbExPassDown passdown = SymbExPassDown.with(val, false);
          
          // Check out what stream we're aggregating
-         SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, alternateClassLoader,
-               argHandler);
+         SymbExToSubQuery translator = new SymbExToSubQuery(config, argHandler);
          JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
          
          // Extract the lambda used
@@ -411,7 +408,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
                throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
             LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
             try {
-               lambda = LambdaAnalysis.analyzeMethod(metamodel, alternateClassLoader, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
+               lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
             } catch (Exception e)
             {
                throw new TypedValueVisitorException("Could not analyze the lambda code", e);
@@ -425,15 +422,15 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
                   || sig.equals(MethodChecker.streamSumDouble)
                   || sig.equals(MethodChecker.streamSumBigDecimal)
                   || sig.equals(MethodChecker.streamSumBigInteger))
-               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.SUM);
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.SUM);
             else if (sig.equals(MethodChecker.streamMax))
-               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.MAX);
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.MAX);
             else if (sig.equals(MethodChecker.streamMin))
-               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.MIN);
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.MIN);
             else if (sig.equals(MethodChecker.streamAvg))
-               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.AVG);
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.AVG);
             else if (sig.equals(MethodChecker.streamCount))
-               transform = new AggregateTransform(metamodel, alternateClassLoader, AggregateTransform.AggregateType.COUNT);
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.COUNT);
             else
                throw new TypedValueVisitorException("Unhandled aggregate operation");
             JPQLQuery<?> aggregatedQuery = transform.apply(subQuery, lambda, argHandler); 
@@ -469,8 +466,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          SymbExPassDown passdown = SymbExPassDown.with(val, false);
          
          // Check out what stream we're aggregating
-         SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, alternateClassLoader,
-               argHandler);
+         SymbExToSubQuery translator = new SymbExToSubQuery(config, argHandler);
          JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
 
          if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 

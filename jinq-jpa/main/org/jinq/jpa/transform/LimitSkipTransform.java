@@ -5,9 +5,9 @@ import org.jinq.jpa.jpqlquery.SelectFromWhere;
 
 public class LimitSkipTransform extends JPQLNoLambdaQueryTransform
 {
-   public LimitSkipTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isLimit, long n)
+   public LimitSkipTransform(JPQLQueryTransformConfiguration config, boolean isLimit, long n)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
       constraint = n;
       this.isLimit = isLimit;
    }

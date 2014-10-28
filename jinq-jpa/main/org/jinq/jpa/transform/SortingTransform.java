@@ -8,9 +8,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SortingTransform extends JPQLOneLambdaQueryTransform
 {
-   public SortingTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isAscending)
+   public SortingTransform(JPQLQueryTransformConfiguration config, boolean isAscending)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
       this.isAscending = isAscending;
    }
 
@@ -23,8 +23,8 @@ public class SortingTransform extends JPQLOneLambdaQueryTransform
          if (query instanceof SelectFromWhere && query.canSort())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, false));
+            SymbExToColumns translator = new SymbExToColumns(config, 
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, false));
 
             ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 

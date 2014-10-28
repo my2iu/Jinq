@@ -16,9 +16,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public class WhereTransform extends JPQLOneLambdaQueryTransform
 {
    boolean withSource;
-   public WhereTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean withSource)
+   public WhereTransform(JPQLQueryTransformConfiguration config, boolean withSource)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
       this.withSource = withSource;
    }
    
@@ -64,15 +64,15 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          SelectFromWhere<V> sfw, SymbExArgumentHandler parentArgumentScope) throws TypedValueVisitorException,
          QueryTransformException
    {
-      SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, 
-            SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, metamodel, parentArgumentScope, withSource));
+      SymbExToColumns translator = new SymbExToColumns(config, 
+            SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, config.metamodel, parentArgumentScope, withSource));
       Expression methodExpr = null;
       for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
       {
          PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
          TypedValue returnVal = PathAnalysisSimplifier
-               .simplifyBoolean(path.getReturnValue(), metamodel.comparisonMethods);
+               .simplifyBoolean(path.getReturnValue(), config.metamodel.comparisonMethods);
          SymbExPassDown returnPassdown = SymbExPassDown.with(null, true);
          ColumnExpressions<?> returnColumns = returnVal.visit(translator, returnPassdown);
          if (!returnColumns.isSingleColumn())

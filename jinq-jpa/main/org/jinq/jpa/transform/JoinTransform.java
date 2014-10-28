@@ -13,9 +13,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public class JoinTransform extends JPQLOneLambdaQueryTransform
 {
    boolean withSource;
-   public JoinTransform(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean withSource)
+   public JoinTransform(JPQLQueryTransformConfiguration config, boolean withSource)
    {
-      super(metamodel, alternateClassLoader);
+      super(config);
       this.withSource = withSource;
    }
    
@@ -40,8 +40,8 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
-            SymbExToSubQuery translator = new SymbExToSubQuery(metamodel, alternateClassLoader, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, metamodel, parentArgumentScope, withSource));
+            SymbExToSubQuery translator = new SymbExToSubQuery(config, 
+                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, withSource));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 
@@ -49,7 +49,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
             
             SymbExPassDown passdown = SymbExPassDown.with(null, false);
             JPQLQuery<U> returnExpr = (JPQLQuery<U>)PathAnalysisSimplifier
-                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), metamodel.comparisonMethods)
+                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), config.metamodel.comparisonMethods)
                   .visit(translator, passdown);
 
             // Create the new query, merging in the analysis of the method

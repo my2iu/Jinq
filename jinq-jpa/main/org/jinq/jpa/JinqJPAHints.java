@@ -9,6 +9,8 @@ class JinqJPAHints
       queryLogger = oldHints.queryLogger;
       lambdaClassLoader = oldHints.lambdaClassLoader;
       dieOnError = oldHints.dieOnError;
+      useCaching = oldHints.useCaching;
+      isObjectEqualsSafe = oldHints.isObjectEqualsSafe;
    }
    
    public int automaticResultsPagingSize = 10000;
@@ -16,6 +18,7 @@ class JinqJPAHints
    public ClassLoader lambdaClassLoader = null;
    public boolean dieOnError = false;
    public boolean useCaching = true;
+   public boolean isObjectEqualsSafe = false;
    
    public boolean setHint(String name, Object val)
    {
@@ -29,6 +32,8 @@ class JinqJPAHints
          dieOnError = (Boolean)val;
       else if ("useCaching".equals(name) && val instanceof Boolean)
          useCaching = (Boolean)val;
+      else if ("isObjectEqualsSafe".equals(name) && val instanceof Boolean)
+         isObjectEqualsSafe = (Boolean)val;
       else
          return false;
       return true;

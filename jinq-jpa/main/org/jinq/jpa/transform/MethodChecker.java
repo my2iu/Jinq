@@ -16,6 +16,9 @@ class MethodChecker implements PathAnalysisMethodChecker
    private final Set<Class<?>> safeMethodAnnotations;
    private final Set<MethodSignature> safeMethods;
    private final Set<MethodSignature> safeStaticMethods;
+   private final boolean isObjectEqualsSafe;
+
+   public final static MethodSignature objectEquals = new MethodSignature("java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 
    public final static MethodSignature jpqlLike = new MethodSignature("org/jinq/jpa/JPQL", "like", "(Ljava/lang/String;Ljava/lang/String;)Z");
    public final static MethodSignature mathSqrt = new MethodSignature("java/lang/Math", "sqrt", "(D)D");
@@ -88,11 +91,13 @@ class MethodChecker implements PathAnalysisMethodChecker
    
    MethodChecker(Set<Class<?>> safeMethodAnnotations,
          Set<MethodSignature> safeMethods,
-         Set<MethodSignature> safeStaticMethods)
+         Set<MethodSignature> safeStaticMethods, 
+         boolean isObjectEqualsSafe)
    {
       this.safeMethodAnnotations = safeMethodAnnotations;
       this.safeMethods = safeMethods;
       this.safeStaticMethods = safeStaticMethods;
+      this.isObjectEqualsSafe = isObjectEqualsSafe;
    }
 
    /* (non-Javadoc)
@@ -111,7 +116,11 @@ class MethodChecker implements PathAnalysisMethodChecker
    @Override
    public boolean isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args)
       {
-         if (safeMethods.contains(m)
+         if (isObjectEqualsSafe && objectEquals.equals(m))
+         {
+            return true;
+         }
+         else if (safeMethods.contains(m)
                || subqueryMethods.contains(m)
                || jpqlFunctionMethods.contains(m))
          {

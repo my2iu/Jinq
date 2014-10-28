@@ -21,15 +21,13 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuery<?>, TypedValueVisitorException>
 {
-   final MetamodelUtil metamodel;
    final SymbExArgumentHandler argHandler;
-   final ClassLoader alternateClassLoader;
-   
-   SymbExToSubQuery(MetamodelUtil metamodel, ClassLoader alternateClassLoader, SymbExArgumentHandler argumentHandler)
+   JPQLQueryTransformConfiguration config = new JPQLQueryTransformConfiguration();
+
+   SymbExToSubQuery(JPQLQueryTransformConfiguration config, SymbExArgumentHandler argumentHandler)
    {
-      this.metamodel = metamodel;
+      this.config = config;
       this.argHandler = argumentHandler;
-      this.alternateClassLoader = alternateClassLoader;
    }
    
    @Override public JPQLQuery<?> defaultValue(TypedValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -64,7 +62,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
          if (!(val.args.get(0) instanceof ConstantValue.ClassConstant))
             throw new TypedValueVisitorException("Streaming an unknown type");
          Type type = ((ConstantValue.ClassConstant)val.args.get(0)).val;
-         String entityName = metamodel.entityNameFromClassName(type.getClassName());
+         String entityName = config.metamodel.entityNameFromClassName(type.getClassName());
          if (entityName == null)
             throw new TypedValueVisitorException("Streaming an unknown type");
          return JPQLQuery.findAllEntities(entityName);
@@ -84,7 +82,8 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
                throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
             LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
             try {
-               lambda = LambdaAnalysis.analyzeMethod(metamodel, alternateClassLoader, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
+               lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, 
+                     lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
             } catch (Exception e)
             {
                throw new TypedValueVisitorException("Could not analyze the lambda code", e);
@@ -95,22 +94,22 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
             JPQLQuery<?> transformedQuery;
             if (sig.equals(MethodChecker.streamDistinct))
             {
-               DistinctTransform transform = new DistinctTransform(metamodel, alternateClassLoader);
+               DistinctTransform transform = new DistinctTransform(config);
                transformedQuery = transform.apply(subQuery, argHandler); 
             }
             else if (sig.equals(MethodChecker.streamSelect))
             {
-               SelectTransform transform = new SelectTransform(metamodel, alternateClassLoader, false);
+               SelectTransform transform = new SelectTransform(config, false);
                transformedQuery = transform.apply(subQuery, lambda, argHandler); 
             }
             else if (sig.equals(MethodChecker.streamWhere))
             {
-               WhereTransform transform = new WhereTransform(metamodel, alternateClassLoader, false);
+               WhereTransform transform = new WhereTransform(config, false);
                transformedQuery = transform.apply(subQuery, lambda, argHandler); 
             }
             else if (sig.equals(MethodChecker.streamJoin))
             {
-               JoinTransform transform = new JoinTransform(metamodel, alternateClassLoader, false);
+               JoinTransform transform = new JoinTransform(config, false);
                transformedQuery = transform.apply(subQuery, lambda, argHandler); 
             }
             else
@@ -161,12 +160,12 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
       {
          MethodCallValue.VirtualMethodCallValue val = (MethodCallValue.VirtualMethodCallValue)unknownVal;
          MethodSignature sig = val.getSignature();
-         if ((expectingPluralLink && metamodel.isPluralAttributeLinkMethod(sig))
-               || (!expectingPluralLink && metamodel.isSingularAttributeFieldMethod(sig) && metamodel.isFieldMethodAssociationType(sig))) 
+         if ((expectingPluralLink && config.metamodel.isPluralAttributeLinkMethod(sig))
+               || (!expectingPluralLink && config.metamodel.isSingularAttributeFieldMethod(sig) && config.metamodel.isFieldMethodAssociationType(sig))) 
          {
             String linkName = expectingPluralLink ? 
-                  metamodel.nLinkMethodToLinkName(sig) : metamodel.fieldMethodToFieldName(sig);
-            SymbExToColumns translator = new SymbExToColumns(metamodel, alternateClassLoader, argHandler);
+                  config.metamodel.nLinkMethodToLinkName(sig) : config.metamodel.fieldMethodToFieldName(sig);
+            SymbExToColumns translator = new SymbExToColumns(config, argHandler);
             
             SymbExPassDown passdown = SymbExPassDown.with(val, false);
             ColumnExpressions<?> nLinkBase = val.base.visit(translator, passdown);
