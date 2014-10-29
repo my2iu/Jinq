@@ -26,8 +26,12 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase
   
   @Test
   def testStreamEntities {
-    var customers = streamAll(em, classOf[Customer]).toList()
-    Assert.assertEquals(5, customers.length)
+    var customers = streamAll(em, classOf[Customer])
+        .toList()
+        .sortBy((c) => c.getName())
+    Assert.assertEquals("Alice", customers(0).getName);
+    Assert.assertEquals(5, customers.length);
+    Assert.assertEquals("Eve", customers(4).getName);
   }
 
   @Test
@@ -35,22 +39,24 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase
     var customers = streamAll(em, classOf[Customer])
       .where((c) => c.getCountry == "UK")
       .toList();
-    Assert.assertEquals("SELECT A FROM Customer A WHERE A.country = 'UK'", query);
+    Assert.assertEquals("SELECT A FROM Customer A WHERE A.country IS NOT NULL AND A.country = 'UK' OR A.country IS NULL AND 'UK' IS NULL", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Dave", customers(0).getName());
   }
   
-//   @Test
-//   public void testStreamEntities()
-//   {
-//      JinqStream<Customer> customers = streams.streamAll(em, Customer.class);
-//      List<Customer> customerList = customers.toList();
-//      List<String> names = customerList.stream().map((c) -> c.getName()).sorted().collect(Collectors.toList());
-//      assertEquals("Alice", names.get(0));
-//      assertEquals(5, names.size());
-//      assertEquals("Eve", names.get(4));
-//   }
-//
+   @Test
+   def testSelect()
+   {
+     var countries = streamAll(em, classOf[Customer])
+        .select( c => c.getCountry )
+        .toList;
+      Assert.assertEquals("SELECT A.country FROM Customer A", query);
+      Assert.assertEquals(5, countries.length);
+      countries = countries.sortBy( c => c );
+      Assert.assertEquals("Canada", countries(0));
+   }
+
+  
 //   @Test
 //   public void testStreamPages()
 //   {

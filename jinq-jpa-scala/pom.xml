@@ -12,6 +12,8 @@
   <description>Scala version of Jinq's functional-style queries for JPA</description>
 
   <build>
+    <!-- The scala-maven-plugin needs to have the test output directory explicitly set due to a bug -->
+    <testOutputDirectory>target/test-classes</testOutputDirectory>
     <plugins>
       <plugin>
         <groupId>net.alchim31.maven</groupId>

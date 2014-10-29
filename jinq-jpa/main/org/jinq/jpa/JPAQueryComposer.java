@@ -373,7 +373,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 
    @Override
    public <U> JPAQueryComposer<U> select(
-         org.jinq.orm.stream.JinqStream.Select<T, U> selectLambda)
+         Object selectLambda)
    {
       return applyTransformWithLambda(new SelectTransform(getConfig(), false), selectLambda);
    }
@@ -387,7 +387,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 
    @Override
    public <U> JPAQueryComposer<Pair<T, U>> join(
-         org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
+         Object joinLambda)
    {
       return applyTransformWithLambda(new JoinTransform(getConfig(), false), joinLambda);
    }
