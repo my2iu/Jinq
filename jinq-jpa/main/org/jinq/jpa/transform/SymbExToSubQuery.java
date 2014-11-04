@@ -165,7 +165,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
          {
             String linkName = expectingPluralLink ? 
                   config.metamodel.nLinkMethodToLinkName(sig) : config.metamodel.fieldMethodToFieldName(sig);
-            SymbExToColumns translator = new SymbExToColumns(config, argHandler);
+            SymbExToColumns translator = config.newSymbExToColumns(config, argHandler);
             
             SymbExPassDown passdown = SymbExPassDown.with(val, false);
             ColumnExpressions<?> nLinkBase = val.base.visit(translator, passdown);

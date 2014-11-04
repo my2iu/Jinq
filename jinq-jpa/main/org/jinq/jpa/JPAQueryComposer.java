@@ -252,7 +252,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas);
    }
    
-   private <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLOneLambdaQueryTransform transform, Object lambda)
+   public <U> JPAQueryComposer<U> applyTransformWithLambda(JPQLOneLambdaQueryTransform transform, Object lambda)
    {
       LambdaInfo lambdaInfo = lambdaAnalyzer.extractSurfaceInfo(lambda, lambdas.size(), hints.dieOnError);
       if (lambdaInfo == null) { translationFail(); return null; }
@@ -283,7 +283,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfo);
    }
 
-   private <U> JPAQueryComposer<U> applyTransformWithLambdas(JPQLMultiLambdaQueryTransform transform, Object [] groupingLambdas)
+   public <U> JPAQueryComposer<U> applyTransformWithLambdas(JPQLMultiLambdaQueryTransform transform, Object [] groupingLambdas)
    {
       LambdaInfo[] lambdaInfos = new LambdaInfo[groupingLambdas.length];
       String [] lambdaSources = new String[lambdaInfos.length]; 
@@ -325,7 +325,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfos);
    }
    
-   private JPQLQueryTransformConfiguration getConfig()
+   public JPQLQueryTransformConfiguration getConfig()
    {
       JPQLQueryTransformConfiguration toReturn = new JPQLQueryTransformConfiguration();
       toReturn.metamodel = metamodel;

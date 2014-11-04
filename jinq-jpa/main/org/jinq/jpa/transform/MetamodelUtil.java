@@ -26,11 +26,11 @@ public class MetamodelUtil
 {
    final Metamodel metamodel;
 
-   public final Set<Class<?>> safeMethodAnnotations;
+   private final Set<Class<?>> safeMethodAnnotations;
    final Map<MethodSignature, MetamodelUtilAttribute> fieldMethods;
    final Map<MethodSignature, MetamodelUtilAttribute> nLinkMethods;
-   public final Set<MethodSignature> safeMethods;
-   public final Set<MethodSignature> safeStaticMethods;
+   private final Set<MethodSignature> safeMethods;
+   private final Set<MethodSignature> safeStaticMethods;
    final Map<String, List<Enum<?>>> enums;
    public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
    public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals; 
@@ -266,5 +266,20 @@ public class MetamodelUtil
          return comparisonMethodsWithObjectEquals;
       else
          return comparisonMethods;
+   }
+
+   public Set<Class<?>> getSafeMethodAnnotations()
+   {
+      return safeMethodAnnotations;
+   }
+
+   public Set<MethodSignature> getSafeMethods()
+   {
+      return safeMethods;
+   }
+
+   public Set<MethodSignature> getSafeStaticMethods()
+   {
+      return safeStaticMethods;
    }
 }

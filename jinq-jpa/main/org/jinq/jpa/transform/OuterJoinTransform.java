@@ -67,7 +67,7 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
-            SymbExToSubQuery translator = new SymbExToSubQuery(config, 
+            SymbExToSubQuery translator = config.newSymbExToSubQuery(config, 
                   SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, false));
 
             // TODO: Handle this case by translating things to use SELECT CASE 

@@ -44,7 +44,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
             {
                LambdaAnalysis lambda = lambdas[n];
 
-               SymbExToColumns translator = new SymbExToColumns(config,  
+               SymbExToColumns translator = config.newSymbExToColumns(config,  
                      new GroupingLambdasArgumentHandler(keySelect, streamTee, lambdas[n], config.metamodel, parentArgumentScope, false));
 
                ColumnExpressions<U> returnQuery = makeSelectExpression(translator, lambda);

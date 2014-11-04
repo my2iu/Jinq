@@ -14,12 +14,13 @@ import org.jinq.jpa.transform.JPAQueryComposerCache;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
 import org.jinq.jpa.transform.ScalaLambdaAnalysisFactory;
+import org.jinq.jpa.transform.ScalaMetamodelUtil;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
 public class JinqJPAScalaStreamProvider
 {
-   MetamodelUtil metamodel;
+   ScalaMetamodelUtil metamodel;
    JPAQueryComposerCache cachedQueries = new JPAQueryComposerCache();
    JinqJPAHints hints = new JinqJPAHints();
    ScalaLambdaAnalysisFactory lambdaAnalyzer = new ScalaLambdaAnalysisFactory(); 
@@ -32,7 +33,7 @@ public class JinqJPAScalaStreamProvider
 
    public JinqJPAScalaStreamProvider(Metamodel metamodel)
    {
-      this.metamodel = new MetamodelUtil(metamodel);
+      this.metamodel = new ScalaMetamodelUtil(metamodel);
       hints.isObjectEqualsSafe = true;
    }
    

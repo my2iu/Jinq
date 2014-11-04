@@ -9,8 +9,8 @@ trait JinqScalaStream[T] {
 //  def where(fn: (T, InQueryStreamSource) => Boolean) : JinqScalaStream[T]
 //  def select[U](fn: (T, InQueryStreamSource) => U) : JinqScalaStream[U]
 
-//  def join[U](fn: (T) => JinqScalaStream[U]) : JinqScalaStream[Tuple2[T,U]]
-//  def join[U](fn: (T, InQueryStreamSource) => List[U]) : JinqScalaStream[Tuple2[T,U]]
+  def join[U](fn: (T) => JinqScalaStream[U]) : JinqScalaStream[(T,U)]
+  def join[U](fn: (T, InQueryStreamSource) => JinqScalaStream[U]) : JinqScalaStream[(T,U)]
   
 //  def leftOuterJoin[U](fn: (T) => JinqScalaStream[U]) : JinqScalaStream[Tuple2[T,U]]
 //  def group[U,V](groupingFn: (T) => U, valueFn: (U, JinqScalaStream[T]) => V) : JinqScalaStream[Tuple2[U, V]]    

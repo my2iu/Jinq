@@ -64,7 +64,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          SelectFromWhere<V> sfw, SymbExArgumentHandler parentArgumentScope) throws TypedValueVisitorException,
          QueryTransformException
    {
-      SymbExToColumns translator = new SymbExToColumns(config, 
+      SymbExToColumns translator = config.newSymbExToColumns(config, 
             SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, config.metamodel, parentArgumentScope, withSource));
       Expression methodExpr = null;
       for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)

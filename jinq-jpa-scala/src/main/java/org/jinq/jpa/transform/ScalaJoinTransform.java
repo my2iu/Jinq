@@ -5,15 +5,15 @@ import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
-import org.jinq.jpa.jpqlquery.TupleRowReader;
+import org.jinq.jpa.jpqlquery.ScalaTupleRowReader;
 
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
-public class JoinTransform extends JPQLOneLambdaQueryTransform
+public class ScalaJoinTransform extends JPQLOneLambdaQueryTransform
 {
    boolean withSource;
-   public JoinTransform(JPQLQueryTransformConfiguration config, boolean withSource)
+   public ScalaJoinTransform(JPQLQueryTransformConfiguration config, boolean withSource)
    {
       super(config);
       this.withSource = withSource;
@@ -40,7 +40,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
-            SymbExToSubQuery translator = config.newSymbExToSubQuery(config, 
+            SymbExToSubQuery translator = new SymbExToSubQuery(config, 
                   SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, withSource));
 
             // TODO: Handle this case by translating things to use SELECT CASE 
@@ -60,7 +60,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
                SelectFromWhere<?> toMerge = (SelectFromWhere<?>)returnExpr;
                SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
                toReturn.froms.add(toMerge.froms.get(0));
-               toReturn.cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(TupleRowReader.PAIR_CLASS, sfw.cols.reader, toMerge.cols.reader));
+               toReturn.cols = new ColumnExpressions<>(ScalaTupleRowReader.createReaderForTuple(ScalaTupleRowReader.TUPLE2_CLASS, sfw.cols.reader, toMerge.cols.reader));
                toReturn.cols.columns.addAll(sfw.cols.columns);
                toReturn.cols.columns.addAll(toMerge.cols.columns);
                return toReturn;
@@ -78,6 +78,6 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
    @Override 
    public String getTransformationTypeCachingTag()
    {
-      return JoinTransform.class.getName();
+      return ScalaJoinTransform.class.getName();
    }
 }

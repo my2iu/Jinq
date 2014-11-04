@@ -22,6 +22,18 @@ public class JPQLQueryTransformConfiguration
       return metamodel.getComparisonMethods(isObjectEqualsSafe);
    }
 
+   public SymbExToColumns newSymbExToColumns(JPQLQueryTransformConfiguration config, SymbExArgumentHandler argumentHandler)
+   {
+      return new SymbExToColumns(config, argumentHandler);
+   }
+   
+   public SymbExToSubQuery newSymbExToSubQuery(JPQLQueryTransformConfiguration config, SymbExArgumentHandler argumentHandler)
+   {
+      return new SymbExToSubQuery(config, argumentHandler);
+   }
+
+
+   
    public JPQLQueryTransformConfiguration()
    {
    }
