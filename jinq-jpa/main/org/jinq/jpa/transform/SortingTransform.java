@@ -23,8 +23,7 @@ public class SortingTransform extends JPQLOneLambdaQueryTransform
          if (query instanceof SelectFromWhere && query.canSort())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            SymbExToColumns translator = config.newSymbExToColumns(config, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, false));
+            SymbExToColumns translator = config.newSymbExToColumns(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, false));
 
             ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 

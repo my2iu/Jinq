@@ -40,7 +40,7 @@ public class ScalaJoinTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
-            SymbExToSubQuery translator = new SymbExToSubQuery(config, 
+            SymbExToSubQuery translator = config.newSymbExToSubQuery( 
                   SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, withSource));
 
             // TODO: Handle this case by translating things to use SELECT CASE 

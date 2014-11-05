@@ -43,7 +43,7 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
                   // Can only perform an aggregation like SUM() or AVG() on distinct streams if we don't
                   // further modify those streams (i.e. we just pass the data through directly).
                   argumentHandler = SelectFromWhereLambdaArgumentHandler.forPassthroughTest(lambda, config.metamodel, parentArgumentScope, false);
-                  SymbExToColumns translator = config.newSymbExToColumns(config, argumentHandler);
+                  SymbExToColumns translator = config.newSymbExToColumns(argumentHandler);
                   aggregatedExpr = makeSelectExpression(translator, lambda).getOnlyColumn();
                   if (aggregatedExpr != SelectFromWhereLambdaArgumentHandler.passthroughColsForTesting.getOnlyColumn())
                      throw new TypedValueVisitorException("Applying an aggregation to a distinct stream, but modifying the stream after the distinct but before the aggregation");
@@ -57,7 +57,7 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
                {
                   argumentHandler = SelectFromWhereLambdaArgumentHandler.fromSelectOnly(select, lambda, config.metamodel, parentArgumentScope, false);
                }
-               SymbExToColumns translator = config.newSymbExToColumns(config, argumentHandler);
+               SymbExToColumns translator = config.newSymbExToColumns(argumentHandler);
                aggregatedExpr = makeSelectExpression(translator, lambda).getOnlyColumn();
             }
             else

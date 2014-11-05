@@ -7,7 +7,7 @@ import java.util.stream.StreamSupport;
 
 import org.jinq.jpa.scala.JavaToScalaConverters;
 import org.jinq.jpa.transform.ScalaJoinTransform;
-import org.jinq.orm.stream.InQueryStreamSource;
+import org.jinq.orm.stream.scala.InQueryStreamSource;
 import org.jinq.orm.stream.scala.JinqScalaStream;
 
 import scala.Function1;

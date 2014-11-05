@@ -38,7 +38,7 @@ public class LambdaAnalysis
    private List<TypedValue> indirectCapturedArgs;
    MethodAnalysisResults symbolicAnalysis;
 
-   public static LambdaAnalysis fullyAnalyzeClassAsLambda(Object lambdaObject, String lambdaMethodName, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
+   public static LambdaAnalysis fullyAnalyzeClassAsLambda(Object lambdaObject, String lambdaMethodName, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
    {
       try {
          MethodAnalysisResults analysis = analyzeLambdaClass(lambdaObject, "apply", metamodel, lambdaObject.getClass().getClassLoader(), isObjectEqualsSafe);
@@ -48,7 +48,7 @@ public class LambdaAnalysis
             return null;
          }
          // TODO: Replace this with fuller code that passes through the lambda index etc.
-         return new LambdaAnalysis(analysis, new ArrayList<>(), 1);
+         return new LambdaAnalysis(analysis, new ArrayList<>(), numLambdaArgs);
 //         return new LambdaAnalysis(lambdaObject, null, analysis, lambdaInfo.lambdaIndex);
       } 
       catch (Exception e)

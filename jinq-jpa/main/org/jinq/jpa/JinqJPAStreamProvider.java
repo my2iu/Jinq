@@ -9,6 +9,7 @@ import javax.persistence.metamodel.Metamodel;
 
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.transform.JPAQueryComposerCache;
+import org.jinq.jpa.transform.JPQLQueryTransformConfigurationFactory;
 import org.jinq.jpa.transform.LambdaAnalysisFactory;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
@@ -25,7 +26,8 @@ public class JinqJPAStreamProvider
 {
    MetamodelUtil metamodel;
    JPAQueryComposerCache cachedQueries = new JPAQueryComposerCache();
-   LambdaAnalysisFactory lambdaAnalyzer = new LambdaAnalysisFactory(); 
+   LambdaAnalysisFactory lambdaAnalyzer = new LambdaAnalysisFactory();
+   JPQLQueryTransformConfigurationFactory jpqlQueryTransformConfigurationFactory = new JPQLQueryTransformConfigurationFactory();
    JinqJPAHints hints = new JinqJPAHints();
    
    public JinqJPAStreamProvider(EntityManagerFactory factory)
@@ -60,7 +62,8 @@ public class JinqJPAStreamProvider
       }
       JPQLQuery<U> query = (JPQLQuery<U>)cachedQuery.get();
       return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
-                  metamodel, cachedQueries, lambdaAnalyzer, em, hints, query),
+                  metamodel, cachedQueries, lambdaAnalyzer, jpqlQueryTransformConfigurationFactory,
+                  em, hints, query),
             new InQueryStreamSource() {
                @Override public <S> JinqStream<S> stream(Class<S> entityClass) {
                   return streamAll(em, entityClass);

@@ -22,8 +22,7 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
          if (query.isSelectFromWhere() || query.isSelectFromWhereGroupHaving())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
-            SymbExToColumns translator = config.newSymbExToColumns(config, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, withSource));
+            SymbExToColumns translator = config.newSymbExToColumns(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, withSource));
 
             ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 
@@ -36,8 +35,7 @@ public class SelectTransform extends JPQLOneLambdaQueryTransform
          else if (query.isSelectOnly())
          {
             SelectOnly<V> sfw = (SelectOnly<V>)query;
-            SymbExToColumns translator = config.newSymbExToColumns(config, 
-                  SelectFromWhereLambdaArgumentHandler.fromSelectOnly(sfw, lambda, config.metamodel, parentArgumentScope, false));
+            SymbExToColumns translator = config.newSymbExToColumns(SelectFromWhereLambdaArgumentHandler.fromSelectOnly(sfw, lambda, config.metamodel, parentArgumentScope, false));
 
             ColumnExpressions<U> returnExpr = makeSelectExpression(translator, lambda);
 

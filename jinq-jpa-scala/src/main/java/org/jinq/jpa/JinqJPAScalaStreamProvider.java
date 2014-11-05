@@ -11,10 +11,13 @@ import org.jinq.jpa.JPAQueryComposer;
 import org.jinq.jpa.JinqJPAHints;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.transform.JPAQueryComposerCache;
+import org.jinq.jpa.transform.ScalaJPQLQueryTransformConfigurationFactory;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
 import org.jinq.jpa.transform.ScalaLambdaAnalysisFactory;
 import org.jinq.jpa.transform.ScalaMetamodelUtil;
+import org.jinq.orm.stream.scala.InQueryStreamSource;
+import org.jinq.orm.stream.scala.JinqScalaStream;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
@@ -23,7 +26,8 @@ public class JinqJPAScalaStreamProvider
    ScalaMetamodelUtil metamodel;
    JPAQueryComposerCache cachedQueries = new JPAQueryComposerCache();
    JinqJPAHints hints = new JinqJPAHints();
-   ScalaLambdaAnalysisFactory lambdaAnalyzer = new ScalaLambdaAnalysisFactory(); 
+   ScalaLambdaAnalysisFactory lambdaAnalyzer = new ScalaLambdaAnalysisFactory();
+   ScalaJPQLQueryTransformConfigurationFactory jpqlQueryTransformConfigurationFactory = new ScalaJPQLQueryTransformConfigurationFactory(); 
    
    public JinqJPAScalaStreamProvider(EntityManagerFactory factory)
    {
@@ -59,11 +63,15 @@ public class JinqJPAScalaStreamProvider
       } 
       JPQLQuery<U> query = (JPQLQuery<U>)cachedQuery.get();
       return new JinqJPAScalaStream<>(JPAQueryComposer.findAllEntities(
-                  metamodel, cachedQueries, lambdaAnalyzer, em, hints, query));//,
-//            new InQueryStreamSource() {
-//               @Override public <S> JinqStream<S> stream(Class<S> entityClass) {
-//                  return streamAll(em, entityClass);
-//               }});
+            metamodel, cachedQueries, lambdaAnalyzer,
+            jpqlQueryTransformConfigurationFactory, em, hints, query),
+            new InQueryStreamSource() {
+               @Override
+               public <U> JinqScalaStream<U> stream(Class<U> entityClass)
+               {
+                  return streamAll(em, entityClass);
+               }
+            });
    }
 
    /**

@@ -54,18 +54,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
       MethodSignature sig = val.getSignature();
       if (MetamodelUtil.inQueryStream.equals(sig))
       {
-         if (!(val.base instanceof TypedValue.ArgValue))
-            throw new TypedValueVisitorException("InQueryStreamSource comes from unknown source");
-         int index = ((TypedValue.ArgValue)val.base).getIndex();
-         if (!argHandler.checkIsInQueryStreamSource(index))
-            throw new TypedValueVisitorException("InQueryStreamSource comes from unknown source");
-         if (!(val.args.get(0) instanceof ConstantValue.ClassConstant))
-            throw new TypedValueVisitorException("Streaming an unknown type");
-         Type type = ((ConstantValue.ClassConstant)val.args.get(0)).val;
-         String entityName = config.metamodel.entityNameFromClassName(type.getClassName());
-         if (entityName == null)
-            throw new TypedValueVisitorException("Streaming an unknown type");
-         return JPQLQuery.findAllEntities(entityName);
+         return handleInQueryStreamSource(val.base, val.args.get(0));
       }
       else if (isStreamMethod(sig))
       {
@@ -148,6 +137,24 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
       else
          return super.virtualMethodCallValue(val, in);
    }
+
+   protected JPQLQuery<?> handleInQueryStreamSource(
+         TypedValue methodBase, TypedValue entity) 
+         throws TypedValueVisitorException
+   {
+      if (!(methodBase instanceof TypedValue.ArgValue))
+         throw new TypedValueVisitorException("InQueryStreamSource comes from unknown source");
+      int index = ((TypedValue.ArgValue)methodBase).getIndex();
+      if (!argHandler.checkIsInQueryStreamSource(index))
+         throw new TypedValueVisitorException("InQueryStreamSource comes from unknown source");
+      if (!(entity instanceof ConstantValue.ClassConstant))
+         throw new TypedValueVisitorException("Streaming an unknown type");
+      Type type = ((ConstantValue.ClassConstant)entity).val;
+      String entityName = config.metamodel.entityNameFromClassName(type.getClassName());
+      if (entityName == null)
+         throw new TypedValueVisitorException("Streaming an unknown type");
+      return JPQLQuery.findAllEntities(entityName);
+   }
    
    /**
     * if unknownVal is not a handled navigational link, null will be 
@@ -165,7 +172,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
          {
             String linkName = expectingPluralLink ? 
                   config.metamodel.nLinkMethodToLinkName(sig) : config.metamodel.fieldMethodToFieldName(sig);
-            SymbExToColumns translator = config.newSymbExToColumns(config, argHandler);
+            SymbExToColumns translator = config.newSymbExToColumns(argHandler);
             
             SymbExPassDown passdown = SymbExPassDown.with(val, false);
             ColumnExpressions<?> nLinkBase = val.base.visit(translator, passdown);

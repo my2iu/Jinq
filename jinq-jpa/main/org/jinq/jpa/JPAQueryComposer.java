@@ -25,6 +25,7 @@ import org.jinq.jpa.transform.JPQLMultiLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLQueryTransformConfiguration;
+import org.jinq.jpa.transform.JPQLQueryTransformConfigurationFactory;
 import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaAnalysis;
 import org.jinq.jpa.transform.LambdaAnalysisFactory;
@@ -58,6 +59,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 {
    final MetamodelUtil metamodel;
    final JPAQueryComposerCache cachedQueries;
+   final JPQLQueryTransformConfigurationFactory jpqlQueryTransformConfigurationFactory;
    final EntityManager em;
    final JPQLQuery<T> query;
    final JinqJPAHints hints;
@@ -73,14 +75,15 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 
    private JPAQueryComposer(JPAQueryComposer<?> base, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
-      this(base.metamodel, base.cachedQueries, base.lambdaAnalyzer, base.em, base.hints, query, chainedLambdas, additionalLambdas);
+      this(base.metamodel, base.cachedQueries, base.lambdaAnalyzer, base.jpqlQueryTransformConfigurationFactory, base.em, base.hints, query, chainedLambdas, additionalLambdas);
    }
 
-   private JPAQueryComposer(MetamodelUtil metamodel, JPAQueryComposerCache cachedQueries, LambdaAnalysisFactory lambdaAnalyzer, EntityManager em, JinqJPAHints hints, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
+   private JPAQueryComposer(MetamodelUtil metamodel, JPAQueryComposerCache cachedQueries, LambdaAnalysisFactory lambdaAnalyzer, JPQLQueryTransformConfigurationFactory jpqlQueryTransformConfigurationFactory, EntityManager em, JinqJPAHints hints, JPQLQuery<T> query, List<LambdaInfo> chainedLambdas, LambdaInfo...additionalLambdas)
    {
       this.metamodel = metamodel;
       this.cachedQueries = cachedQueries;
       this.lambdaAnalyzer = lambdaAnalyzer;
+      this.jpqlQueryTransformConfigurationFactory = jpqlQueryTransformConfigurationFactory;
       this.em = em;
       this.query = query;
       lambdas.addAll(chainedLambdas);
@@ -89,9 +92,9 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       this.hints = new JinqJPAHints(hints);
    }
 
-   public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, JPAQueryComposerCache cachedQueries, LambdaAnalysisFactory lambdaAnalyzer, EntityManager em, JinqJPAHints hints, JPQLQuery<U> findAllQuery)
+   public static <U> JPAQueryComposer<U> findAllEntities(MetamodelUtil metamodel, JPAQueryComposerCache cachedQueries, LambdaAnalysisFactory lambdaAnalyzer, JPQLQueryTransformConfigurationFactory jpqlQueryTransformConfigurationFactory, EntityManager em, JinqJPAHints hints, JPQLQuery<U> findAllQuery)
    {
-      return new JPAQueryComposer<>(metamodel, cachedQueries, lambdaAnalyzer, em, hints, findAllQuery, new ArrayList<>());
+      return new JPAQueryComposer<>(metamodel, cachedQueries, lambdaAnalyzer, jpqlQueryTransformConfigurationFactory, em, hints, findAllQuery, new ArrayList<>());
    }
 
    @Override
@@ -327,7 +330,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    
    public JPQLQueryTransformConfiguration getConfig()
    {
-      JPQLQueryTransformConfiguration toReturn = new JPQLQueryTransformConfiguration();
+      JPQLQueryTransformConfiguration toReturn = jpqlQueryTransformConfigurationFactory.createConfig();
       toReturn.metamodel = metamodel;
       toReturn.alternateClassLoader = hints.lambdaClassLoader;
       toReturn.isObjectEqualsSafe = hints.isObjectEqualsSafe;
