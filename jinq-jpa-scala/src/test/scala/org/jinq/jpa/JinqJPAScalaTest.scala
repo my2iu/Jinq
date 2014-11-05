@@ -1,22 +1,11 @@
 package org.jinq.jpa;
 
-import org.junit.Assert
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.util.Collections
-import java.util.List
-import java.util.Optional
-import java.util.stream.Collectors
-import javax.persistence.Query
-import org.jinq.orm.stream.InQueryStreamSource
-import org.jinq.orm.stream.JinqStream
-import org.jinq.orm.stream.QueryJinqStream
-import org.jinq.tuples.Pair
-import org.junit.Test
 import org.jinq.jpa.test.entities.Customer
-import javax.persistence.EntityManager
 import org.jinq.orm.stream.scala.JinqScalaStream
-import org.junit.BeforeClass
+import org.junit.Assert
+import org.junit.Test
+import javax.persistence.EntityManager
+import org.jinq.jpa.test.entities.Item
 
 class JinqJPAScalaTest extends JinqJPAScalaTestBase
 {
@@ -56,7 +45,23 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase
       Assert.assertEquals("Canada", countries(0));
    }
 
-  
+   @Test
+   def testJoinEntity()
+   {
+      var results = streamAll(em, classOf[Item])
+            .where(i => i.getName().equals("Widgets"))
+            .join((i, source) => source.stream(classOf[Item]))
+            .where(pair => pair._1.getPurchaseprice() < pair._2.getPurchaseprice())
+            .toList();
+      Assert.assertEquals("SELECT A, B FROM Item A, Item B WHERE A.name = 'Widgets' AND A.purchaseprice < B.purchaseprice", query);
+      results = results.sortBy( c => c._2.getName() )    
+      Assert.assertEquals(2, results.length);
+      Assert.assertEquals("Lawnmowers", results(0)._2.getName());
+      Assert.assertEquals("Widgets", results(0)._1.getName());
+      Assert.assertEquals("Talent", results(1)._2.getName());
+      Assert.assertEquals("Widgets", results(1)._1.getName());
+   }
+
 //   @Test
 //   public void testStreamPages()
 //   {

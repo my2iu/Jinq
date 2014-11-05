@@ -2,19 +2,19 @@ package org.jinq.jpa;
 
 import java.sql.DriverManager
 import java.sql.SQLException
-import java.util.ArrayList
-import java.util.List
 import java.util.Map
-import javax.persistence.EntityManager
-import javax.persistence.EntityManagerFactory
-import javax.persistence.Persistence
-import org.jinq.jpa.test.entities.Item
+
+import _root_.scala.collection.mutable.ArrayBuffer
+
 import org.jinq.jpa.test.entities.Lineorder
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
-import org.junit.BeforeClass;
-import _root_.scala.collection.mutable.ArrayBuffer
+import org.junit.BeforeClass
+
+import javax.persistence.EntityManager
+import javax.persistence.EntityManagerFactory
+import javax.persistence.Persistence
 
 object JinqJPAScalaTestBase {
   var entityManagerFactory: EntityManagerFactory = null;
