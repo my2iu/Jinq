@@ -116,7 +116,16 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    private void fillQueryParameters(Query q, List<GeneratedQueryParameter> parameters)
    {
       for (GeneratedQueryParameter param: parameters)
-         q.setParameter(param.paramName, lambdas.get(param.lambdaIndex).getCapturedArg(param.argIndex));
+      {
+         if (param.fieldName == null)
+         {
+            q.setParameter(param.paramName, lambdas.get(param.lambdaIndex).getCapturedArg(param.argIndex));
+         }
+         else
+         {
+            q.setParameter(param.paramName, lambdas.get(param.lambdaIndex).getField(param.fieldName));
+         }
+      }
    }
    
    private void logQuery(String queryString, Query q)

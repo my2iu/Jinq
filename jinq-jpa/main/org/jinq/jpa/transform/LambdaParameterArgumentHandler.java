@@ -6,6 +6,7 @@ import java.util.Set;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ParameterExpression;
+import org.jinq.jpa.jpqlquery.ParameterFieldExpression;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.objectweb.asm.Type;
 
@@ -135,6 +136,34 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
          return handleLambdaSubQueryArg(argIndex - numLambdaCapturedArgs, argType);
       }
       throw new TypedValueVisitorException("Cannot use parameters as a subquery");
+   }
+
+   @Override
+   public ColumnExpressions<?> handleThisFieldRead(String name, Type argType)
+         throws TypedValueVisitorException
+   {
+      if (lambda.usesParametersAsFields())
+      {
+         // Currently, we only support parameters of a few small simple types.
+         // We should also support more complex types (e.g. entities) and allow
+         // fields/methods of those entities to be called in the query (code
+         // motion will be used to push those field accesses or method calls
+         // outside the query where they will be evaluated and then passed in
+         // as a parameter)
+         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) && !metamodel.isKnownEnumType(argType.getInternalName()))
+            throw new TypedValueVisitorException("Accessing a field with unhandled type");
+
+         return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+               new ParameterFieldExpression(lambda.getLambdaIndex(), name)); 
+      }
+      throw new TypedValueVisitorException("Cannot read fields of this lambda");
+   }
+
+   @Override
+   public JPQLQuery<?> handleSubQueryThisFieldRead(String name, Type argType)
+         throws TypedValueVisitorException
+   {
+      throw new TypedValueVisitorException("Cannot read fields of this lambda for a subquery");
    }
 
    

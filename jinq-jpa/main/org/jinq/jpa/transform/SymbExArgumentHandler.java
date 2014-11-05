@@ -14,4 +14,6 @@ public interface SymbExArgumentHandler
    ColumnExpressions<?> handleArg(int argIndex, Type argType) throws TypedValueVisitorException;
    JPQLQuery<?> handleSubQueryArg(int argIndex, Type argType) throws TypedValueVisitorException;
    boolean checkIsInQueryStreamSource(int argIndex);
+   ColumnExpressions<?> handleThisFieldRead(String name, Type argType) throws TypedValueVisitorException;
+   JPQLQuery<?> handleSubQueryThisFieldRead(String name, Type argType) throws TypedValueVisitorException;
 }

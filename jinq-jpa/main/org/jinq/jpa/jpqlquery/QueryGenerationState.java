@@ -52,7 +52,23 @@ class QueryGenerationState
       }
       return parameterNames.get(paramNode);
    }
-   
+
+   /**
+    * Returns the parameter name that should be used to represent the parameter
+    * in a query string. This version is used to handle parameters that are encoded
+    * as fields in a lambda object.
+    */
+   public String registerParameter(Object paramNode, int lambdaIndex, String fieldName)
+   {
+      if (!parameterNames.containsKey(paramNode))
+      {
+         String paramName = nextParamIndex();
+         parameterNames.put(paramNode, paramName);
+         parameters.add(new GeneratedQueryParameter(paramName, lambdaIndex, fieldName));
+      }
+      return parameterNames.get(paramNode);
+   }
+
    /**
     * Adds some text to the current part of the query string being assembled.
     * @param str

@@ -1,5 +1,7 @@
 package org.jinq.jpa.transform;
 
+import java.lang.reflect.Field;
+
 import org.objectweb.asm.Type;
 
 import com.user00.thunk.SerializedLambda;
@@ -77,6 +79,26 @@ public class LambdaInfo
       return serializedLambda.capturedArgs[argIndex];
    }
 
+   public Object getField(String fieldName)
+   {
+      try
+      {
+         Field field = Lambda.getClass().getDeclaredField(fieldName);
+         field.setAccessible(true);
+         return field.get(Lambda);
+      } catch (SecurityException e) {
+         throw new IllegalArgumentException("Cannot read field " + fieldName + " of lambda", e);
+      } catch (Exception e)
+      {
+         try {
+            return Lambda.getClass().getField(fieldName).get(Lambda);
+         } catch (Exception e1)
+         {
+            throw new IllegalArgumentException("Cannot read field " + fieldName + " of lambda", e1);
+         }
+      }
+   }
+   
    public LambdaAnalysis fullyAnalyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
    {
       return LambdaAnalysis.fullyAnalyzeLambda(this, metamodel, alternateClassLoader, isObjectEqualsSafe, throwExceptionOnFailure);

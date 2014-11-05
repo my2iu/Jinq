@@ -43,6 +43,11 @@ public class ExpressionVisitor
       visitDefaultExpression(expr);
    }
 
+   public void visitParameterField(ParameterFieldExpression expr)
+   {
+      visitDefaultExpression(expr);
+   }
+
    public void visitReadField(ReadFieldExpression expr)
    {
       visitDefaultExpression(expr);

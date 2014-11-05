@@ -2,7 +2,6 @@ package org.jinq.jpa.transform;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Handle;
@@ -36,20 +35,24 @@ public class LambdaAnalysis
     * captured args are determined from the parent.
     */
    private List<TypedValue> indirectCapturedArgs;
+   /**
+    * Scala lambdas are actual Java classes and objects. Lambda parameters
+    * are stored as fields of the object (as opposed to as extra method
+    * arguments). This variable is true if this lambda format is used. 
+    */
+   private boolean usesParametersAsFields;
    MethodAnalysisResults symbolicAnalysis;
 
-   public static LambdaAnalysis fullyAnalyzeClassAsLambda(Object lambdaObject, String lambdaMethodName, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
+   public static LambdaAnalysis fullyAnalyzeClassAsLambda(LambdaInfo lambdaInfo, String lambdaMethodName, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
    {
       try {
-         MethodAnalysisResults analysis = analyzeLambdaClass(lambdaObject, "apply", metamodel, lambdaObject.getClass().getClassLoader(), isObjectEqualsSafe);
+         MethodAnalysisResults analysis = analyzeLambdaClass(lambdaInfo.Lambda, "apply", metamodel, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
             return null;
          }
-         // TODO: Replace this with fuller code that passes through the lambda index etc.
-         return new LambdaAnalysis(analysis, new ArrayList<>(), numLambdaArgs);
-//         return new LambdaAnalysis(lambdaObject, null, analysis, lambdaInfo.lambdaIndex);
+         return new LambdaAnalysis(lambdaInfo.Lambda, analysis, numLambdaArgs, lambdaInfo.lambdaIndex);
       } 
       catch (Exception e)
       {
@@ -183,6 +186,7 @@ public class LambdaAnalysis
       this.lambdaIndex = lambdaIndex;
       this.symbolicAnalysis = symbolicAnalysis;
       this.indirectCapturedArgs = null;
+      this.usesParametersAsFields = false;
    }
 
    LambdaAnalysis(MethodAnalysisResults symbolicAnalysis, List<TypedValue> indirectCapturedArgs, int numLambdaArgs)
@@ -192,8 +196,19 @@ public class LambdaAnalysis
       this.lambdaIndex = -1;
       this.symbolicAnalysis = symbolicAnalysis;
       this.indirectCapturedArgs = indirectCapturedArgs;
+      this.usesParametersAsFields = false;
    }
-   
+
+   LambdaAnalysis(Object lambda, MethodAnalysisResults symbolicAnalysis, int numLambdaArgs, int lambdaIndex)
+   {
+      this.numCapturedArgs = 0;
+      this.numLambdaArgs = numLambdaArgs;
+      this.lambdaIndex = lambdaIndex;
+      this.symbolicAnalysis = symbolicAnalysis;
+      this.indirectCapturedArgs = null;
+      this.usesParametersAsFields = true;
+   }
+
    public boolean usesIndirectArgs()
    {
       return indirectCapturedArgs != null;
@@ -218,5 +233,10 @@ public class LambdaAnalysis
    public int getLambdaIndex()
    {
       return lambdaIndex;
+   }
+
+   public boolean usesParametersAsFields()
+   {
+      return usesParametersAsFields;
    }
 }

@@ -1,28 +1,13 @@
 package org.jinq.jpa.transform;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
-import org.jinq.jpa.jpqlquery.ConstantExpression;
-import org.jinq.jpa.jpqlquery.Expression;
-import org.jinq.jpa.jpqlquery.FunctionExpression;
-import org.jinq.jpa.jpqlquery.JPQLQuery;
-import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.ScalaTupleRowReader;
-import org.jinq.jpa.jpqlquery.SelectFromWhere;
-import org.jinq.jpa.jpqlquery.SelectOnly;
-import org.jinq.jpa.jpqlquery.SimpleRowReader;
-import org.jinq.jpa.jpqlquery.SubqueryExpression;
-import org.jinq.jpa.jpqlquery.TupleRowReader;
-import org.objectweb.asm.Type;
 
-import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.GetFieldValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class ScalaSymbExToColumns extends SymbExToColumns
@@ -73,4 +58,14 @@ public class ScalaSymbExToColumns extends SymbExToColumns
          return super.virtualMethodCallValue(val, in);
    }
 
+   @Override
+   public ColumnExpressions<?> getFieldValue(GetFieldValue val,
+         SymbExPassDown in) throws TypedValueVisitorException
+   {
+      if (val.operand instanceof TypedValue.ThisValue)
+      {
+         return argHandler.handleThisFieldRead(val.name, val.getType());
+      }
+      return super.getFieldValue(val, in);
+   }
 }

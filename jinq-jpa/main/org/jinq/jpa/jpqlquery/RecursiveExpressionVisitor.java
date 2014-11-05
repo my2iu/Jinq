@@ -55,6 +55,12 @@ public class RecursiveExpressionVisitor extends ExpressionVisitor
    {
       super.visitParameter(expr);
    }
+   
+   @Override
+   public void visitParameterField(ParameterFieldExpression expr)
+   {
+      super.visitParameterField(expr);
+   }
 
    @Override
    public void visitReadField(ReadFieldExpression expr)
