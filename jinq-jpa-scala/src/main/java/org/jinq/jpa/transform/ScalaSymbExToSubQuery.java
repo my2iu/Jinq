@@ -1,13 +1,9 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.jpqlquery.JPQLQuery;
-import org.objectweb.asm.Type;
 
-import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class ScalaSymbExToSubQuery extends SymbExToSubQuery

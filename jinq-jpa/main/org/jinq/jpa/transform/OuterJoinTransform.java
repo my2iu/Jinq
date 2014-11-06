@@ -7,6 +7,7 @@ import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RecursiveExpressionVisitor;
+import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 
@@ -101,7 +102,7 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
                }
                toReturn.froms.add(outerJoinFrom);
                rewriteFromAliases(toMerge, from, outerJoinFrom);
-               toReturn.cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(TupleRowReader.PAIR_CLASS, sfw.cols.reader, toMerge.cols.reader));
+               toReturn.cols = new ColumnExpressions<>(createPairReader(sfw.cols.reader, toMerge.cols.reader));
                toReturn.cols.columns.addAll(sfw.cols.columns);
                toReturn.cols.columns.addAll(toMerge.cols.columns);
                return toReturn;
@@ -114,6 +115,11 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
       {
          throw new QueryTransformException(e);
       }
+   }
+   
+   protected <U> RowReader<U> createPairReader(RowReader<?> a, RowReader<?> b)
+   {
+      return TupleRowReader.createReaderForTuple(TupleRowReader.PAIR_CLASS, a, b);
    }
    
    @Override 

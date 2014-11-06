@@ -40,8 +40,6 @@ import org.jinq.jpa.transform.SortingTransform;
 import org.jinq.jpa.transform.WhereTransform;
 import org.jinq.orm.internal.QueryComposer;
 import org.jinq.orm.stream.JinqStream.AggregateGroup;
-import org.jinq.orm.stream.JinqStream.CollectComparable;
-import org.jinq.orm.stream.JinqStream.CollectNumber;
 import org.jinq.orm.stream.JinqStream.Select;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
@@ -353,14 +351,14 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
    
    @Override
-   public <E extends Exception> JPAQueryComposer<T> whereWithSource(org.jinq.orm.stream.JinqStream.WhereWithSource<T, E> test)
+   public <E extends Exception> JPAQueryComposer<T> whereWithSource(Object test)
    {
       return applyTransformWithLambda(new WhereTransform(getConfig(), true), test);
    }
 
    @Override
    public <V extends Comparable<V>> JPAQueryComposer<T> sortedBy(
-         CollectComparable<T, V> sorter, boolean isAscending)
+         Object sorter, boolean isAscending)
    {
       return applyTransformWithLambda(new SortingTransform(getConfig(), isAscending), sorter);
    }
@@ -391,15 +389,14 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <U> JPAQueryComposer<U> selectWithSource(
-         org.jinq.orm.stream.JinqStream.SelectWithSource<T, U> selectLambda)
+   public <U> JPAQueryComposer<U> selectWithSource(Object selectLambda)
    {
       return applyTransformWithLambda(new SelectTransform(getConfig(), true), selectLambda);
    }
 
    @Override
    public <U> JPAQueryComposer<Pair<T, U>> join(
-         Object joinLambda)
+         org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
       return applyTransformWithLambda(new JoinTransform(getConfig(), false), joinLambda);
    }
@@ -430,7 +427,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 
    @Override
    public <V extends Number & Comparable<V>> Number sum(
-         CollectNumber<T, V> aggregate, Class<V> collectClass)
+         Object aggregate, Class<V> collectClass)
    {
       JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(getConfig(), AggregateTransform.AggregateType.SUM), aggregate);
       if (result != null)
@@ -440,7 +437,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <V extends Comparable<V>> V max(CollectComparable<T, V> aggregate)
+   public <V extends Comparable<V>> V max(Object aggregate)
    {
       JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(getConfig(), AggregateTransform.AggregateType.MAX), aggregate);
       if (result != null)
@@ -450,7 +447,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
-   public <V extends Comparable<V>> V min(CollectComparable<T, V> aggregate)
+   public <V extends Comparable<V>> V min(Object aggregate)
    {
       JPAQueryComposer<V> result = applyTransformWithLambda(new AggregateTransform(getConfig(), AggregateTransform.AggregateType.MIN), aggregate);
       if (result != null)
@@ -461,7 +458,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
 
    @Override
    public <V extends Number & Comparable<V>> Double avg(
-         CollectNumber<T, V> aggregate)
+         Object aggregate)
    {
       JPAQueryComposer<Double> result = applyTransformWithLambda(new AggregateTransform(getConfig(), AggregateTransform.AggregateType.AVG), aggregate);
       if (result != null)

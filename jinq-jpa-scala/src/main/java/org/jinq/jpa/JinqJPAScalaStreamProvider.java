@@ -12,7 +12,6 @@ import org.jinq.jpa.JinqJPAHints;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.transform.JPAQueryComposerCache;
 import org.jinq.jpa.transform.ScalaJPQLQueryTransformConfigurationFactory;
-import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
 import org.jinq.jpa.transform.ScalaLambdaAnalysisFactory;
 import org.jinq.jpa.transform.ScalaMetamodelUtil;

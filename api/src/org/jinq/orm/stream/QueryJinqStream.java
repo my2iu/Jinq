@@ -166,7 +166,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    {
       V val = (V)queryComposer.min(aggregate);
       if (val != null) return val;
-      return super.max(aggregate);
+      return super.min(aggregate);
    }
 
    @Override

@@ -51,28 +51,6 @@ public class ScalaTupleRowReader<T> implements RowReader<T>
       return createTuple(data);
    }
    
-//   private int getFieldIndex(String field)
-//   {
-//      if ("One".equals(field)) 
-//         return 0;
-//      else if ("Two".equals(field)) 
-//         return 1;
-//      else if ("Three".equals(field)) 
-//         return 2;
-//      else if ("Four".equals(field)) 
-//         return 3;
-//      else if ("Five".equals(field)) 
-//         return 4;
-//      else if ("Six".equals(field)) 
-//         return 5;
-//      else if ("Seven".equals(field)) 
-//         return 6;
-//      else if ("Eight".equals(field)) 
-//         return 7;
-//      else 
-//         return -1;
-//   }
-
    public int getColumnForIndex(int index)
    {
       if (index < 0 || index >= subreaders.length) return -1;
@@ -107,29 +85,6 @@ public class ScalaTupleRowReader<T> implements RowReader<T>
       }
    }
 
-/*
-      public String getTupleInternalName()
-      {
-         switch(subreaders.length)
-         {
-            case 2: return "ch/epfl/labos/iu/orm/Pair"; 
-            case 3: return "ch/epfl/labos/iu/orm/Tuple3"; 
-            case 4: return "ch/epfl/labos/iu/orm/Tuple4"; 
-            case 5: return "ch/epfl/labos/iu/orm/Tuple5"; 
-            case 8: return "ch/epfl/labos/iu/orm/Tuple8"; 
-            default:
-               throw new IllegalArgumentException("Creating a tuple with a SQLReader with unknown size " + subreaders.length);
-         }
-      }
-      public boolean isCastConsistent(String internalName)
-      {
-         String tupleName = getTupleInternalName();
-         return tupleName.equals(internalName);
-      }
-
-   
- */
-   
    public static <T> ScalaTupleRowReader<T> createReaderForTuple(RowReader<?>...subreaders)
    {
       return new ScalaTupleRowReader<T>(subreaders);

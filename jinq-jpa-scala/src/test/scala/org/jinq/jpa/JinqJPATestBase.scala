@@ -17,8 +17,8 @@ import javax.persistence.EntityManagerFactory
 import javax.persistence.Persistence
 
 object JinqJPAScalaTestBase {
-  var entityManagerFactory: EntityManagerFactory = null;
-  var streams : JinqJPAScalaStreamProvider = null
+  var entityManagerFactory: EntityManagerFactory = _
+  var streams : JinqJPAScalaStreamProvider = _
 
    @BeforeClass
    def setUpBeforeClass() {

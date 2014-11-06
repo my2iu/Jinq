@@ -7,7 +7,6 @@ import java.util.Set;
 
 import javax.persistence.metamodel.Metamodel;
 
-import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
 public class ScalaMetamodelUtil extends MetamodelUtil
@@ -70,6 +69,11 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    static Set<MethodSignature> KnownSafeMethods = new HashSet<>();
    static {
       KnownSafeMethods.addAll(TUPLE_ACCESSORS.keySet());
+      KnownSafeMethods.add(newTuple2);
+      KnownSafeMethods.add(newTuple3);
+      KnownSafeMethods.add(newTuple4);
+      KnownSafeMethods.add(newTuple5);
+      KnownSafeMethods.add(newTuple8);
       KnownSafeMethods.add(INQUERYSTREAMSOURCE_STREAM);
    }
    

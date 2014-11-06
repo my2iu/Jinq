@@ -3,11 +3,11 @@ package org.jinq.jpa.transform;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.ScalaTupleRowReader;
 
-public class ScalaJoinTransform extends JoinTransform
+public class ScalaOuterJoinTransform extends OuterJoinTransform
 {
-   public ScalaJoinTransform(JPQLQueryTransformConfiguration config, boolean withSource)
+   public ScalaOuterJoinTransform(JPQLQueryTransformConfiguration config)
    {
-      super(config, withSource);
+      super(config);
    }
    
    @Override
@@ -19,6 +19,6 @@ public class ScalaJoinTransform extends JoinTransform
    @Override 
    public String getTransformationTypeCachingTag()
    {
-      return ScalaJoinTransform.class.getName();
+      return ScalaOuterJoinTransform.class.getName();
    }
 }
