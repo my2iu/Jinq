@@ -5,6 +5,7 @@ import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.ScalaTupleRowReader;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.StaticMethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.GetFieldValue;
@@ -58,6 +59,20 @@ public class ScalaSymbExToColumns extends SymbExToColumns
          return super.virtualMethodCallValue(val, in);
    }
 
+   @Override
+   public ColumnExpressions<?> staticMethodCallValue(StaticMethodCallValue val,
+         SymbExPassDown in) throws TypedValueVisitorException
+   {
+      MethodSignature sig = val.getSignature();
+      if (sig.equals(ScalaMetamodelUtil.BOX_TO_INTEGER))
+      {
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+         ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
+         return base;
+      }
+      return super.staticMethodCallValue(val, in);
+   }
+   
    @Override
    public ColumnExpressions<?> getFieldValue(GetFieldValue val,
          SymbExPassDown in) throws TypedValueVisitorException

@@ -361,7 +361,7 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
             else
             {
                if (methodChecker != null && !methodChecker.isStaticMethodSafe(sig))
-                  throw new AnalyzerException(insn, "Unknown method " + sig + " encountered");
+                  throw new AnalyzerException(insn, "Unknown static method " + sig + " encountered");
                return new MethodCallValue.StaticMethodCallValue(methodInsn.owner, methodInsn.name, methodInsn.desc, args);
             }
          }

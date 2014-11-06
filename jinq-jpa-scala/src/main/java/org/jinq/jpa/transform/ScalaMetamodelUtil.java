@@ -14,6 +14,7 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    public final static MethodSignature INQUERYSTREAMSOURCE_STREAM = new MethodSignature("org/jinq/orm/stream/scala/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
    public final static MethodSignature ITERABLE_TO_JINQ = new MethodSignature("org/jinq/orm/stream/scala/JinqConversions$", "jinq", "(Ljava/lang/Iterable;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
    public final static MethodSignature STREAM_OF = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaStream$", "of", "(Ljava/lang/Object;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
+   public final static MethodSignature BOX_TO_INTEGER = new MethodSignature("scala/runtime/BoxesRunTime", "boxToInteger", "(I)Ljava/lang/Integer;");
    public final static MethodSignature newTuple2 = new MethodSignature("scala/Tuple2", "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
    public final static MethodSignature tuple2GetOne = new MethodSignature("scala/Tuple2", "_1", "()Ljava/lang/Object;");
    public final static MethodSignature tuple2GetTwo = new MethodSignature("scala/Tuple2", "_2", "()Ljava/lang/Object;");
@@ -46,6 +47,22 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    static {
       TUPLE_ACCESSORS.put(tuple2GetOne, 1);
       TUPLE_ACCESSORS.put(tuple2GetTwo, 2);
+      // scala.Tuple2 is specialized, so we need to handle the different specialized variants of it.
+      for (String specialization: new String[] {"I", "Z", "D", "C", "J"})
+      {
+         TUPLE_ACCESSORS.put(
+               new MethodSignature(
+                     "scala/Tuple2", 
+                     "_1$mc" + specialization + "$sp", 
+                     "()" + specialization),
+               1);
+         TUPLE_ACCESSORS.put(
+               new MethodSignature(
+                     "scala/Tuple2", 
+                     "_2$mc" + specialization + "$sp", 
+                     "()" + specialization),
+               2);
+      }
       TUPLE_ACCESSORS.put(tuple3GetOne, 1);
       TUPLE_ACCESSORS.put(tuple3GetTwo, 2);
       TUPLE_ACCESSORS.put(tuple3GetThree, 3);
@@ -80,6 +97,7 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       KnownSafeMethods.add(INQUERYSTREAMSOURCE_STREAM);
       KnownSafeMethods.add(ITERABLE_TO_JINQ);
       KnownSafeMethods.add(STREAM_OF);
+      KnownSafeStaticMethods.add(BOX_TO_INTEGER);
    }
    
    private Set<MethodSignature> safeMethods;
