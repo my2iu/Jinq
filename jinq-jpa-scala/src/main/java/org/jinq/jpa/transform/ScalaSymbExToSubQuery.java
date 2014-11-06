@@ -26,6 +26,11 @@ public class ScalaSymbExToSubQuery extends SymbExToSubQuery
          JPQLQuery<?> nLink = handlePossibleNavigationalLink(val.args.get(0), true, in);
          if (nLink != null) return nLink;
       }
+      else if (ScalaMetamodelUtil.STREAM_OF.equals(sig))
+      {
+         JPQLQuery<?> nLink = handlePossibleNavigationalLink(val.args.get(0), false, in);
+         if (nLink != null) return nLink;
+      }
       return super.virtualMethodCallValue(val, in);
    }
    

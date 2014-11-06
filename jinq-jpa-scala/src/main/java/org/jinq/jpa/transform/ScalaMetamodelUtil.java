@@ -13,6 +13,7 @@ public class ScalaMetamodelUtil extends MetamodelUtil
 {
    public final static MethodSignature INQUERYSTREAMSOURCE_STREAM = new MethodSignature("org/jinq/orm/stream/scala/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
    public final static MethodSignature ITERABLE_TO_JINQ = new MethodSignature("org/jinq/orm/stream/scala/JinqConversions$", "jinq", "(Ljava/lang/Iterable;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
+   public final static MethodSignature STREAM_OF = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaStream$", "of", "(Ljava/lang/Object;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
    public final static MethodSignature newTuple2 = new MethodSignature("scala/Tuple2", "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
    public final static MethodSignature tuple2GetOne = new MethodSignature("scala/Tuple2", "_1", "()Ljava/lang/Object;");
    public final static MethodSignature tuple2GetTwo = new MethodSignature("scala/Tuple2", "_2", "()Ljava/lang/Object;");
@@ -78,6 +79,7 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       KnownSafeMethods.add(newTuple8);
       KnownSafeMethods.add(INQUERYSTREAMSOURCE_STREAM);
       KnownSafeMethods.add(ITERABLE_TO_JINQ);
+      KnownSafeMethods.add(STREAM_OF);
    }
    
    private Set<MethodSignature> safeMethods;

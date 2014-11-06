@@ -170,17 +170,17 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
         Assert.assertEquals(1, results.length);
      }
   
-//     @Test
-//     def testOuterJoin11()
-//     {
-//        var results = streamAll(em, classOf[Lineorder])
-//              .leftOuterJoin(lo => JinqStream.of(lo.getItem()))
-//              .where(pair => pair._2.getName() == "Talent")
-//              .toList();
-//        Assert.assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name = 'Talent'", query);
-//        results = results.sortBy(results, c1 => c1._2.getName());
-//        Assert.assertEquals(1, results.size());
-//     }
+     @Test
+     def testOuterJoin11()
+     {
+        var results = streamAll(em, classOf[Lineorder])
+              .leftOuterJoin(lo => JinqScalaStream.of(lo.getItem()))
+              .where(pair => pair._2.getName() == "Talent")
+              .toList();
+        Assert.assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name IS NOT NULL AND B.name = 'Talent' OR B.name IS NULL AND 'Talent' IS NULL", query);
+        results = results.sortBy(c1 => c1._2.getName());
+        Assert.assertEquals(1, results.length);
+     }
   
   //   @Test(expected=IllegalArgumentException.class)
   //   public void testOuterJoinField()

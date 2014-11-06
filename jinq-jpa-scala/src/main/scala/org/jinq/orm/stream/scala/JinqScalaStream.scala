@@ -36,3 +36,9 @@ trait JinqScalaStream[T] {
   def toList() : List[T] 
   def getOnlyValue() : T
 }
+
+object JinqScalaStream {
+  def of[T](value : T) : JinqScalaStream[T] = {
+    throw new IllegalArgumentException("Jinq for Scala currently only allows streams to be used when they can be converted into database queries. This usage does not form a valid database query.");
+  }
+}
