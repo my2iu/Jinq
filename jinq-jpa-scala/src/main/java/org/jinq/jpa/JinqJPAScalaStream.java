@@ -11,6 +11,7 @@ import java.util.stream.StreamSupport;
 import org.jinq.jpa.scala.JavaToScalaConverters;
 import org.jinq.jpa.transform.OuterJoinTransform;
 import org.jinq.jpa.transform.ScalaJoinTransform;
+import org.jinq.jpa.transform.ScalaOuterJoinTransform;
 import org.jinq.orm.stream.scala.InQueryStreamSource;
 import org.jinq.orm.stream.scala.JinqScalaStream;
 
@@ -93,7 +94,7 @@ public class JinqJPAScalaStream<T> implements JinqScalaStream<T>
    public <U> JinqScalaStream<Tuple2<T, U>> leftOuterJoin(
          Function1<T, JinqScalaStream<U>> fn)
    {
-      JPAQueryComposer<Tuple2<T, U>> newComposer = queryComposer.applyTransformWithLambda(new OuterJoinTransform(queryComposer.getConfig()), fn);
+      JPAQueryComposer<Tuple2<T, U>> newComposer = queryComposer.applyTransformWithLambda(new ScalaOuterJoinTransform(queryComposer.getConfig()), fn);
       if (newComposer != null) return new JinqJPAScalaStream<Tuple2<T, U>>(newComposer, inQueryStreamSource);
       throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
    }

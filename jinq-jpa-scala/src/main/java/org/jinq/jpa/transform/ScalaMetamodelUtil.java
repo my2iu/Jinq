@@ -12,6 +12,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 public class ScalaMetamodelUtil extends MetamodelUtil
 {
    public final static MethodSignature INQUERYSTREAMSOURCE_STREAM = new MethodSignature("org/jinq/orm/stream/scala/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
+   public final static MethodSignature ITERABLE_TO_JINQ = new MethodSignature("org/jinq/orm/stream/scala/JinqConversions$", "jinq", "(Ljava/lang/Iterable;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
    public final static MethodSignature newTuple2 = new MethodSignature("scala/Tuple2", "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
    public final static MethodSignature tuple2GetOne = new MethodSignature("scala/Tuple2", "_1", "()Ljava/lang/Object;");
    public final static MethodSignature tuple2GetTwo = new MethodSignature("scala/Tuple2", "_2", "()Ljava/lang/Object;");
@@ -67,6 +68,7 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    }
    
    static Set<MethodSignature> KnownSafeMethods = new HashSet<>();
+   static Set<MethodSignature> KnownSafeStaticMethods = new HashSet<>();
    static {
       KnownSafeMethods.addAll(TUPLE_ACCESSORS.keySet());
       KnownSafeMethods.add(newTuple2);
@@ -75,10 +77,13 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       KnownSafeMethods.add(newTuple5);
       KnownSafeMethods.add(newTuple8);
       KnownSafeMethods.add(INQUERYSTREAMSOURCE_STREAM);
+      KnownSafeMethods.add(ITERABLE_TO_JINQ);
    }
    
    private Set<MethodSignature> safeMethods;
    private Set<MethodSignature> oldSafeMethods = null;
+   private Set<MethodSignature> safeStaticMethods;
+   private Set<MethodSignature> oldSafeStaticMethods = null;
 
    public ScalaMetamodelUtil(Metamodel metamodel)
    {
@@ -102,5 +107,24 @@ public class ScalaMetamodelUtil extends MetamodelUtil
          return safeMethods;
       calculateScalaSafeMethods(superSafeMethods);
       return safeMethods;
+   }
+   
+   private void calculateScalaSafeStaticMethods(Set<MethodSignature> javaSafeMethods)
+   {
+      Set<MethodSignature> newSafeStaticMethods = new HashSet<>();
+      newSafeStaticMethods.addAll(javaSafeMethods);
+      newSafeStaticMethods.addAll(KnownSafeStaticMethods);
+      safeStaticMethods = newSafeStaticMethods;
+      oldSafeStaticMethods = javaSafeMethods;
+   }
+
+   @Override
+   public Set<MethodSignature> getSafeStaticMethods()
+   {
+      Set<MethodSignature> superSafeStaticMethods = super.getSafeStaticMethods();
+      if (superSafeStaticMethods == oldSafeStaticMethods)
+         return safeStaticMethods;
+      calculateScalaSafeStaticMethods(superSafeStaticMethods);
+      return safeStaticMethods;
    }
 }

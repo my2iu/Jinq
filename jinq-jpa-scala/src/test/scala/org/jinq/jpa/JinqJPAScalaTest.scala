@@ -11,6 +11,7 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import org.jinq.jpa.test.entities.Supplier
 import org.jinq.jpa.test.entities.Sale
+import org.jinq.orm.stream.scala.JinqConversions._
 
 class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   private def streamAll[U](em: EntityManager, entityClass: java.lang.Class[U]): JinqScalaStream[U] = {
@@ -76,32 +77,32 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("Widgets", results(1)._1.getName());
   }
 
-  //  @Test
-  //  def testJoin11NMLink() {
-  //    var results = streamAll(em, classOf[Lineorder])
-  //      .join(lo => JinqStream.from(lo.getItem().getSuppliers()))
-  //      .where(pair => pair.getOne().getSale().getCustomer().getName().equals("Alice"))
-  //      .toList();
-  //    Assert.assertEquals("SELECT A, B FROM Lineorder A JOIN A.item.suppliers B WHERE A.sale.customer.name = 'Alice'", query);
-  //    results = results.sortBy(c1._2.getName());
-  //    Assert.assertEquals(5, results.size());
-  //    Assert.assertEquals("Conglomerate", results.get(1).getTwo().getName());
-  //    Assert.assertEquals("HW Supplier", results.get(4).getTwo().getName());
-  //  }
-  //
-  //  @Test
-  //  def testOuterJoin() {
-  //    var results = streamAll(em, classOf[Item])
-  //      .where(i => i.getName().equals("Widgets"))
-  //      .leftOuterJoin(i => JinqStream.from(i.getSuppliers()))
-  //      .toList();
-  //    Assert.assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN A.suppliers B WHERE A.name = 'Widgets'", query);
-  //    results = results.sortBy(c1 => c1._2.getName());
-  //    Assert.assertEquals(2, results.size());
-  //    Assert.assertEquals("Widgets", results.get(0).getOne().getName());
-  //    Assert.assertEquals("Conglomerate", results.get(0).getTwo().getName());
-  //    Assert.assertEquals("HW Supplier", results.get(1).getTwo().getName());
-  //  }
+  @Test
+  def testJoin11NMLink() {
+    var results = streamAll(em, classOf[Lineorder])
+      .join(lo => lo.getItem().getSuppliers())
+      .where(pair => pair._1.getSale().getCustomer().getName() == "Alice")
+      .toList();
+    Assert.assertEquals("SELECT A, B FROM Lineorder A JOIN A.item.suppliers B WHERE A.sale.customer.name IS NOT NULL AND A.sale.customer.name = 'Alice' OR A.sale.customer.name IS NULL AND 'Alice' IS NULL", query);
+    results = results.sortBy(c1 => c1._2.getName());
+    Assert.assertEquals(5, results.length);
+    Assert.assertEquals("Conglomerate", results(1)._2.getName());
+    Assert.assertEquals("HW Supplier", results(4)._2.getName());
+  }
+
+  @Test
+  def testOuterJoin() {
+    var results = streamAll(em, classOf[Item])
+      .where(i => i.getName().equals("Widgets"))
+      .leftOuterJoin(i => i.getSuppliers())
+      .toList();
+    Assert.assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN A.suppliers B WHERE A.name = 'Widgets'", query);
+    results = results.sortBy(c1 => c1._2.getName());
+    Assert.assertEquals(2, results.length);
+    Assert.assertEquals("Widgets", results(0)._1.getName());
+    Assert.assertEquals("Conglomerate", results(0)._2.getName());
+    Assert.assertEquals("HW Supplier", results(1)._2.getName());
+  }
 
   //   @Test
   //   public void testStreamPages()
@@ -141,75 +142,46 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      }
   //      fail();
   //   }
-  //   
-  //   @Test
-  //   public void testJoinNMLink()
-  //   {
-  //      List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
-  //            .where(i -> i.getName().equals("Widgets"))
-  //            .join(i -> JinqStream.from(i.getSuppliers()))
-  //            .toList();
-  //      assertEquals("SELECT A, B FROM Item A JOIN A.suppliers B WHERE A.name = 'Widgets'", query);
-  //      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
-  //      assertEquals(2, results.size());
-  //      assertEquals("Widgets", results.get(0).getOne().getName());
-  //      assertEquals("Conglomerate", results.get(0).getTwo().getName());
-  //      assertEquals("HW Supplier", results.get(1).getTwo().getName());
-  //   }
-  //
-  //   @Test
-  //   public void testJoin11NMLink()
-  //   {
-  //      List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
-  //            .join(lo -> JinqStream.from(lo.getItem().getSuppliers()))
-  //            .where(pair -> pair.getOne().getSale().getCustomer().getName().equals("Alice"))
-  //            .toList();
-  //      assertEquals("SELECT A, B FROM Lineorder A JOIN A.item.suppliers B WHERE A.sale.customer.name = 'Alice'", query);
-  //      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
-  //      assertEquals(5, results.size());
-  //      assertEquals("Conglomerate", results.get(1).getTwo().getName());
-  //      assertEquals("HW Supplier", results.get(4).getTwo().getName());
-  //   }
-  //
-  //   @Test
-  //   public void testOuterJoin()
-  //   {
-  //      List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
-  //            .where(i -> i.getName().equals("Widgets"))
-  //            .leftOuterJoin(i -> JinqStream.from(i.getSuppliers()))
-  //            .toList();
-  //      assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN A.suppliers B WHERE A.name = 'Widgets'", query);
-  //      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
-  //      assertEquals(2, results.size());
-  //      assertEquals("Widgets", results.get(0).getOne().getName());
-  //      assertEquals("Conglomerate", results.get(0).getTwo().getName());
-  //      assertEquals("HW Supplier", results.get(1).getTwo().getName());
-  //   }
-  //
-  //   @Test
-  //   public void testOuterJoinChain()
-  //   {
-  //      List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
-  //            .where(lo -> lo.getItem().getName().equals("Talent"))
-  //            .leftOuterJoin(lo -> JinqStream.from(lo.getItem().getSuppliers()))
-  //            .toList();
-  //      assertEquals("SELECT A, C FROM Lineorder A JOIN A.item B LEFT OUTER JOIN B.suppliers C WHERE A.item.name = 'Talent'", query);
-  //      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
-  //      assertEquals(1, results.size());
-  //   }
-  //
-  //   @Test
-  //   public void testOuterJoin11()
-  //   {
-  //      List<Pair<Lineorder, Item>> results = streams.streamAll(em, Lineorder.class)
-  //            .leftOuterJoin(lo -> JinqStream.of(lo.getItem()))
-  //            .where(pair -> pair.getTwo().getName().equals("Talent"))
-  //            .toList();
-  //      assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name = 'Talent'", query);
-  //      Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
-  //      assertEquals(1, results.size());
-  //   }
-  //
+     
+     @Test
+     def testJoinNMLink()
+     {
+        var results = streamAll(em, classOf[Item])
+              .where(i => i.getName() == "Widgets")
+              .join(i => i.getSuppliers())
+              .toList();
+        Assert.assertEquals("SELECT A, B FROM Item A JOIN A.suppliers B WHERE A.name IS NOT NULL AND A.name = 'Widgets' OR A.name IS NULL AND 'Widgets' IS NULL", query);
+        results = results.sortBy(c1 => c1._2.getName());
+        Assert.assertEquals(2, results.length);
+        Assert.assertEquals("Widgets", results(0)._1.getName());
+        Assert.assertEquals("Conglomerate", results(0)._2.getName());
+        Assert.assertEquals("HW Supplier", results(1)._2.getName());
+     }
+  
+     @Test
+     def testOuterJoinChain()
+     {
+        var results = streamAll(em, classOf[Lineorder])
+              .where(lo => lo.getItem().getName() == "Talent")
+              .leftOuterJoin(lo => lo.getItem().getSuppliers())
+              .toList();
+        Assert.assertEquals("SELECT A, C FROM Lineorder A JOIN A.item B LEFT OUTER JOIN B.suppliers C WHERE A.item.name IS NOT NULL AND A.item.name = 'Talent' OR A.item.name IS NULL AND 'Talent' IS NULL", query);
+        results = results.sortBy(c1 => c1._2.getName());
+        Assert.assertEquals(1, results.length);
+     }
+  
+//     @Test
+//     def testOuterJoin11()
+//     {
+//        var results = streamAll(em, classOf[Lineorder])
+//              .leftOuterJoin(lo => JinqStream.of(lo.getItem()))
+//              .where(pair => pair._2.getName() == "Talent")
+//              .toList();
+//        Assert.assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name = 'Talent'", query);
+//        results = results.sortBy(results, c1 => c1._2.getName());
+//        Assert.assertEquals(1, results.size());
+//     }
+  
   //   @Test(expected=IllegalArgumentException.class)
   //   public void testOuterJoinField()
   //   {
@@ -220,19 +192,19 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      assertEquals("SELECT A, B FROM Customer A LEFT OUTER JOIN A.country B", query);
   //      assertEquals(5, results.size());
   //   }
-  
-     @Test
-     def testSort {
-        val results = streamAll(em, classOf[Customer])
-              .sortedBy(c => c.getName())
-              .toList();
-        Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
-        Assert.assertEquals(5, results.length);
-        Assert.assertEquals("Alice", results(0).getName());
-        Assert.assertEquals("Bob", results(1).getName());
-        Assert.assertEquals("Eve", results(4).getName());
-     }
-  
+
+  @Test
+  def testSort {
+    val results = streamAll(em, classOf[Customer])
+      .sortedBy(c => c.getName())
+      .toList();
+    Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
+    Assert.assertEquals(5, results.length);
+    Assert.assertEquals("Alice", results(0).getName());
+    Assert.assertEquals("Bob", results(1).getName());
+    Assert.assertEquals("Eve", results(4).getName());
+  }
+
   //   @Test
   //   public void testSortExpression()
   //   {
@@ -245,52 +217,50 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      assertEquals("Talent", results.get(0).getName());
   //      assertEquals("Widgets", results.get(1).getName());
   //   }
-  //
-  //   @Test
-  //   public void testSortChained()
-  //   {
-  //      List<Customer> results = streams.streamAll(em, Customer.class)
-  //            .sortedDescendingBy(c -> c.getName())
-  //            .sortedBy(c -> c.getCountry())
-  //            .toList();
-  //      assertEquals("SELECT A FROM Customer A ORDER BY A.country ASC, A.name DESC", query);
-  //      assertEquals(5, results.size());
-  //      assertEquals("Eve", results.get(0).getName());
-  //      assertEquals("Bob", results.get(1).getName());
-  //      assertEquals("Alice", results.get(2).getName());
-  //   }
   
      @Test
-     def testLimitSkip()
+     def testSortChained()
      {
         val results = streamAll(em, classOf[Customer])
-              .setHint("automaticPageSize", (1).underlying)
-              .sortedBy(c => c.getName())
-              .skip(1)
-              .limit(2)
+              .sortedDescendingBy(c => c.getName())
+              .sortedBy(c => c.getCountry())
               .toList();
-        Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
-        Assert.assertEquals(2, queryList.length);
-        Assert.assertEquals(2, results.length);
-        Assert.assertEquals("Bob", results(0).getName());
-        Assert.assertEquals("Carol", results(1).getName());
+        Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.country ASC, A.name DESC", query);
+        Assert.assertEquals(5, results.length);
+        Assert.assertEquals("Eve", results(0).getName());
+        Assert.assertEquals("Bob", results(1).getName());
+        Assert.assertEquals("Alice", results(2).getName());
      }
-  
-     @Test
-     def testSkipLimit()
-     {
-        val results = streamAll(em, classOf[Customer])
-              .sortedBy(c => c.getName())
-              .limit(3)
-              .skip(1)
-              .toList();
-        Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
-        Assert.assertEquals(1, queryList.length);
-        Assert.assertEquals(2, results.length);
-        Assert.assertEquals("Bob", results(0).getName());
-        Assert.assertEquals("Carol", results(1).getName());
-     }
-  
+
+  @Test
+  def testLimitSkip() {
+    val results = streamAll(em, classOf[Customer])
+      .setHint("automaticPageSize", (1).underlying)
+      .sortedBy(c => c.getName())
+      .skip(1)
+      .limit(2)
+      .toList();
+    Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
+    Assert.assertEquals(2, queryList.length);
+    Assert.assertEquals(2, results.length);
+    Assert.assertEquals("Bob", results(0).getName());
+    Assert.assertEquals("Carol", results(1).getName());
+  }
+
+  @Test
+  def testSkipLimit() {
+    val results = streamAll(em, classOf[Customer])
+      .sortedBy(c => c.getName())
+      .limit(3)
+      .skip(1)
+      .toList();
+    Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
+    Assert.assertEquals(1, queryList.length);
+    Assert.assertEquals(2, results.length);
+    Assert.assertEquals("Bob", results(0).getName());
+    Assert.assertEquals("Carol", results(1).getName());
+  }
+
   //   @Test(expected=IllegalArgumentException.class)
   //   public void testTooManyPaths()
   //   {
@@ -372,107 +342,101 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      assertEquals(5, customers.size());
   //   }
 
-     @Test
-     def testCount()
-     {
-        val count = streamAll(em, classOf[Customer])
-              .count();
-        Assert.assertEquals("SELECT COUNT(A) FROM Customer A", query);
-        Assert.assertEquals(5, count);
-     }
-  
-     @Test
-     def testCountWhere()
-     {
-        val count = streamAll(em, classOf[Customer])
-              .where(c => c.getCountry().equals("UK") )
-              .count();
-        Assert.assertEquals("SELECT COUNT(A) FROM Customer A WHERE A.country = 'UK'", query);
-        Assert.assertEquals(1, count);
-     }
-  
-     @Test
-     def testCountMultipleFields()
-     {
-        val count = streamAll(em, classOf[Customer])
-              .select(c => (c.getName(), c.getCountry()))
-              .count();
-        Assert.assertEquals("SELECT COUNT(1) FROM Customer A", query);
-        Assert.assertEquals(5, count);
-     }
-  
-     @Test
-     def testMax()
-     {
-        Assert.assertEquals(BigInteger.valueOf(11000), 
-              streamAll(em, classOf[Lineorder])
-                    .max(lo => lo.getTransactionConfirmation()));
-        Assert.assertEquals("SELECT MAX(A.transactionConfirmation) FROM Lineorder A", query);
-     }
-     
-     @Test
-     def testMin()
-     {
-        val minDate = streamAll(em, classOf[Sale])
-              .where(s => s.getCustomer().getName().equals("Dave"))
-              .select(s => s.getDate())
-              .getOnlyValue();
-        val date = streamAll(em, classOf[Sale])
-              .min(s => s.getDate());
-        Assert.assertEquals(minDate, date);
-        Assert.assertEquals("SELECT MIN(A.date) FROM Sale A", query);
-     }
-  
-     @Test
-     def testAvg()
-     {
-        Assert.assertEquals(512, streamAll(em, classOf[Customer])
-              .avg(c => c.getSalary() * 2), 0.001);
-        Assert.assertEquals("SELECT AVG(A.salary * 2) FROM Customer A", query);
-     }
-  
-     @Test
-     def testSum() {
-        Assert.assertEquals(10001500l, streamAll(em, classOf[Supplier])
-              .sumLong(s => s.getRevenue()));
-        Assert.assertEquals("SELECT SUM(A.revenue) FROM Supplier A", query);
-        
-        Assert.assertEquals(1117.0, streamAll(em, classOf[Item])
-              .sumDouble(i => i.getSaleprice()), 0.001);
-        Assert.assertEquals("SELECT SUM(A.saleprice) FROM Item A", query);
-        
-        Assert.assertEquals(new BigDecimal(2467), streamAll(em, classOf[Lineorder])
-              .sumBigDecimal(lo => lo.getTotal()));
-        Assert.assertEquals("SELECT SUM(A.total) FROM Lineorder A", query);
-  
-        Assert.assertEquals(BigInteger.valueOf(66000l), streamAll(em, classOf[Lineorder])
-              .sumBigInteger(lo => lo.getTransactionConfirmation()));
-        Assert.assertEquals("SELECT SUM(A.transactionConfirmation) FROM Lineorder A", query);
-     }
-     
-     @Test
-     def  testSumInteger() {
-        // Sum of integers is a long
-        Assert.assertEquals(1280, streamAll(em, classOf[Customer])
-              .sumInteger(s => s.getSalary()));
-        Assert.assertEquals("SELECT SUM(A.salary) FROM Customer A", query);
-     }
-     
-     @Test
-     def testSumExpression() {
-        // Sum of integers is a long
-        Assert.assertEquals(205300, streamAll(em, classOf[Customer])
-              .sumInteger(c => c.getSalary() * c.getDebt()));
-        Assert.assertEquals("SELECT SUM(A.salary * A.debt) FROM Customer A", query);
-     }
-  
-     @Test
-     def testSumJoinCast() {
-        Assert.assertEquals(10466.0, streamAll(em, classOf[Lineorder])
-              .sumDouble(lo => lo.getQuantity() * lo.getItem().getSaleprice()), 0.001);
-        Assert.assertEquals("SELECT SUM(A.quantity * A.item.saleprice) FROM Lineorder A", query);
-     }
-     
+  @Test
+  def testCount() {
+    val count = streamAll(em, classOf[Customer])
+      .count();
+    Assert.assertEquals("SELECT COUNT(A) FROM Customer A", query);
+    Assert.assertEquals(5, count);
+  }
+
+  @Test
+  def testCountWhere() {
+    val count = streamAll(em, classOf[Customer])
+      .where(c => c.getCountry().equals("UK"))
+      .count();
+    Assert.assertEquals("SELECT COUNT(A) FROM Customer A WHERE A.country = 'UK'", query);
+    Assert.assertEquals(1, count);
+  }
+
+  @Test
+  def testCountMultipleFields() {
+    val count = streamAll(em, classOf[Customer])
+      .select(c => (c.getName(), c.getCountry()))
+      .count();
+    Assert.assertEquals("SELECT COUNT(1) FROM Customer A", query);
+    Assert.assertEquals(5, count);
+  }
+
+  @Test
+  def testMax() {
+    Assert.assertEquals(BigInteger.valueOf(11000),
+      streamAll(em, classOf[Lineorder])
+        .max(lo => lo.getTransactionConfirmation()));
+    Assert.assertEquals("SELECT MAX(A.transactionConfirmation) FROM Lineorder A", query);
+  }
+
+  @Test
+  def testMin() {
+    val minDate = streamAll(em, classOf[Sale])
+      .where(s => s.getCustomer().getName().equals("Dave"))
+      .select(s => s.getDate())
+      .getOnlyValue();
+    val date = streamAll(em, classOf[Sale])
+      .min(s => s.getDate());
+    Assert.assertEquals(minDate, date);
+    Assert.assertEquals("SELECT MIN(A.date) FROM Sale A", query);
+  }
+
+  @Test
+  def testAvg() {
+    Assert.assertEquals(512, streamAll(em, classOf[Customer])
+      .avg(c => c.getSalary() * 2), 0.001);
+    Assert.assertEquals("SELECT AVG(A.salary * 2) FROM Customer A", query);
+  }
+
+  @Test
+  def testSum() {
+    Assert.assertEquals(10001500l, streamAll(em, classOf[Supplier])
+      .sumLong(s => s.getRevenue()));
+    Assert.assertEquals("SELECT SUM(A.revenue) FROM Supplier A", query);
+
+    Assert.assertEquals(1117.0, streamAll(em, classOf[Item])
+      .sumDouble(i => i.getSaleprice()), 0.001);
+    Assert.assertEquals("SELECT SUM(A.saleprice) FROM Item A", query);
+
+    Assert.assertEquals(new BigDecimal(2467), streamAll(em, classOf[Lineorder])
+      .sumBigDecimal(lo => lo.getTotal()));
+    Assert.assertEquals("SELECT SUM(A.total) FROM Lineorder A", query);
+
+    Assert.assertEquals(BigInteger.valueOf(66000l), streamAll(em, classOf[Lineorder])
+      .sumBigInteger(lo => lo.getTransactionConfirmation()));
+    Assert.assertEquals("SELECT SUM(A.transactionConfirmation) FROM Lineorder A", query);
+  }
+
+  @Test
+  def testSumInteger() {
+    // Sum of integers is a long
+    Assert.assertEquals(1280, streamAll(em, classOf[Customer])
+      .sumInteger(s => s.getSalary()));
+    Assert.assertEquals("SELECT SUM(A.salary) FROM Customer A", query);
+  }
+
+  @Test
+  def testSumExpression() {
+    // Sum of integers is a long
+    Assert.assertEquals(205300, streamAll(em, classOf[Customer])
+      .sumInteger(c => c.getSalary() * c.getDebt()));
+    Assert.assertEquals("SELECT SUM(A.salary * A.debt) FROM Customer A", query);
+  }
+
+  @Test
+  def testSumJoinCast() {
+    Assert.assertEquals(10466.0, streamAll(em, classOf[Lineorder])
+      .sumDouble(lo => lo.getQuantity() * lo.getItem().getSaleprice()), 0.001);
+    Assert.assertEquals("SELECT SUM(A.quantity * A.item.saleprice) FROM Lineorder A", query);
+  }
+
   //   @Test(expected=ClassCastException.class)
   //   public void testSumCase()
   //   {
@@ -566,19 +530,19 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //                  .distinct()
   //                  .sumInteger(s -> s + 1));
   //   }
-  
-     @Test
-     def testSelectDistinct() {
-        val itemsSold = streamAll(em, classOf[Lineorder])
-              .select(lo => lo.getItem().getName())
-              .distinct()
-              .sortedBy(name => name)
-              .toList();
-        Assert.assertEquals("SELECT DISTINCT A.item.name FROM Lineorder A ORDER BY A.item.name ASC", query);
-        Assert.assertEquals(5, itemsSold.length);
-        Assert.assertEquals("Lawnmowers", itemsSold(0));
-     }
-  
+
+  @Test
+  def testSelectDistinct() {
+    val itemsSold = streamAll(em, classOf[Lineorder])
+      .select(lo => lo.getItem().getName())
+      .distinct()
+      .sortedBy(name => name)
+      .toList();
+    Assert.assertEquals("SELECT DISTINCT A.item.name FROM Lineorder A ORDER BY A.item.name ASC", query);
+    Assert.assertEquals(5, itemsSold.length);
+    Assert.assertEquals("Lawnmowers", itemsSold(0));
+  }
+
   //   @Test
   //   public void testGroup()
   //   {
@@ -757,18 +721,17 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      assertEquals("Eve", customers.get(0).getName());
   //   }
   //
-     @Test
-     def testSelectMath()
-     {
-        val customers = streamAll(em, classOf[Customer])
-              .select(c => c.getDebt() + c.getSalary() * 2)
-              .toList();
-        Assert.assertEquals("SELECT A.debt + A.salary * 2 FROM Customer A", query);
-        val results = customers.sortBy(c => c);
-        Assert.assertEquals(5, results.length);
-        Assert.assertEquals(70, results(0));
-     }
-  
+  @Test
+  def testSelectMath() {
+    val customers = streamAll(em, classOf[Customer])
+      .select(c => c.getDebt() + c.getSalary() * 2)
+      .toList();
+    Assert.assertEquals("SELECT A.debt + A.salary * 2 FROM Customer A", query);
+    val results = customers.sortBy(c => c);
+    Assert.assertEquals(5, results.length);
+    Assert.assertEquals(70, results(0));
+  }
+
   //   @Test
   //   public void testSelectOperatorPrecedence()
   //   {
@@ -780,57 +743,56 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      Collections.sort(results);
   //      assertEquals(-1206, (int)results.get(0));
   //   }
-  
-     @Test
-     def testSelectPair()
-     {
-        var customers = streamAll(em, classOf[Customer])
-              .select(c => (c.getName(), c.getCountry()))
-              .toList();
-        Assert.assertEquals("SELECT A.name, A.country FROM Customer A", query);
-        Assert.assertEquals(5, customers.length);
-        customers = customers.sortBy(c => c._1);
-        Assert.assertEquals("Alice", customers(0)._1);
-     }
-  
-//     @Test
-//     def testSelectPairOfPair()
-//     {
-//        var customers = streamAll(em, classOf[Customer])
-//              .select(c => ((c.getName(), c.getCountry()), c.getDebt()))
-//              .toList();
-//        Assert.assertEquals("SELECT A.name, A.country, A.debt FROM Customer A", query);
-//        var results = customers.sortBy(p => p._1._1)
-//        Assert.assertEquals(5, results.length);
-//        Assert.assertEquals("Alice", results(0)._1._1);
-//        Assert.assertEquals(100, results(0)._2);
-//     }
-  
-//     @Test
-//     def testSelectChained()
-//     {
-//        val customers = streamAll(em, classOf[Customer])
-//              .select(c => c.getDebt())
-//              .select(d => d * 2)
-//              .toList();
-//        Assert.assertEquals("SELECT A.debt * 2 FROM Customer A", query);
-//        val results = customers.sortBy(c => c);
-//        Assert.assertEquals(5, results.length);
-//        Assert.assertEquals(20, results(0));
-//     }
-  
-//     @Test
-//     def testSelectChainedPair()
-//     {
-//        val results = streamAll(em, classOf[Customer])
-//              .select(c => (c.getName(), c.getDebt()))
-//              .where(p => p._2 > 250)
-//              .toList();
-//        Assert.assertEquals("SELECT A.name, A.debt FROM Customer A WHERE A.debt > 250", query);
-//        Assert.assertEquals(1, results.length);
-//        Assert.assertEquals("Carol", results(0)._1);
-//     }
-     
+
+  @Test
+  def testSelectPair() {
+    var customers = streamAll(em, classOf[Customer])
+      .select(c => (c.getName(), c.getCountry()))
+      .toList();
+    Assert.assertEquals("SELECT A.name, A.country FROM Customer A", query);
+    Assert.assertEquals(5, customers.length);
+    customers = customers.sortBy(c => c._1);
+    Assert.assertEquals("Alice", customers(0)._1);
+  }
+
+  //     @Test
+  //     def testSelectPairOfPair()
+  //     {
+  //        var customers = streamAll(em, classOf[Customer])
+  //              .select(c => ((c.getName(), c.getCountry()), c.getDebt()))
+  //              .toList();
+  //        Assert.assertEquals("SELECT A.name, A.country, A.debt FROM Customer A", query);
+  //        var results = customers.sortBy(p => p._1._1)
+  //        Assert.assertEquals(5, results.length);
+  //        Assert.assertEquals("Alice", results(0)._1._1);
+  //        Assert.assertEquals(100, results(0)._2);
+  //     }
+
+  //     @Test
+  //     def testSelectChained()
+  //     {
+  //        val customers = streamAll(em, classOf[Customer])
+  //              .select(c => c.getDebt())
+  //              .select(d => d * 2)
+  //              .toList();
+  //        Assert.assertEquals("SELECT A.debt * 2 FROM Customer A", query);
+  //        val results = customers.sortBy(c => c);
+  //        Assert.assertEquals(5, results.length);
+  //        Assert.assertEquals(20, results(0));
+  //     }
+
+  //     @Test
+  //     def testSelectChainedPair()
+  //     {
+  //        val results = streamAll(em, classOf[Customer])
+  //              .select(c => (c.getName(), c.getDebt()))
+  //              .where(p => p._2 > 250)
+  //              .toList();
+  //        Assert.assertEquals("SELECT A.name, A.debt FROM Customer A WHERE A.debt > 250", query);
+  //        Assert.assertEquals(1, results.length);
+  //        Assert.assertEquals("Carol", results(0)._1);
+  //     }
+
   //   @Test
   //   public void testSelectN1Link()
   //   {
@@ -842,22 +804,20 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      assertEquals(6, results.size());
   //      assertEquals("Alice", results.get(0).getName());
   //   }
-     
-     @Test
-     def testSelectCase()
-     {
-        val customers = streamAll(em, classOf[Customer])
-              .select(c => (c.getName(), if (c.getCountry() == "UK")  "UK" else "NotUK"))
-              .sortedBy(p => p._1)
-              .sortedBy(p => p._2)
-              .toList();
-        Assert.assertEquals("SELECT A.name, CASE WHEN A.country IS NOT NULL AND A.country <> 'UK' THEN 'NotUK' WHEN A.country IS NOT NULL AND A.country = 'UK' THEN 'UK' WHEN A.country IS NULL AND 'UK' IS NULL THEN 'UK' ELSE 'NotUK' END FROM Customer A ORDER BY CASE WHEN A.country IS NOT NULL AND A.country <> 'UK' THEN 'NotUK' WHEN A.country IS NOT NULL AND A.country = 'UK' THEN 'UK' WHEN A.country IS NULL AND 'UK' IS NULL THEN 'UK' ELSE 'NotUK' END ASC, A.name ASC", query);
-        Assert.assertEquals(5, customers.length);
-        Assert.assertEquals("UK", customers(4)._2);
-        Assert.assertEquals("NotUK", customers(3)._2);
-     }
-     
-  
+
+  @Test
+  def testSelectCase() {
+    val customers = streamAll(em, classOf[Customer])
+      .select(c => (c.getName(), if (c.getCountry() == "UK") "UK" else "NotUK"))
+      .sortedBy(p => p._1)
+      .sortedBy(p => p._2)
+      .toList();
+    Assert.assertEquals("SELECT A.name, CASE WHEN A.country IS NOT NULL AND A.country <> 'UK' THEN 'NotUK' WHEN A.country IS NOT NULL AND A.country = 'UK' THEN 'UK' WHEN A.country IS NULL AND 'UK' IS NULL THEN 'UK' ELSE 'NotUK' END FROM Customer A ORDER BY CASE WHEN A.country IS NOT NULL AND A.country <> 'UK' THEN 'NotUK' WHEN A.country IS NOT NULL AND A.country = 'UK' THEN 'UK' WHEN A.country IS NULL AND 'UK' IS NULL THEN 'UK' ELSE 'NotUK' END ASC, A.name ASC", query);
+    Assert.assertEquals(5, customers.length);
+    Assert.assertEquals("UK", customers(4)._2);
+    Assert.assertEquals("NotUK", customers(3)._2);
+  }
+
   //      @Test
   //   public void testString()
   //   {

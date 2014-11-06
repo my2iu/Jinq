@@ -160,7 +160,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
     * if unknownVal is not a handled navigational link, null will be 
     * returned. Otherwise, a query representing the link will be returned
     */
-   private JPQLQuery<?> handlePossibleNavigationalLink(TypedValue unknownVal, boolean expectingPluralLink, SymbExPassDown in) throws TypedValueVisitorException
+   protected JPQLQuery<?> handlePossibleNavigationalLink(TypedValue unknownVal, boolean expectingPluralLink, SymbExPassDown in) throws TypedValueVisitorException
    {
       // Figure out if it's an 1:N or N:M navigational link
       if (unknownVal instanceof MethodCallValue.VirtualMethodCallValue)
