@@ -25,7 +25,7 @@ import org.jinq.tuples.Tuple5;
  * <p>
  * Programmers typically get access to <code>JinqStream</code>s through a
  * JinqStream provider. For example, the
- * {@link org.jinq.jpa.JinqJPAStreamProvider} is able to create streams of JPA
+ * {@code org.jinq.jpa.JinqJPAStreamProvider} is able to create streams of JPA
  * entities from a database. It is also possible to create
  * <code>JinqStream</code>s from collections and single objects.
  * 
