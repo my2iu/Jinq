@@ -19,13 +19,25 @@ import java.util.List;
 @NamedQuery(name="Sale.findAll", query="SELECT s FROM Sale s")
 public class Sale implements Serializable {
    private static final long serialVersionUID = 1L;
+   // This entity uses field-based access instead of property based access
+   // in order to test how well Jinq handles this alternate JPA configuration.
+   @Id
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @Column(updatable=false)
    private int saleid;
+   //bi-directional many-to-one association to Lineorder
+   @OneToMany(mappedBy="sale")
    private List<Lineorder> lineorders = new ArrayList<>();
+   //bi-directional many-to-one association to Customer
+   @ManyToOne
+   @JoinColumn(name="CUSTOMERID")
    private Customer customer;
    private java.sql.Date sqlDate;
    private java.sql.Time sqlTime;
    private java.sql.Timestamp sqlTimestamp;
+   @Temporal(TemporalType.TIMESTAMP)
    private Date date;
+   @Temporal(TemporalType.DATE)
    private Calendar calendar;
    long creditCard;
 
@@ -33,9 +45,6 @@ public class Sale implements Serializable {
    }
 
 
-   @Id
-   @GeneratedValue(strategy=GenerationType.IDENTITY)
-   @Column(updatable=false)
    public int getSaleid() {
       return this.saleid;
    }
@@ -44,7 +53,6 @@ public class Sale implements Serializable {
       this.saleid = saleid;
    }
 
-   @Temporal(TemporalType.TIMESTAMP)
    public Date getDate() {
       return this.date;
    }
@@ -53,7 +61,6 @@ public class Sale implements Serializable {
       this.date = date;
    }
 
-   @Temporal(TemporalType.DATE)
    public Calendar getCalendar() {
       return this.calendar;
    }
@@ -95,8 +102,6 @@ public class Sale implements Serializable {
    }
 
 
-   //bi-directional many-to-one association to Lineorder
-   @OneToMany(mappedBy="sale")
    public List<Lineorder> getLineorders() {
       return this.lineorders;
    }
@@ -120,9 +125,6 @@ public class Sale implements Serializable {
    }
 
 
-   //bi-directional many-to-one association to Customer
-   @ManyToOne
-   @JoinColumn(name="CUSTOMERID")
    public Customer getCustomer() {
       return this.customer;
    }

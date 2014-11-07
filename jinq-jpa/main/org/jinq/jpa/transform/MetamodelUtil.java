@@ -148,7 +148,7 @@ public class MetamodelUtil
             }
             MethodSignature methodSig = new MethodSignature(
                   org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
-                  javaMember.getName(),
+                  name,
                   org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(pluralAttrib.getJavaType())));
             nLinkMethods.put(methodSig, new MetamodelUtilAttribute(pluralAttrib));
          }
