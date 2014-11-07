@@ -148,7 +148,7 @@ public class JinqJPAScalaStream<T> implements JinqScalaStream<T>
    }
 
    @Override
-   public <V extends Comparable<V>> V max(Function1<T, V> fn)
+   public <V> V max(Function1<T, V> fn)
    {
       V val = (V)queryComposer.max(fn);
       if (val != null) return val;
@@ -156,7 +156,7 @@ public class JinqJPAScalaStream<T> implements JinqScalaStream<T>
    }
 
    @Override
-   public <V extends Comparable<V>> V min(Function1<T, V> fn)
+   public <V> V min(Function1<T, V> fn)
    {
       V val = (V)queryComposer.min(fn);
       if (val != null) return val;
@@ -172,7 +172,7 @@ public class JinqJPAScalaStream<T> implements JinqScalaStream<T>
    }
 
    @Override
-   public <V extends Comparable<V>> JinqScalaStream<T> sortedBy(
+   public <V> JinqScalaStream<T> sortedBy(
          Function1<T, V> fn)
    {
       JPAQueryComposer<T> newComposer = queryComposer.sortedBy(fn, true);
@@ -181,7 +181,7 @@ public class JinqJPAScalaStream<T> implements JinqScalaStream<T>
    }
 
    @Override
-   public <V extends Comparable<V>> JinqScalaStream<T> sortedDescendingBy(
+   public <V> JinqScalaStream<T> sortedDescendingBy(
          Function1<T, V> fn)
    {
       JPAQueryComposer<T> newComposer = queryComposer.sortedBy(fn, false);

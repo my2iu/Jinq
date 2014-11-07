@@ -56,7 +56,8 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
    public static interface MethodChecker
    {
       boolean isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args);
-      boolean isStaticMethodSafe(MethodSignature m); 
+      boolean isStaticMethodSafe(MethodSignature m);
+      boolean isFluentChaining(MethodSignature m);
    }
    MethodChecker methodChecker;
    public void setMethodChecker(MethodChecker methodChecker)
@@ -354,7 +355,7 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
                toReturn = new MethodCallValue.VirtualMethodCallValue(methodInsn.owner, methodInsn.name, methodInsn.desc, args, base);
                if (toReturn.isConstructor() && linkedFrame != null)
                   linkedFrame.replaceValues(base, toReturn);
-               else if (TransformationClassAnalyzer.stringBuilderAppendString.equals(sig))
+               else if (methodChecker != null && methodChecker.isFluentChaining(sig))
                   linkedFrame.replaceValues(base, toReturn);
                return toReturn;
             }

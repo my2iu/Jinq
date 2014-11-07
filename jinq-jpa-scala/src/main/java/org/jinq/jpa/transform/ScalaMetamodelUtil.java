@@ -15,6 +15,13 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    public final static MethodSignature ITERABLE_TO_JINQ = new MethodSignature("org/jinq/orm/stream/scala/JinqConversions$", "jinq", "(Ljava/lang/Iterable;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
    public final static MethodSignature STREAM_OF = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaStream$", "of", "(Ljava/lang/Object;)Lorg/jinq/orm/stream/scala/JinqScalaStream;");
    public final static MethodSignature BOX_TO_INTEGER = new MethodSignature("scala/runtime/BoxesRunTime", "boxToInteger", "(I)Ljava/lang/Integer;");
+   public final static MethodSignature BOX_TO_LONG = new MethodSignature("scala/runtime/BoxesRunTime", "boxToLong", "(J)Ljava/lang/Long;");
+   public final static MethodSignature BOX_TO_DOUBLE = new MethodSignature("scala/runtime/BoxesRunTime", "boxToDouble", "(D)Ljava/lang/Double;");
+   public final static MethodSignature BOX_TO_BOOLEAN = new MethodSignature("scala/runtime/BoxesRunTime", "boxToBoolean", "(Z)Ljava/lang/Boolean;");
+   public final static MethodSignature NEW_STRINGBUILDER = new MethodSignature("scala/collection/mutable/StringBuilder", "<init>", "()V");
+   public final static MethodSignature NEW_STRINGBUILDER_STRING = new MethodSignature("scala/collection/mutable/StringBuilder", "<init>", "(Ljava/lang/String;)V");
+   public final static MethodSignature STRINGBUILDER_APPEND = new MethodSignature("scala/collection/mutable/StringBuilder", "append", "(Ljava/lang/Object;)Lscala/collection/mutable/StringBuilder;");
+   public final static MethodSignature STRINGBUILDER_STRING = new MethodSignature("scala/collection/mutable/StringBuilder", "toString", "()Ljava/lang/String;");
    public final static MethodSignature newTuple2 = new MethodSignature("scala/Tuple2", "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
    public final static MethodSignature tuple2GetOne = new MethodSignature("scala/Tuple2", "_1", "()Ljava/lang/Object;");
    public final static MethodSignature tuple2GetTwo = new MethodSignature("scala/Tuple2", "_2", "()Ljava/lang/Object;");
@@ -97,7 +104,14 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       KnownSafeMethods.add(INQUERYSTREAMSOURCE_STREAM);
       KnownSafeMethods.add(ITERABLE_TO_JINQ);
       KnownSafeMethods.add(STREAM_OF);
+      KnownSafeMethods.add(NEW_STRINGBUILDER);
+      KnownSafeMethods.add(NEW_STRINGBUILDER_STRING);
+      KnownSafeMethods.add(STRINGBUILDER_APPEND);
+      KnownSafeMethods.add(STRINGBUILDER_STRING);
       KnownSafeStaticMethods.add(BOX_TO_INTEGER);
+      KnownSafeStaticMethods.add(BOX_TO_LONG);
+      KnownSafeStaticMethods.add(BOX_TO_DOUBLE);
+      KnownSafeStaticMethods.add(BOX_TO_BOOLEAN);
    }
    
    private Set<MethodSignature> safeMethods;
@@ -146,5 +160,21 @@ public class ScalaMetamodelUtil extends MetamodelUtil
          return safeStaticMethods;
       calculateScalaSafeStaticMethods(superSafeStaticMethods);
       return safeStaticMethods;
+   }
+   
+   @Override
+   public MethodChecker getMethodChecker(boolean isObjectEqualsSafe)
+   {
+      return new MethodChecker(
+            getSafeMethodAnnotations(), 
+            getSafeMethods(), getSafeStaticMethods(),
+            isObjectEqualsSafe) {
+         @Override
+         public boolean isFluentChaining(MethodSignature sig)
+         {
+            if (STRINGBUILDER_APPEND.equals(sig)) return true;
+            return super.isFluentChaining(sig);
+         }
+      };
    }
 }

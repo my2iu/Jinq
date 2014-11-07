@@ -126,10 +126,7 @@ public class LambdaAnalysis
    {
       // Open up the corresponding class to analyze
       PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-            () -> new MethodChecker(
-                        metamodel.getSafeMethodAnnotations(), 
-                        metamodel.getSafeMethods(), metamodel.getSafeStaticMethods(),
-                        isObjectEqualsSafe));
+            () -> metamodel.getMethodChecker(isObjectEqualsSafe));
       TransformationClassAnalyzer classAnalyzer = 
             new TransformationClassAnalyzer(className, alternateClassLoader);
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
@@ -141,10 +138,7 @@ public class LambdaAnalysis
    {
       // Open up the corresponding class to analyze
       PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-            () -> new MethodChecker(
-                        metamodel.getSafeMethodAnnotations(), 
-                        metamodel.getSafeMethods(), metamodel.getSafeStaticMethods(),
-                        isObjectEqualsSafe));
+            () -> metamodel.getMethodChecker(isObjectEqualsSafe));
       TransformationClassAnalyzer classAnalyzer = 
             new TransformationClassAnalyzer(lambdaObject.getClass().getName(), alternateClassLoader);
       Method[] classMethods = lambdaObject.getClass().getMethods();

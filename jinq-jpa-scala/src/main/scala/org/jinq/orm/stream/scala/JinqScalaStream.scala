@@ -21,11 +21,11 @@ trait JinqScalaStream[T] {
   def sumDouble(fn: (T) => Double) : Double
   def sumBigDecimal(fn: (T) => BigDecimal) : BigDecimal
   def sumBigInteger(fn: (T) => BigInteger) : BigInteger
-  def max[V<:java.lang.Comparable[V]](fn: (T) => V) : V  // TODO: Use Ordered instead?
-  def min[V<:java.lang.Comparable[V]](fn: (T) => V) : V
+  def max[V/*<:java.lang.Comparable[V]*/](fn: (T) => V) : V  // TODO: Use Ordered instead?
+  def min[V/*<:java.lang.Comparable[V]*/](fn: (T) => V) : V // V should be Comparable, but we can't do that since Scala's primitive values aren't Comparable, and implicit conversion can get confused sometimes
   def avg[V:Numeric](fn: (T) => V) : Double
-  def sortedBy[V<:java.lang.Comparable[V]](fn: (T) => V) : JinqScalaStream[T]
-  def sortedDescendingBy[V<:java.lang.Comparable[V]](fn: (T) => V) : JinqScalaStream[T]
+  def sortedBy[V/*<:java.lang.Comparable[V]*/](fn: (T) => V) : JinqScalaStream[T] // V should be Comparable, but we can't do that since Scala's primitive values aren't Comparable, and implicit conversion can get confused sometimes
+  def sortedDescendingBy[V/*<:java.lang.Comparable[V]*/](fn: (T) => V) : JinqScalaStream[T]
   def limit(n: Long) : JinqScalaStream[T]  
   def skip(n: Long) : JinqScalaStream[T]  
   def distinct() : JinqScalaStream[T]  

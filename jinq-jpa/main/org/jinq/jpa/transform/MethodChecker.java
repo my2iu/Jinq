@@ -114,35 +114,43 @@ class MethodChecker implements PathAnalysisMethodChecker
     * @see ch.epfl.labos.iu.orm.queryll2.PathAnalysisMethodChecker#isMethodSafe(ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature, ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue, java.util.List)
     */
    @Override
-   public boolean isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args)
+   public boolean isMethodSafe(MethodSignature m, TypedValue base,
+         List<TypedValue> args)
+   {
+      if (isObjectEqualsSafe && objectEquals.equals(m))
       {
-         if (isObjectEqualsSafe && objectEquals.equals(m))
+         return true;
+      } else if (safeMethods.contains(m) || subqueryMethods.contains(m)
+            || jpqlFunctionMethods.contains(m))
+      {
+         return true;
+      } else
+      {
+         // Use reflection to get info about the method (or would it be better
+         // to do this through direct bytecode inspection?), and see if it's
+         // annotated as safe
+         try
          {
-            return true;
-         }
-         else if (safeMethods.contains(m)
-               || subqueryMethods.contains(m)
-               || jpqlFunctionMethods.contains(m))
+            Method reflectedMethod = Annotations
+                  .asmMethodSignatureToReflectionMethod(m);
+            if (Annotations.methodHasSomeAnnotations(reflectedMethod,
+                  safeMethodAnnotations))
+               return true;
+         } catch (ClassNotFoundException | NoSuchMethodException e)
          {
-            return true;
+            // TODO Auto-generated catch block
+            e.printStackTrace();
          }
-         else
-         {
-            // Use reflection to get info about the method (or would it be better
-            // to do this through direct bytecode inspection?), and see if it's
-            // annotated as safe
-            try
-            {
-               Method reflectedMethod = Annotations.asmMethodSignatureToReflectionMethod(m);
-               if (Annotations.methodHasSomeAnnotations(reflectedMethod, safeMethodAnnotations))
-                  return true;
-            } catch (ClassNotFoundException|NoSuchMethodException e)
-            {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-            }
-            return false; 
-            
-         }
+         return false;
+
       }
+   }
+
+   @Override
+   public boolean isFluentChaining(MethodSignature sig)
+   {
+      if (TransformationClassAnalyzer.stringBuilderAppendString.equals(sig))
+         return true;
+      return false;
+   }
 }

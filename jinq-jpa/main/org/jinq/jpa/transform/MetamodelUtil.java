@@ -282,4 +282,12 @@ public class MetamodelUtil
    {
       return safeStaticMethods;
    }
+   
+   public MethodChecker getMethodChecker(boolean isObjectEqualsSafe)
+   {
+      return new MethodChecker(
+            getSafeMethodAnnotations(), 
+            getSafeMethods(), getSafeStaticMethods(),
+            isObjectEqualsSafe);
+   }
 }
