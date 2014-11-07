@@ -5,6 +5,7 @@ import java.util.List;
 
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
+import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
@@ -51,4 +52,13 @@ final class MethodChecker implements PathAnalysisMethodChecker
             
          }
       }
+   
+   @Override
+   public boolean isFluentChaining(MethodSignature sig)
+   {
+      if (TransformationClassAnalyzer.stringBuilderAppendString.equals(sig))
+         return true;
+      return false;
+   }
+
 }

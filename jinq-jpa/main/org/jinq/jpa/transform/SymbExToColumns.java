@@ -245,7 +245,9 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          return binaryOpWithNull(opString, leftVal, rightVal, passdown);
       // Check if we have a valid numeric promotion (i.e. one side has a widening cast
       // to match the type of the other side).
-      assert(leftVal.getType().equals(rightVal.getType()));
+      assert(leftVal.getType().equals(rightVal.getType()) 
+            || (leftVal.getType().getInternalName().equals("java/lang/Object") && config.isObjectEqualsSafe)// in Scala, many comparisons are done on Objects
+            || (rightVal.getType().getInternalName().equals("java/lang/Object") && config.isObjectEqualsSafe));
       if (isWideningCast(leftVal))
       {
          if (!isWideningCast(rightVal))
