@@ -16,7 +16,7 @@ class JinqJPAHints
    public int automaticResultsPagingSize = 10000;
    public JPAQueryLogger queryLogger = null;
    public ClassLoader lambdaClassLoader = null;
-   public boolean dieOnError = false;
+   public boolean dieOnError = true;
    public boolean useCaching = true;
    public boolean isObjectEqualsSafe = false;
    
