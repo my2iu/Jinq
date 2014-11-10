@@ -674,17 +674,16 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals(70, results(0));
   }
 
-     @Test
-     def testSelectOperatorPrecedence()
-     {
-        val results = streamAll(em, classOf[Customer])
-              .select(c => 3 * (c.getDebt() - (c.getSalary() + 2)))
-              .toList()
-              .sortBy(num => num);
-        Assert.assertEquals("SELECT 3 * (A.debt - (A.salary + 2)) FROM Customer A", query);
-        Assert.assertEquals(5, results.length);
-        Assert.assertEquals(-1206, results(0));
-     }
+  @Test
+  def testSelectOperatorPrecedence() {
+    val results = streamAll(em, classOf[Customer])
+      .select(c => 3 * (c.getDebt() - (c.getSalary() + 2)))
+      .toList()
+      .sortBy(num => num);
+    Assert.assertEquals("SELECT 3 * (A.debt - (A.salary + 2)) FROM Customer A", query);
+    Assert.assertEquals(5, results.length);
+    Assert.assertEquals(-1206, results(0));
+  }
 
   @Test
   def testSelectPair() {
@@ -709,19 +708,17 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals(100, results(0)._2);
   }
 
-  // TODO: Handle function specialization        
-  //       @Test
-  //       def testSelectChained()
-  //       {
-  //          val customers = streamAll(em, classOf[Customer])
-  //                .select(c => c.getDebt())
-  //                .select(d => d * 2)
-  //                .toList();
-  //          Assert.assertEquals("SELECT A.debt * 2 FROM Customer A", query);
-  //          val results = customers.sortBy(c => c);
-  //          Assert.assertEquals(5, results.length);
-  //          Assert.assertEquals(20, results(0));
-  //       }
+  @Test
+  def testSelectChained() {
+    val customers = streamAll(em, classOf[Customer])
+      .select(c => c.getDebt())
+      .select(d => d * 2)
+      .toList();
+    Assert.assertEquals("SELECT A.debt * 2 FROM Customer A", query);
+    val results = customers.sortBy(c => c);
+    Assert.assertEquals(5, results.length);
+    Assert.assertEquals(20, results(0));
+  }
 
   @Test
   def testSelectChainedPair() {
@@ -1026,12 +1023,11 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("SELECT :param0 / 2 FROM Customer A", query);
     Assert.assertEquals(2, resultInteger(0));
 
-    // TODO: Handle function specialization        
-    //        resultDouble = streamAll(em, classOf[Customer])
-    //              .select(c => value * 2.0 / valInt)
-    //              .sortedBy( num => num ).toList();
-    //        Assert.assertEquals("SELECT :param0 * 2.0 / :param1 FROM Customer A ORDER BY :param0 * 2.0 / :param1 ASC", query);
-    //        Assert.assertEquals(2.0, resultDouble(0), 0.001);
+    resultDouble = streamAll(em, classOf[Customer])
+      .select(c => value * 2.0 / valInt)
+      .sortedBy(num => num).toList();
+    Assert.assertEquals("SELECT :param0 * 2.0 / :param1 FROM Customer A ORDER BY :param0 * 2.0 / :param1 ASC", query);
+    Assert.assertEquals(2.0, resultDouble(0), 0.001);
   }
 
   //   @Test(expected=ClassCastException.class)
@@ -1070,19 +1066,17 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("Screws", lineorders(0).getItem().getName());
   }
 
-  // TODO: Handle function specialization        
-  //     @Test
-  //     def testNumericPromotionBigDecimal()
-  //     {
-  //        val value:Long = 3;
-  //        val lineorders = streamAll(em, classOf[Lineorder])
-  //              .select(lo => (lo.getTotal().add(new BigDecimal(value))).doubleValue() + lo.getItem().getSaleprice())
-  //              .sortedBy(num => num)
-  //              .toList();
-  //        Assert.assertEquals("SELECT A.total + :param0 + A.item.saleprice FROM Lineorder A ORDER BY A.total + :param0 + A.item.saleprice ASC", query);
-  //        Assert.assertEquals(11, lineorders.length);
-  //        Assert.assertEquals(6, lineorders(0).longValue());
-  //     }
+  @Test
+  def testNumericPromotionBigDecimal() {
+    val value: Long = 3;
+    val lineorders = streamAll(em, classOf[Lineorder])
+      .select(lo => (lo.getTotal().add(new BigDecimal(value))).doubleValue() + lo.getItem().getSaleprice())
+      .sortedBy(num => num)
+      .toList();
+    Assert.assertEquals("SELECT A.total + :param0 + A.item.saleprice FROM Lineorder A ORDER BY A.total + :param0 + A.item.saleprice ASC", query);
+    Assert.assertEquals(11, lineorders.length);
+    Assert.assertEquals(6, lineorders(0).longValue());
+  }
 
   @Test
   def testNumericPromotionBigInteger() {

@@ -10,6 +10,22 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
 public class Annotations
 {
+   private static Class<?> asmTypeToClass(Type t) throws ClassNotFoundException
+   {
+      String name = t.getClassName();
+      switch (name) 
+      {
+      case "char": return Character.TYPE;
+      case "double": return Double.TYPE;
+      case "float": return Float.TYPE;
+      case "int": return Integer.TYPE;
+      case "long": return Long.TYPE;
+      case "short": return Short.TYPE;
+      case "boolean": return Boolean.TYPE;
+      }
+      return Class.forName(name);
+   }
+   
    public static Method asmMethodSignatureToReflectionMethod(MethodSignature m) 
          throws ClassNotFoundException, NoSuchMethodException
    {
@@ -17,7 +33,7 @@ public class Annotations
       Type []argTypes = Type.getMethodType(m.desc).getArgumentTypes();
       Class<?> []argClasses = new Class[argTypes.length];
       for (int n = 0; n < argTypes.length; n++)
-         argClasses[n] = Class.forName(argTypes[n].getClassName());
+         argClasses[n] = asmTypeToClass(argTypes[n]);
       return reflectedClass.getMethod(m.name, argClasses);
    }
 

@@ -46,7 +46,7 @@ public class LambdaAnalysis
    public static LambdaAnalysis fullyAnalyzeClassAsLambda(LambdaInfo lambdaInfo, String lambdaMethodName, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
    {
       try {
-         MethodAnalysisResults analysis = analyzeLambdaClass(lambdaInfo.Lambda, "apply", metamodel, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe);
+         MethodAnalysisResults analysis = analyzeScalaLambdaClass(lambdaInfo.Lambda, "apply", metamodel, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -134,17 +134,22 @@ public class LambdaAnalysis
       return analysis;
    }
 
-   private static MethodAnalysisResults analyzeLambdaClass(Object lambdaObject, String methodName, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe) throws IOException, AnalyzerException 
+   private static MethodAnalysisResults analyzeScalaLambdaClass(Object lambdaObject, String methodName, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe) throws IOException, AnalyzerException 
    {
       // Open up the corresponding class to analyze
       PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
             () -> metamodel.getMethodChecker(isObjectEqualsSafe));
       TransformationClassAnalyzer classAnalyzer = 
             new TransformationClassAnalyzer(lambdaObject.getClass().getName(), alternateClassLoader);
-      Method[] classMethods = lambdaObject.getClass().getMethods();
+      Method[] classMethods = lambdaObject.getClass().getDeclaredMethods();
       Method matchingMethod = null;
       for (Method m: classMethods)
       {
+         if (m.getName().matches(methodName + "\\$mc[^$]*\\$sp"))
+         {
+            matchingMethod = m;
+            break;
+         }
          if (!m.getName().equals(methodName)) continue;
          if (matchingMethod != null)
          {
@@ -159,7 +164,7 @@ public class LambdaAnalysis
       }
       if (matchingMethod == null)
          throw new AnalyzerException(null, "Could not find a lambda method with the expected name in the class");
-      MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, Type.getMethodDescriptor(matchingMethod), pathAnalysisFactory);
+      MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(matchingMethod.getName(), Type.getMethodDescriptor(matchingMethod), pathAnalysisFactory);
       PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe));
       return analysis;
    }
