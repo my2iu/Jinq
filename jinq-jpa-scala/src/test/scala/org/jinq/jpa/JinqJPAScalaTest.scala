@@ -1100,25 +1100,23 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("Lawnmowers", lineorders(0).getItem().getName());
   }
 
-  //   @Test
-  //   public void testNull()
-  //   {
-  //      // TODO: I'm not sure if translating == NULL to "IS NULL" is the best route to go
-  //      // Although it is the most intuitive, it isn't consistent with JPQL NULL handling rules
-  //      streamAll(em, classOf[Sale])
-  //            .where(s => s.getCustomer() == null)
-  //            .toList();
-  //      Assert.assertEquals("SELECT A FROM Sale A WHERE A.customer IS NULL", query);
-  //   }
-  //   
-  //   @Test
-  //   public void testNonNull()
-  //   {
-  //      streamAll(em, classOf[Supplier])
-  //            .where(s => null != s.getCountry())
-  //            .toList();
-  //      Assert.assertEquals("SELECT A FROM Supplier A WHERE A.country IS NOT NULL", query);
-  //   }
+  @Test
+  def testNull() {
+    // TODO: I'm not sure if translating == NULL to "IS NULL" is the best route to go
+    // Although it is the most intuitive, it isn't consistent with JPQL NULL handling rules
+    streamAll(em, classOf[Sale])
+      .where(s => s.getCustomer() == null)
+      .toList();
+    Assert.assertEquals("SELECT A FROM Sale A WHERE A.customer IS NULL", query);
+  }
+
+  @Test
+  def testNonNull() {
+    streamAll(em, classOf[Supplier])
+      .where(s => null != s.getCountry())
+      .toList();
+    Assert.assertEquals("SELECT A FROM Supplier A WHERE A.country IS NOT NULL", query);
+  }
 
   @Test
   def testSimpleWhere {
