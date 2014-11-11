@@ -18,12 +18,12 @@ import javax.persistence.Persistence
 
 object JinqJPAScalaTestBase {
   var entityManagerFactory: EntityManagerFactory = _
-  var streams : JinqJPAScalaStreamProvider = _
+  var streams : JinqJPAScalaIteratorProvider = _
 
    @BeforeClass
    def setUpBeforeClass() {
       entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
-      streams = new JinqJPAScalaStreamProvider(JinqJPAScalaTestBase.entityManagerFactory);
+      streams = new JinqJPAScalaIteratorProvider(JinqJPAScalaTestBase.entityManagerFactory);
       
       // Hibernate seems to generate incorrect metamodel data for some types of
       // associations, so we have to manually supply the correct information here.
@@ -57,7 +57,7 @@ class JinqJPAScalaTestBase {
       em = JinqJPAScalaTestBase.entityManagerFactory.createEntityManager();
       em.getTransaction().begin();
       queryList.clear();
-      JinqJPAScalaTestBase.streams.setHint("exceptionOnTranslationFail", true);
+      JinqJPAScalaTestBase.streams.setHint("exceptionOnTranslationFail", java.lang.Boolean.TRUE);
       JinqJPAScalaTestBase.streams.setHint("queryLogger", new JPAQueryLogger() {
          def logQuery(q: String,
                positionParameters: Map[Integer, Object] ,

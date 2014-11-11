@@ -52,7 +52,7 @@ public class JinqJPAStreamProvider
    {
       String entityName = metamodel.entityNameFromClass(entity);
       Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ?
-         cachedQuery = cachedQueries.findCachedFindAllEntities(entityName) : null;
+         cachedQueries.findCachedFindAllEntities(entityName) : null;
       if (cachedQuery == null)
       {
          JPQLQuery<U> query = JPQLQuery.findAllEntities(entityName);
