@@ -8,8 +8,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.jinq.jpa.JPAQueryLogger;
-import org.jinq.jpa.JinqJPAStreamProvider;
-import org.jinq.orm.stream.JinqStream;
+import org.jinq.jpa.JinqJPAScalaStreamProvider;
+import org.jinq.orm.stream.scala.JinqConversions._;
+import org.jinq.orm.stream.scala.JinqScalaStream;
 import org.jinq.tuples.Pair;
 
 import com.example.jinq.sample.jpa.entities.Customer;
@@ -25,7 +26,7 @@ import com.example.jinq.sample.jpa.entities.Lineorder;
 
 class SampleMain {
    var entityManagerFactory : EntityManagerFactory = _;
-   var streams : JinqJPAStreamProvider = _;
+   var streams : JinqJPAScalaStreamProvider = _;
 
    var em : EntityManager = _;
 
@@ -34,7 +35,7 @@ class SampleMain {
       // Configure Jinq for the given JPA database connection
       entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
       SampleDbCreator.createDatabase(entityManagerFactory);
-      streams = new JinqJPAStreamProvider(entityManagerFactory);
+      streams = new JinqJPAScalaStreamProvider(entityManagerFactory);
       
       // Hibernate seems to generate incorrect metamodel data for some types of
       // associations, so we have to manually supply the correct information here.
@@ -56,9 +57,9 @@ class SampleMain {
 
    // Helper accessor methods
    
-   def customers(): JinqStream[Customer] = { return streams.streamAll(em, classOf[Customer]); }  
-   def items(): JinqStream[Item] = { return streams.streamAll(em, classOf[Item]); }  
-   def lineorders(): JinqStream[Lineorder] = { return streams.streamAll(em, classOf[Lineorder]); }  
+   def customers(): JinqScalaStream[Customer] = { return streams.streamAll(em, classOf[Customer]); }  
+   def items(): JinqScalaStream[Item] = { return streams.streamAll(em, classOf[Item]); }  
+   def lineorders(): JinqScalaStream[Lineorder] = { return streams.streamAll(em, classOf[Lineorder]); }  
    
    // Actual queries to run
    
@@ -66,59 +67,65 @@ class SampleMain {
    {
       val out = System.out;
       em = entityManagerFactory.createEntityManager();
-/*
+
       // Table scan
       out.println("LIST OF CUSTOMERS");
       customers()
-         .forEach( c => out.println(c.getName() + " " + c.getCountry() + " " + c.getSalary()));
+      	 .toIterator()
+         .foreach( c => out.println(c.getName() + " " + c.getCountry() + " " + c.getSalary()));
       out.println();
-      
+
       // Simple filtering based on a field
       out.println("CUSTOMERS FROM THE UK");
       customers()
-         .where(c => c.getCountry().equals("UK"))
-         .forEach( c => out.println(c.getName() + " " + c.getCountry()));
+         .where(c => c.getCountry() eq "UK")
+         .toIterator()
+         .foreach( c => out.println(c.getName() + " " + c.getCountry()));
       out.println();
 
       // Example using lists 
       out.println("CUSTOMERS FROM SWITZERLAND");
-      List<Customer> swiss = customers()
-         .where(c => c.getCountry().equals("Switzerland"))
+      val swiss = customers()
+         .where(c => c.getCountry() eq "Switzerland")
          .toList();
-      for (Customer c: swiss)
+      for (c <- swiss)
          out.println(c.getName() + " " + c.getCountry());
       out.println();
-      
+
       // Simple filtering with a parameter
       // (the parameter must be a basic type and a local variable)
-      ItemType param = ItemType.SMALL;
+      val param = ItemType.SMALL;
       out.println("ITEMS OF TYPE SMALL");
       items()
-         .where(i => i.getType() == param)
-         .forEach( i => out.println(i.getName() + " " + i.getType().name()));
+         .where(i => i.getType() eq param)
+         .toIterator
+         .foreach( i => out.println(i.getName() + " " + i.getType().name()));
       out.println();
 
       // More complex filtering involving multiple fields
       out.println("CUSTOMERS WITH DEBT < SALARY");
       customers()
          .where(c => c.getDebt() < c.getSalary())
-         .forEach( c => out.println(c.getName() + " " + c.getDebt() + " " + c.getSalary()));
+         .toIterator()
+         .foreach( c => out.println(c.getName() + " " + c.getDebt() + " " + c.getSalary()));
       out.println();
 
       // Projection where only a single field is used and a calculation performed
       out.println("HOW MUCH BIGGER IS A CUSTOMER'S DEBT THAN THEIR SALARY");
       customers()
-         .select(c => new Pair<>(c.getName(), c.getDebt() - c.getSalary()))
-         .forEach(pair => out.println(pair.getOne() + " " + pair.getTwo()));
+         .select(c => (c.getName(), c.getDebt() - c.getSalary()))
+         .toIterator()
+         .foreach(pair => out.println(pair._1 + " " + pair._2));
       out.println();
 
       // Mix of projection and filtering
       out.println("CUSTOMERS WITH A SALARY > 200 AND DEBT < SALARY");
       customers()
          .where(c => c.getSalary() > 200)
-         .select(c => new Pair<>(c.getName(), c.getDebt() - c.getSalary()))
-         .where(pair => pair.getTwo() < 0)
-         .forEach(pair => out.println(pair.getOne() + " " + pair.getTwo()));
+         .select(c => (c.getName(), c.getDebt() - c.getSalary()))
+         .where(pair => pair._2 < 0)
+         .toIterator()
+         .foreach(pair => out.println(pair._1 + " " + pair._2));
       out.println();
 
       // More complex filtering using imperative code
@@ -126,25 +133,27 @@ class SampleMain {
       customers()
          .where(c => {
             if (c.getCountry().equals("Switzerland"))
-               return c.getSalary() > 250;
+               c.getSalary() > 250;
             else
-               return c.getCountry().equals("USA");
+               c.getCountry() eq "USA";
          })
-         .forEach(c => out.println(c.getName() + " " + c.getCountry() + " " + c.getSalary()));
+         .toIterator()
+         .foreach(c => out.println(c.getName() + " " + c.getCountry() + " " + c.getSalary()));
       out.println();
 
       // Join across multiple tables using N:1 and 1:1 navigational links
       out.println("CUSTOMERS WHO HAVE PURCHASED WIDGETS IN THE PAST");
       lineorders()
-         .where(lo => lo.getItem().getName().equals("Widgets"))
+         .where(lo => lo.getItem().getName() eq "Widgets")
          .select(lo => lo.getSale().getCustomer().getName())
-         .forEach(name => out.println(name));
+         .toIterator()
+         .foreach(name => out.println(name));
       out.println();
       
       // Sum aggregation
       out.println("TOTAL NUMBER OF WIDGETS SOLD");
       out.println(lineorders()
-         .where(lo => lo.getItem().getName().equals("Widgets"))
+         .where(lo => lo.getItem().getName() eq "Widgets")
          .sumInteger(lo => lo.getQuantity()) );
       out.println();
       
@@ -153,18 +162,18 @@ class SampleMain {
       customers()
          .sortedDescendingBy(c => c.getSalary())
          .limit(3)
-         .forEach(c => out.println(c.getName() + " " + c.getSalary()));
+         .toIterator()
+         .foreach(c => out.println(c.getName() + " " + c.getSalary()));
       out.println();
 
       // Grouping
-      out.println("Number of Screws bought by each customer");
-      lineorders()
-         .where(lo => lo.getItem().getName().equals("Screws"))
-         .group( lo => lo.getSale().getCustomer().getName(),
-               (name, los) => los.sumInteger(lo => lo.getQuantity()))
-         .forEach(pair => out.println(pair.getOne() + " " + pair.getTwo()));
-      out.println();
-*/      
+//      out.println("Number of Screws bought by each customer");
+//      lineorders()
+//         .where(lo => lo.getItem().getName() eq "Screws")
+//         .group( lo => lo.getSale().getCustomer().getName(),
+//               (name, los) => los.sumInteger(lo => lo.getQuantity()))
+//         .foreach(pair => out.println(pair._1 + " " + pair._2));
+//      out.println();
 
       em.close();
    }
