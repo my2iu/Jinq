@@ -14,7 +14,7 @@ import org.jinq.jpa.transform.MetamodelUtilAttribute;
 import org.jinq.jpa.transform.ScalaLambdaAnalysisFactory;
 import org.jinq.jpa.transform.ScalaMetamodelUtil;
 import org.jinq.orm.stream.scala.InQueryStreamSource;
-import org.jinq.orm.stream.scala.JinqScalaStream;
+import org.jinq.orm.stream.scala.JinqScalaIterator;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
@@ -53,7 +53,7 @@ class JinqJPAScalaIteratorProvider(_metamodel: Metamodel) {
       metamodel, cachedQueries, lambdaAnalyzer,
       jpqlQueryTransformConfigurationFactory, em, hints, query),
       new InQueryStreamSource() {
-        def stream[U](entityClass: Class[U]): JinqScalaStream[U] =
+        def stream[U](entityClass: Class[U]): JinqScalaIterator[U] =
           {
             return streamAll(em, entityClass);
           }

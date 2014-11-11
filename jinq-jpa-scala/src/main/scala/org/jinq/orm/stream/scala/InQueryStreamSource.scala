@@ -23,5 +23,5 @@ trait InQueryStreamSource {
     * Returns a stream of entities using the same database as used
     * by the query being constructed.
     */
-   def stream[U](entityClass: Class[U]) : JinqScalaStream[U]
+   def stream[U](entityClass: Class[U]) : JinqScalaIterator[U]
 }

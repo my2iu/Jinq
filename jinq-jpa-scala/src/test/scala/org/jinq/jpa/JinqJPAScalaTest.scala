@@ -1,7 +1,7 @@
 package org.jinq.jpa;
 
 import org.jinq.jpa.test.entities.Customer
-import org.jinq.orm.stream.scala.JinqScalaStream
+import org.jinq.orm.stream.scala.JinqScalaIterator
 import org.junit.Assert
 import org.junit.Test
 import javax.persistence.EntityManager
@@ -21,14 +21,14 @@ import java.nio.ByteBuffer
 import java.util.Calendar
 
 class JinqJPAScalaTest extends JinqJPAScalaTestBase {
-  private def streamAll[U](em: EntityManager, entityClass: java.lang.Class[U]): JinqScalaStream[U] = {
+  private def streamAll[U](em: EntityManager, entityClass: java.lang.Class[U]): JinqScalaIterator[U] = {
     JinqJPAScalaTestBase.streams.streamAll(em, entityClass);
   }
 
   @Test
   def testStreamEntities {
     var customers = streamAll(em, classOf[Customer])
-      .toList()
+      .toList
       .sortBy((c) => c.getName())
     Assert.assertEquals("Alice", customers(0).getName);
     Assert.assertEquals(5, customers.length);
@@ -41,7 +41,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val debt = 100
     var customers = streamAll(em, classOf[Customer])
       .where((c) => c.getCountry == name && c.getDebt == debt)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A WHERE A.country IS NOT NULL AND A.country = :param0 AND A.debt = :param1 OR A.country IS NULL AND :param2 IS NULL AND A.debt = :param3", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Dave", customers(0).getName());
@@ -64,7 +64,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .where(i => i.getName().equals("Widgets"))
       .join((i, source) => source.stream(classOf[Item]))
       .where(pair => pair._1.getPurchaseprice() < pair._2.getPurchaseprice())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A, B FROM Item A, Item B WHERE A.name = 'Widgets' AND A.purchaseprice < B.purchaseprice", query);
     results = results.sortBy(c => c._2.getName())
     Assert.assertEquals(2, results.length);
@@ -79,7 +79,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     var results = streamAll(em, classOf[Lineorder])
       .join(lo => lo.getItem().getSuppliers())
       .where(pair => pair._1.getSale().getCustomer().getName() == "Alice")
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A, B FROM Lineorder A JOIN A.item.suppliers B WHERE A.sale.customer.name IS NOT NULL AND A.sale.customer.name = 'Alice' OR A.sale.customer.name IS NULL AND 'Alice' IS NULL", query);
     results = results.sortBy(c1 => c1._2.getName());
     Assert.assertEquals(5, results.length);
@@ -92,7 +92,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     var results = streamAll(em, classOf[Item])
       .where(i => i.getName().equals("Widgets"))
       .leftOuterJoin(i => i.getSuppliers())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN A.suppliers B WHERE A.name = 'Widgets'", query);
     results = results.sortBy(c1 => c1._2.getName());
     Assert.assertEquals(2, results.length);
@@ -107,8 +107,8 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      List<String> names = streamAll(em, classOf[Customer])
   //            .setHint("automaticPageSize", 1)
   //            .select(c => c.getName() )
-  //            .toList();
-  //      names = names.stream().sorted().collect(Collectors.toList());
+  //            .toList;
+  //      names = names.stream().sorted().collect(Collectors.toList);
   //      Assert.assertEquals(5, names.length);
   //      Assert.assertEquals("Alice", names(0));
   //      Assert.assertEquals("Bob", names(1));
@@ -125,12 +125,12 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      streamAll(em, classOf[Customer])
   //            .setHint("exceptionOnTranslationFail", false)
   //            .select(c => {externalMethod(); return "blank";} )
-  //            .toList();
+  //            .toList;
   //      try {
   //         streamAll(em, classOf[Customer])
   //               .setHint("exceptionOnTranslationFail", true)
   //               .select(c => {externalMethod(); return "blank";} )
-  //               .toList();
+  //               .toList;
   //      } 
   //      catch (RuntimeException e)
   //      {
@@ -145,7 +145,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     var results = streamAll(em, classOf[Item])
       .where(i => i.getName() == "Widgets")
       .join(i => i.getSuppliers())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A, B FROM Item A JOIN A.suppliers B WHERE A.name IS NOT NULL AND A.name = 'Widgets' OR A.name IS NULL AND 'Widgets' IS NULL", query);
     results = results.sortBy(c1 => c1._2.getName());
     Assert.assertEquals(2, results.length);
@@ -159,7 +159,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     var results = streamAll(em, classOf[Lineorder])
       .where(lo => lo.getItem().getName() == "Talent")
       .leftOuterJoin(lo => lo.getItem().getSuppliers())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A, C FROM Lineorder A JOIN A.item B LEFT OUTER JOIN B.suppliers C WHERE A.item.name IS NOT NULL AND A.item.name = 'Talent' OR A.item.name IS NULL AND 'Talent' IS NULL", query);
     results = results.sortBy(c1 => c1._2.getName());
     Assert.assertEquals(1, results.length);
@@ -168,9 +168,9 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   @Test
   def testOuterJoin11() {
     var results = streamAll(em, classOf[Lineorder])
-      .leftOuterJoin(lo => JinqScalaStream.of(lo.getItem()))
+      .leftOuterJoin(lo => JinqScalaIterator.of(lo.getItem()))
       .where(pair => pair._2.getName() == "Talent")
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name IS NOT NULL AND B.name = 'Talent' OR B.name IS NULL AND 'Talent' IS NULL", query);
     results = results.sortBy(c1 => c1._2.getName());
     Assert.assertEquals(1, results.length);
@@ -182,7 +182,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      // Cannot do outer joins on normal fields. Only navigational links.
   //      List<Pair<Customer, String>> results = streamAll(em, classOf[Customer])
   //            .leftOuterJoin(c => JinqStream.of(c.getCountry()))
-  //            .toList();
+  //            .toList;
   //      Assert.assertEquals("SELECT A, B FROM Customer A LEFT OUTER JOIN A.country B", query);
   //      Assert.assertEquals(5, results.length);
   //   }
@@ -191,7 +191,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testSort {
     val results = streamAll(em, classOf[Customer])
       .sortedBy(c => c.getName())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
     Assert.assertEquals(5, results.length);
     Assert.assertEquals("Alice", results(0).getName());
@@ -204,7 +204,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val results = streamAll(em, classOf[Item])
       .where(i => i.getPurchaseprice() > 1)
       .sortedDescendingBy(i => i.getSaleprice() - i.getPurchaseprice())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Item A WHERE A.purchaseprice > 1 ORDER BY A.saleprice - A.purchaseprice DESC", query);
     Assert.assertEquals(4, results.length);
     Assert.assertEquals("Talent", results(0).getName());
@@ -216,7 +216,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val results = streamAll(em, classOf[Customer])
       .sortedDescendingBy(c => c.getName())
       .sortedBy(c => c.getCountry())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.country ASC, A.name DESC", query);
     Assert.assertEquals(5, results.length);
     Assert.assertEquals("Eve", results(0).getName());
@@ -231,7 +231,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .sortedBy(c => c.getName())
       .skip(1)
       .limit(2)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
     Assert.assertEquals(2, queryList.length);
     Assert.assertEquals(2, results.length);
@@ -245,7 +245,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .sortedBy(c => c.getName())
       .limit(3)
       .skip(1)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
     Assert.assertEquals(1, queryList.length);
     Assert.assertEquals(2, results.length);
@@ -258,7 +258,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val customers = streamAll(em, classOf[Customer])
       .where(c => JPQL.like(c.getName(), "A_i%ce") && c.getName().length() > c.getName().indexOf("l"))
       .select(c => c.getName().toUpperCase().trim() + c.getCountry().substring(0, 1))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT CONCAT(TRIM(UPPER(A.name)), SUBSTRING(A.country, 0 + 1, 1 - 0)) FROM Customer A WHERE A.name LIKE 'A_i%ce' AND LENGTH(A.name) > LOCATE('l', A.name) - 1", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("ALICES", customers(0));
@@ -269,7 +269,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val customers = streamAll(em, classOf[Customer])
       .select(c => c.getName() + " " + c.getCountry())
       .sortedBy(s => s)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT CONCAT(CONCAT(A.name, ' '), A.country) FROM Customer A ORDER BY CONCAT(CONCAT(A.name, ' '), A.country) ASC", query);
     Assert.assertEquals(5, customers.length);
     Assert.assertEquals("Alice Switzerland", customers(0));
@@ -279,7 +279,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testJPQLNumberFunctions() {
     val customers = streamAll(em, classOf[Customer])
       .select(c => Math.abs(c.getSalary() + Math.sqrt(c.getDebt())) + (c.getSalary() % c.getDebt()))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT ABS(A.salary + SQRT(A.debt)) + MOD(A.salary, A.debt) FROM Customer A", query);
     Assert.assertEquals(5, customers.length);
   }
@@ -479,7 +479,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .select(lo => lo.getItem().getName())
       .distinct()
       .sortedBy(name => name)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT DISTINCT A.item.name FROM Lineorder A ORDER BY A.item.name ASC", query);
     Assert.assertEquals(5, itemsSold.length);
     Assert.assertEquals("Lawnmowers", itemsSold(0));
@@ -493,7 +493,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //          .group(c => c.getCountry(),
   //                (country, stream) => stream.count(),
   //                (country, stream) => (Integer)stream.min(c => c.getSalary()))
-  //          .toList();
+  //          .toList;
   //    results.sort((a, b) => a._1.compareTo(b._1));
   //    Assert.assertEquals(4, results.length);
   //    Assert.assertEquals(1, (long)results(0)._2);
@@ -513,7 +513,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //          .sortedBy(g => g._1)
   //          .skip(1)
   //          .limit(1)
-  //          .toList();
+  //          .toList;
   //    Assert.assertEquals(1, results.length);
   //    Assert.assertEquals(new Tuple3<>("Switzerland", 2l, 200), results(0));
   //    Assert.assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country ASC", query);
@@ -526,7 +526,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //            streamAll(em, classOf[Sale])
   //                  .group(s => s.getCustomer(), 
   //                        (c, stream) => stream.count())
-  //                  .toList();
+  //                  .toList;
   //      results.sort(Comparator.<Pair<Customer, Long>, Long>comparing(group => group._2)
   //            .thenComparing(group => group._1.getName()));
   //      Assert.assertEquals(4, results.length);
@@ -544,7 +544,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //                  .group(s => new Pair<String, Integer>(s.getCustomer().getName(), s.getCustomer().getSalary()), 
   //                        (c, stream) => c._2 + stream.count())
   //                  .select(group => new Pair<>(group._1._1, group._2))
-  //                  .toList();
+  //                  .toList;
   //      results.sort(Comparator.comparing(group => group._1));
   //      Assert.assertEquals(new Pair<>("Alice", 202l),
   //            results(0));
@@ -563,7 +563,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //                  .where(group => group._2 < 220)
   //                  .select(group => new Pair<>(group._1._1, group._2))
   //                  .sortedBy(group => group._1)
-  //                  .toList();
+  //                  .toList;
   //      Assert.assertEquals(2, results.length);
   //      Assert.assertEquals(new Pair<>("Alice", 201l),
   //            results(0));
@@ -578,7 +578,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //            .sortedBy(c => c.getName())
   //            .group(c => c.getCountry(), 
   //                  (c, stream) => stream.count())
-  //            .toList();
+  //            .toList;
   //      Assert.assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country", query);
   //   }
   //   
@@ -587,7 +587,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   {
   //      List<Sale> sales = streamAll(em, classOf[Sale])
   //            .where( (s, source) => source.stream(Sale.class).max(ss => ss.getSaleid()) == s.getSaleid())
-  //            .toList();
+  //            .toList;
   //      Assert.assertEquals("SELECT A FROM Sale A WHERE (SELECT MAX(B.saleid) FROM Sale B) = A.saleid", query);
   //      Assert.assertEquals(1, sales.length);
   //   }
@@ -598,7 +598,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      List<Customer> customers = streamAll(em, classOf[Customer])
   //            .where( c => JinqStream.from(c.getSales()).count() > 1)
   //            .sortedBy( c => c.getName() )
-  //            .toList();
+  //            .toList;
   //      Assert.assertEquals("SELECT A FROM Customer A WHERE (SELECT COUNT(B) FROM A.sales B) > 1 ORDER BY A.name ASC", query);
   //      Assert.assertEquals(2, customers.length);
   //      Assert.assertEquals("Alice", customers(0).getName());
@@ -612,7 +612,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //            .select( c => new Pair<>(c, JinqStream.from(c.getSales()).count()))
   //            .sortedBy( c => c._1.getName() )
   //            .sortedBy( c => c._2)
-  //            .toList();
+  //            .toList;
   //// EclipseLink on Derby is returning the result of the subquery as an integer and not a long, causing a cast problem here
   ////      customers.sort(Comparator.comparing(pair => pair._1.getName()));
   ////      customers.sort(Comparator.comparing(pair => pair._2));
@@ -629,7 +629,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //            .where( c => JinqStream.from(c.getSales()).join(s => JinqStream.from(s.getLineorders())).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
   //            .select( (c, source) => new Pair<String, Object>(c.getName(), source.stream(Customer.class).where( c2 => c2.getSalary() > c.getSalary()).count()) )
   //            .sortedBy( pair => pair._1)
-  //            .toList();
+  //            .toList;
   //      Assert.assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
   //      Assert.assertEquals("Alice", sales(0)._1);
   //      Assert.assertEquals("Carol", sales(1)._1);
@@ -657,7 +657,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //                        .where(c2 => c2.getName().equals("Alice"))
   //                        .select(c2 => c2.getDebt())
   //                        .getOnlyValue() )
-  //            .toList();
+  //            .toList;
   //      Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt < (SELECT B.debt FROM Customer B WHERE B.name = 'Alice')", query);
   //      Assert.assertEquals(1, customers.length);
   //      Assert.assertEquals("Eve", customers(0).getName());
@@ -667,7 +667,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testSelectMath() {
     val customers = streamAll(em, classOf[Customer])
       .select(c => c.getDebt() + c.getSalary() * 2)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.debt + A.salary * 2 FROM Customer A", query);
     val results = customers.sortBy(c => c);
     Assert.assertEquals(5, results.length);
@@ -678,7 +678,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testSelectOperatorPrecedence() {
     val results = streamAll(em, classOf[Customer])
       .select(c => 3 * (c.getDebt() - (c.getSalary() + 2)))
-      .toList()
+      .toList
       .sortBy(num => num);
     Assert.assertEquals("SELECT 3 * (A.debt - (A.salary + 2)) FROM Customer A", query);
     Assert.assertEquals(5, results.length);
@@ -689,7 +689,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testSelectPair() {
     var customers = streamAll(em, classOf[Customer])
       .select(c => (c.getName(), c.getCountry()))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.name, A.country FROM Customer A", query);
     Assert.assertEquals(5, customers.length);
     customers = customers.sortBy(c => c._1);
@@ -700,7 +700,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testSelectPairOfPair() {
     var customers = streamAll(em, classOf[Customer])
       .select(c => ((c.getName(), c.getCountry()), c.getDebt()))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.name, A.country, A.debt FROM Customer A", query);
     var results = customers.sortBy(p => p._1._1)
     Assert.assertEquals(5, results.length);
@@ -713,7 +713,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val customers = streamAll(em, classOf[Customer])
       .select(c => c.getDebt())
       .select(d => d * 2)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.debt * 2 FROM Customer A", query);
     val results = customers.sortBy(c => c);
     Assert.assertEquals(5, results.length);
@@ -725,7 +725,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val results = streamAll(em, classOf[Customer])
       .select(c => (c.getName(), c.getDebt()))
       .where(p => p._2 > 250)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.name, A.debt FROM Customer A WHERE A.debt > 250", query);
     Assert.assertEquals(1, results.length);
     Assert.assertEquals("Carol", results(0)._1);
@@ -735,7 +735,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testSelectN1Link() {
     val customers = streamAll(em, classOf[Sale])
       .select(s => s.getCustomer())
-      .toList()
+      .toList
       .sortBy(c => c.getName());
     Assert.assertEquals("SELECT A.customer FROM Sale A", query);
     Assert.assertEquals(6, customers.length);
@@ -748,7 +748,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .select(c => (c.getName(), if (c.getCountry() == "UK") "UK" else "NotUK"))
       .sortedBy(p => p._1)
       .sortedBy(p => p._2)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.name, CASE WHEN A.country IS NOT NULL AND A.country <> 'UK' THEN 'NotUK' WHEN A.country IS NOT NULL AND A.country = 'UK' THEN 'UK' WHEN A.country IS NULL AND 'UK' IS NULL THEN 'UK' ELSE 'NotUK' END FROM Customer A ORDER BY CASE WHEN A.country IS NOT NULL AND A.country <> 'UK' THEN 'NotUK' WHEN A.country IS NOT NULL AND A.country = 'UK' THEN 'UK' WHEN A.country IS NULL AND 'UK' IS NULL THEN 'UK' ELSE 'NotUK' END ASC, A.name ASC", query);
     Assert.assertEquals(5, customers.length);
     Assert.assertEquals("UK", customers(4)._2);
@@ -761,7 +761,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val customers = streamAll(em, classOf[Customer])
       .where(c => c.getCountry() == value || c.getName() == "Alice")
       .select(c => (c, c.getName()))
-      .toList()
+      .toList
       .sortBy(a => a._1.getName());
     Assert.assertEquals("SELECT A, A.name FROM Customer A WHERE A.country IS NOT NULL AND A.country = :param0 OR A.country IS NOT NULL AND A.country <> :param1 AND A.name IS NOT NULL AND A.name = 'Alice' OR A.country IS NOT NULL AND A.country <> :param2 AND A.name IS NULL AND 'Alice' IS NULL OR A.country IS NULL AND :param3 IS NULL OR A.country IS NULL AND :param4 IS NOT NULL AND A.name IS NOT NULL AND A.name = 'Alice' OR A.country IS NULL AND :param5 IS NOT NULL AND A.name IS NULL AND 'Alice' IS NULL", query);
     Assert.assertEquals(2, customers.length);
@@ -773,7 +773,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testStringEscape() {
     val customers = streamAll(em, classOf[Customer])
       .select(c => "I didn't know \\''")
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT 'I didn''t know \\''''' FROM Customer A", query);
     Assert.assertEquals(5, customers.length);
     Assert.assertEquals("I didn't know \\''", customers(0));
@@ -785,7 +785,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val customers = streamAll(em, classOf[Customer])
       .where(c => c.getSalary() + 5 + value < 212)
       .select(c => (c, c.getSalary()))
-      .toList()
+      .toList
       .sortBy(a => a._1.getName());
     Assert.assertEquals("SELECT A, A.salary FROM Customer A WHERE A.salary + 5 + :param0 < 212", query);
     Assert.assertEquals(2, customers.length);
@@ -800,7 +800,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val suppliers = streamAll(em, classOf[Supplier])
       .where(s => s.getRevenue() + 1000 + value < 10000000L)
       .select(s => (s, s.getRevenue()))
-      .toList()
+      .toList
       .sortBy(a => a._1.getName());
     Assert.assertEquals("SELECT A, A.revenue FROM Supplier A WHERE A.revenue + 1000 + :param0 < 10000000", query);
     Assert.assertEquals(2, suppliers.length);
@@ -815,7 +815,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val items = streamAll(em, classOf[Item])
       .where(i => i.getSaleprice() > i.getPurchaseprice() + value + 2)
       .select(i => (i, i.getSaleprice()))
-      .toList()
+      .toList
       .sortBy(a => a._1.getName());
     Assert.assertEquals("SELECT A, A.saleprice FROM Item A WHERE A.saleprice > A.purchaseprice + :param0 + 2", query);
     Assert.assertEquals(2, items.length);
@@ -830,7 +830,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getDate().before(value))
       .select(s => (s.getCustomer(), s.getDate()))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.customer, A.date FROM Sale A WHERE A.date < :param0", query);
     Assert.assertEquals(1, sales.length);
     Assert.assertEquals("Dave", sales(0)._1.getName());
@@ -843,7 +843,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getDate() == value)
       .select(s => s.getCustomer().getName())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.customer.name FROM Sale A WHERE A.date IS NOT NULL AND A.date = :param0 OR A.date IS NULL AND :param1 IS NULL", query);
     Assert.assertEquals(1, sales.length);
     Assert.assertEquals("Dave", sales(0));
@@ -858,7 +858,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getCalendar().before(val1) || s.getCalendar().equals(val2))
       .select(s => (s.getCustomer(), s.getCalendar()))
-      .toList()
+      .toList
       .sortWith((a, b) => a._2.before(b._2));
     Assert.assertEquals("SELECT A.customer, A.calendar FROM Sale A WHERE A.calendar < :param0 OR A.calendar >= :param1 AND A.calendar = :param2", query);
     Assert.assertEquals(2, sales.length);
@@ -873,7 +873,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getSqlDate().before(val1) || s.getSqlDate().equals(val2))
       .select(s => (s.getCustomer(), s.getSqlDate()))
-      .toList()
+      .toList
       .sortWith((a, b) => a._2.before(b._2));
     Assert.assertEquals("SELECT A.customer, A.sqlDate FROM Sale A WHERE A.sqlDate < :param0 OR A.sqlDate >= :param1 AND A.sqlDate = :param2", query);
     Assert.assertEquals(2, sales.length);
@@ -888,7 +888,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getSqlTime().after(val1) || s.getSqlTime().equals(val2))
       .select(s => (s.getCustomer(), s.getSqlTime()))
-      .toList()
+      .toList
       .sortWith((a, b) => a._2.before(b._2));
     Assert.assertEquals("SELECT A.customer, A.sqlTime FROM Sale A WHERE A.sqlTime > :param0 OR A.sqlTime <= :param1 AND A.sqlTime = :param2", query);
     Assert.assertEquals(2, sales.length);
@@ -903,7 +903,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getSqlTimestamp().before(val1) || s.getSqlTimestamp().equals(val2))
       .select(s => (s.getCustomer(), s.getSqlTimestamp()))
-      .toList()
+      .toList
       .sortWith((a, b) => a._2.before(b._2));
     Assert.assertEquals("SELECT A.customer, A.sqlTimestamp FROM Sale A WHERE A.sqlTimestamp < :param0 OR A.sqlTimestamp >= :param1 AND A.sqlTimestamp = :param2", query);
     Assert.assertEquals(2, sales.length);
@@ -918,7 +918,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     var suppliers = streamAll(em, classOf[Supplier])
       .where(s => s.getHasFreeShipping())
       .select(s => (s, s.getHasFreeShipping()))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A, A.hasFreeShipping FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
     Assert.assertEquals(1, suppliers.length);
     Assert.assertEquals("Talent Agency", suppliers(0)._1.getName());
@@ -928,7 +928,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     suppliers = streamAll(em, classOf[Supplier])
       .where(s => s.getHasFreeShipping() == value)
       .select(s => (s, s.getHasFreeShipping()))
-      .toList()
+      .toList
       .sortBy(a => a._1.getName());
     Assert.assertEquals("SELECT A, A.hasFreeShipping FROM Supplier A WHERE A.hasFreeShipping = :param0", query);
     Assert.assertEquals(2, suppliers.length);
@@ -945,7 +945,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      List<Pair<Supplier, Boolean>> suppliers = streamAll(em, classOf[Supplier])
   //            .where(s => s.getHasFreeShipping())
   //            .select(s => new Pair<>(s, s.getHasFreeShipping() != true))
-  //            .toList();
+  //            .toList;
   //      Assert.assertTrue("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN TRUE ELSE FALSE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query)
   //            || "SELECT A, CASE WHEN A.hasFreeShipping = TRUE THEN FALSE ELSE TRUE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query));
   //      Assert.assertEquals(1, suppliers.length);
@@ -959,7 +959,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val items = streamAll(em, classOf[Item])
       .where(i => i.getType() == value || i.getType().equals(ItemType.BIG))
       .select(i => (i, i.getType()))
-      .toList()
+      .toList
       .sortBy(a => a._1.getName());
     Assert.assertEquals("SELECT A, A.type FROM Item A WHERE A.type IS NOT NULL AND A.type = :param0 OR A.type IS NOT NULL AND A.type <> :param1 AND A.type = org.jinq.jpa.test.entities.ItemType.BIG OR A.type IS NULL AND :param2 IS NULL OR A.type IS NULL AND :param3 IS NOT NULL AND A.type = org.jinq.jpa.test.entities.ItemType.BIG", query);
     Assert.assertEquals(2, items.length);
@@ -975,7 +975,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val lineorders = streamAll(em, classOf[Lineorder])
       .where(c => c.getTotal().compareTo(val1.multiply(val2)) < 0)
       .select(c => (c, c.getTotal()))
-      .toList()
+      .toList
       .sortBy(a => a._2);
     Assert.assertEquals("SELECT A, A.total FROM Lineorder A WHERE A.total < :param0 * :param1", query);
     Assert.assertEquals(5, lineorders.length);
@@ -990,7 +990,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val lineorders = streamAll(em, classOf[Lineorder])
       .where(c => c.getTransactionConfirmation().add(val2).compareTo(val1) < 0)
       .select(c => (c, c.getTransactionConfirmation()))
-      .toList()
+      .toList
       .sortBy(a => a._2);
     Assert.assertEquals("SELECT A, A.transactionConfirmation FROM Lineorder A WHERE A.transactionConfirmation + :param0 < :param1", query);
     Assert.assertEquals(3, lineorders.length);
@@ -1002,7 +1002,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testBlob() {
     val suppliers = streamAll(em, classOf[Supplier])
       .select(s => (s, s.getSignature()))
-      .toList()
+      .toList
       .sortBy(a => a._1.getName());
     Assert.assertEquals("SELECT A, A.signature FROM Supplier A", query);
     Assert.assertEquals(3, suppliers.length);
@@ -1013,19 +1013,19 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testDivide() {
     val value = 5.0;
     var resultDouble = streamAll(em, classOf[Customer])
-      .select(c => value / 2.0).toList();
+      .select(c => value / 2.0).toList;
     Assert.assertEquals("SELECT :param0 / 2.0 FROM Customer A", query);
     Assert.assertEquals(2.5, resultDouble(0), 0.001);
 
     val valInt = 5;
     val resultInteger = streamAll(em, classOf[Customer])
-      .select(c => valInt / 2).toList();
+      .select(c => valInt / 2).toList;
     Assert.assertEquals("SELECT :param0 / 2 FROM Customer A", query);
     Assert.assertEquals(2, resultInteger(0));
 
     resultDouble = streamAll(em, classOf[Customer])
       .select(c => value * 2.0 / valInt)
-      .sortedBy(num => num).toList();
+      .sortedBy(num => num).toList;
     Assert.assertEquals("SELECT :param0 * 2.0 / :param1 FROM Customer A ORDER BY :param0 * 2.0 / :param1 ASC", query);
     Assert.assertEquals(2.0, resultDouble(0), 0.001);
   }
@@ -1039,7 +1039,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      double val = 5.0;
   //      int valInt = 5;
   //      List<Double> resultDouble = streamAll(em, classOf[Customer])
-  //            .select(c => val / valInt).toList();
+  //            .select(c => val / valInt).toList;
   //      Assert.assertEquals("SELECT :param0 / :param1 FROM Customer A", query);
   //      Assert.assertEquals(1.0, resultDouble(0).doubleValue(), 0.001);
   //   }
@@ -1051,7 +1051,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      // any fields of data.
   //      double val = 5.0;
   //      List<Customer> results = streamAll(em, classOf[Customer])
-  //            .sortedBy(c => 5 * val).toList();
+  //            .sortedBy(c => 5 * val).toList;
   //      Assert.assertEquals("SELECT A FROM Customer A ORDER BY 5 * :param0", query);
   //      Assert.assertEquals(5, results.length);
   //   }
@@ -1060,7 +1060,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testNumericPromotionMath() {
     val lineorders = streamAll(em, classOf[Lineorder])
       .sortedBy(lo => lo.getQuantity() * lo.getItem().getSaleprice())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Lineorder A ORDER BY A.quantity * A.item.saleprice ASC", query);
     Assert.assertEquals(11, lineorders.length);
     Assert.assertEquals("Screws", lineorders(0).getItem().getName());
@@ -1072,7 +1072,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val lineorders = streamAll(em, classOf[Lineorder])
       .select(lo => (lo.getTotal().add(new BigDecimal(value))).doubleValue() + lo.getItem().getSaleprice())
       .sortedBy(num => num)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.total + :param0 + A.item.saleprice FROM Lineorder A ORDER BY A.total + :param0 + A.item.saleprice ASC", query);
     Assert.assertEquals(11, lineorders.length);
     Assert.assertEquals(6, lineorders(0).longValue());
@@ -1083,7 +1083,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val lineorders = streamAll(em, classOf[Lineorder])
       .select(lo => lo.getTransactionConfirmation().add(BigInteger.valueOf(lo.getQuantity())))
       .sortedBy(num => num)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.transactionConfirmation + A.quantity FROM Lineorder A ORDER BY A.transactionConfirmation + A.quantity ASC", query);
     Assert.assertEquals(11, lineorders.length);
     Assert.assertEquals(1001, lineorders(0).longValue());
@@ -1094,7 +1094,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val lineorders = streamAll(em, classOf[Lineorder])
       .where(lo => lo.getQuantity() + 20 < lo.getItem().getSaleprice())
       .sortedBy(lo => lo.getItem().getName())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Lineorder A WHERE A.quantity + 20 < A.item.saleprice ORDER BY A.item.name ASC", query);
     Assert.assertEquals(3, lineorders.length);
     Assert.assertEquals("Lawnmowers", lineorders(0).getItem().getName());
@@ -1106,7 +1106,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     // Although it is the most intuitive, it isn't consistent with JPQL NULL handling rules
     streamAll(em, classOf[Sale])
       .where(s => s.getCustomer() == null)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Sale A WHERE A.customer IS NULL", query);
   }
 
@@ -1114,7 +1114,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testNonNull() {
     streamAll(em, classOf[Supplier])
       .where(s => null != s.getCountry())
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Supplier A WHERE A.country IS NOT NULL", query);
   }
 
@@ -1122,7 +1122,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testSimpleWhere {
     var customers = streamAll(em, classOf[Customer])
       .where((c) => c.getCountry == "UK")
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A WHERE A.country IS NOT NULL AND A.country = 'UK' OR A.country IS NULL AND 'UK' IS NULL", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Dave", customers(0).getName());
@@ -1132,7 +1132,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testWherePaths() {
     val customers = streamAll(em, classOf[Customer])
       .where((c) => if (c.getCountry().equals("UK")) c.getName().equals("Bob") else c.getName().equals("Alice"))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A WHERE A.name = 'Alice' AND A.country <> 'UK' OR A.name = 'Bob' AND A.country = 'UK'", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Alice", customers(0).getName());
@@ -1142,7 +1142,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testWhereIntegerComparison() {
     val customers = streamAll(em, classOf[Customer])
       .where(c => c.getDebt() < 90)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt < 90", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Eve", customers(0).getName());
@@ -1152,7 +1152,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testWhereNegation() {
     val customers = streamAll(em, classOf[Customer])
       .where(c => c.getDebt() > -c.getSalary() + 1)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt > - A.salary + 1", query);
     Assert.assertEquals(5, customers.length);
   }
@@ -1162,7 +1162,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val suppliers = streamAll(em, classOf[Supplier])
       .where(s => !s.getHasFreeShipping())
       .where(s => !(s.getName().equals("Conglomerate") || s.getName().equals("Talent Agency")))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Supplier A WHERE NOT A.hasFreeShipping = TRUE AND (A.name <> 'Conglomerate' AND A.name <> 'Talent Agency')", query);
     Assert.assertEquals(1, suppliers.length);
     Assert.assertEquals("HW Supplier", suppliers(0).getName());
@@ -1173,7 +1173,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val customers = streamAll(em, classOf[Customer])
       .where(c => c.getCountry() == "Switzerland")
       .where(c => c.getName() == "Bob")
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A WHERE (A.country IS NOT NULL AND A.country = 'Switzerland' OR A.country IS NULL AND 'Switzerland' IS NULL) AND (A.name IS NOT NULL AND A.name = 'Bob' OR A.name IS NULL AND 'Bob' IS NULL)", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Bob", customers(0).getName());
@@ -1184,7 +1184,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val param = 90;
     val customers = streamAll(em, classOf[Customer])
       .where(c => c.getDebt() < param)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt < :param0", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Eve", customers(0).getName());
@@ -1197,7 +1197,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .select(c => (c.getName(), c.getCountry()))
       .where(p => p._2 == param)
       .select(p => p._1)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.name FROM Customer A WHERE A.country IS NOT NULL AND A.country = :param0 OR A.country IS NULL AND :param1 IS NULL", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Dave", customers(0));
@@ -1209,7 +1209,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val paramUpper = 250;
     val customers = streamAll(em, classOf[Customer])
       .where(c => c.getDebt() > paramLower && c.getDebt() < paramUpper)
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt > :param0 AND A.debt < :param1", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Bob", customers(0).getName());
@@ -1219,7 +1219,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testWhereN1Link() {
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getCustomer().getName() == "Alice")
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A FROM Sale A WHERE A.customer.name IS NOT NULL AND A.customer.name = 'Alice' OR A.customer.name IS NULL AND 'Alice' IS NULL", query);
     Assert.assertEquals(2, sales.length);
     Assert.assertEquals("Alice", sales(0).getCustomer().getName());
@@ -1231,7 +1231,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .where(s => s.getCustomer().getCountry() == "Switzerland")
       .where(s => s.getCustomer().getDebt() < 150)
       .select(s => (s.getCustomer().getName(), s.getDate()))
-      .toList();
+      .toList;
     Assert.assertEquals("SELECT A.customer.name, A.date FROM Sale A WHERE (A.customer.country IS NOT NULL AND A.customer.country = 'Switzerland' OR A.customer.country IS NULL AND 'Switzerland' IS NULL) AND A.customer.debt < 150", query);
     Assert.assertEquals(2, sales.length);
     Assert.assertEquals("Alice", sales(0)._1);
