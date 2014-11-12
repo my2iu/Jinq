@@ -141,7 +141,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       hints.queryLogger.logQuery(queryString, positionParams, namedParams);
    }
    
-   private T executeAndGetSingleResult()
+   public T executeAndGetSingleResult()
    {
       final String queryString = query.getQueryString();
       final Query q = em.createQuery(queryString);

@@ -18,8 +18,9 @@ import _root_.scala.Function2
 import _root_.scala.Tuple2
 import _root_.scala.collection.Iterator
 import _root_.scala.collection.immutable.List
-import _root_.scala.math.Numeric;
+import _root_.scala.math.Numeric
 import java.util.function.Consumer
+import org.jinq.jpa.transform.MultiAggregateTransform
 
 class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource: InQueryStreamSource) extends JinqScalaIterator[T] {
   val GENERIC_TRANSLATION_FAIL_MESSAGE = "Could not translate Scala code to a query";
@@ -193,6 +194,32 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
   }
 
+  private def multiaggregate[K](groupingLambdas: Array[Object]) : K = {
+    val result : JPAQueryComposer[K] = queryComposer.applyTransformWithLambdas(new MultiAggregateTransform(queryComposer.getConfig()), groupingLambdas)
+    if (result != null) return result.executeAndGetSingleResult(); 
+    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+  }
+  
+  def aggregate[U, V](fn1: JinqScalaIterator[T] => U, fn2: JinqScalaIterator[T] => V): (U, V) = {
+    val groupingLambdas : Array[Object] = Array(fn1, fn2);
+    return multiaggregate(groupingLambdas)
+  }
+  
+  def aggregate[U,V,W](fn1: (JinqScalaIterator[T]) => U, fn2: (JinqScalaIterator[T]) => V, fn3: (JinqScalaIterator[T]) => W) : (U,V,W) = {
+    val groupingLambdas : Array[Object] = Array(fn1, fn2, fn3);
+    return multiaggregate(groupingLambdas)
+  }
+  
+  def aggregate[U,V,W,X](fn1: (JinqScalaIterator[T]) => U, fn2: (JinqScalaIterator[T]) => V, fn3: (JinqScalaIterator[T]) => W, fn4: (JinqScalaIterator[T]) => X) : (U,V,W,X) = {
+    val groupingLambdas : Array[Object] = Array(fn1, fn2, fn3, fn4);
+    return multiaggregate(groupingLambdas)
+  }
+  
+  def aggregate[U,V,W,X,Y](fn1: (JinqScalaIterator[T]) => U, fn2: (JinqScalaIterator[T]) => V, fn3: (JinqScalaIterator[T]) => W, fn4: (JinqScalaIterator[T]) => X, fn5: (JinqScalaIterator[T]) => Y) : (U,V,W,X,Y) = {
+    val groupingLambdas : Array[Object] = Array(fn1, fn2, fn3, fn4, fn5);
+    return multiaggregate(groupingLambdas)
+  }
+
   @Override
   def setHint(name: String, value: Object): JinqJPAScalaIterator[T] = {
     queryComposer.setHint(name, value);
@@ -227,5 +254,4 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     if (vals.length == 1) return vals(0);
     throw new NoSuchElementException();
   }
-
 }

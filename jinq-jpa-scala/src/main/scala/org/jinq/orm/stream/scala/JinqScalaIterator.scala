@@ -29,7 +29,10 @@ trait JinqScalaIterator[T] extends Iterator[T] {
   def limit(n: Long) : JinqScalaIterator[T]  
   def skip(n: Long) : JinqScalaIterator[T]  
   def distinct() : JinqScalaIterator[T]  
-//  def aggregate[U,V](fn1: (JinqScalaStream[T]) => U, fn2: (JinqScalaStream[T]) => V) : Tuple2[U,V]
+  def aggregate[U,V](fn1: (JinqScalaIterator[T]) => U, fn2: (JinqScalaIterator[T]) => V) : (U,V)
+  def aggregate[U,V,W](fn1: (JinqScalaIterator[T]) => U, fn2: (JinqScalaIterator[T]) => V, fn3: (JinqScalaIterator[T]) => W) : (U,V,W)
+  def aggregate[U,V,W,X](fn1: (JinqScalaIterator[T]) => U, fn2: (JinqScalaIterator[T]) => V, fn3: (JinqScalaIterator[T]) => W, fn4: (JinqScalaIterator[T]) => X) : (U,V,W,X)
+  def aggregate[U,V,W,X,Y](fn1: (JinqScalaIterator[T]) => U, fn2: (JinqScalaIterator[T]) => V, fn3: (JinqScalaIterator[T]) => W, fn4: (JinqScalaIterator[T]) => X, fn5: (JinqScalaIterator[T]) => Y) : (U,V,W,X,Y)
   def setHint(name: String, value: Object) : JinqScalaIterator[T]
 
   def getOnlyValue() : T
