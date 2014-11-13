@@ -114,13 +114,7 @@ public class CodePath
       return paths;
    }
    
-   public static class PathReturnValueAndConditions
-   {
-      TypedValue returnValue; 
-      List<TypedValue.ComparisonValue> conditions;
-   }
-   
-   public <T> PathReturnValueAndConditions calculateReturnValueAndConditions(
+   public <T> PathAnalysis calculateReturnValueAndConditions(
          ClassNode cl, MethodNode m,
          final PathAnalysisMethodChecker methodChecker) throws AnalyzerException
    {
@@ -157,9 +151,7 @@ public class CodePath
       TypedValue returnValue = interpreter.returnValue;
       List<TypedValue.ComparisonValue> conditions = pathConditions.conditions;
       
-      PathReturnValueAndConditions toReturn = new PathReturnValueAndConditions();
-      toReturn.returnValue = returnValue;
-      toReturn.conditions = conditions;
+      PathAnalysis toReturn = new PathAnalysis(interpreter.sideEffects, returnValue, conditions);
       return toReturn;
    }
 }

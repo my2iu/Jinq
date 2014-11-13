@@ -8,7 +8,8 @@ public interface PathAnalysisSupplementalFactory<T, U>
 {
    PathAnalysisMethodChecker createMethodChecker();
    U createMethodAnalysisResults();
-   void addPath(U resultsHolder, 
+   void addPath(U resultsHolder,
+         List<MethodSideEffect> sideEffects,
          TypedValue returnValue, 
          List<? extends TypedValue> conditions,
          PathAnalysisMethodChecker methodChecker);

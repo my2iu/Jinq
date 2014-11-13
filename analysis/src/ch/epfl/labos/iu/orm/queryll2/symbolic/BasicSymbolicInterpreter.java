@@ -2,7 +2,6 @@ package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -17,7 +16,9 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.Value;
 
-import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
+import ch.epfl.labos.iu.orm.queryll2.path.MethodSideEffect;
+import ch.epfl.labos.iu.orm.queryll2.path.MethodSideEffectCall;
+
 
 public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opcodes
 {
@@ -51,13 +52,23 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
    
    // Keeps track of return value from a path
    public TypedValue returnValue = null;
+   
+   // Keeps track of other side effects from executing a path
+   public List<MethodSideEffect> sideEffects = new ArrayList<>();
 
    // Keeps track of which methods can be safely called
+   public static enum OperationSideEffect
+   {
+      NONE,   // No side effects 
+      UNSAFE, // Has unsafe side effects, cancel the analysis
+      SAFE    // There are side effects, but they should be safe. Log the side effect
+   }
    public static interface MethodChecker
    {
-      boolean isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args);
-      boolean isStaticMethodSafe(MethodSignature m);
+      OperationSideEffect isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args);
+      OperationSideEffect isStaticMethodSafe(MethodSignature m);
       boolean isFluentChaining(MethodSignature m);
+      boolean isPutFieldAllowed();
    }
    MethodChecker methodChecker;
    public void setMethodChecker(MethodChecker methodChecker)
@@ -349,8 +360,14 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
             if (isVirtualCall)
             {
                TypedValue base = (TypedValue)values.get(0);
-               if (methodChecker != null && !methodChecker.isMethodSafe(sig, base, args))
-                  throw new AnalyzerException(insn, "Unknown method " + sig + " encountered");
+               if (methodChecker != null)
+               {
+                  OperationSideEffect sideEffect = methodChecker.isMethodSafe(sig, base, args); 
+                  if (sideEffect == OperationSideEffect.UNSAFE)
+                     throw new AnalyzerException(insn, "Unknown method " + sig + " encountered");
+                  else if (sideEffect == OperationSideEffect.SAFE)
+                     sideEffects.add(new MethodSideEffectCall(sig, base, args));
+               }
                MethodCallValue.VirtualMethodCallValue toReturn;
                toReturn = new MethodCallValue.VirtualMethodCallValue(methodInsn.owner, methodInsn.name, methodInsn.desc, args, base);
                if (toReturn.isConstructor() && linkedFrame != null)
@@ -361,8 +378,14 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
             }
             else
             {
-               if (methodChecker != null && !methodChecker.isStaticMethodSafe(sig))
-                  throw new AnalyzerException(insn, "Unknown static method " + sig + " encountered");
+               if (methodChecker != null)
+               {
+                  OperationSideEffect sideEffect = methodChecker.isStaticMethodSafe(sig); 
+                  if (sideEffect == OperationSideEffect.UNSAFE)
+                     throw new AnalyzerException(insn, "Unknown method " + sig + " encountered");
+                  else if (sideEffect == OperationSideEffect.SAFE)
+                     sideEffects.add(new MethodSideEffectCall(sig, null, args));
+               }
                return new MethodCallValue.StaticMethodCallValue(methodInsn.owner, methodInsn.name, methodInsn.desc, args);
             }
          }

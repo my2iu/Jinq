@@ -5,6 +5,8 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.Value;
 
+import ch.epfl.labos.iu.orm.queryll2.path.MethodSideEffectFieldAssign;
+
 
 public class SymbolicInterpreterWithFieldAccess extends BasicSymbolicInterpreter
 {
@@ -19,6 +21,24 @@ public class SymbolicInterpreterWithFieldAccess extends BasicSymbolicInterpreter
       return new TypedValue.GetFieldValue(fieldInsn.owner, fieldInsn.name, fieldInsn.desc, (TypedValue)base);
    }
    
+   public Value binaryOperation(AbstractInsnNode insn, Value value1,
+         Value value2) throws AnalyzerException
+   {
+      if (insn.getOpcode() == PUTFIELD)
+      {
+         if (value1 instanceof TypedValue.ThisValue)
+         {
+            if (methodChecker != null && methodChecker.isPutFieldAllowed())
+            {
+               FieldInsnNode fieldInsn = (FieldInsnNode)insn;
+               sideEffects.add(new MethodSideEffectFieldAssign(fieldInsn.owner, fieldInsn.name, fieldInsn.desc, (TypedValue)value1, (TypedValue)value2));
+               return null;
+            }
+         }
+      }
+      return super.binaryOperation(insn, value1, value2);
+   }
+
    public Value unaryOperation(AbstractInsnNode insn, Value value)
       throws AnalyzerException
    {

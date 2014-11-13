@@ -9,8 +9,8 @@ public class MethodAnalysisResults
 {
    public List<PathAnalysis> paths = new ArrayList<>();
 
-   public void addPath(TypedValue returnValue, List<? extends TypedValue> conditions) {
-	      PathAnalysis pathAnalysis = new PathAnalysis(returnValue, conditions);
+   public void addPath(List<MethodSideEffect> sideEffects, TypedValue returnValue, List<? extends TypedValue> conditions) {
+	      PathAnalysis pathAnalysis = new PathAnalysis(sideEffects, returnValue, conditions);
 	      paths.add(pathAnalysis);
    }
 }

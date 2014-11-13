@@ -18,7 +18,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
-import ch.epfl.labos.iu.orm.queryll2.path.CodePath.PathReturnValueAndConditions;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
 public class TransformationClassAnalyzer
@@ -362,9 +361,9 @@ public class TransformationClassAnalyzer
       {
          PathAnalysisMethodChecker methodChecker = pathAnalysisFactory.createMethodChecker();
 
-         PathReturnValueAndConditions pathResults = 
+         PathAnalysis pathResults = 
             path.calculateReturnValueAndConditions(cl, m, methodChecker);
-         pathAnalysisFactory.addPath(analysis, pathResults.returnValue, pathResults.conditions, methodChecker);
+         pathAnalysisFactory.addPath(analysis, pathResults.sideEffects, pathResults.returnValue, pathResults.conditions, methodChecker);
       }
       return analysis;
    }

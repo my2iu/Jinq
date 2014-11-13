@@ -388,24 +388,24 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //            .sumInteger(s => s.getHasFreeShipping() ? 1 : 0));
   //      Assert.assertEquals("SELECT SUM(CASE WHEN A.hasFreeShipping = TRUE THEN 1 ELSE 0 END) FROM Customer A", query);
   //   }
-  //
-  //   @Test
-  //   public void testMultiAggregate()
-  //   {
-  //      Assert.assertEquals(new Pair<>(1280l, 256.0), 
-  //            streamAll(em, classOf[Customer])
-  //               .aggregate(stream => stream.sumInteger(c => c.getSalary()),
-  //                  stream => stream.avg(c => c.getSalary())));
-  //      Assert.assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
-  //      
-  //      Assert.assertEquals(new Tuple3<>(5l, 30, 500), 
-  //            streamAll(em, classOf[Customer])
-  //               .aggregate(stream => stream.count(),
-  //                  stream => stream.min(c => c.getSalary()),
-  //                  stream => stream.max(c => c.getSalary())));
-  //      Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
-  //   }
-  //
+  
+//     @Test
+//     def testMultiAggregate()
+//     {
+//        Assert.assertEquals((1280l, 256.0), 
+//              streamAll(em, classOf[Customer])
+//                 .aggregate(stream => stream.sumInteger(c => c.getSalary()),
+//                    stream => stream.avg(c => c.getSalary())));
+//        Assert.assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
+//        
+//        Assert.assertEquals((5l, 30, 500), 
+//              streamAll(em, classOf[Customer])
+//                 .aggregate(stream => stream.count(),
+//                    stream => stream.min(c => c.getSalary()),
+//                    stream => stream.max(c => c.getSalary())));
+//        Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
+//     }
+  
   //   @Test
   //   public void testMultiAggregateNoAggregate()
   //   {

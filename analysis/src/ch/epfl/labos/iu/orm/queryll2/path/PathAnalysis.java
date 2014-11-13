@@ -14,11 +14,13 @@ public class PathAnalysis
    // and simplified
 
    
-   public PathAnalysis(TypedValue returnValue, 
-                       List<? extends TypedValue> conditions)
+   public PathAnalysis(List<MethodSideEffect> sideEffects,
+         TypedValue returnValue,
+         List<? extends TypedValue> conditions)
    {
       this.returnValue = returnValue;
       this.conditions = new ArrayList<>(conditions);
+      this.sideEffects = new ArrayList<>(sideEffects);
    }
    
    public TypedValue getReturnValue()
@@ -29,8 +31,13 @@ public class PathAnalysis
    {
       return conditions;
    }
+   public List<MethodSideEffect> getSideEffects()
+   {
+      return sideEffects;
+   }
    TypedValue returnValue;
    List<TypedValue> conditions;
+   List<MethodSideEffect> sideEffects;
    public void removeConditionIndex(int i)
    {
       conditions.remove(i);

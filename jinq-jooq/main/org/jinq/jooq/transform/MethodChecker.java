@@ -6,6 +6,7 @@ import java.util.List;
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter.OperationSideEffect;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
@@ -22,18 +23,18 @@ final class MethodChecker implements PathAnalysisMethodChecker
     * @see ch.epfl.labos.iu.orm.queryll2.PathAnalysisMethodChecker#isStaticMethodSafe(ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature)
     */
    @Override
-   public boolean isStaticMethodSafe(MethodSignature m)
-      { return metamodel.isSafeStaticMethod(m); }
+   public OperationSideEffect isStaticMethodSafe(MethodSignature m)
+      { return metamodel.isSafeStaticMethod(m) ? OperationSideEffect.NONE : OperationSideEffect.UNSAFE; }
 
    /* (non-Javadoc)
     * @see ch.epfl.labos.iu.orm.queryll2.PathAnalysisMethodChecker#isMethodSafe(ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature, ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue, java.util.List)
     */
    @Override
-   public boolean isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args)
+   public OperationSideEffect isMethodSafe(MethodSignature m, TypedValue base, List<TypedValue> args)
       {
          if (metamodel.isSafeMethod(m))
          {
-            return true;
+            return OperationSideEffect.NONE;
          }
          else
          {
@@ -42,13 +43,14 @@ final class MethodChecker implements PathAnalysisMethodChecker
             try
             {
                Method reflectedMethod = Annotations.asmMethodSignatureToReflectionMethod(m);
-               return Annotations.methodHasSomeAnnotations(reflectedMethod, metamodel.getSafeMethodAnnotations());
+               return Annotations.methodHasSomeAnnotations(reflectedMethod, metamodel.getSafeMethodAnnotations())
+                     ? OperationSideEffect.NONE : OperationSideEffect.UNSAFE; 
             } catch (ClassNotFoundException|NoSuchMethodException e)
             {
                // TODO Auto-generated catch block
                e.printStackTrace();
             }
-            return false; 
+            return OperationSideEffect.UNSAFE; 
             
          }
       }
@@ -60,5 +62,10 @@ final class MethodChecker implements PathAnalysisMethodChecker
          return true;
       return false;
    }
-
+   
+   @Override
+   public boolean isPutFieldAllowed()
+   {
+      return false;
+   }
 }

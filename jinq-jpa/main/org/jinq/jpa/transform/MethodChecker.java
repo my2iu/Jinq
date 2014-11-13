@@ -8,6 +8,7 @@ import java.util.Set;
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter.OperationSideEffect;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
@@ -104,26 +105,26 @@ class MethodChecker implements PathAnalysisMethodChecker
     * @see ch.epfl.labos.iu.orm.queryll2.PathAnalysisMethodChecker#isStaticMethodSafe(ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature)
     */
    @Override
-   public boolean isStaticMethodSafe(MethodSignature m)
+   public OperationSideEffect isStaticMethodSafe(MethodSignature m)
    { 
-      return safeStaticMethods.contains(m)
-            || jpqlFunctionStaticMethods.contains(m); 
+      return (safeStaticMethods.contains(m)
+            || jpqlFunctionStaticMethods.contains(m)) ? OperationSideEffect.NONE : OperationSideEffect.UNSAFE; 
    }
 
    /* (non-Javadoc)
     * @see ch.epfl.labos.iu.orm.queryll2.PathAnalysisMethodChecker#isMethodSafe(ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature, ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue, java.util.List)
     */
    @Override
-   public boolean isMethodSafe(MethodSignature m, TypedValue base,
+   public OperationSideEffect isMethodSafe(MethodSignature m, TypedValue base,
          List<TypedValue> args)
    {
       if (isObjectEqualsSafe && objectEquals.equals(m))
       {
-         return true;
+         return OperationSideEffect.NONE;
       } else if (safeMethods.contains(m) || subqueryMethods.contains(m)
             || jpqlFunctionMethods.contains(m))
       {
-         return true;
+         return OperationSideEffect.NONE;
       } else
       {
          // Use reflection to get info about the method (or would it be better
@@ -135,13 +136,13 @@ class MethodChecker implements PathAnalysisMethodChecker
                   .asmMethodSignatureToReflectionMethod(m);
             if (Annotations.methodHasSomeAnnotations(reflectedMethod,
                   safeMethodAnnotations))
-               return true;
+               return OperationSideEffect.NONE;
          } catch (ClassNotFoundException | NoSuchMethodException e)
          {
             // TODO Auto-generated catch block
             e.printStackTrace();
          }
-         return false;
+         return OperationSideEffect.UNSAFE;
 
       }
    }
@@ -151,6 +152,12 @@ class MethodChecker implements PathAnalysisMethodChecker
    {
       if (TransformationClassAnalyzer.stringBuilderAppendString.equals(sig))
          return true;
+      return false;
+   }
+
+   @Override
+   public boolean isPutFieldAllowed()
+   {
       return false;
    }
 }

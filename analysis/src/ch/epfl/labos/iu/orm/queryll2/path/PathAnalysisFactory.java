@@ -30,8 +30,9 @@ public class PathAnalysisFactory implements
 
    @Override
    public void addPath(MethodAnalysisResults methodAnalysisResults,
+                   List<MethodSideEffect> sideEffects,
 		   TypedValue returnValue, List<? extends TypedValue> conditions,
 		   PathAnalysisMethodChecker methodChecker) {
-	   methodAnalysisResults.addPath(returnValue, conditions);
+	   methodAnalysisResults.addPath(sideEffects, returnValue, conditions);
    }
 }
