@@ -20,7 +20,7 @@ import _root_.scala.collection.Iterator
 import _root_.scala.collection.immutable.List
 import _root_.scala.math.Numeric
 import java.util.function.Consumer
-import org.jinq.jpa.transform.MultiAggregateTransform
+import org.jinq.jpa.transform.ScalaMultiAggregateTransform
 
 class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource: InQueryStreamSource) extends JinqScalaIterator[T] {
   val GENERIC_TRANSLATION_FAIL_MESSAGE = "Could not translate Scala code to a query";
@@ -195,7 +195,7 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
   }
 
   private def multiaggregate[K](groupingLambdas: Array[Object]) : K = {
-    val result : JPAQueryComposer[K] = queryComposer.applyTransformWithLambdas(new MultiAggregateTransform(queryComposer.getConfig()), groupingLambdas)
+    val result : JPAQueryComposer[K] = queryComposer.applyTransformWithLambdas(new ScalaMultiAggregateTransform(queryComposer.getConfig()), groupingLambdas)
     if (result != null) return result.executeAndGetSingleResult(); 
     throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
   }

@@ -53,7 +53,7 @@ public class LambdaInfo
       try {
          // Open up the corresponding class to analyze
          PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-               () -> new MethodChecker(metamodel)); 
+               new MethodChecker(metamodel)); 
          TransformationClassAnalyzer classAnalyzer = 
                new TransformationClassAnalyzer(className);
          MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);

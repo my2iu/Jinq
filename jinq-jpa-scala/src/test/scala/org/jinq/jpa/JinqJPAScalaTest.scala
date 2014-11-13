@@ -102,7 +102,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   }
 
   //   @Test
-  //   public void testStreamPages()
+  //   def testStreamPages()
   //   {
   //      List<String> names = streamAll(em, classOf[Customer])
   //            .setHint("automaticPageSize", 1)
@@ -120,7 +120,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   private static void externalMethod() {}
   //   
   //   @Test
-  //   public void testExceptionOnFail()
+  //   def testExceptionOnFail()
   //   {
   //      streamAll(em, classOf[Customer])
   //            .setHint("exceptionOnTranslationFail", false)
@@ -177,7 +177,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   }
 
   //   @Test(expected=IllegalArgumentException.class)
-  //   public void testOuterJoinField()
+  //   def testOuterJoinField()
   //   {
   //      // Cannot do outer joins on normal fields. Only navigational links.
   //      List<Pair<Customer, String>> results = streamAll(em, classOf[Customer])
@@ -380,7 +380,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   }
 
   //   @Test(expected=ClassCastException.class)
-  //   public void testSumCase()
+  //   def testSumCase()
   //   {
   //      // EclipseLink should be returning a Long, since it's a sum of integers, but it's returning
   //      // an integer instead.
@@ -389,25 +389,29 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //      Assert.assertEquals("SELECT SUM(CASE WHEN A.hasFreeShipping = TRUE THEN 1 ELSE 0 END) FROM Customer A", query);
   //   }
   
-//     @Test
-//     def testMultiAggregate()
-//     {
-//        Assert.assertEquals((1280l, 256.0), 
-//              streamAll(em, classOf[Customer])
-//                 .aggregate(stream => stream.sumInteger(c => c.getSalary()),
-//                    stream => stream.avg(c => c.getSalary())));
-//        Assert.assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
-//        
-//        Assert.assertEquals((5l, 30, 500), 
-//              streamAll(em, classOf[Customer])
-//                 .aggregate(stream => stream.count(),
-//                    stream => stream.min(c => c.getSalary()),
-//                    stream => stream.max(c => c.getSalary())));
-//        Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
-//     }
+     @Test
+     def testMultiAggregate()
+     {
+//       try {
+        Assert.assertEquals((1280l, 256.0), 
+              streamAll(em, classOf[Customer])
+                 .aggregate(stream => stream.sumInteger(c => c.getSalary()),
+                    stream => stream.avg(c => c.getSalary())));
+        Assert.assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
+        
+        Assert.assertEquals((5l, 30, 500), 
+              streamAll(em, classOf[Customer])
+                 .aggregate(stream => stream.count(),
+                    stream => stream.min(c => c.getSalary()),
+                    stream => stream.max(c => c.getSalary())));
+        Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
+//       } catch {
+//         case _: Throwable =>
+//       }
+     }
   
   //   @Test
-  //   public void testMultiAggregateNoAggregate()
+  //   def testMultiAggregateNoAggregate()
   //   {
   //      Assert.assertEquals(new Tuple3<>(5l, 30, 500), 
   //            streamAll(em, classOf[Customer])
@@ -418,7 +422,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test
-  //   public void testMultiAggregateTuple5()
+  //   def testMultiAggregateTuple5()
   //   {
   //      Assert.assertEquals(new Tuple5<>(5l, 30, 500, 5l, 20), 
   //            streamAll(em, classOf[Customer])
@@ -431,9 +435,9 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test
-  //   public void testMultiAggregateParameters()
+  //   def testMultiAggregateParameters()
   //   {
-  //      int param = 1;
+  //      val param: Int = 1;
   //      Assert.assertEquals(new Pair<>(1285l, 257.0), 
   //            streamAll(em, classOf[Customer])
   //               .aggregate(
@@ -443,7 +447,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test
-  //   public void testMultiAggregateParametersWithDistinct()
+  //   def testMultiAggregateParametersWithDistinct()
   //   {
   //      // Derby doesn't allow for more than one aggregation of distinct things at the same time,
   //      // so we'll break the test up into two cases.
@@ -463,7 +467,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //   
   //   @Test(expected=IllegalArgumentException.class)
-  //   public void testMultiAggregateParametersWithDistinctDisallowed()
+  //   def testMultiAggregateParametersWithDistinctDisallowed()
   //   {
   //      // You can only aggregate a distinct stream if you pass the contents of the stream directly to the aggregation function.
   //      Assert.assertEquals(610l, 
@@ -486,7 +490,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   }
 
   //   @Test
-  //   public void testGroup()
+  //   def testGroup()
   //   {
   //    List<Tuple3<String, Long, Integer>> results =
   //          streamAll(em, classOf[Customer])
@@ -503,7 +507,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //   
   //   @Test
-  //   public void testGroupSortLimit()
+  //   def testGroupSortLimit()
   //   {
   //    List<Tuple3<String, Long, Integer>> results =
   //          streamAll(em, classOf[Customer])
@@ -520,7 +524,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //   
   //   @Test 
-  //   public void testGroupByLinkEntity()
+  //   def testGroupByLinkEntity()
   //   {
   //      List<Pair<Customer, Long>> results = 
   //            streamAll(em, classOf[Sale])
@@ -537,7 +541,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //   
   //   @Test 
-  //   public void testGroupByMixKeyAggregate()
+  //   def testGroupByMixKeyAggregate()
   //   {
   //      List<Pair<String, Long>> results = 
   //            streamAll(em, classOf[Sale])
@@ -552,7 +556,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test 
-  //   public void testGroupByHaving()
+  //   def testGroupByHaving()
   //   {
   //      List<Pair<String, Long>> results = 
   //            streamAll(em, clasOf[Lineorder])
@@ -571,7 +575,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test(expected=IllegalArgumentException.class)
-  //   public void testSortGroupByFail()
+  //   def testSortGroupByFail()
   //   {
   //      // Cannot do a group by after a sort
   //      streamAll(em, classOf[Customer])
@@ -583,7 +587,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //   
   //   @Test
-  //   public void testSubQueryWithSource()
+  //   def testSubQueryWithSource()
   //   {
   //      List<Sale> sales = streamAll(em, classOf[Sale])
   //            .where( (s, source) => source.stream(Sale.class).max(ss => ss.getSaleid()) == s.getSaleid())
@@ -593,7 +597,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test
-  //   public void testSubQueryWithNavigationalLink()
+  //   def testSubQueryWithNavigationalLink()
   //   {
   //      List<Customer> customers = streamAll(em, classOf[Customer])
   //            .where( c => JinqStream.from(c.getSales()).count() > 1)
@@ -606,7 +610,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test
-  //   public void testSubQueryWithNavigationalLinkInSelect()
+  //   def testSubQueryWithNavigationalLinkInSelect()
   //   {
   //      List<Pair<Customer, Long>> customers = streamAll(em, classOf[Customer])
   //            .select( c => new Pair<>(c, JinqStream.from(c.getSales()).count()))
@@ -623,7 +627,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //   
   //   @Test
-  //   public void testSubQueryWithSelectSourceAndWhere()
+  //   def testSubQueryWithSelectSourceAndWhere()
   //   {
   //      List<Pair<String, Object>> sales = streamAll(em, classOf[Customer])
   //            .where( c => JinqStream.from(c.getSales()).join(s => JinqStream.from(s.getLineorders())).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
@@ -642,14 +646,14 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test
-  //   public void testSubQueryFrom()
+  //   def testSubQueryFrom()
   //   {
   //      // Subqueries in FROM clauses are generally not supported in JPQL
   //      // (and what support there exists is usually pretty poor.)
   //   }
   //
   //   @Test
-  //   public void testSubQueryNoAggregation()
+  //   def testSubQueryNoAggregation()
   //   {
   //      List<Customer> customers = streamAll(em, classOf[Customer])
   //            .where( (c, source) => 
@@ -937,7 +941,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   }
 
   //   @Test(expected=ClassCastException.class)
-  //   public void testBooleanOperations()
+  //   def testBooleanOperations()
   //   {
   //      // Comparisons in a SELECT must be converted to a CASE...WHEN... or something
   //      // TODO: CASE...WHEN... is now done, and I've inserted a little hack to convert the 1 and 0 constants 
@@ -1031,7 +1035,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   }
 
   //   @Test(expected=ClassCastException.class)
-  //   public void testJPQLWeirdness()
+  //   def testJPQLWeirdness()
   //   {
   //      // EclipseLink seems to think two parameters divided by each other results in a BigDouble.
   //      // Perhaps the problem is that EclipseLink cannot determine the type until after the
@@ -1045,7 +1049,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
   //
   //   @Test(expected=IllegalArgumentException.class)
-  //   public void testJPQLWeirdness2()
+  //   def testJPQLWeirdness2()
   //   {
   //      // EclipseLink seems to have problems when ordering things without using
   //      // any fields of data.

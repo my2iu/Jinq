@@ -8,18 +8,18 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 public class PathAnalysisFactory implements
       PathAnalysisSupplementalFactory<Void, MethodAnalysisResults>
 {
-   Supplier<PathAnalysisMethodChecker> methodCheckerFactory;
+   PathAnalysisMethodChecker methodChecker;
 
-   public PathAnalysisFactory(Supplier<PathAnalysisMethodChecker> methodCheckerFactory)
+   public PathAnalysisFactory(PathAnalysisMethodChecker methodChecker)
    {
       // Build up data structures and other information needed for analysis
-      this.methodCheckerFactory = methodCheckerFactory;
+      this.methodChecker = methodChecker;
    }
    
    @Override
    public PathAnalysisMethodChecker createMethodChecker()
    {
-      return methodCheckerFactory.get();
+      return methodChecker;
    }
 
    @Override

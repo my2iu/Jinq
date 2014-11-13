@@ -139,8 +139,7 @@ class MethodChecker implements PathAnalysisMethodChecker
                return OperationSideEffect.NONE;
          } catch (ClassNotFoundException | NoSuchMethodException e)
          {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Eat the error
          }
          return OperationSideEffect.UNSAFE;
 

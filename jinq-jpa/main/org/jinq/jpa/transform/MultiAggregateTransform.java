@@ -46,7 +46,7 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
             RowReader<?> [] readers = new RowReader<?>[aggregatedQueryEntries.length];
             for (int n = 0; n < readers.length; n++)
                readers[n] = aggregatedQueryEntries[n].reader;
-            ColumnExpressions<U> cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(readers));
+            ColumnExpressions<U> cols = new ColumnExpressions<>(createTupleReader(readers));
             for (int n = 0; n < readers.length; n++)
                cols.columns.addAll(aggregatedQueryEntries[n].columns);
             toReturn.cols = cols;
@@ -57,6 +57,11 @@ public class MultiAggregateTransform extends JPQLMultiLambdaQueryTransform
       {
          throw new QueryTransformException(e);
       }
+   }
+
+   protected <U> RowReader<U> createTupleReader(RowReader<?>[] readers)
+   {
+      return TupleRowReader.createReaderForTuple(readers);
    }
    
    @Override 

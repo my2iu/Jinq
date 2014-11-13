@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Handle;
@@ -21,6 +22,38 @@ import com.user00.thunk.SerializedLambda;
  */
 public class LambdaAnalysis 
 {
+   public static class LambdaAsClassAnalysisConfig
+   {
+      public Method findLambdaMethod(Class<?> lambdaClass)
+            throws AnalyzerException
+      {
+         String methodName = "apply";
+         Method matchingMethod = null;
+         Method[] classMethods = lambdaClass.getDeclaredMethods();
+         for (Method m: classMethods)
+         {
+            if (m.getName().matches(methodName + "\\$mc[^$]*\\$sp"))
+            {
+               matchingMethod = m;
+               break;
+            }
+            if (!m.getName().equals(methodName)) continue;
+            if (matchingMethod != null)
+            {
+               // Try to choose the most specific method
+               int newCount = countObjectParameters(m);
+               int oldCount = countObjectParameters(matchingMethod); 
+               if (newCount == oldCount)
+                  throw new AnalyzerException(null, "Multiple methods have the expected name for the lambda");
+               if (newCount > oldCount) continue;
+            }
+            matchingMethod = m;
+         }
+         return matchingMethod;
+      }
+      
+   }
+   
    private int numCapturedArgs;
    private int numLambdaArgs;
    /**
@@ -43,10 +76,10 @@ public class LambdaAnalysis
    private boolean usesParametersAsFields;
    MethodAnalysisResults symbolicAnalysis;
 
-   public static LambdaAnalysis fullyAnalyzeClassAsLambda(LambdaInfo lambdaInfo, String lambdaMethodName, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
+   public static LambdaAnalysis fullyAnalyzeClassAsLambda(LambdaInfo lambdaInfo, LambdaAsClassAnalysisConfig lambdaAsClassConfig, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
    {
       try {
-         MethodAnalysisResults analysis = analyzeScalaLambdaClass(lambdaInfo.Lambda, "apply", metamodel, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe);
+         MethodAnalysisResults analysis = analyzeScalaLambdaClass(lambdaInfo.Lambda.getClass(), metamodel, lambdaAsClassConfig, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -60,7 +93,47 @@ public class LambdaAnalysis
          return null;
       }
    }
-   
+
+   /**
+    * Used to analyze a lambda when we only have the name of the class used as the lambda
+    * and not an actual reference to the lambda. 
+    */
+//   public static LambdaAnalysis analyzeClassAsLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, boolean throwExceptionOnFailure)
+   public static LambdaAnalysis analyzeClassAsLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, LambdaAsClassAnalysisConfig lambdaAsClassConfig, String className, boolean throwExceptionOnFailure) 
+   {
+      // TODO: The part below will need to be moved to a separate method.
+      //   That way, we can used the serialized lambda info to check if
+      //   we've cached the results of this analysis already without needing
+      //   to redo all this analysis.
+      try {
+         Class<?> c = Class.forName(className);
+         MethodAnalysisResults analysis = analyzeScalaLambdaClass(c, metamodel, lambdaAsClassConfig, alternateClassLoader, isObjectEqualsSafe);
+         if (analysis == null) 
+         {
+            if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
+            return null;
+         }
+         // TODO: Handle lambda arguments properly
+         System.err.println("Handle number of lambda args for subqueries properly.");
+         System.err.println("Handle lambda arguments in general properly");
+         return new LambdaAnalysis(analysis, new ArrayList<>(), 1);
+      }
+      catch (IOException e)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Encountered problems when trying to load the code for your lambdas. You may need to supply a lambdaClassLoader hint to Jinq to help it find your lambdas.", e);
+         return null;
+      }
+      catch (AnalyzerException e)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code", e);
+         return null;
+      } catch (ClassNotFoundException e)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not load the class of the lambda", e);
+         return null;
+      }
+   }
+
    public static LambdaAnalysis fullyAnalyzeLambda(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
    {
       // TODO: The part below will need to be moved to a separate method.
@@ -69,7 +142,8 @@ public class LambdaAnalysis
       //   to redo all this analysis.
       SerializedLambda s = lambdaInfo.serializedLambda;
       try {
-         MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, isObjectEqualsSafe, s);
+         if (s == null) return null;
+         MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, isObjectEqualsSafe, s.implClass, s.implMethodName, s.implMethodSignature);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -116,17 +190,11 @@ public class LambdaAnalysis
       }
    }
 
-   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, SerializedLambda lambda) throws IOException, AnalyzerException 
-   {
-      if (lambda == null) return null;
-      return analyzeLambda(metamodel, alternateClassLoader, isObjectEqualsSafe, lambda.implClass, lambda.implMethodName, lambda.implMethodSignature);
-   }
-   
    private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, String className, String methodName, String methodSignature) throws IOException, AnalyzerException 
    {
       // Open up the corresponding class to analyze
       PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-            () -> metamodel.getMethodChecker(isObjectEqualsSafe));
+            metamodel.getMethodChecker(isObjectEqualsSafe));
       TransformationClassAnalyzer classAnalyzer = 
             new TransformationClassAnalyzer(className, alternateClassLoader);
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
@@ -134,40 +202,21 @@ public class LambdaAnalysis
       return analysis;
    }
 
-   private static MethodAnalysisResults analyzeScalaLambdaClass(Object lambdaObject, String methodName, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe) throws IOException, AnalyzerException 
+   private static MethodAnalysisResults analyzeScalaLambdaClass(Class<?> lambdaClass, MetamodelUtil metamodel, LambdaAsClassAnalysisConfig lambdaAsClass, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe) throws IOException, AnalyzerException 
    {
       // Open up the corresponding class to analyze
-      PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-            () -> metamodel.getMethodChecker(isObjectEqualsSafe));
       TransformationClassAnalyzer classAnalyzer = 
-            new TransformationClassAnalyzer(lambdaObject.getClass().getName(), alternateClassLoader);
-      Method[] classMethods = lambdaObject.getClass().getDeclaredMethods();
-      Method matchingMethod = null;
-      for (Method m: classMethods)
-      {
-         if (m.getName().matches(methodName + "\\$mc[^$]*\\$sp"))
-         {
-            matchingMethod = m;
-            break;
-         }
-         if (!m.getName().equals(methodName)) continue;
-         if (matchingMethod != null)
-         {
-            // Try to choose the most specific method
-            int newCount = countObjectParameters(m);
-            int oldCount = countObjectParameters(matchingMethod); 
-            if (newCount == oldCount)
-               throw new AnalyzerException(null, "Multiple methods have the expected name for the lambda");
-            if (newCount > oldCount) continue;
-         }
-         matchingMethod = m;
-      }
+            new TransformationClassAnalyzer(lambdaClass.getName(), alternateClassLoader);
+      Method matchingMethod = lambdaAsClass.findLambdaMethod(lambdaClass);
       if (matchingMethod == null)
          throw new AnalyzerException(null, "Could not find a lambda method with the expected name in the class");
+      PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
+            metamodel.getMethodChecker(isObjectEqualsSafe));
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(matchingMethod.getName(), Type.getMethodDescriptor(matchingMethod), pathAnalysisFactory);
       PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe));
       return analysis;
    }
+
    
    private static int countObjectParameters(Method m)
    {

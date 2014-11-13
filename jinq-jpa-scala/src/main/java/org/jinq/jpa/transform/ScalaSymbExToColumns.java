@@ -6,10 +6,15 @@ import java.util.List;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.FunctionExpression;
+import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.ScalaTupleRowReader;
+import org.jinq.jpa.jpqlquery.SelectFromWhere;
+import org.jinq.jpa.jpqlquery.SelectOnly;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
+import org.jinq.jpa.jpqlquery.SubqueryExpression;
 
+import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.StaticMethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
@@ -24,7 +29,7 @@ public class ScalaSymbExToColumns extends SymbExToColumns
    {
       super(config, argumentHandler);
    }
-
+   
    @Override public ColumnExpressions<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
@@ -61,6 +66,113 @@ public class ScalaSymbExToColumns extends SymbExToColumns
             toReturn.columns.add(base.columns.get(n + baseOffset));
          return toReturn;
       }
+      else if (ScalaMetamodelUtil.isAggregateMethod(sig))
+      {
+         SymbExPassDown passdown = SymbExPassDown.with(val, false);
+         
+         // Check out what stream we're aggregating
+         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler);
+         JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
+         
+         // Extract the lambda used
+         LambdaAnalysis lambda = null;
+         if (val.args.size() > 0)
+         {
+            TypedValue arg = val.args.get(0); 
+            if ((arg instanceof LambdaFactory))
+            {
+               LambdaFactory lambdaFactory = (LambdaFactory)arg;
+               try {
+                  lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
+               } catch (Exception e)
+               {
+                  throw new TypedValueVisitorException("Could not analyze the lambda code", e);
+               }
+            }
+            else if (arg instanceof MethodCallValue.VirtualMethodCallValue && ((MethodCallValue.VirtualMethodCallValue)arg).isConstructor())
+            {
+               MethodCallValue.VirtualMethodCallValue lambdaConstructor = (MethodCallValue.VirtualMethodCallValue)arg;
+               System.err.println("TODO: Handle subquery parameters using lambdas as classes");
+               try {
+                  lambda = LambdaAnalysis.analyzeClassAsLambda(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, new LambdaAnalysis.LambdaAsClassAnalysisConfig(), lambdaConstructor.getSignature().getOwnerType().getClassName(), true);
+               } catch (Exception e)
+               {
+                  throw new TypedValueVisitorException("Could not analyze the lambda code", e);
+               }
+            }
+            else
+               throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
+         }
+            
+         try {
+            AggregateTransform transform;
+            if (sig.equals(ScalaMetamodelUtil.streamSumInt)
+                  || sig.equals(ScalaMetamodelUtil.streamSumLong)
+                  || sig.equals(ScalaMetamodelUtil.streamSumDouble)
+                  || sig.equals(ScalaMetamodelUtil.streamSumBigDecimal)
+                  || sig.equals(ScalaMetamodelUtil.streamSumBigInteger))
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.SUM);
+            else if (sig.equals(ScalaMetamodelUtil.streamMax))
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.MAX);
+            else if (sig.equals(ScalaMetamodelUtil.streamMin))
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.MIN);
+            else if (sig.equals(ScalaMetamodelUtil.streamAvg))
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.AVG);
+            else if (sig.equals(ScalaMetamodelUtil.streamCount))
+               transform = new AggregateTransform(config, AggregateTransform.AggregateType.COUNT);
+            else
+               throw new TypedValueVisitorException("Unhandled aggregate operation");
+            JPQLQuery<?> aggregatedQuery = transform.apply(subQuery, lambda, argHandler); 
+            // Return the aggregated columns that we've now calculated
+            if (aggregatedQuery.getClass() == SelectOnly.class)
+            {
+               SelectOnly<?> select = (SelectOnly<?>)aggregatedQuery;
+               return select.cols;
+            }
+            else if (aggregatedQuery.isValidSubquery() && aggregatedQuery instanceof SelectFromWhere) 
+            {
+               SelectFromWhere<?> sfw = (SelectFromWhere<?>)aggregatedQuery;
+               ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
+               for (Expression col: sfw.cols.columns)
+               {
+                  SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
+                  oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
+                  toReturn.columns.add(SubqueryExpression.from(oneColQuery));
+               }
+               return toReturn;
+            }
+            else
+            {
+               throw new TypedValueVisitorException("Unknown subquery type");
+            }
+         } catch (QueryTransformException e)
+         {
+            throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);
+         }
+      }
+//      else if (sig.equals(MethodChecker.streamGetOnlyValue))
+//      {
+//         SymbExPassDown passdown = SymbExPassDown.with(val, false);
+//         
+//         // Check out what stream we're aggregating
+//         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler);
+//         JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
+//
+//         if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 
+//         {
+//            SelectFromWhere<?> sfw = (SelectFromWhere<?>)subQuery;
+//            ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
+//            for (Expression col: sfw.cols.columns)
+//            {
+//               SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
+//               oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
+//               toReturn.columns.add(SubqueryExpression.from(oneColQuery));
+//            }
+//            return toReturn;
+//         }
+//
+//         throw new TypedValueVisitorException("Cannot apply getOnlyValue() to the given subquery");
+//      }
       else if (sig.equals(ScalaMetamodelUtil.STRINGBUILDER_STRING))
       {
          List<ColumnExpressions<?>> concatenatedStrings = new ArrayList<>();
@@ -108,7 +220,11 @@ public class ScalaSymbExToColumns extends SymbExToColumns
       if (sig.equals(ScalaMetamodelUtil.BOX_TO_INTEGER)
             || sig.equals(ScalaMetamodelUtil.BOX_TO_LONG)
             || sig.equals(ScalaMetamodelUtil.BOX_TO_DOUBLE)
-            || sig.equals(ScalaMetamodelUtil.BOX_TO_BOOLEAN))
+            || sig.equals(ScalaMetamodelUtil.BOX_TO_BOOLEAN)
+            || sig.equals(ScalaMetamodelUtil.UNBOX_TO_INTEGER)
+            || sig.equals(ScalaMetamodelUtil.UNBOX_TO_LONG)
+            || sig.equals(ScalaMetamodelUtil.UNBOX_TO_DOUBLE)
+            || sig.equals(ScalaMetamodelUtil.UNBOX_TO_BOOLEAN))
       {
          SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
          ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
