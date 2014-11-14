@@ -1,7 +1,7 @@
 package org.jinq.jpa;
 
 import org.jinq.jpa.test.entities.Customer
-import org.jinq.orm.stream.scala.JinqScalaIterator
+import org.jinq.orm.stream.scala.JinqIterator
 import org.junit.Assert
 import org.junit.Test
 import javax.persistence.EntityManager
@@ -21,7 +21,7 @@ import java.nio.ByteBuffer
 import java.util.Calendar
 
 class JinqJPAScalaTest extends JinqJPAScalaTestBase {
-  private def streamAll[U](em: EntityManager, entityClass: java.lang.Class[U]): JinqScalaIterator[U] = {
+  private def streamAll[U](em: EntityManager, entityClass: java.lang.Class[U]): JinqIterator[U] = {
     JinqJPAScalaTestBase.streams.streamAll(em, entityClass);
   }
 
@@ -168,7 +168,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   @Test
   def testOuterJoin11() {
     var results = streamAll(em, classOf[Lineorder])
-      .leftOuterJoin(lo => JinqScalaIterator.of(lo.getItem()))
+      .leftOuterJoin(lo => JinqIterator.of(lo.getItem()))
       .where(pair => pair._2.getName() == "Talent")
       .toList;
     Assert.assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name IS NOT NULL AND B.name = 'Talent' OR B.name IS NULL AND 'Talent' IS NULL", query);

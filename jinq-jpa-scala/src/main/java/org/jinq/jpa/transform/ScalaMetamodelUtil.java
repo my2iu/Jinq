@@ -11,9 +11,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
 public class ScalaMetamodelUtil extends MetamodelUtil
 {
-   public final static MethodSignature INQUERYSTREAMSOURCE_STREAM = new MethodSignature("org/jinq/orm/stream/scala/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/scala/JinqScalaIterator;");
-   public final static MethodSignature ITERABLE_TO_JINQ = new MethodSignature("org/jinq/orm/stream/scala/JinqConversions$", "jinq", "(Ljava/lang/Iterable;)Lorg/jinq/orm/stream/scala/JinqScalaIterator;");
-   public final static MethodSignature STREAM_OF = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator$", "of", "(Ljava/lang/Object;)Lorg/jinq/orm/stream/scala/JinqScalaIterator;");
+   public final static MethodSignature INQUERYSTREAMSOURCE_STREAM = new MethodSignature("org/jinq/orm/stream/scala/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+   public final static MethodSignature ITERABLE_TO_JINQ = new MethodSignature("org/jinq/orm/stream/scala/JinqConversions$", "jinq", "(Ljava/lang/Iterable;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+   public final static MethodSignature STREAM_OF = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator$", "of", "(Ljava/lang/Object;)Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature BOX_TO_INTEGER = new MethodSignature("scala/runtime/BoxesRunTime", "boxToInteger", "(I)Ljava/lang/Integer;");
    public final static MethodSignature BOX_TO_LONG = new MethodSignature("scala/runtime/BoxesRunTime", "boxToLong", "(J)Ljava/lang/Long;");
    public final static MethodSignature BOX_TO_DOUBLE = new MethodSignature("scala/runtime/BoxesRunTime", "boxToDouble", "(D)Ljava/lang/Double;");
@@ -96,20 +96,20 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       TUPLE_ACCESSORS.put(tuple8GetEight, 8);
    }
 
-   public final static MethodSignature streamSumInt = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "sumInteger", "(Lscala/Function1;)J");
-   public final static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "sumDouble", "(Lscala/Function1;)D");
-   public final static MethodSignature streamSumLong = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "sumLong", "(Lscala/Function1;)J");
-   public final static MethodSignature streamSumBigDecimal = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "sumBigDecimal", "(Lscala/Function1;)Ljava/lang/BigDecimal;");
-   public final static MethodSignature streamSumBigInteger = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "sumBigInteger", "(Lscala/Function1;)Ljava/lang/BigInteger;");
-   public final static MethodSignature streamMax = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "max", "(Lscala/Function1;)Ljava/lang/Object;");
-   public final static MethodSignature streamMin = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "min", "(Lscala/Function1;)Ljava/lang/Object;");
-   public final static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "avg", "(Lscala/Function1;Lscala/math/Numeric;)D");
-   public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "count", "()J");
-//   public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "distinct", "()Lorg/jinq/orm/stream/scala/JinqScalaIterator;");
-//   public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "select", "(Lorg/jinq/orm/stream/JinqStream$Select;)Lorg/jinq/orm/stream/scala/JinqScalaIterator;");
-//   public final static MethodSignature streamWhere = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "where", "(Lorg/jinq/orm/stream/JinqStream$Where;)Lorg/jinq/orm/stream/scala/JinqScalaIterator;");
-//   public final static MethodSignature streamJoin = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "join", "(Lorg/jinq/orm/stream/JinqStream$Join;)Lorg/jinq/orm/stream/scala/JinqScalaIterator;");
-//   public final static MethodSignature streamGetOnlyValue = new MethodSignature("org/jinq/orm/stream/scala/JinqScalaIterator", "getOnlyValue", "()Ljava/lang/Object;");
+   public final static MethodSignature streamSumInt = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumInteger", "(Lscala/Function1;)J");
+   public final static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumDouble", "(Lscala/Function1;)D");
+   public final static MethodSignature streamSumLong = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumLong", "(Lscala/Function1;)J");
+   public final static MethodSignature streamSumBigDecimal = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumBigDecimal", "(Lscala/Function1;)Ljava/lang/BigDecimal;");
+   public final static MethodSignature streamSumBigInteger = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumBigInteger", "(Lscala/Function1;)Ljava/lang/BigInteger;");
+   public final static MethodSignature streamMax = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "max", "(Lscala/Function1;)Ljava/lang/Object;");
+   public final static MethodSignature streamMin = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "min", "(Lscala/Function1;)Ljava/lang/Object;");
+   public final static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "avg", "(Lscala/Function1;Lscala/math/Numeric;)D");
+   public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "count", "()J");
+//   public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "distinct", "()Lorg/jinq/orm/stream/scala/JinqIterator;");
+//   public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "select", "(Lorg/jinq/orm/stream/JinqStream$Select;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+//   public final static MethodSignature streamWhere = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "where", "(Lorg/jinq/orm/stream/JinqStream$Where;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+//   public final static MethodSignature streamJoin = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "join", "(Lorg/jinq/orm/stream/JinqStream$Join;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+//   public final static MethodSignature streamGetOnlyValue = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "getOnlyValue", "()Ljava/lang/Object;");
    
    private static final Set<MethodSignature> subqueryMethods = 
          new HashSet<>();
