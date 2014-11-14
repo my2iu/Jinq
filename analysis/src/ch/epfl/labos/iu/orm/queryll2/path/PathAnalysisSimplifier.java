@@ -13,7 +13,10 @@ public class PathAnalysisSimplifier
 {
    public static TypedValue simplify(TypedValue value, Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods)
    {
-      return simplifyBoolean(value, comparisonMethods);
+      TypedValue simplifiedBooleanReturnValue = value
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods)), null);
+      simplifiedBooleanReturnValue = simplifiedBooleanReturnValue.visit(new SymbExBooleanRewriter(), false);
+      return simplifiedBooleanReturnValue;
 //      return value.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods)), null);
    }
 //   public TypedValue getIsTrueReturnValue()

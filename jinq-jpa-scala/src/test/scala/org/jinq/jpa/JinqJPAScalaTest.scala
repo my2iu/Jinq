@@ -388,52 +388,45 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //            .sumInteger(s => s.getHasFreeShipping() ? 1 : 0));
   //      Assert.assertEquals("SELECT SUM(CASE WHEN A.hasFreeShipping = TRUE THEN 1 ELSE 0 END) FROM Customer A", query);
   //   }
-  
-     @Test
-     def testMultiAggregate()
-     {
-//       try {
-        Assert.assertEquals((1280l, 256.0), 
-              streamAll(em, classOf[Customer])
-                 .aggregate(stream => stream.sumInteger(c => c.getSalary()),
-                    stream => stream.avg(c => c.getSalary())));
-        Assert.assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
-        
-        Assert.assertEquals((5l, 30, 500), 
-              streamAll(em, classOf[Customer])
-                 .aggregate(stream => stream.count(),
-                    stream => stream.min(c => c.getSalary()),
-                    stream => stream.max(c => c.getSalary())));
-        Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
-//       } catch {
-//         case _: Throwable =>
-//       }
-     }
-  
-  //   @Test
-  //   def testMultiAggregateNoAggregate()
-  //   {
-  //      Assert.assertEquals(new Tuple3<>(5l, 30, 500), 
-  //            streamAll(em, classOf[Customer])
-  //               .aggregate(stream => stream.count(),
-  //                  stream => 30,
-  //                  stream => 500));
-  //      Assert.assertEquals("SELECT COUNT(A), 30, 500 FROM Customer A", query);
-  //   }
-  //
-  //   @Test
-  //   def testMultiAggregateTuple5()
-  //   {
-  //      Assert.assertEquals(new Tuple5<>(5l, 30, 500, 5l, 20), 
-  //            streamAll(em, classOf[Customer])
-  //               .aggregate(stream => stream.count(),
-  //                  stream => stream.min(c => c.getSalary()),
-  //                  stream => stream.max(c => c.getSalary()),
-  //                  stream => stream.count(),
-  //                  stream => 20));
-  //      Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary), COUNT(A), 20 FROM Customer A", query);
-  //   }
-  //
+
+  @Test
+  def testMultiAggregate() {
+    Assert.assertEquals((1280l, 256.0),
+      streamAll(em, classOf[Customer])
+        .aggregate(stream => stream.sumInteger(c => c.getSalary()),
+          stream => stream.avg(c => c.getSalary())));
+    Assert.assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
+
+    Assert.assertEquals((5l, 30, 500),
+      streamAll(em, classOf[Customer])
+        .aggregate(stream => stream.count(),
+          stream => stream.min(c => c.getSalary()),
+          stream => stream.max(c => c.getSalary())));
+    Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
+  }
+
+  @Test
+  def testMultiAggregateNoAggregate() {
+    Assert.assertEquals((5l, 30, 500),
+      streamAll(em, classOf[Customer])
+        .aggregate(stream => stream.count(),
+          stream => 30,
+          stream => 500));
+    Assert.assertEquals("SELECT COUNT(A), 30, 500 FROM Customer A", query);
+  }
+
+  @Test
+  def testMultiAggregateTuple5() {
+    Assert.assertEquals((5l, 30, 500, 5l, 20),
+      streamAll(em, classOf[Customer])
+        .aggregate(stream => stream.count(),
+          stream => stream.min(c => c.getSalary()),
+          stream => stream.max(c => c.getSalary()),
+          stream => stream.count(),
+          stream => 20));
+    Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary), COUNT(A), 20 FROM Customer A", query);
+  }
+
   //   @Test
   //   def testMultiAggregateParameters()
   //   {
@@ -585,88 +578,82 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //            .toList;
   //      Assert.assertEquals("SELECT A.country, COUNT(1), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country", query);
   //   }
-  //   
-  //   @Test
-  //   def testSubQueryWithSource()
-  //   {
-  //      List<Sale> sales = streamAll(em, classOf[Sale])
-  //            .where( (s, source) => source.stream(Sale.class).max(ss => ss.getSaleid()) == s.getSaleid())
-  //            .toList;
-  //      Assert.assertEquals("SELECT A FROM Sale A WHERE (SELECT MAX(B.saleid) FROM Sale B) = A.saleid", query);
-  //      Assert.assertEquals(1, sales.length);
-  //   }
-  //
-  //   @Test
-  //   def testSubQueryWithNavigationalLink()
-  //   {
-  //      List<Customer> customers = streamAll(em, classOf[Customer])
-  //            .where( c => JinqStream.from(c.getSales()).count() > 1)
-  //            .sortedBy( c => c.getName() )
-  //            .toList;
-  //      Assert.assertEquals("SELECT A FROM Customer A WHERE (SELECT COUNT(B) FROM A.sales B) > 1 ORDER BY A.name ASC", query);
-  //      Assert.assertEquals(2, customers.length);
-  //      Assert.assertEquals("Alice", customers(0).getName());
-  //      Assert.assertEquals("Carol", customers(1).getName());
-  //   }
-  //
-  //   @Test
-  //   def testSubQueryWithNavigationalLinkInSelect()
-  //   {
-  //      List<Pair<Customer, Long>> customers = streamAll(em, classOf[Customer])
-  //            .select( c => new Pair<>(c, JinqStream.from(c.getSales()).count()))
-  //            .sortedBy( c => c._1.getName() )
-  //            .sortedBy( c => c._2)
-  //            .toList;
-  //// EclipseLink on Derby is returning the result of the subquery as an integer and not a long, causing a cast problem here
-  ////      customers.sort(Comparator.comparing(pair => pair._1.getName()));
-  ////      customers.sort(Comparator.comparing(pair => pair._2));
-  //      Assert.assertEquals("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A ASC), B.name ASC", query);
-  //      Assert.assertEquals(5, customers.length);
-  //// EclipseLink on Derby just isn't handling the sorting by subqueries very well, so the result doesn't
-  //// seem to be sorted correctly
-  //   }
-  //   
-  //   @Test
-  //   def testSubQueryWithSelectSourceAndWhere()
-  //   {
-  //      List<Pair<String, Object>> sales = streamAll(em, classOf[Customer])
-  //            .where( c => JinqStream.from(c.getSales()).join(s => JinqStream.from(s.getLineorders())).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
-  //            .select( (c, source) => new Pair<String, Object>(c.getName(), source.stream(Customer.class).where( c2 => c2.getSalary() > c.getSalary()).count()) )
-  //            .sortedBy( pair => pair._1)
-  //            .toList;
-  //      Assert.assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
-  //      Assert.assertEquals("Alice", sales(0)._1);
-  //      Assert.assertEquals("Carol", sales(1)._1);
-  //      Assert.assertEquals("Eve", sales(2)._1);
-  //      // EclipseLink returns Integers instead of Longs here for some reason
-  //      // So we need this workaround to use Numbers instead to avoid a ClassCastException.
-  //      Assert.assertEquals(3, ((Number)sales(0)._2).longValue());
-  //      Assert.assertEquals(2, ((Number)sales(1)._2).longValue());
-  //      Assert.assertEquals(4, ((Number)sales(2)._2).longValue());
-  //   }
-  //
-  //   @Test
-  //   def testSubQueryFrom()
-  //   {
-  //      // Subqueries in FROM clauses are generally not supported in JPQL
-  //      // (and what support there exists is usually pretty poor.)
-  //   }
-  //
-  //   @Test
-  //   def testSubQueryNoAggregation()
-  //   {
-  //      List<Customer> customers = streamAll(em, classOf[Customer])
-  //            .where( (c, source) => 
-  //                  c.getDebt() < source.stream(Customer.class)
-  //                        .where(c2 => c2.getName().equals("Alice"))
-  //                        .select(c2 => c2.getDebt())
-  //                        .getOnlyValue() )
-  //            .toList;
-  //      Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt < (SELECT B.debt FROM Customer B WHERE B.name = 'Alice')", query);
-  //      Assert.assertEquals(1, customers.length);
-  //      Assert.assertEquals("Eve", customers(0).getName());
-  //   }
-  //
+
+  @Test
+  def testSubQueryWithSource() {
+    val sales = streamAll(em, classOf[Sale])
+      .where((s, source) => source.stream(classOf[Sale]).max(ss => ss.getSaleid()) == s.getSaleid())
+      .toList;
+    Assert.assertEquals("SELECT A FROM Sale A WHERE (SELECT MAX(B.saleid) FROM Sale B) = A.saleid", query);
+    Assert.assertEquals(1, sales.length);
+  }
+
+  @Test
+  def testSubQueryWithNavigationalLink() {
+    val customers = streamAll(em, classOf[Customer])
+      .where(c => c.getSales().count() > 1)
+      .sortedBy(c => c.getName())
+      .toList;
+    Assert.assertEquals("SELECT A FROM Customer A WHERE (SELECT COUNT(B) FROM A.sales B) > 1 ORDER BY A.name ASC", query);
+    Assert.assertEquals(2, customers.length);
+    Assert.assertEquals("Alice", customers(0).getName());
+    Assert.assertEquals("Carol", customers(1).getName());
+  }
+
+  @Test
+  def testSubQueryWithNavigationalLinkInSelect() {
+    val customers = streamAll(em, classOf[Customer])
+      .select(c => (c, c.getSales().count()))
+      .sortedBy(c => c._1.getName())
+      .sortedBy(c => c._2)
+      .toList;
+    // EclipseLink on Derby is returning the result of the subquery as an integer and not a long, causing a cast problem here
+    //      customers.sort(Comparator.comparing(pair => pair._1.getName()));
+    //      customers.sort(Comparator.comparing(pair => pair._2));
+    Assert.assertEquals("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A ASC), B.name ASC", query);
+    Assert.assertEquals(5, customers.length);
+    // EclipseLink on Derby just isn't handling the sorting by subqueries very well, so the result doesn't
+    // seem to be sorted correctly
+  }
+
+//  @Test
+//  def testSubQueryWithSelectSourceAndWhere() {
+//    val sales = streamAll(em, classOf[Customer])
+//      .where(c => c.getSales().join(s => s.getLineorders()).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
+//      .select((c, source) => (c.getName(), source.stream(classOf[Customer]).where(c2 => c2.getSalary() > c.getSalary()).count()))
+//      .sortedBy(pair => pair._1)
+//      .toList;
+//    Assert.assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
+//    Assert.assertEquals("Alice", sales(0)._1);
+//    Assert.assertEquals("Carol", sales(1)._1);
+//    Assert.assertEquals("Eve", sales(2)._1);
+//    // EclipseLink returns Integers instead of Longs here for some reason
+//    // So we need this workaround to use Numbers instead to avoid a ClassCastException.
+//    Assert.assertEquals(3, (sales(0)._2).asInstanceOf[java.lang.Number].longValue());
+//    Assert.assertEquals(2, (sales(1)._2).asInstanceOf[java.lang.Number].longValue());
+//    Assert.assertEquals(4, (sales(2)._2).asInstanceOf[java.lang.Number].longValue());
+//  }
+
+  @Test
+  def testSubQueryFrom() {
+    // Subqueries in FROM clauses are generally not supported in JPQL
+    // (and what support there exists is usually pretty poor.)
+  }
+
+//  @Test
+//  def testSubQueryNoAggregation() {
+//    val customers = streamAll(em, classOf[Customer])
+//      .where((c, source) =>
+//        c.getDebt() < source.stream(classOf[Customer])
+//          .where(c2 => c2.getName().equals("Alice"))
+//          .select(c2 => c2.getDebt())
+//          .getOnlyValue())
+//      .toList;
+//    Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt < (SELECT B.debt FROM Customer B WHERE B.name = 'Alice')", query);
+//    Assert.assertEquals(1, customers.length);
+//    Assert.assertEquals("Eve", customers(0).getName());
+//  }
+
   @Test
   def testSelectMath() {
     val customers = streamAll(em, classOf[Customer])
