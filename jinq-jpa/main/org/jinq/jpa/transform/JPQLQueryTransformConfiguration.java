@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import java.util.Map;
 
+import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysis;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
@@ -32,7 +33,14 @@ public class JPQLQueryTransformConfiguration
       return new SymbExToSubQuery(this, argumentHandler);
    }
 
-
+   public void checkLambdaSideEffects(LambdaAnalysis lambda) throws QueryTransformException
+   {
+      for (PathAnalysis path: lambda.symbolicAnalysis.paths)
+      {
+         if (!path.getSideEffects().isEmpty())
+            throw new QueryTransformException("Lambda has a side-effect that can't be emulated with a database query"); 
+      }
+   }
    
    public JPQLQueryTransformConfiguration()
    {

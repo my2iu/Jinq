@@ -7,9 +7,9 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
 public class MethodSideEffectCall extends MethodSideEffect
 {
-   MethodSignature m;
-   TypedValue base;
-   List<TypedValue> args;
+   public MethodSignature m;
+   public TypedValue base;
+   public List<TypedValue> args;
    public MethodSideEffectCall(MethodSignature m, TypedValue base, List<TypedValue> args)
    {
       this.m = m;

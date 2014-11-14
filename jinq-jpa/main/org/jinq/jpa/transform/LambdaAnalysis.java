@@ -79,7 +79,7 @@ public class LambdaAnalysis
    public static LambdaAnalysis fullyAnalyzeClassAsLambda(LambdaInfo lambdaInfo, LambdaAsClassAnalysisConfig lambdaAsClassConfig, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
    {
       try {
-         MethodAnalysisResults analysis = analyzeScalaLambdaClass(lambdaInfo.Lambda.getClass(), metamodel, lambdaAsClassConfig, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe);
+         MethodAnalysisResults analysis = analyzeLambdaClass(lambdaInfo.Lambda.getClass(), metamodel, lambdaAsClassConfig, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -107,7 +107,7 @@ public class LambdaAnalysis
       //   to redo all this analysis.
       try {
          Class<?> c = Class.forName(className);
-         MethodAnalysisResults analysis = analyzeScalaLambdaClass(c, metamodel, lambdaAsClassConfig, alternateClassLoader, isObjectEqualsSafe);
+         MethodAnalysisResults analysis = analyzeLambdaClass(c, metamodel, lambdaAsClassConfig, alternateClassLoader, isObjectEqualsSafe);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -202,7 +202,7 @@ public class LambdaAnalysis
       return analysis;
    }
 
-   private static MethodAnalysisResults analyzeScalaLambdaClass(Class<?> lambdaClass, MetamodelUtil metamodel, LambdaAsClassAnalysisConfig lambdaAsClass, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe) throws IOException, AnalyzerException 
+   private static MethodAnalysisResults analyzeLambdaClass(Class<?> lambdaClass, MetamodelUtil metamodel, LambdaAsClassAnalysisConfig lambdaAsClass, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe) throws IOException, AnalyzerException 
    {
       // Open up the corresponding class to analyze
       TransformationClassAnalyzer classAnalyzer = 

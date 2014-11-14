@@ -14,9 +14,9 @@ public class MethodSideEffectFieldAssign extends MethodSideEffect
       this.value = value;
    }
 
-   String owner;
-   String name;
-   String desc;
-   TypedValue base;
-   TypedValue value;
+   public String owner;
+   public String name;
+   public String desc;
+   public TypedValue base;
+   public TypedValue value;
 }

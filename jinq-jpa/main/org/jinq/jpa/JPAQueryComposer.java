@@ -275,6 +275,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          try {
             LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.dieOnError);
             if (lambdaAnalysis == null) { translationFail(); return null; }
+            getConfig().checkLambdaSideEffects(lambdaAnalysis);
             newQuery = transform.apply(query, lambdaAnalysis, null);
          }
          catch (QueryTransformException e)
@@ -316,6 +317,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
             {
                lambdaAnalyses[n] = lambdaInfos[n].fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.dieOnError);
                if (lambdaAnalyses[n] == null) { translationFail(); return null; }
+               getConfig().checkLambdaSideEffects(lambdaAnalyses[n]);
             }
             newQuery = transform.apply(query, lambdaAnalyses, null);
          }
@@ -334,14 +336,23 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfos);
    }
-   
+
+   /**
+    * Holds configuration information used when transforming this composer to a new composer.
+    * Since a JPAQueryComposer can only be transformed once, we only need one transformationConfig
+    * (and it is instantiated lazily).  
+    */
+   private JPQLQueryTransformConfiguration transformationConfig = null; 
    public JPQLQueryTransformConfiguration getConfig()
    {
-      JPQLQueryTransformConfiguration toReturn = jpqlQueryTransformConfigurationFactory.createConfig();
-      toReturn.metamodel = metamodel;
-      toReturn.alternateClassLoader = hints.lambdaClassLoader;
-      toReturn.isObjectEqualsSafe = hints.isObjectEqualsSafe;
-      return toReturn;
+      if (transformationConfig == null)
+      {
+         transformationConfig = jpqlQueryTransformConfigurationFactory.createConfig();
+         transformationConfig.metamodel = metamodel;
+         transformationConfig.alternateClassLoader = hints.lambdaClassLoader;
+         transformationConfig.isObjectEqualsSafe = hints.isObjectEqualsSafe;
+      }
+      return transformationConfig;
    }
 
    @Override
