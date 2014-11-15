@@ -438,27 +438,26 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //                  stream => param + stream.avg(c => c.getSalary())));
   //      Assert.assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
   //   }
-  
-     @Test
-     def testMultiAggregateWithDistinct()
-     {
-        // Derby doesn't allow for more than one aggregation of distinct things at the same time,
-        // so we'll break the test up into two cases.
-        Assert.assertEquals((5l, 710l), 
-              streamAll(em, classOf[Customer])
-                 .aggregate(
-                    stream => stream.distinct().count(),
-                    stream => stream.select(c => c.getDebt()).sumInteger(s => s)));
-        Assert.assertEquals("SELECT COUNT(DISTINCT A), SUM(A.debt) FROM Customer A", query);
-  
-        Assert.assertEquals((5l, 610l), 
-              streamAll(em, classOf[Customer])
-                 .aggregate(
-                    stream => stream.count(),
-                    stream => stream.select(c => c.getDebt()).distinct().sumInteger(s => s)));
-        Assert.assertEquals("SELECT COUNT(A), SUM(DISTINCT A.debt) FROM Customer A", query);
-     }
-     
+
+  @Test
+  def testMultiAggregateWithDistinct() {
+    // Derby doesn't allow for more than one aggregation of distinct things at the same time,
+    // so we'll break the test up into two cases.
+    Assert.assertEquals((5l, 710l),
+      streamAll(em, classOf[Customer])
+        .aggregate(
+          stream => stream.distinct().count(),
+          stream => stream.select(c => c.getDebt()).sumInteger(s => s)));
+    Assert.assertEquals("SELECT COUNT(DISTINCT A), SUM(A.debt) FROM Customer A", query);
+
+    Assert.assertEquals((5l, 610l),
+      streamAll(em, classOf[Customer])
+        .aggregate(
+          stream => stream.count(),
+          stream => stream.select(c => c.getDebt()).distinct().sumInteger(s => s)));
+    Assert.assertEquals("SELECT COUNT(A), SUM(DISTINCT A.debt) FROM Customer A", query);
+  }
+
   //   @Test(expected=IllegalArgumentException.class)
   //   def testMultiAggregateParametersWithDistinctDisallowed()
   //   {
@@ -482,91 +481,86 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("Lawnmowers", itemsSold(0));
   }
 
-  //   @Test
-  //   def testGroup()
-  //   {
-  //    List<Tuple3<String, Long, Integer>> results =
-  //          streamAll(em, classOf[Customer])
-  //          .group(c => c.getCountry(),
-  //                (country, stream) => stream.count(),
-  //                (country, stream) => (Integer)stream.min(c => c.getSalary()))
-  //          .toList;
-  //    results.sort((a, b) => a._1.compareTo(b._1));
-  //    Assert.assertEquals(4, results.length);
-  //    Assert.assertEquals(1, (long)results(0)._2);
-  //    Assert.assertEquals("Canada", results(0)._1);
-  //    Assert.assertEquals(new Tuple3<>("Switzerland", 2l, 200), results(1));
-  //    Assert.assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
-  //   }
-  //   
-  //   @Test
-  //   def testGroupSortLimit()
-  //   {
-  //    List<Tuple3<String, Long, Integer>> results =
-  //          streamAll(em, classOf[Customer])
-  //          .group(c => c.getCountry(),
-  //                (country, stream) => stream.count(),
-  //                (country, stream) => (Integer)stream.min(c => c.getSalary()))
-  //          .sortedBy(g => g._1)
-  //          .skip(1)
-  //          .limit(1)
-  //          .toList;
-  //    Assert.assertEquals(1, results.length);
-  //    Assert.assertEquals(new Tuple3<>("Switzerland", 2l, 200), results(0));
-  //    Assert.assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country ASC", query);
-  //   }
-  //   
-  //   @Test 
-  //   def testGroupByLinkEntity()
-  //   {
-  //      List<Pair<Customer, Long>> results = 
-  //            streamAll(em, classOf[Sale])
-  //                  .group(s => s.getCustomer(), 
-  //                        (c, stream) => stream.count())
-  //                  .toList;
-  //      results.sort(Comparator.<Pair<Customer, Long>, Long>comparing(group => group._2)
-  //            .thenComparing(group => group._1.getName()));
-  //      Assert.assertEquals(4, results.length);
-  //      Assert.assertEquals("Dave", results(0)._1.getName());
-  //      Assert.assertEquals(2, (long)results(2)._2);
-  //      Assert.assertEquals("Alice", results(2)._1.getName());
-  //      Assert.assertEquals("SELECT A.customer, COUNT(A) FROM Sale A GROUP BY A.customer", query);
-  //   }
-  //   
-  //   @Test 
-  //   def testGroupByMixKeyAggregate()
-  //   {
-  //      List<Pair<String, Long>> results = 
-  //            streamAll(em, classOf[Sale])
-  //                  .group(s => new Pair<String, Integer>(s.getCustomer().getName(), s.getCustomer().getSalary()), 
-  //                        (c, stream) => c._2 + stream.count())
-  //                  .select(group => new Pair<>(group._1._1, group._2))
-  //                  .toList;
-  //      results.sort(Comparator.comparing(group => group._1));
-  //      Assert.assertEquals(new Pair<>("Alice", 202l),
-  //            results(0));
-  //      Assert.assertEquals("SELECT A.customer.name, A.customer.salary + COUNT(A) FROM Sale A GROUP BY A.customer.name, A.customer.salary", query);
-  //   }
-  //
-  //   @Test 
-  //   def testGroupByHaving()
-  //   {
-  //      List<Pair<String, Long>> results = 
-  //            streamAll(em, clasOf[Lineorder])
-  //                  .where(lo => "Screws".equals(lo.getItem().getName()))
-  //                  .select(lo => lo.getSale())
-  //                  .group(s => new Pair<String, Integer>(s.getCustomer().getName(), s.getCustomer().getSalary()), 
-  //                        (c, stream) => c._2 + stream.count())
-  //                  .where(group => group._2 < 220)
-  //                  .select(group => new Pair<>(group._1._1, group._2))
-  //                  .sortedBy(group => group._1)
-  //                  .toList;
-  //      Assert.assertEquals(2, results.length);
-  //      Assert.assertEquals(new Pair<>("Alice", 201l),
-  //            results(0));
-  //      Assert.assertEquals("SELECT A.sale.customer.name, A.sale.customer.salary + COUNT(A.sale) FROM Lineorder A WHERE 'Screws' = A.item.name GROUP BY A.sale.customer.name, A.sale.customer.salary HAVING A.sale.customer.salary + COUNT(A.sale) < 220 ORDER BY A.sale.customer.name ASC", query);
-  //   }
-  //
+  @Test
+  def testGroup() {
+    val results =
+      streamAll(em, classOf[Customer])
+        .group(c => c.getCountry(),
+          (country: String, stream) => stream.count(),
+          (country: String, stream) => stream.min(c => c.getSalary()))
+        .toList;
+    results.sortBy(a => a._1);
+    Assert.assertEquals(4, results.length);
+    Assert.assertEquals(1, results(0)._2);
+    Assert.assertEquals("Canada", results(0)._1);
+    Assert.assertEquals(("Switzerland", 2l, 200), results(1));
+    Assert.assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
+  }
+
+  @Test
+  def testGroupSortLimit() {
+    val results =
+      streamAll(em, classOf[Customer])
+        .group(c => c.getCountry(),
+          (country: String, stream) => stream.count(),
+          (country: String, stream) => stream.min(c => c.getSalary()))
+        .sortedBy(g => g._1)
+        .skip(1)
+        .limit(1)
+        .toList;
+    Assert.assertEquals(1, results.length);
+    Assert.assertEquals(("Switzerland", 2l, 200), results(0));
+    Assert.assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country ORDER BY A.country ASC", query);
+  }
+
+  @Test
+  def testGroupByLinkEntity() {
+    var results =
+      streamAll(em, classOf[Sale])
+        .group(s => s.getCustomer(),
+          (c: Customer, stream) => stream.count())
+        .toList
+        .sortBy(group => group._1.getName())
+        .sortBy(group => group._2);
+    Assert.assertEquals(4, results.length);
+    Assert.assertEquals("Dave", results(0)._1.getName());
+    Assert.assertEquals(2, results(2)._2);
+    Assert.assertEquals("Alice", results(2)._1.getName());
+    Assert.assertEquals("SELECT A.customer, COUNT(A) FROM Sale A GROUP BY A.customer", query);
+  }
+
+  @Test
+  def testGroupByMixKeyAggregate() {
+    val results =
+      streamAll(em, classOf[Sale])
+        .group(s => (s.getCustomer().getName(), s.getCustomer().getSalary()),
+          (c: (String, Int), stream) => c._2 + stream.count())
+        .select(group => (group._1._1, group._2))
+        .toList
+        .sortBy(group => group._1);
+    Assert.assertEquals(("Alice", 202l),
+      results(0));
+    Assert.assertEquals("SELECT A.customer.name, A.customer.salary + COUNT(A) FROM Sale A GROUP BY A.customer.name, A.customer.salary", query);
+  }
+
+  @Test
+  def testGroupByHaving() {
+    val results =
+      streamAll(em, classOf[Lineorder])
+        .where(lo => "Screws".equals(lo.getItem().getName()))
+        .select(lo => lo.getSale())
+        .group(s => (s.getCustomer().getName(), s.getCustomer().getSalary()),
+          (c: (String, Int), stream) => c._2 + stream.count())
+        .where(group => group._2 < 220)
+        .select(group => (group._1._1, group._2))
+        .sortedBy(group => group._1)
+        .toList;
+    Assert.assertEquals(2, results.length);
+    Assert.assertEquals(("Alice", 201l),
+      results(0));
+    Assert.assertEquals("SELECT A.sale.customer.name, A.sale.customer.salary + COUNT(A.sale) FROM Lineorder A WHERE 'Screws' = A.item.name GROUP BY A.sale.customer.name, A.sale.customer.salary HAVING A.sale.customer.salary + COUNT(A.sale) < 220 ORDER BY A.sale.customer.name ASC", query);
+  }
+
   //   @Test(expected=IllegalArgumentException.class)
   //   def testSortGroupByFail()
   //   {
@@ -616,23 +610,23 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     // seem to be sorted correctly
   }
 
-//  @Test
-//  def testSubQueryWithSelectSourceAndWhere() {
-//    val sales = streamAll(em, classOf[Customer])
-//      .where(c => c.getSales().join(s => s.getLineorders()).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
-//      .select((c, source) => (c.getName(), source.stream(classOf[Customer]).where(c2 => c2.getSalary() > c.getSalary()).count()))
-//      .sortedBy(pair => pair._1)
-//      .toList;
-//    Assert.assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
-//    Assert.assertEquals("Alice", sales(0)._1);
-//    Assert.assertEquals("Carol", sales(1)._1);
-//    Assert.assertEquals("Eve", sales(2)._1);
-//    // EclipseLink returns Integers instead of Longs here for some reason
-//    // So we need this workaround to use Numbers instead to avoid a ClassCastException.
-//    Assert.assertEquals(3, (sales(0)._2).asInstanceOf[java.lang.Number].longValue());
-//    Assert.assertEquals(2, (sales(1)._2).asInstanceOf[java.lang.Number].longValue());
-//    Assert.assertEquals(4, (sales(2)._2).asInstanceOf[java.lang.Number].longValue());
-//  }
+  //  @Test
+  //  def testSubQueryWithSelectSourceAndWhere() {
+  //    val sales = streamAll(em, classOf[Customer])
+  //      .where(c => c.getSales().join(s => s.getLineorders()).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
+  //      .select((c, source) => (c.getName(), source.stream(classOf[Customer]).where(c2 => c2.getSalary() > c.getSalary()).count()))
+  //      .sortedBy(pair => pair._1)
+  //      .toList;
+  //    Assert.assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
+  //    Assert.assertEquals("Alice", sales(0)._1);
+  //    Assert.assertEquals("Carol", sales(1)._1);
+  //    Assert.assertEquals("Eve", sales(2)._1);
+  //    // EclipseLink returns Integers instead of Longs here for some reason
+  //    // So we need this workaround to use Numbers instead to avoid a ClassCastException.
+  //    Assert.assertEquals(3, (sales(0)._2).asInstanceOf[java.lang.Number].longValue());
+  //    Assert.assertEquals(2, (sales(1)._2).asInstanceOf[java.lang.Number].longValue());
+  //    Assert.assertEquals(4, (sales(2)._2).asInstanceOf[java.lang.Number].longValue());
+  //  }
 
   @Test
   def testSubQueryFrom() {

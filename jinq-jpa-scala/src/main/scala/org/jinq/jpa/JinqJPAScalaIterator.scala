@@ -3,24 +3,16 @@ package org.jinq.jpa;
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.NoSuchElementException
-import java.util.Spliterator
-import java.util.Spliterators
-import java.util.stream.Collectors
-import java.util.stream.StreamSupport
-import org.jinq.jpa.scala.JavaToScalaConverters
-import org.jinq.jpa.transform.OuterJoinTransform
+import java.util.function.Consumer
+
+import _root_.scala.math.Numeric
+
+import org.jinq.jpa.transform.ScalaGroupingTransform
 import org.jinq.jpa.transform.ScalaJoinTransform
+import org.jinq.jpa.transform.ScalaMultiAggregateTransform
 import org.jinq.jpa.transform.ScalaOuterJoinTransform
 import org.jinq.orm.stream.scala.InQueryStreamSource
 import org.jinq.orm.stream.scala.JinqIterator
-import _root_.scala.Function1
-import _root_.scala.Function2
-import _root_.scala.Tuple2
-import _root_.scala.collection.Iterator
-import _root_.scala.collection.immutable.List
-import _root_.scala.math.Numeric
-import java.util.function.Consumer
-import org.jinq.jpa.transform.ScalaMultiAggregateTransform
 
 class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource: InQueryStreamSource) extends JinqIterator[T] {
   val GENERIC_TRANSLATION_FAIL_MESSAGE = "Could not translate Scala code to a query";
@@ -220,6 +212,36 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     return multiaggregate(groupingLambdas)
   }
 
+  def groupToTuple[U,K](groupingFn: (T) => U, valueFns: Array[Object]) : JinqIterator[K] = {
+    val allLambdas:Array[Object] = new Array(valueFns.length + 1)
+    allLambdas(0) = groupingFn
+    valueFns.copyToArray(allLambdas, 1)
+      val newComposer:JPAQueryComposer[K] = queryComposer.applyTransformWithLambdas(new ScalaGroupingTransform(queryComposer.getConfig()), allLambdas);;
+      if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
+    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    
+  }
+  
+  def group[U,V](groupingFn: (T) => U, valueFn: (U, JinqIterator[T]) => V) : JinqIterator[(U, V)] = {
+    val valueLambdas : Array[Object] = Array(valueFn);
+    return groupToTuple(groupingFn, valueLambdas)
+  }
+  
+  def group[U,V,W](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W) : JinqIterator[(U, V, W)] = {
+    val valueLambdas : Array[Object] = Array(valueFn1, valueFn2);
+    return groupToTuple(groupingFn, valueLambdas)
+  }
+  
+  def group[U,V,W,X](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X) : JinqIterator[(U, V, W, X)] = {
+    val valueLambdas : Array[Object] = Array(valueFn1, valueFn2, valueFn3);
+    return groupToTuple(groupingFn, valueLambdas)
+  }
+  
+  def group[U,V,W,X,Y](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X, valueFn4: (U, JinqIterator[T]) => Y) : JinqIterator[(U, V, W, X, Y)] = {
+    val valueLambdas : Array[Object] = Array(valueFn1, valueFn2, valueFn3, valueFn4);
+    return groupToTuple(groupingFn, valueLambdas)
+  }     
+  
   @Override
   def setHint(name: String, value: Object): JinqJPAScalaIterator[T] = {
     queryComposer.setHint(name, value);

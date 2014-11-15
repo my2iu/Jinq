@@ -14,7 +14,10 @@ trait JinqIterator[T] extends Iterator[T] {
   def join[U](fn: (T, InQueryStreamSource) => JinqIterator[U]) : JinqIterator[(T,U)]
   
   def leftOuterJoin[U](fn: (T) => JinqIterator[U]) : JinqIterator[Tuple2[T,U]]
-//  def group[U,V](groupingFn: (T) => U, valueFn: (U, JinqScalaStream[T]) => V) : JinqScalaStream[Tuple2[U, V]]    
+  def group[U,V](groupingFn: (T) => U, valueFn: (U, JinqIterator[T]) => V) : JinqIterator[(U, V)]    
+  def group[U,V,W](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W) : JinqIterator[(U, V, W)]    
+  def group[U,V,W,X](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X) : JinqIterator[(U, V, W, X)]    
+  def group[U,V,W,X,Y](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X, valueFn4: (U, JinqIterator[T]) => Y) : JinqIterator[(U, V, W, X, Y)]    
   def count() : Long
   def sumInteger(fn: (T) => Int) : Long
   def sumLong(fn: (T) => Long) : Long

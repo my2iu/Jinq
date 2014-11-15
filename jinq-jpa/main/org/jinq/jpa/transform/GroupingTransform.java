@@ -18,7 +18,6 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
    {
       super(config);
    }
-
    
    private <U, V, W> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis groupingLambda, LambdaAnalysis[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
@@ -59,7 +58,7 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
             for (int n = 0; n < aggregatedQueryEntries.length; n++)
                readers[n + 1] = aggregatedQueryEntries[n].reader;
             readers[0] = keySelect.getRowReader();
-            ColumnExpressions<U> cols = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(readers));
+            ColumnExpressions<U> cols = new ColumnExpressions<>(createTupleReader(readers));
             cols.columns.addAll(keySelect.cols.columns);
             for (int n = 0; n < aggregatedQueryEntries.length; n++)
                cols.columns.addAll(aggregatedQueryEntries[n].columns);
@@ -74,12 +73,16 @@ public class GroupingTransform extends JPQLMultiLambdaQueryTransform
       }
    }
 
+   protected <U> RowReader<U> createTupleReader(RowReader<?>[] readers)
+   {
+      return TupleRowReader.createReaderForTuple(readers);
+   }
+   
    @Override
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis[] lambdas, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       return apply(query, lambdas[0], Arrays.copyOfRange(lambdas, 1, lambdas.length), parentArgumentScope);
    }
-
 
    @Override 
    public String getTransformationTypeCachingTag()
