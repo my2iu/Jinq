@@ -138,12 +138,53 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       throw new TypedValueVisitorException("Cannot use parameters as a subquery");
    }
 
+   protected ColumnExpressions<?> handleIndirectThisFieldRead(String name, Type argType) throws TypedValueVisitorException
+   {
+      // The actual value for the parameter is not available because this is a sub-lambda.
+      // Extract the parent scope to see how the parameter is used in the parent lambda
+      TypedValue paramVal = lambda.getIndirectFieldValue(name);
+      
+      // Right now, we only support sub-lambda parameters that are simply passthroughs for
+      // parameters defined in the parent lambda.
+      if (paramVal instanceof TypedValue.ArgValue)
+      {
+         TypedValue.ArgValue paramArg = (TypedValue.ArgValue)paramVal; 
+         int parentArgIndex = paramArg.getIndex();
+         if (parentArgumentScope == null)
+            throw new TypedValueVisitorException("Cannot find a parent scope to determine how to access as sublambda's parent parameters.");
+         // TODO: Right now, we need to be careful about the scope of parent lambdas. Since we only support
+         // limited usage of parameters for sublambdas, it's not a problem yet, but more complicated usages
+         // might be problematic. (Might have to pass additional parameteres to handleArg etc.)
+         return parentArgumentScope.handleArg(parentArgIndex, argType);
+      }
+      else if (paramVal instanceof TypedValue.GetFieldValue)
+      {
+         TypedValue.GetFieldValue paramArg = (TypedValue.GetFieldValue)paramVal;
+         String parentFieldName = paramArg.name;
+         if (parentArgumentScope == null)
+            throw new TypedValueVisitorException("Cannot find a parent scope to determine how to access as sublambda's parent parameters.");
+         // TODO: Right now, we need to be careful about the scope of parent lambdas. Since we only support
+         // limited usage of parameters for sublambdas, it's not a problem yet, but more complicated usages
+         // might be problematic. (Might have to pass additional parameteres to handleArg etc.)
+         return parentArgumentScope.handleThisFieldRead(parentFieldName, argType);
+      }
+      else
+      {
+         throw new TypedValueVisitorException("Jinq can only passthrough parent lambda parameters directly to sub-lambdas. Sublambdas cannot take parameters that involve computation.");
+      }
+   }
+
    @Override
    public ColumnExpressions<?> handleThisFieldRead(String name, Type argType)
          throws TypedValueVisitorException
    {
       if (lambda.usesParametersAsFields())
       {
+         if (lambda.usesIndirectFields())
+         {
+            return handleIndirectThisFieldRead(name, argType);
+         }
+         
          // Currently, we only support parameters of a few small simple types.
          // We should also support more complex types (e.g. entities) and allow
          // fields/methods of those entities to be called in the query (code

@@ -19,6 +19,7 @@ import org.jinq.jpa.test.entities.ItemType
 import java.nio.charset.Charset
 import java.nio.ByteBuffer
 import java.util.Calendar
+import org.jinq.orm.stream.scala.InQueryStreamSource
 
 class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   private def streamAll[U](em: EntityManager, entityClass: java.lang.Class[U]): JinqIterator[U] = {
@@ -427,17 +428,17 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary), COUNT(A), 20 FROM Customer A", query);
   }
 
-  //   @Test
-  //   def testMultiAggregateParameters()
-  //   {
-  //      val param: Int = 1;
-  //      Assert.assertEquals(new Pair<>(1285l, 257.0), 
-  //            streamAll(em, classOf[Customer])
-  //               .aggregate(
-  //                  stream => stream.sumInteger(c => c.getSalary() + param),
-  //                  stream => param + stream.avg(c => c.getSalary())));
-  //      Assert.assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
-  //   }
+  @Test
+  def testMultiAggregateParameters() {
+    val param: Int = 1;
+    Assert.assertEquals((1285l, 257.0),
+      streamAll(em, classOf[Customer])
+        .aggregate(
+          // Need to put param inside a "val" subparam, otherwise Scala treats it as a closure when passing it to the subquery.
+          stream => {val subparam = param; stream.sumInteger(c => c.getSalary() + subparam)},
+          stream => param + stream.avg(c => c.getSalary())));
+    Assert.assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
+  }
 
   @Test
   def testMultiAggregateWithDistinct() {
@@ -610,23 +611,23 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     // seem to be sorted correctly
   }
 
-  //  @Test
-  //  def testSubQueryWithSelectSourceAndWhere() {
-  //    val sales = streamAll(em, classOf[Customer])
-  //      .where(c => c.getSales().join(s => s.getLineorders()).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
-  //      .select((c, source) => (c.getName(), source.stream(classOf[Customer]).where(c2 => c2.getSalary() > c.getSalary()).count()))
-  //      .sortedBy(pair => pair._1)
-  //      .toList;
-  //    Assert.assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
-  //    Assert.assertEquals("Alice", sales(0)._1);
-  //    Assert.assertEquals("Carol", sales(1)._1);
-  //    Assert.assertEquals("Eve", sales(2)._1);
-  //    // EclipseLink returns Integers instead of Longs here for some reason
-  //    // So we need this workaround to use Numbers instead to avoid a ClassCastException.
-  //    Assert.assertEquals(3, (sales(0)._2).asInstanceOf[java.lang.Number].longValue());
-  //    Assert.assertEquals(2, (sales(1)._2).asInstanceOf[java.lang.Number].longValue());
-  //    Assert.assertEquals(4, (sales(2)._2).asInstanceOf[java.lang.Number].longValue());
-  //  }
+  @Test
+  def testSubQueryWithSelectSourceAndWhere() {
+    val sales: List[(String, java.lang.Number)] = streamAll(em, classOf[Customer])
+      .where(c => c.getSales().join(s => s.getLineorders()).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
+      .select((c : Customer, source : InQueryStreamSource) => (c.getName(), java.lang.Long.valueOf(source.stream(classOf[Customer]).where(c2 => c2.getSalary() > c.getSalary()).count())))
+      .sortedBy(pair => pair._1)
+      .toList;
+    Assert.assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
+    Assert.assertEquals("Alice", sales(0)._1);
+    Assert.assertEquals("Carol", sales(1)._1);
+    Assert.assertEquals("Eve", sales(2)._1);
+    // EclipseLink returns Integers instead of Longs here for some reason
+    // So we need this workaround to use Numbers instead to avoid a ClassCastException.
+    Assert.assertEquals(3, (sales(0)._2).asInstanceOf[java.lang.Number].longValue());
+    Assert.assertEquals(2, (sales(1)._2).asInstanceOf[java.lang.Number].longValue());
+    Assert.assertEquals(4, (sales(2)._2).asInstanceOf[java.lang.Number].longValue());
+  }
 
   @Test
   def testSubQueryFrom() {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
@@ -24,6 +25,15 @@ public class LambdaAnalysis
 {
    public static class LambdaAsClassAnalysisConfig
    {
+      private static int countObjectParameters(Method m)
+      {
+         int count = 0;
+         if (m.getReturnType().getName().equals("java.lang.Object")) count++;
+         for (Class<?> c: m.getParameterTypes())
+            if (c.getName().equals("java.lang.Object")) count++;
+         return count;
+      }
+      
       public Method findLambdaMethod(Class<?> lambdaClass)
             throws AnalyzerException
       {
@@ -52,6 +62,20 @@ public class LambdaAnalysis
          return matchingMethod;
       }
       
+      public int getNumberOfLambdaArguments(Class<?> c)
+      {
+         try {
+            if (Class.forName("scala.Function1").isAssignableFrom(c))
+               return 1;
+            else if (Class.forName("scala.Function1").isAssignableFrom(c))
+               return 2;
+         } 
+         catch (ClassNotFoundException e)
+         {
+            throw new IllegalArgumentException("Cannot find Scala classes", e);
+         }
+         throw new IllegalArgumentException("Cannot determine number of arguments to the lambda function.");
+      }
    }
    
    private int numCapturedArgs;
@@ -68,6 +92,13 @@ public class LambdaAnalysis
     * captured args are determined from the parent.
     */
    private List<TypedValue> indirectCapturedArgs;
+   /**
+    * Some lambdas are from sublambdas inside other lambdas, and the parameters
+    * to these sublambdas may be stored as fields in the sublambda. We don't
+    * have the actual data for the fields, but we have the indirect mapping of
+    * these fields to variables in the parent lambda.
+    */
+   private Map<String, TypedValue> indirectParamFields;
    /**
     * Scala lambdas are actual Java classes and objects. Lambda parameters
     * are stored as fields of the object (as opposed to as extra method
@@ -98,13 +129,8 @@ public class LambdaAnalysis
     * Used to analyze a lambda when we only have the name of the class used as the lambda
     * and not an actual reference to the lambda. 
     */
-//   public static LambdaAnalysis analyzeClassAsLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, boolean throwExceptionOnFailure)
-   public static LambdaAnalysis analyzeClassAsLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, LambdaAsClassAnalysisConfig lambdaAsClassConfig, String className, boolean throwExceptionOnFailure) 
+   public static LambdaAnalysis analyzeClassAsLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, LambdaAsClassAnalysisConfig lambdaAsClassConfig, String className, Map<String, TypedValue> indirectParamMapping, boolean throwExceptionOnFailure) 
    {
-      // TODO: The part below will need to be moved to a separate method.
-      //   That way, we can used the serialized lambda info to check if
-      //   we've cached the results of this analysis already without needing
-      //   to redo all this analysis.
       try {
          Class<?> c = Class.forName(className);
          MethodAnalysisResults analysis = analyzeLambdaClass(c, metamodel, lambdaAsClassConfig, alternateClassLoader, isObjectEqualsSafe);
@@ -113,10 +139,7 @@ public class LambdaAnalysis
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
             return null;
          }
-         // TODO: Handle lambda arguments properly
-         System.err.println("Handle number of lambda args for subqueries properly.");
-         System.err.println("Handle lambda arguments in general properly");
-         return new LambdaAnalysis(analysis, new ArrayList<>(), 1);
+         return new LambdaAnalysis(analysis, indirectParamMapping, lambdaAsClassConfig.getNumberOfLambdaArguments(c));
       }
       catch (IOException e)
       {
@@ -216,17 +239,7 @@ public class LambdaAnalysis
       PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe));
       return analysis;
    }
-
    
-   private static int countObjectParameters(Method m)
-   {
-      int count = 0;
-      if (m.getReturnType().getName().equals("java.lang.Object")) count++;
-      for (Class<?> c: m.getParameterTypes())
-         if (c.getName().equals("java.lang.Object")) count++;
-      return count;
-   }
-
    LambdaAnalysis(Object lambda, SerializedLambda serializedLambda, MethodAnalysisResults symbolicAnalysis, int lambdaIndex)
    {
       this.numCapturedArgs = serializedLambda.capturedArgs.length;
@@ -257,11 +270,21 @@ public class LambdaAnalysis
       this.usesParametersAsFields = true;
    }
 
+   LambdaAnalysis(MethodAnalysisResults symbolicAnalysis, Map<String, TypedValue> indirectParamFields, int numLambdaArgs)
+   {
+      this.numCapturedArgs = 0;
+      this.numLambdaArgs = numLambdaArgs;
+      this.lambdaIndex = -1;
+      this.symbolicAnalysis = symbolicAnalysis;
+      this.indirectCapturedArgs = null;
+      this.indirectParamFields = indirectParamFields;
+      this.usesParametersAsFields = true;
+   }
+
    public boolean usesIndirectArgs()
    {
       return indirectCapturedArgs != null;
    }
-
 
    public int getNumCapturedArgs()
    {
@@ -283,6 +306,16 @@ public class LambdaAnalysis
       return lambdaIndex;
    }
 
+   public TypedValue getIndirectFieldValue(String name)
+   {
+      return indirectParamFields.get(name);
+   }
+
+   public boolean usesIndirectFields()
+   {
+      return indirectParamFields != null;
+   }
+   
    public boolean usesParametersAsFields()
    {
       return usesParametersAsFields;

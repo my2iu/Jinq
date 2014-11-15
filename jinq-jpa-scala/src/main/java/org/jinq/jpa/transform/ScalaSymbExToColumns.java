@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.Expression;
@@ -92,9 +93,9 @@ public class ScalaSymbExToColumns extends SymbExToColumns
             else if (arg instanceof MethodCallValue.VirtualMethodCallValue && ((MethodCallValue.VirtualMethodCallValue)arg).isConstructor())
             {
                MethodCallValue.VirtualMethodCallValue lambdaConstructor = (MethodCallValue.VirtualMethodCallValue)arg;
-               System.err.println("TODO: Handle subquery parameters using lambdas as classes");
                try {
-                  lambda = LambdaAnalysis.analyzeClassAsLambda(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, new LambdaAnalysis.LambdaAsClassAnalysisConfig(), lambdaConstructor.getSignature().getOwnerType().getClassName(), true);
+                  Map<String, TypedValue> indirectParamMapping = config.findLambdaAsClassConstructorParameters(lambdaConstructor.getSignature(), lambdaConstructor.args);
+                  lambda = LambdaAnalysis.analyzeClassAsLambda(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, new LambdaAnalysis.LambdaAsClassAnalysisConfig(), lambdaConstructor.getSignature().getOwnerType().getClassName(), indirectParamMapping, true);
                } catch (Exception e)
                {
                   throw new TypedValueVisitorException("Could not analyze the lambda code", e);

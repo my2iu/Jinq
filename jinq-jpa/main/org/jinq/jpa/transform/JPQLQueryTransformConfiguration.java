@@ -1,5 +1,6 @@
 package org.jinq.jpa.transform;
 
+import java.util.List;
 import java.util.Map;
 
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysis;
@@ -31,6 +32,11 @@ public class JPQLQueryTransformConfiguration
    public SymbExToSubQuery newSymbExToSubQuery(SymbExArgumentHandler argumentHandler)
    {
       return new SymbExToSubQuery(this, argumentHandler);
+   }
+
+   public Map<String, TypedValue> findLambdaAsClassConstructorParameters(MethodSignature sig, List<TypedValue> args) throws QueryTransformException
+   {
+      throw new IllegalArgumentException("Using classes as lambdas is not supported in Java Jinq");
    }
 
    public void checkLambdaSideEffects(LambdaAnalysis lambda) throws QueryTransformException
