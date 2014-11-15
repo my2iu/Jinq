@@ -105,11 +105,11 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    public final static MethodSignature streamMin = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "min", "(Lscala/Function1;)Ljava/lang/Object;");
    public final static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "avg", "(Lscala/Function1;Lscala/math/Numeric;)D");
    public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "count", "()J");
-//   public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "distinct", "()Lorg/jinq/orm/stream/scala/JinqIterator;");
-//   public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "select", "(Lorg/jinq/orm/stream/JinqStream$Select;)Lorg/jinq/orm/stream/scala/JinqIterator;");
-//   public final static MethodSignature streamWhere = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "where", "(Lorg/jinq/orm/stream/JinqStream$Where;)Lorg/jinq/orm/stream/scala/JinqIterator;");
-//   public final static MethodSignature streamJoin = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "join", "(Lorg/jinq/orm/stream/JinqStream$Join;)Lorg/jinq/orm/stream/scala/JinqIterator;");
-//   public final static MethodSignature streamGetOnlyValue = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "getOnlyValue", "()Ljava/lang/Object;");
+   public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "distinct", "()Lorg/jinq/orm/stream/scala/JinqIterator;");
+   public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "select", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+   public final static MethodSignature streamWhere = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "where", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+   public final static MethodSignature streamJoin = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "join", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+   public final static MethodSignature streamGetOnlyValue = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "getOnlyValue", "()Ljava/lang/Object;");
    
    private static final Set<MethodSignature> subqueryMethods = 
          new HashSet<>();
@@ -123,11 +123,11 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       subqueryMethods.add(streamMin);
       subqueryMethods.add(streamAvg);
       subqueryMethods.add(streamCount);
-//      subqueryMethods.add(streamDistinct);
-//      subqueryMethods.add(streamSelect);
-//      subqueryMethods.add(streamWhere);
-//      subqueryMethods.add(streamJoin);
-//      subqueryMethods.add(streamGetOnlyValue);
+      subqueryMethods.add(streamDistinct);
+      subqueryMethods.add(streamSelect);
+      subqueryMethods.add(streamWhere);
+      subqueryMethods.add(streamJoin);
+      subqueryMethods.add(streamGetOnlyValue);
    }
 
    static Set<MethodSignature> KnownSafeMethods = new HashSet<>();
@@ -226,5 +226,14 @@ public class ScalaMetamodelUtil extends MetamodelUtil
             || sig.equals(streamAvg)
             || sig.equals(streamCount);
    }
+   
+   static boolean isStreamMethod(MethodSignature sig)
+   {
+      return sig.equals(ScalaMetamodelUtil.streamDistinct)
+            || sig.equals(ScalaMetamodelUtil.streamSelect)
+            || sig.equals(ScalaMetamodelUtil.streamWhere)
+            || sig.equals(ScalaMetamodelUtil.streamJoin);
+   }
+
 
 }

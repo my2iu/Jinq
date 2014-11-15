@@ -438,27 +438,27 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //                  stream => param + stream.avg(c => c.getSalary())));
   //      Assert.assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
   //   }
-  //
-  //   @Test
-  //   def testMultiAggregateParametersWithDistinct()
-  //   {
-  //      // Derby doesn't allow for more than one aggregation of distinct things at the same time,
-  //      // so we'll break the test up into two cases.
-  //      Assert.assertEquals(new Pair<>(5l, 710l), 
-  //            streamAll(em, classOf[Customer])
-  //               .aggregate(
-  //                  stream => stream.distinct().count(),
-  //                  stream => stream.select(c => c.getDebt()).sumInteger(s => s)));
-  //      Assert.assertEquals("SELECT COUNT(DISTINCT A), SUM(A.debt) FROM Customer A", query);
-  //
-  //      Assert.assertEquals(new Pair<>(5l, 610l), 
-  //            streamAll(em, classOf[Customer])
-  //               .aggregate(
-  //                  stream => stream.count(),
-  //                  stream => stream.select(c => c.getDebt()).distinct().sumInteger(s => s)));
-  //      Assert.assertEquals("SELECT COUNT(A), SUM(DISTINCT A.debt) FROM Customer A", query);
-  //   }
-  //   
+  
+     @Test
+     def testMultiAggregateWithDistinct()
+     {
+        // Derby doesn't allow for more than one aggregation of distinct things at the same time,
+        // so we'll break the test up into two cases.
+        Assert.assertEquals((5l, 710l), 
+              streamAll(em, classOf[Customer])
+                 .aggregate(
+                    stream => stream.distinct().count(),
+                    stream => stream.select(c => c.getDebt()).sumInteger(s => s)));
+        Assert.assertEquals("SELECT COUNT(DISTINCT A), SUM(A.debt) FROM Customer A", query);
+  
+        Assert.assertEquals((5l, 610l), 
+              streamAll(em, classOf[Customer])
+                 .aggregate(
+                    stream => stream.count(),
+                    stream => stream.select(c => c.getDebt()).distinct().sumInteger(s => s)));
+        Assert.assertEquals("SELECT COUNT(A), SUM(DISTINCT A.debt) FROM Customer A", query);
+     }
+     
   //   @Test(expected=IllegalArgumentException.class)
   //   def testMultiAggregateParametersWithDistinctDisallowed()
   //   {
@@ -640,19 +640,19 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     // (and what support there exists is usually pretty poor.)
   }
 
-//  @Test
-//  def testSubQueryNoAggregation() {
-//    val customers = streamAll(em, classOf[Customer])
-//      .where((c, source) =>
-//        c.getDebt() < source.stream(classOf[Customer])
-//          .where(c2 => c2.getName().equals("Alice"))
-//          .select(c2 => c2.getDebt())
-//          .getOnlyValue())
-//      .toList;
-//    Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt < (SELECT B.debt FROM Customer B WHERE B.name = 'Alice')", query);
-//    Assert.assertEquals(1, customers.length);
-//    Assert.assertEquals("Eve", customers(0).getName());
-//  }
+  @Test
+  def testSubQueryNoAggregation() {
+    val customers = streamAll(em, classOf[Customer])
+      .where((c, source) =>
+        c.getDebt() < source.stream(classOf[Customer])
+          .where(c2 => c2.getName().equals("Alice"))
+          .select(c2 => c2.getDebt())
+          .getOnlyValue())
+      .toList;
+    Assert.assertEquals("SELECT A FROM Customer A WHERE A.debt < (SELECT B.debt FROM Customer B WHERE B.name = 'Alice')", query);
+    Assert.assertEquals(1, customers.length);
+    Assert.assertEquals("Eve", customers(0).getName());
+  }
 
   @Test
   def testSelectMath() {

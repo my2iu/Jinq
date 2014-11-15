@@ -150,29 +150,29 @@ public class ScalaSymbExToColumns extends SymbExToColumns
             throw new TypedValueVisitorException("Could not derive an aggregate function for a lambda", e);
          }
       }
-//      else if (sig.equals(MethodChecker.streamGetOnlyValue))
-//      {
-//         SymbExPassDown passdown = SymbExPassDown.with(val, false);
-//         
-//         // Check out what stream we're aggregating
-//         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler);
-//         JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
-//
-//         if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 
-//         {
-//            SelectFromWhere<?> sfw = (SelectFromWhere<?>)subQuery;
-//            ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
-//            for (Expression col: sfw.cols.columns)
-//            {
-//               SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
-//               oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
-//               toReturn.columns.add(SubqueryExpression.from(oneColQuery));
-//            }
-//            return toReturn;
-//         }
-//
-//         throw new TypedValueVisitorException("Cannot apply getOnlyValue() to the given subquery");
-//      }
+      else if (sig.equals(ScalaMetamodelUtil.streamGetOnlyValue))
+      {
+         SymbExPassDown passdown = SymbExPassDown.with(val, false);
+         
+         // Check out what stream we're aggregating
+         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler);
+         JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
+
+         if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 
+         {
+            SelectFromWhere<?> sfw = (SelectFromWhere<?>)subQuery;
+            ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
+            for (Expression col: sfw.cols.columns)
+            {
+               SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
+               oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
+               toReturn.columns.add(SubqueryExpression.from(oneColQuery));
+            }
+            return toReturn;
+         }
+
+         throw new TypedValueVisitorException("Cannot apply getOnlyValue() to the given subquery");
+      }
       else if (sig.equals(ScalaMetamodelUtil.STRINGBUILDER_STRING))
       {
          List<ColumnExpressions<?>> concatenatedStrings = new ArrayList<>();

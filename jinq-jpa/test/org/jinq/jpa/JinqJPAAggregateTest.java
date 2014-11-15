@@ -190,7 +190,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    }
 
    @Test
-   public void testMultiAggregateParametersWithDistinct()
+   public void testMultiAggregateWithDistinct()
    {
       // Derby doesn't allow for more than one aggregation of distinct things at the same time,
       // so we'll break the test up into two cases.
