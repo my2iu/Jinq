@@ -1,7 +1,7 @@
 package org.jinq.orm.stream.scala;
 
 /**
- * Create a JinqStream of database data from inside the context of a query. It
+ * Create a JinqIterator of database data from inside the context of a query. It
  * is a bit of a backdoor hack, but it's needed to support certain queries.
  * <p>
  * 

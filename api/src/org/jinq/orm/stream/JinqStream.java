@@ -179,9 +179,9 @@ public interface JinqStream<T> extends Stream<T>
     * <pre>
     * {@code JinqStream<Country> stream = ...;
     * JinqStream<Pair<Country, Mountain>> result = 
-    *    stream.join(c -> JinqStream.from(c.getMountain()));
+    *    stream.leftOuterJoin(c -> JinqStream.from(c.getMountain()));
     * JinqStream<Pair<Country, Mountain>> result = 
-    *    stream.join(c -> JinqStream.of(c.getHighestMountain()));
+    *    stream.leftOuterJoin(c -> JinqStream.of(c.getHighestMountain()));
     * }
     * </pre>
     * 
@@ -372,7 +372,7 @@ public interface JinqStream<T> extends Stream<T>
     * 
     * <pre>
     * {@code JinqStream<Student> stream = ...;
-    * Date birthdayOfYoungest = stream.max(s -> s.getBirthday()); 
+    * Date birthdayOfOldest = stream.min(s -> s.getBirthday()); 
     * }
     * </pre>
     * 
@@ -386,7 +386,7 @@ public interface JinqStream<T> extends Stream<T>
    public <V extends Comparable<V>> V min(CollectComparable<T, V> aggregate);
 
    /**
-    * Finds the average of the element of a stream.
+    * Finds the average of the elements of a stream.
     * 
     * <pre>
     * {@code JinqStream<Student> stream = ...;

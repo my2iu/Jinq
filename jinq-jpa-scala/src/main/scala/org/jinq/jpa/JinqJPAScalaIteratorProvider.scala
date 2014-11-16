@@ -18,13 +18,16 @@ import org.jinq.orm.stream.scala.JinqIterator;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
+/**
+ * Creates a JinqIterator of JPA entities.
+ */
 class JinqJPAScalaIteratorProvider(_metamodel: Metamodel) {
-  var metamodel: ScalaMetamodelUtil = new ScalaMetamodelUtil(_metamodel);
-  val cachedQueries: JPAQueryComposerCache = new JPAQueryComposerCache();
-  var hints: JinqJPAHints = new JinqJPAHints();
+  protected var metamodel: ScalaMetamodelUtil = new ScalaMetamodelUtil(_metamodel);
+  protected val cachedQueries: JPAQueryComposerCache = new JPAQueryComposerCache();
+  protected var hints: JinqJPAHints = new JinqJPAHints();
   hints.isObjectEqualsSafe = true;
-  val lambdaAnalyzer: ScalaLambdaAnalysisFactory = new ScalaLambdaAnalysisFactory();
-  val jpqlQueryTransformConfigurationFactory: ScalaJPQLQueryTransformConfigurationFactory = new ScalaJPQLQueryTransformConfigurationFactory();
+  protected val lambdaAnalyzer: ScalaLambdaAnalysisFactory = new ScalaLambdaAnalysisFactory();
+  protected val jpqlQueryTransformConfigurationFactory: ScalaJPQLQueryTransformConfigurationFactory = new ScalaJPQLQueryTransformConfigurationFactory();
 
   def this(factory: EntityManagerFactory) {
     this(factory.getMetamodel());
