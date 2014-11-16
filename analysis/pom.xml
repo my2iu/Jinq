@@ -3,7 +3,7 @@
   <parent>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq</artifactId>
-	  <version>1.3</version>
+	  <version>1.4-SNAPSHOT</version>
   </parent>
   <artifactId>analysis</artifactId>
   <packaging>jar</packaging>
@@ -24,7 +24,7 @@
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>api</artifactId>
-	  <version>1.3</version>
+	  <version>1.4-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
