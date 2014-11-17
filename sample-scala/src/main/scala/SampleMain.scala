@@ -8,9 +8,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.jinq.jpa.JPAQueryLogger;
-import org.jinq.jpa.JinqJPAScalaStreamProvider;
+import org.jinq.jpa.JinqJPAScalaIteratorProvider;
 import org.jinq.orm.stream.scala.JinqConversions._;
-import org.jinq.orm.stream.scala.JinqScalaStream;
+import org.jinq.orm.stream.scala.JinqIterator;
 import org.jinq.tuples.Pair;
 
 import com.example.jinq.sample.jpa.entities.Customer;
@@ -20,46 +20,38 @@ import com.example.jinq.sample.jpa.entities.Lineorder;
 
  object SampleMain {
   def main(args: Array[String]) {
-    new SampleMain().start()
+    // Start running some queries
+    new SampleMain().runSampleQueries()
   }
 }
 
 class SampleMain {
-   var entityManagerFactory : EntityManagerFactory = _;
-   var streams : JinqJPAScalaStreamProvider = _;
+   // Configure Jinq for the given JPA database connection
+   val entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
+   SampleDbCreator.createDatabase(entityManagerFactory);
+   val streams = new JinqJPAScalaIteratorProvider(entityManagerFactory);
+
+   // Hibernate seems to generate incorrect metamodel data for some types of
+   // associations, so we have to manually supply the correct information here.
+   streams.registerAssociationAttribute(classOf[Lineorder].getMethod("getItem"), "item", false);
+   streams.registerAssociationAttribute(classOf[Lineorder].getMethod("getSale"), "sale", false);
+
+   // Configure Jinq to output the queries it executes
+   streams.setHint("queryLogger", new JPAQueryLogger() {
+      def logQuery(query : String, positionParameters : Map[Integer, Object] ,
+            namedParameters : Map[String, Object])
+      {
+         System.out.println("  " + query);
+      }
+   });
 
    var em : EntityManager = _;
 
-   def start()
-   {
-      // Configure Jinq for the given JPA database connection
-      entityManagerFactory = Persistence.createEntityManagerFactory("JPATest");
-      SampleDbCreator.createDatabase(entityManagerFactory);
-      streams = new JinqJPAScalaStreamProvider(entityManagerFactory);
-      
-      // Hibernate seems to generate incorrect metamodel data for some types of
-      // associations, so we have to manually supply the correct information here.
-      streams.registerAssociationAttribute(classOf[Lineorder].getMethod("getItem"), "item", false);
-      streams.registerAssociationAttribute(classOf[Lineorder].getMethod("getSale"), "sale", false);
-      
-      // Configure Jinq to output the queries it executes
-      streams.setHint("queryLogger", new JPAQueryLogger() {
-         def logQuery(query : String, positionParameters : Map[Integer, Object] ,
-               namedParameters : Map[String, Object])
-         {
-            System.out.println("  " + query);
-         }
-      });
-
-      // Start running some queries
-      runSampleQueries();
-   }
-
    // Helper accessor methods
    
-   def customers(): JinqScalaStream[Customer] = { return streams.streamAll(em, classOf[Customer]); }  
-   def items(): JinqScalaStream[Item] = { return streams.streamAll(em, classOf[Item]); }  
-   def lineorders(): JinqScalaStream[Lineorder] = { return streams.streamAll(em, classOf[Lineorder]); }  
+   def customers(): JinqIterator[Customer] = { return streams.streamAll(em, classOf[Customer]); }  
+   def items(): JinqIterator[Item] = { return streams.streamAll(em, classOf[Item]); }  
+   def lineorders(): JinqIterator[Lineorder] = { return streams.streamAll(em, classOf[Lineorder]); }  
    
    // Actual queries to run
    
@@ -71,7 +63,6 @@ class SampleMain {
       // Table scan
       out.println("LIST OF CUSTOMERS");
       customers()
-      	 .toIterator()
          .foreach( c => out.println(c.getName() + " " + c.getCountry() + " " + c.getSalary()));
       out.println();
 
@@ -79,7 +70,6 @@ class SampleMain {
       out.println("CUSTOMERS FROM THE UK");
       customers()
          .where(c => c.getCountry() eq "UK")
-         .toIterator()
          .foreach( c => out.println(c.getName() + " " + c.getCountry()));
       out.println();
 
@@ -87,7 +77,7 @@ class SampleMain {
       out.println("CUSTOMERS FROM SWITZERLAND");
       val swiss = customers()
          .where(c => c.getCountry() eq "Switzerland")
-         .toList();
+         .toList;
       for (c <- swiss)
          out.println(c.getName() + " " + c.getCountry());
       out.println();
@@ -98,7 +88,6 @@ class SampleMain {
       out.println("ITEMS OF TYPE SMALL");
       items()
          .where(i => i.getType() eq param)
-         .toIterator
          .foreach( i => out.println(i.getName() + " " + i.getType().name()));
       out.println();
 
@@ -106,7 +95,6 @@ class SampleMain {
       out.println("CUSTOMERS WITH DEBT < SALARY");
       customers()
          .where(c => c.getDebt() < c.getSalary())
-         .toIterator()
          .foreach( c => out.println(c.getName() + " " + c.getDebt() + " " + c.getSalary()));
       out.println();
 
@@ -114,7 +102,6 @@ class SampleMain {
       out.println("HOW MUCH BIGGER IS A CUSTOMER'S DEBT THAN THEIR SALARY");
       customers()
          .select(c => (c.getName(), c.getDebt() - c.getSalary()))
-         .toIterator()
          .foreach(pair => out.println(pair._1 + " " + pair._2));
       out.println();
 
@@ -124,7 +111,6 @@ class SampleMain {
          .where(c => c.getSalary() > 200)
          .select(c => (c.getName(), c.getDebt() - c.getSalary()))
          .where(pair => pair._2 < 0)
-         .toIterator()
          .foreach(pair => out.println(pair._1 + " " + pair._2));
       out.println();
 
@@ -137,7 +123,6 @@ class SampleMain {
             else
                c.getCountry() eq "USA";
          })
-         .toIterator()
          .foreach(c => out.println(c.getName() + " " + c.getCountry() + " " + c.getSalary()));
       out.println();
 
@@ -146,7 +131,6 @@ class SampleMain {
       lineorders()
          .where(lo => lo.getItem().getName() eq "Widgets")
          .select(lo => lo.getSale().getCustomer().getName())
-         .toIterator()
          .foreach(name => out.println(name));
       out.println();
       
@@ -162,18 +146,17 @@ class SampleMain {
       customers()
          .sortedDescendingBy(c => c.getSalary())
          .limit(3)
-         .toIterator()
          .foreach(c => out.println(c.getName() + " " + c.getSalary()));
       out.println();
 
       // Grouping
-//      out.println("Number of Screws bought by each customer");
-//      lineorders()
-//         .where(lo => lo.getItem().getName() eq "Screws")
-//         .group( lo => lo.getSale().getCustomer().getName(),
-//               (name, los) => los.sumInteger(lo => lo.getQuantity()))
-//         .foreach(pair => out.println(pair._1 + " " + pair._2));
-//      out.println();
+      out.println("Number of Screws bought by each customer");
+      lineorders()
+         .where(lo => lo.getItem().getName() eq "Screws")
+         .group( lo => lo.getSale().getCustomer().getName(),
+               (name : String, los) => los.sumInteger(lo => lo.getQuantity()))
+         .foreach(pair => out.println(pair._1 + " " + pair._2));
+      out.println();
 
       em.close();
    }
