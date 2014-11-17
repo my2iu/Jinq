@@ -58,8 +58,9 @@
 		</tstamp>
 		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jooq/**,*/target/**,sample/bin/**,**/derby.log"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,*/target/**,sample/bin/**,**/derby.log"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
+			<zipfileset dir="jinq-jpa-scala" prefix="Jinq/jinq-jpa-scala" includes="src/**,pom.xml"/>
 			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="lib/lib" fullpath="Jinq/lib"/>
 		</zip>
