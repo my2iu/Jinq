@@ -212,7 +212,7 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     return multiaggregate(groupingLambdas)
   }
 
-  def groupToTuple[U,K](groupingFn: (T) => U, valueFns: Array[Object]) : JinqIterator[K] = {
+  def groupToTuple[U,K](groupingFn: (T) => U, valueFns: Array[Object]) : JinqJPAScalaIterator[K] = {
     val allLambdas:Array[Object] = new Array(valueFns.length + 1)
     allLambdas(0) = groupingFn
     valueFns.copyToArray(allLambdas, 1)
@@ -222,22 +222,22 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     
   }
   
-  def group[U,V](groupingFn: (T) => U, valueFn: (U, JinqIterator[T]) => V) : JinqIterator[(U, V)] = {
+  def group[U,V](groupingFn: (T) => U, valueFn: (U, JinqIterator[T]) => V) : JinqJPAScalaIterator[(U, V)] = {
     val valueLambdas : Array[Object] = Array(valueFn);
     return groupToTuple(groupingFn, valueLambdas)
   }
   
-  def group[U,V,W](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W) : JinqIterator[(U, V, W)] = {
+  def group[U,V,W](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W) : JinqJPAScalaIterator[(U, V, W)] = {
     val valueLambdas : Array[Object] = Array(valueFn1, valueFn2);
     return groupToTuple(groupingFn, valueLambdas)
   }
   
-  def group[U,V,W,X](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X) : JinqIterator[(U, V, W, X)] = {
+  def group[U,V,W,X](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X) : JinqJPAScalaIterator[(U, V, W, X)] = {
     val valueLambdas : Array[Object] = Array(valueFn1, valueFn2, valueFn3);
     return groupToTuple(groupingFn, valueLambdas)
   }
   
-  def group[U,V,W,X,Y](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X, valueFn4: (U, JinqIterator[T]) => Y) : JinqIterator[(U, V, W, X, Y)] = {
+  def group[U,V,W,X,Y](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X, valueFn4: (U, JinqIterator[T]) => Y) : JinqJPAScalaIterator[(U, V, W, X, Y)] = {
     val valueLambdas : Array[Object] = Array(valueFn1, valueFn2, valueFn3, valueFn4);
     return groupToTuple(groupingFn, valueLambdas)
   }     
@@ -247,28 +247,6 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     queryComposer.setHint(name, value);
     return this;
   }
-
-  //  @Override
-  //  def toList(): List[T] =
-  //    {
-  //      return JavaToScalaConverters.javaListToList(
-  //        StreamSupport.stream(
-  //          Spliterators.spliteratorUnknownSize(
-  //            queryComposer.executeAndReturnResultIterator(new Consumer[Throwable]() {
-  //              def accept(err: Throwable) = {}
-  //            }),
-  //            Spliterator.CONCURRENT),
-  //          false).collect(Collectors.toList()));
-  //    }
-  //
-  //  @Override
-  //  def toIterator(): Iterator[T] =
-  //    {
-  //      return JavaToScalaConverters.javaIteratorToIterator(
-  //        queryComposer.executeAndReturnResultIterator(new Consumer[Throwable]() {
-  //          def accept(err: Throwable) = {}
-  //        }));
-  //    }
 
   @Override
   def getOnlyValue(): T = {
