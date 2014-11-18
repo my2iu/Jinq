@@ -198,7 +198,7 @@ trait JinqIterator[T] extends Iterator[T] {
    * than one field of data (i.e. a tuple) or if the iterator is streaming
    * in-memory data, then the count will include NULL values.
    */
-  def count(): Long
+  def count(): java.lang.Long
 
   /**
    * Calculates a sum over the elements of the iterator. Different sum methods are
@@ -216,13 +216,13 @@ trait JinqIterator[T] extends Iterator[T] {
    *           added to the sum.
    * @return the sum of the values returned by the function
    */
-  def sumInteger(fn: (T) => Int): Long
+  def sumInteger(fn: (T) => java.lang.Integer): java.lang.Long
 
   /** @see #sumInteger */
-  def sumLong(fn: (T) => Long): Long
+  def sumLong(fn: (T) => java.lang.Long): java.lang.Long
 
   /** @see #sumInteger */
-  def sumDouble(fn: (T) => Double): Double
+  def sumDouble(fn: (T) => java.lang.Double): java.lang.Double
 
   /** @see #sumInteger */
   def sumBigDecimal(fn: (T) => BigDecimal): BigDecimal
@@ -277,7 +277,7 @@ trait JinqIterator[T] extends Iterator[T] {
    *           included in the average
    * @return the average of the values returned by the function
    */
-  def avg[V: Numeric](fn: (T) => V): Double
+  def avg[V: Numeric](fn: (T) => V): java.lang.Double
 
   /**
    * Calculates more than one aggregate function over the elements of the

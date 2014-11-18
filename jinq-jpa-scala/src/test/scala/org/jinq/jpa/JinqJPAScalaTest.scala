@@ -290,7 +290,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     val count = streamAll(em, classOf[Customer])
       .count();
     Assert.assertEquals("SELECT COUNT(A) FROM Customer A", query);
-    Assert.assertEquals(5, count);
+    Assert.assertEquals(5l, count);
   }
 
   @Test
@@ -299,7 +299,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .where(c => c.getCountry().equals("UK"))
       .count();
     Assert.assertEquals("SELECT COUNT(A) FROM Customer A WHERE A.country = 'UK'", query);
-    Assert.assertEquals(1, count);
+    Assert.assertEquals(1l, count);
   }
 
   @Test
@@ -308,7 +308,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .select(c => (c.getName(), c.getCountry()))
       .count();
     Assert.assertEquals("SELECT COUNT(1) FROM Customer A", query);
-    Assert.assertEquals(5, count);
+    Assert.assertEquals(5l, count);
   }
 
   @Test
@@ -360,7 +360,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   @Test
   def testSumInteger() {
     // Sum of integers is a long
-    Assert.assertEquals(1280, streamAll(em, classOf[Customer])
+    Assert.assertEquals(1280l, streamAll(em, classOf[Customer])
       .sumInteger(s => s.getSalary()));
     Assert.assertEquals("SELECT SUM(A.salary) FROM Customer A", query);
   }
@@ -368,7 +368,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   @Test
   def testSumExpression() {
     // Sum of integers is a long
-    Assert.assertEquals(205300, streamAll(em, classOf[Customer])
+    Assert.assertEquals(205300l, streamAll(em, classOf[Customer])
       .sumInteger(c => c.getSalary() * c.getDebt()));
     Assert.assertEquals("SELECT SUM(A.salary * A.debt) FROM Customer A", query);
   }
@@ -492,7 +492,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
         .toList;
     results.sortBy(a => a._1);
     Assert.assertEquals(4, results.length);
-    Assert.assertEquals(1, results(0)._2);
+    Assert.assertEquals(1l, results(0)._2);
     Assert.assertEquals("Canada", results(0)._1);
     Assert.assertEquals(("Switzerland", 2l, 200), results(1));
     Assert.assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
@@ -525,7 +525,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
         .sortBy(group => group._2);
     Assert.assertEquals(4, results.length);
     Assert.assertEquals("Dave", results(0)._1.getName());
-    Assert.assertEquals(2, results(2)._2);
+    Assert.assertEquals(2l, results(2)._2);
     Assert.assertEquals("Alice", results(2)._1.getName());
     Assert.assertEquals("SELECT A.customer, COUNT(A) FROM Sale A GROUP BY A.customer", query);
   }

@@ -89,28 +89,28 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
   }
 
   @Override
-  def count(): Long = {
+  def count(): java.lang.Long = {
     val count: java.lang.Long = queryComposer.count();
     if (count != null) return count;
     throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
   }
 
   @Override
-  def sumInteger(fn: (T) => Int): Long = {
+  def sumInteger(fn: (T) => java.lang.Integer): java.lang.Long = {
     val value = queryComposer.sum(fn, classOf[Integer]).asInstanceOf[java.lang.Long];
     if (value != null) return value;
     throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
   }
 
   @Override
-  def sumLong(fn: (T) => Long): Long = {
+  def sumLong(fn: (T) => java.lang.Long): java.lang.Long = {
     val value = queryComposer.sum(fn, classOf[java.lang.Long]).asInstanceOf[java.lang.Long];
     if (value != null) return value;
     throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
   }
 
   @Override
-  def sumDouble(fn: (T) => Double): Double = {
+  def sumDouble(fn: (T) => java.lang.Double): java.lang.Double = {
     val value = queryComposer.sum(fn, classOf[java.lang.Double]).asInstanceOf[java.lang.Double];
     if (value != null) return value;
     throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
@@ -145,7 +145,7 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
   }
 
   @Override
-  def avg[V: Numeric](fn: (T) => V): Double = {
+  def avg[V: Numeric](fn: (T) => V): java.lang.Double = {
     val value = queryComposer.avg(fn);
     if (value != null) return value;
     throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);

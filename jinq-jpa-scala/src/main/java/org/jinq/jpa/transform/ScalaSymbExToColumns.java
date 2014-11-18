@@ -67,6 +67,19 @@ public class ScalaSymbExToColumns extends SymbExToColumns
             toReturn.columns.add(base.columns.get(n + baseOffset));
          return toReturn;
       }
+      else if (sig.equals(ScalaMetamodelUtil.PREDEF_INT_TO_INTEGER)
+            || sig.equals(ScalaMetamodelUtil.PREDEF_LONG_TO_LONG)  
+            || sig.equals(ScalaMetamodelUtil.PREDEF_DOUBLE_TO_DOUBLE)  
+            || sig.equals(ScalaMetamodelUtil.PREDEF_BOOLEAN_TO_BOOLEAN)
+            || sig.equals(ScalaMetamodelUtil.PREDEF_INTEGER_TO_INT)  
+            || sig.equals(ScalaMetamodelUtil.PREDEF_LANGLONG_TO_LONG)  
+            || sig.equals(ScalaMetamodelUtil.PREDEF_LANGDOUBLE_TO_DOUBLE)  
+            || sig.equals(ScalaMetamodelUtil.PREDEF_LANGBOOLEAN_TO_BOOLEAN))
+      {
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+         ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
+         return base;
+      }
       else if (ScalaMetamodelUtil.isAggregateMethod(sig))
       {
          SymbExPassDown passdown = SymbExPassDown.with(val, false);

@@ -382,7 +382,7 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
                {
                   OperationSideEffect sideEffect = methodChecker.isStaticMethodSafe(sig); 
                   if (sideEffect == OperationSideEffect.UNSAFE)
-                     throw new AnalyzerException(insn, "Unknown method " + sig + " encountered");
+                     throw new AnalyzerException(insn, "Unknown static method " + sig + " encountered");
                   else if (sideEffect == OperationSideEffect.SAFE)
                      sideEffects.add(new MethodSideEffectCall(sig, null, args));
                }

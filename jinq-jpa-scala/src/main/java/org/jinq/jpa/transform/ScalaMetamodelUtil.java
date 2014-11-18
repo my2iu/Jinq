@@ -14,6 +14,14 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    public final static MethodSignature INQUERYSTREAMSOURCE_STREAM = new MethodSignature("org/jinq/orm/stream/scala/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature ITERABLE_TO_JINQ = new MethodSignature("org/jinq/orm/stream/scala/JinqConversions$", "jinq", "(Ljava/lang/Iterable;)Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature STREAM_OF = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator$", "of", "(Ljava/lang/Object;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+   public final static MethodSignature PREDEF_INT_TO_INTEGER = new MethodSignature("scala/Predef$", "int2Integer", "(I)Ljava/lang/Integer;");
+   public final static MethodSignature PREDEF_LONG_TO_LONG = new MethodSignature("scala/Predef$", "long2Long", "(J)Ljava/lang/Long;");
+   public final static MethodSignature PREDEF_DOUBLE_TO_DOUBLE = new MethodSignature("scala/Predef$", "double2Double", "(D)Ljava/lang/Double;");
+   public final static MethodSignature PREDEF_BOOLEAN_TO_BOOLEAN = new MethodSignature("scala/Predef$", "boolean2Boolean", "(Z)Ljava/lang/Boolean;");
+   public final static MethodSignature PREDEF_INTEGER_TO_INT = new MethodSignature("scala/Predef$", "Integer2int", "(Ljava/lang/Integer;)I");
+   public final static MethodSignature PREDEF_LANGLONG_TO_LONG = new MethodSignature("scala/Predef$", "Long2long", "(Ljava/lang/Long;)J");
+   public final static MethodSignature PREDEF_LANGDOUBLE_TO_DOUBLE = new MethodSignature("scala/Predef$", "Double2double", "(Ljava/lang/Double;)D");
+   public final static MethodSignature PREDEF_LANGBOOLEAN_TO_BOOLEAN = new MethodSignature("scala/Predef$", "Boolean2boolean", "(Ljava/lang/Boolean;)Z");
    public final static MethodSignature BOX_TO_INTEGER = new MethodSignature("scala/runtime/BoxesRunTime", "boxToInteger", "(I)Ljava/lang/Integer;");
    public final static MethodSignature BOX_TO_LONG = new MethodSignature("scala/runtime/BoxesRunTime", "boxToLong", "(J)Ljava/lang/Long;");
    public final static MethodSignature BOX_TO_DOUBLE = new MethodSignature("scala/runtime/BoxesRunTime", "boxToDouble", "(D)Ljava/lang/Double;");
@@ -96,15 +104,15 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       TUPLE_ACCESSORS.put(tuple8GetEight, 8);
    }
 
-   public final static MethodSignature streamSumInt = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumInteger", "(Lscala/Function1;)J");
-   public final static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumDouble", "(Lscala/Function1;)D");
-   public final static MethodSignature streamSumLong = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumLong", "(Lscala/Function1;)J");
+   public final static MethodSignature streamSumInt = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumInteger", "(Lscala/Function1;)Ljava/lang/Long;");
+   public final static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumDouble", "(Lscala/Function1;)Ljava/lang/Double;");
+   public final static MethodSignature streamSumLong = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumLong", "(Lscala/Function1;)Ljava/lang/Long;");
    public final static MethodSignature streamSumBigDecimal = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumBigDecimal", "(Lscala/Function1;)Ljava/lang/BigDecimal;");
    public final static MethodSignature streamSumBigInteger = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumBigInteger", "(Lscala/Function1;)Ljava/lang/BigInteger;");
    public final static MethodSignature streamMax = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "max", "(Lscala/Function1;)Ljava/lang/Object;");
    public final static MethodSignature streamMin = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "min", "(Lscala/Function1;)Ljava/lang/Object;");
-   public final static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "avg", "(Lscala/Function1;Lscala/math/Numeric;)D");
-   public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "count", "()J");
+   public final static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "avg", "(Lscala/Function1;Lscala/math/Numeric;)Ljava/lang/Double;");
+   public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "count", "()Ljava/lang/Long;");
    public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "distinct", "()Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "select", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature streamWhere = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "where", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
@@ -142,6 +150,14 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       KnownSafeMethods.add(INQUERYSTREAMSOURCE_STREAM);
       KnownSafeMethods.add(ITERABLE_TO_JINQ);
       KnownSafeMethods.add(STREAM_OF);
+      KnownSafeMethods.add(PREDEF_INT_TO_INTEGER);
+      KnownSafeMethods.add(PREDEF_LONG_TO_LONG);
+      KnownSafeMethods.add(PREDEF_DOUBLE_TO_DOUBLE);
+      KnownSafeMethods.add(PREDEF_BOOLEAN_TO_BOOLEAN);
+      KnownSafeMethods.add(PREDEF_INTEGER_TO_INT);
+      KnownSafeMethods.add(PREDEF_LANGLONG_TO_LONG);
+      KnownSafeMethods.add(PREDEF_LANGDOUBLE_TO_DOUBLE);
+      KnownSafeMethods.add(PREDEF_LANGBOOLEAN_TO_BOOLEAN);
       KnownSafeMethods.add(NEW_STRINGBUILDER);
       KnownSafeMethods.add(NEW_STRINGBUILDER_STRING);
       KnownSafeMethods.add(STRINGBUILDER_APPEND);
