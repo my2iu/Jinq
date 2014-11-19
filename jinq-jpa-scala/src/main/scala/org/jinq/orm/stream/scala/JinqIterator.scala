@@ -244,7 +244,7 @@ trait JinqIterator[T] extends Iterator[T] {
    *           compared.
    * @return the maximum of the values returned by the function
    */
-  def max[V /*<:java.lang.Comparable[V]*/ ](fn: (T) => V): V // TODO: Use Ordered instead?
+  def max[V <% java.lang.Comparable[V]](fn: (T) => V): V 
 
   /**
    * Finds the smallest or minimum element of an iterator.
@@ -260,7 +260,7 @@ trait JinqIterator[T] extends Iterator[T] {
    *           compared.
    * @return the minimum of the values returned by the function
    */
-  def min[V /*<:java.lang.Comparable[V]*/ ](fn: (T) => V): V // V should be Comparable, but we can't do that since Scala's primitive values aren't Comparable, and implicit conversion can get confused sometimes
+  def min[V <% Comparable[V] ](fn: (T) => V): V 
 
   /**
    * Finds the average of the elements of an iterator.
@@ -277,7 +277,7 @@ trait JinqIterator[T] extends Iterator[T] {
    *           included in the average
    * @return the average of the values returned by the function
    */
-  def avg[V: Numeric](fn: (T) => V): java.lang.Double
+  def avg[V](fn: (T) => V)(implicit num: Numeric[V]): java.lang.Double
 
   /**
    * Calculates more than one aggregate function over the elements of the
@@ -321,7 +321,7 @@ trait JinqIterator[T] extends Iterator[T] {
    *           used as the sorting value of the element
    * @return sorted iterator
    */
-  def sortedBy[V /*<:java.lang.Comparable[V]*/ ](fn: (T) => V): JinqIterator[T] // V should be Comparable, but we can't do that since Scala's primitive values aren't Comparable, and implicit conversion can get confused sometimes
+  def sortedBy[V <% java.lang.Comparable[V]](fn: (T) => V): JinqIterator[T] // V should be Comparable, but we can't do that since Scala's primitive values aren't Comparable, and implicit conversion can get confused sometimes
 
   /**
    * Sorts the elements of the iterator in descending order based on the value
@@ -329,7 +329,7 @@ trait JinqIterator[T] extends Iterator[T] {
    *
    * @see #sortedBy
    */
-  def sortedDescendingBy[V /*<:java.lang.Comparable[V]*/ ](fn: (T) => V): JinqIterator[T]
+  def sortedDescendingBy[V <% java.lang.Comparable[V]](fn: (T) => V): JinqIterator[T]
 
   /**
    * @param n number of elements that should be returned. Any additional elements will be truncated.
@@ -379,6 +379,6 @@ object JinqIterator {
    * @return a [[JinqIterator]] over the single element value.
    */
   def of[T](value: T): JinqIterator[T] = {
-    throw new IllegalArgumentException("Jinq for Scala currently only allows streams to be used when they can be converted into database queries. This usage does not form a valid database query.");
+    new NonQueryJinqIterator(List(value).toIterator, null);
   }
 }

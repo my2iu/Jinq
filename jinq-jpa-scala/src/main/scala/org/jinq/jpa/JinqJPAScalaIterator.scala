@@ -4,15 +4,14 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.NoSuchElementException
 import java.util.function.Consumer
-
 import _root_.scala.math.Numeric
-
 import org.jinq.jpa.transform.ScalaGroupingTransform
 import org.jinq.jpa.transform.ScalaJoinTransform
 import org.jinq.jpa.transform.ScalaMultiAggregateTransform
 import org.jinq.jpa.transform.ScalaOuterJoinTransform
 import org.jinq.orm.stream.scala.InQueryStreamSource
 import org.jinq.orm.stream.scala.JinqIterator
+import org.jinq.orm.stream.scala.NonQueryJinqIterator
 
 class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource: InQueryStreamSource) extends JinqIterator[T] {
   val GENERIC_TRANSLATION_FAIL_MESSAGE = "Could not translate Scala code to a query";
@@ -39,209 +38,225 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     return lazyIterator.next();
   }
 
+  private def asNonQuery() = {
+    new NonQueryJinqIterator(this, inQueryStreamSource)
+  }
+
   @Override
-  def where(fn: (T) => Boolean): JinqJPAScalaIterator[T] = {
+  def where(fn: (T) => Boolean): JinqIterator[T] = {
     val newComposer = queryComposer.where(fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().where(fn)
   }
 
   @Override
-  def where(fn: (T, InQueryStreamSource) => Boolean): JinqJPAScalaIterator[T] = {
+  def where(fn: (T, InQueryStreamSource) => Boolean): JinqIterator[T] = {
     val newComposer = queryComposer.whereWithSource(fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().where(fn)
   }
 
   @Override
-  def select[U](fn: (T) => U): JinqJPAScalaIterator[U] = {
+  def select[U](fn: (T) => U): JinqIterator[U] = {
     val newComposer: JPAQueryComposer[U] = queryComposer.select(fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().select(fn)
   }
 
   @Override
-  def select[U](fn: (T, InQueryStreamSource) => U): JinqJPAScalaIterator[U] = {
+  def select[U](fn: (T, InQueryStreamSource) => U): JinqIterator[U] = {
     val newComposer: JPAQueryComposer[U] = queryComposer.selectWithSource(fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().select(fn)
   }
 
   @Override
-  def join[U](fn: (T) => JinqIterator[U]): JinqJPAScalaIterator[(T, U)] = {
+  def join[U](fn: (T) => JinqIterator[U]): JinqIterator[(T, U)] = {
     val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaJoinTransform(queryComposer.getConfig(), false), fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().join(fn)
   }
 
   @Override
-  def join[U](fn: (T, InQueryStreamSource) => JinqIterator[U]): JinqJPAScalaIterator[(T, U)] = {
+  def join[U](fn: (T, InQueryStreamSource) => JinqIterator[U]): JinqIterator[(T, U)] = {
     val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaJoinTransform(queryComposer.getConfig(), true), fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().join(fn)
   }
 
   @Override
-  def leftOuterJoin[U](fn: (T) => JinqIterator[U]): JinqJPAScalaIterator[Tuple2[T, U]] = {
+  def leftOuterJoin[U](fn: (T) => JinqIterator[U]): JinqIterator[Tuple2[T, U]] = {
     val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaOuterJoinTransform(queryComposer.getConfig()), fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().leftOuterJoin(fn)
   }
 
   @Override
   def count(): java.lang.Long = {
     val count: java.lang.Long = queryComposer.count();
     if (count != null) return count;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().count()
+
   }
 
   @Override
   def sumInteger(fn: (T) => java.lang.Integer): java.lang.Long = {
     val value = queryComposer.sum(fn, classOf[Integer]).asInstanceOf[java.lang.Long];
     if (value != null) return value;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().sumInteger(fn)
   }
 
   @Override
   def sumLong(fn: (T) => java.lang.Long): java.lang.Long = {
     val value = queryComposer.sum(fn, classOf[java.lang.Long]).asInstanceOf[java.lang.Long];
     if (value != null) return value;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().sumLong(fn)
   }
 
   @Override
   def sumDouble(fn: (T) => java.lang.Double): java.lang.Double = {
     val value = queryComposer.sum(fn, classOf[java.lang.Double]).asInstanceOf[java.lang.Double];
     if (value != null) return value;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().sumDouble(fn)
   }
 
   @Override
   def sumBigDecimal(fn: (T) => BigDecimal): BigDecimal = {
     val value = queryComposer.sum(fn, classOf[BigDecimal]).asInstanceOf[BigDecimal];
     if (value != null) return value;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().sumBigDecimal(fn)
   }
 
   @Override
   def sumBigInteger(fn: (T) => BigInteger): BigInteger = {
     val value = queryComposer.sum(fn, classOf[BigInteger]).asInstanceOf[BigInteger];
     if (value != null) return value;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().sumBigInteger(fn)
   }
 
   @Override
-  def max[V](fn: (T) => V): V = {
+  def max[V <% java.lang.Comparable[V]](fn: (T) => V): V = {
     val value: V = queryComposer.max(fn);
     if (value != null) return value;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().max(fn)
   }
 
   @Override
-  def min[V](fn: (T) => V): V = {
+  def min[V <% java.lang.Comparable[V]](fn: (T) => V): V = {
     val value: V = queryComposer.min(fn);
     if (value != null) return value;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().min(fn)
   }
 
   @Override
-  def avg[V: Numeric](fn: (T) => V): java.lang.Double = {
+  def avg[V](fn: (T) => V)(implicit num: Numeric[V]): java.lang.Double = {
     val value = queryComposer.avg(fn);
     if (value != null) return value;
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().avg(fn)
   }
 
   @Override
-  def sortedBy[V](fn: (T) => V): JinqJPAScalaIterator[T] = {
+  def sortedBy[V <% java.lang.Comparable[V]](fn: (T) => V): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.sortedBy(fn, true);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().sortedBy(fn)
   }
 
   @Override
-  def sortedDescendingBy[V](fn: (T) => V): JinqJPAScalaIterator[T] = {
+  def sortedDescendingBy[V <% java.lang.Comparable[V]](fn: (T) => V): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.sortedBy(fn, false);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().sortedDescendingBy(fn)
   }
 
   @Override
-  def limit(n: Long): JinqJPAScalaIterator[T] = {
+  def limit(n: Long): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.limit(n);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().limit(n)
   }
 
   @Override
-  def skip(n: Long): JinqJPAScalaIterator[T] = {
+  def skip(n: Long): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.skip(n);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().skip(n)
   }
 
   @Override
-  def distinct(): JinqJPAScalaIterator[T] = {
+  def distinct(): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.distinct();
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+    asNonQuery().distinct()
   }
 
-  private def multiaggregate[K](groupingLambdas: Array[Object]) : K = {
-    val result : JPAQueryComposer[K] = queryComposer.applyTransformWithLambdas(new ScalaMultiAggregateTransform(queryComposer.getConfig()), groupingLambdas)
-    if (result != null) return result.executeAndGetSingleResult(); 
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
+  private def multiaggregate[K](groupingLambdas: Array[Object]): JPAQueryComposer[K] = {
+    queryComposer.applyTransformWithLambdas(new ScalaMultiAggregateTransform(queryComposer.getConfig()), groupingLambdas)
   }
-  
+
   def aggregate[U, V](fn1: JinqIterator[T] => U, fn2: JinqIterator[T] => V): (U, V) = {
-    val groupingLambdas : Array[Object] = Array(fn1, fn2);
-    return multiaggregate(groupingLambdas)
-  }
-  
-  def aggregate[U,V,W](fn1: (JinqIterator[T]) => U, fn2: (JinqIterator[T]) => V, fn3: (JinqIterator[T]) => W) : (U,V,W) = {
-    val groupingLambdas : Array[Object] = Array(fn1, fn2, fn3);
-    return multiaggregate(groupingLambdas)
-  }
-  
-  def aggregate[U,V,W,X](fn1: (JinqIterator[T]) => U, fn2: (JinqIterator[T]) => V, fn3: (JinqIterator[T]) => W, fn4: (JinqIterator[T]) => X) : (U,V,W,X) = {
-    val groupingLambdas : Array[Object] = Array(fn1, fn2, fn3, fn4);
-    return multiaggregate(groupingLambdas)
-  }
-  
-  def aggregate[U,V,W,X,Y](fn1: (JinqIterator[T]) => U, fn2: (JinqIterator[T]) => V, fn3: (JinqIterator[T]) => W, fn4: (JinqIterator[T]) => X, fn5: (JinqIterator[T]) => Y) : (U,V,W,X,Y) = {
-    val groupingLambdas : Array[Object] = Array(fn1, fn2, fn3, fn4, fn5);
-    return multiaggregate(groupingLambdas)
+    val groupingLambdas: Array[Object] = Array(fn1, fn2);
+    val result = multiaggregate(groupingLambdas)
+    if (result != null) return result.executeAndGetSingleResult();
+    asNonQuery().aggregate(fn1, fn2)
   }
 
-  def groupToTuple[U,K](groupingFn: (T) => U, valueFns: Array[Object]) : JinqJPAScalaIterator[K] = {
-    val allLambdas:Array[Object] = new Array(valueFns.length + 1)
+  def aggregate[U, V, W](fn1: (JinqIterator[T]) => U, fn2: (JinqIterator[T]) => V, fn3: (JinqIterator[T]) => W): (U, V, W) = {
+    val groupingLambdas: Array[Object] = Array(fn1, fn2, fn3);
+    val result = multiaggregate(groupingLambdas)
+    if (result != null) return result.executeAndGetSingleResult();
+    asNonQuery().aggregate(fn1, fn2, fn3)
+  }
+
+  def aggregate[U, V, W, X](fn1: (JinqIterator[T]) => U, fn2: (JinqIterator[T]) => V, fn3: (JinqIterator[T]) => W, fn4: (JinqIterator[T]) => X): (U, V, W, X) = {
+    val groupingLambdas: Array[Object] = Array(fn1, fn2, fn3, fn4);
+    val result = multiaggregate(groupingLambdas)
+    if (result != null) return result.executeAndGetSingleResult();
+    asNonQuery().aggregate(fn1, fn2, fn3, fn4)
+  }
+
+  def aggregate[U, V, W, X, Y](fn1: (JinqIterator[T]) => U, fn2: (JinqIterator[T]) => V, fn3: (JinqIterator[T]) => W, fn4: (JinqIterator[T]) => X, fn5: (JinqIterator[T]) => Y): (U, V, W, X, Y) = {
+    val groupingLambdas: Array[Object] = Array(fn1, fn2, fn3, fn4, fn5);
+    val result = multiaggregate(groupingLambdas)
+    if (result != null) return result.executeAndGetSingleResult();
+    asNonQuery().aggregate(fn1, fn2, fn3, fn4, fn5)
+  }
+
+  def groupToTuple[U, K](groupingFn: (T) => U, valueFns: Array[Object]): JPAQueryComposer[K] = {
+    val allLambdas: Array[Object] = new Array(valueFns.length + 1)
     allLambdas(0) = groupingFn
     valueFns.copyToArray(allLambdas, 1)
-      val newComposer:JPAQueryComposer[K] = queryComposer.applyTransformWithLambdas(new ScalaGroupingTransform(queryComposer.getConfig()), allLambdas);;
-      if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
-    throw new IllegalArgumentException(GENERIC_TRANSLATION_FAIL_MESSAGE);
-    
+    queryComposer.applyTransformWithLambdas(new ScalaGroupingTransform(queryComposer.getConfig()), allLambdas); ;
   }
-  
-  def group[U,V](groupingFn: (T) => U, valueFn: (U, JinqIterator[T]) => V) : JinqJPAScalaIterator[(U, V)] = {
-    val valueLambdas : Array[Object] = Array(valueFn);
-    return groupToTuple(groupingFn, valueLambdas)
+
+  def group[U, V](groupingFn: (T) => U, valueFn: (U, JinqIterator[T]) => V): JinqIterator[(U, V)] = {
+    val valueLambdas: Array[Object] = Array(valueFn);
+    val newComposer: JPAQueryComposer[(U, V)] = groupToTuple(groupingFn, valueLambdas)
+    if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
+    asNonQuery().group(groupingFn, valueFn)
   }
-  
-  def group[U,V,W](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W) : JinqJPAScalaIterator[(U, V, W)] = {
-    val valueLambdas : Array[Object] = Array(valueFn1, valueFn2);
-    return groupToTuple(groupingFn, valueLambdas)
+
+  def group[U, V, W](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W): JinqIterator[(U, V, W)] = {
+    val valueLambdas: Array[Object] = Array(valueFn1, valueFn2);
+    val newComposer: JPAQueryComposer[(U, V, W)] = groupToTuple(groupingFn, valueLambdas)
+    if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
+    asNonQuery().group(groupingFn, valueFn1, valueFn2)
   }
-  
-  def group[U,V,W,X](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X) : JinqJPAScalaIterator[(U, V, W, X)] = {
-    val valueLambdas : Array[Object] = Array(valueFn1, valueFn2, valueFn3);
-    return groupToTuple(groupingFn, valueLambdas)
+
+  def group[U, V, W, X](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X): JinqIterator[(U, V, W, X)] = {
+    val valueLambdas: Array[Object] = Array(valueFn1, valueFn2, valueFn3);
+    val newComposer: JPAQueryComposer[(U, V, W, X)] = groupToTuple(groupingFn, valueLambdas)
+    if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
+    asNonQuery().group(groupingFn, valueFn1, valueFn2, valueFn3)
   }
-  
-  def group[U,V,W,X,Y](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X, valueFn4: (U, JinqIterator[T]) => Y) : JinqJPAScalaIterator[(U, V, W, X, Y)] = {
-    val valueLambdas : Array[Object] = Array(valueFn1, valueFn2, valueFn3, valueFn4);
-    return groupToTuple(groupingFn, valueLambdas)
-  }     
-  
+
+  def group[U, V, W, X, Y](groupingFn: (T) => U, valueFn1: (U, JinqIterator[T]) => V, valueFn2: (U, JinqIterator[T]) => W, valueFn3: (U, JinqIterator[T]) => X, valueFn4: (U, JinqIterator[T]) => Y): JinqIterator[(U, V, W, X, Y)] = {
+    val valueLambdas: Array[Object] = Array(valueFn1, valueFn2, valueFn3, valueFn4);
+    val newComposer: JPAQueryComposer[(U, V, W, X, Y)] = groupToTuple(groupingFn, valueLambdas)
+    if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
+    asNonQuery().group(groupingFn, valueFn1, valueFn2, valueFn3, valueFn4)
+  }
+
   @Override
   def setHint(name: String, value: Object): JinqJPAScalaIterator[T] = {
     queryComposer.setHint(name, value);
