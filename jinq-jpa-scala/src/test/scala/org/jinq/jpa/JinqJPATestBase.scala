@@ -57,6 +57,7 @@ class JinqJPAScalaTestBase {
       em = JinqJPAScalaTestBase.entityManagerFactory.createEntityManager();
       em.getTransaction().begin();
       queryList.clear();
+      query = null
       JinqJPAScalaTestBase.streams.setHint("exceptionOnTranslationFail", java.lang.Boolean.TRUE);
       JinqJPAScalaTestBase.streams.setHint("queryLogger", new JPAQueryLogger() {
          def logQuery(q: String,
