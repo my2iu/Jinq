@@ -435,7 +435,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       streamAll(em, classOf[Customer])
         .aggregate(
           // Need to put param inside a "val" subparam, otherwise Scala treats it as a closure when passing it to the subquery.
-          stream => {val subparam = param; stream.sumInteger(c => c.getSalary() + subparam)},
+          stream => { val subparam = param; stream.sumInteger(c => c.getSalary() + subparam) },
           stream => param + stream.avg(c => c.getSalary())));
     Assert.assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
   }
@@ -615,7 +615,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   def testSubQueryWithSelectSourceAndWhere() {
     val sales: List[(String, java.lang.Number)] = streamAll(em, classOf[Customer])
       .where(c => c.getSales().join(s => s.getLineorders()).where(p => p._2.getItem().getName().equals("Widgets")).count() > 0)
-      .select((c : Customer, source : InQueryStreamSource) => (c.getName(), java.lang.Long.valueOf(source.stream(classOf[Customer]).where(c2 => c2.getSalary() > c.getSalary()).count())))
+      .select((c: Customer, source: InQueryStreamSource) => (c.getName(), java.lang.Long.valueOf(source.stream(classOf[Customer]).where(c2 => c2.getSalary() > c.getSalary()).count())))
       .sortedBy(pair => pair._1)
       .toList;
     Assert.assertEquals("SELECT B.name, (SELECT COUNT(A) FROM Customer A WHERE A.salary > B.salary) FROM Customer B WHERE (SELECT COUNT(1) FROM B.sales C JOIN C.lineorders D WHERE D.item.name = 'Widgets') > 0 ORDER BY B.name ASC", query);
@@ -1222,4 +1222,33 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals(2, sales.length);
     Assert.assertEquals("Alice", sales(0)._1);
   }
+
+  @Test
+  def testScalaIteratorFunctions() {
+    val customers = streamAll(em, classOf[Customer])
+      .filter(c => c.getCountry == "UK")
+      .map(c => c.getName)
+      .toList
+    Assert.assertEquals("SELECT A.name FROM Customer A WHERE A.country IS NOT NULL AND A.country = 'UK' OR A.country IS NULL AND 'UK' IS NULL", query);
+    Assert.assertEquals(1, customers.length);
+    Assert.assertEquals("Dave", customers(0));
+  }
+
+  @Test
+  def testCaching() = {
+    // Ensure the base "find all customers" query is in the cache
+    val result1 = repeatedQuery(streamAll(em, classOf[Customer]), 1).toList
+    val firstQuery = query
+
+    // Repeat the query, and check that we get the exact same string object as the query (showing that it is reused)
+    query = null
+    val result2 = repeatedQuery(streamAll(em, classOf[Customer]), 2).toList
+    val secondQuery = query
+    Assert.assertTrue(firstQuery eq secondQuery)
+  }
+
+  private def repeatedQuery(it: JinqIterator[Customer], param: Int) = {
+    it.where(c => c.getDebt == param)
+  }
+
 }

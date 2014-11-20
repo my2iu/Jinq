@@ -372,6 +372,17 @@ trait JinqIterator[T] extends Iterator[T] {
    *            iterator contains zero or more than one element
    */
   def getOnlyValue(): T
+  
+  // Allow the use of some standard Scala Iterator functional operations.
+  override def filter(p: T => Boolean) = {
+    where(p)
+  }
+  override def map[B](p: T => B) = {
+    select(p)
+  }
+  override def length = {
+    count().asInstanceOf[Int]
+  }
 }
 
 object JinqIterator {

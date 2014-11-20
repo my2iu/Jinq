@@ -6,7 +6,7 @@ import java.math.BigInteger;
 class NonQueryJinqIterator[T](_wrapped: Iterator[T], _inQueryStreamSource: InQueryStreamSource) extends JinqIterator[T] {
   val inQueryStreamSource = _inQueryStreamSource
   val wrapped = _wrapped
-  
+
   def this(it: Iterator[T]) = this(it, null)
 
   protected def wrap[U](it: Iterator[U]): NonQueryJinqIterator[U] = {
