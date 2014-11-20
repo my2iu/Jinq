@@ -1235,6 +1235,17 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   }
 
   @Test
+  def testScalaComprehensions() {
+    val customers = 
+      (for (c <- streamAll(em, classOf[Customer]) if c.getCountry == "UK") 
+        yield c.getName
+      ).toList
+    Assert.assertEquals("SELECT A.name FROM Customer A WHERE A.country IS NOT NULL AND A.country = 'UK' OR A.country IS NULL AND 'UK' IS NULL", query);
+    Assert.assertEquals(1, customers.length);
+    Assert.assertEquals("Dave", customers(0));
+  }
+
+  @Test
   def testCaching() = {
     // Ensure the base "find all customers" query is in the cache
     val result1 = repeatedQuery(streamAll(em, classOf[Customer]), 1).toList
