@@ -6,6 +6,8 @@ import java.math.BigInteger;
 class NonQueryJinqIterator[T](_wrapped: Iterator[T], _inQueryStreamSource: InQueryStreamSource) extends JinqIterator[T] {
   val inQueryStreamSource = _inQueryStreamSource
   val wrapped = _wrapped
+  
+  def this(it: Iterator[T]) = this(it, null)
 
   protected def wrap[U](it: Iterator[U]): NonQueryJinqIterator[U] = {
     new NonQueryJinqIterator(it, inQueryStreamSource)
@@ -125,7 +127,7 @@ class NonQueryJinqIterator[T](_wrapped: Iterator[T], _inQueryStreamSource: InQue
   def avg[V](fn: (T) => V)(implicit num: Numeric[V]): java.lang.Double = {
     val (it1, it2) = duplicate
     val count = it1.length
-    it2.foldLeft(0.0)((value, element) => value + num.toDouble(fn(element)))
+    it2.foldLeft(0.0)((value, element) => value + num.toDouble(fn(element))) / count
   }
 
   @Override
