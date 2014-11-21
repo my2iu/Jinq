@@ -158,6 +158,12 @@ class SampleMain {
          .foreach(pair => out.println(pair._1 + " " + pair._2));
       out.println();
 
+      // Scala list comprehensions
+      out.println("Items costing less than 5 dollars")
+      val cheapItems = 
+         for (i <- items if i.getSaleprice < 5) yield (i.getName, i.getSaleprice)
+      cheapItems.foreach(pair => out.println(pair._1 + " " + pair._2));
+
       em.close();
    }
 }
