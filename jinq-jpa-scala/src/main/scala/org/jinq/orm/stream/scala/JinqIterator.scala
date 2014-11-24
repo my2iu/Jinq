@@ -2,6 +2,7 @@ package org.jinq.orm.stream.scala
 
 import java.math.BigDecimal
 import java.math.BigInteger
+import scala.collection.GenTraversableOnce
 
 /**
  * The JinqIterator is a normal Scala Iterator extended with extra methods. These
@@ -81,13 +82,45 @@ trait JinqIterator[T] extends Iterator[T] {
   def select[U](fn: (T) => U): JinqIterator[U]
 
   /**
-   * Transforms the elements in the Itereator. This version also passes an
+   * Transforms the elements in the Iterator. This version also passes an
    * [[InQueryStreamSource]] to the select function so that the function
    * can create new iterator of elements to use in subqueries.
    *
    * @see #select((T)=>U)
    */
   def select[U](fn: (T, InQueryStreamSource) => U): JinqIterator[U]
+
+  /**
+   * Transforms the elements in the iterator. The method allows you to rewrite
+   * each element from the iterator, so that they contain only certain fields or
+   * to do some calculation based on the values of the fields. Unlike a normal
+   * select(), this method allows you to return a more than one element. The
+   * elements will all be added to the final iterator.
+   *
+   * <pre>
+   * {@code val stream : JinqIterator[Country] = ...;
+   * val result = stream.selectAll(_.getCities);
+   * }
+   * </pre>
+   *
+   * @see #select((T)=>U)
+   * @param select
+   *           function applied to the elements of the iterator. When passed an
+   *           element from the iterator, the function should return an iterator
+   *           of new values that will be flattened and placed into the new
+   *           iterator
+   * @return a new iterator that uses only the new rewritten iterator elements
+   */
+  def selectAll[U](fn: (T) => GenTraversableOnce[U]): JinqIterator[U]
+
+  /**
+   * Transforms the elements in the Iterator. This version also passes an
+   * [[InQueryStreamSource]] to the select function so that the function
+   * can create new iterator of elements to use in subqueries.
+   *
+   * @see #selectAll((T)=>JinqIterator[U])
+   */
+  def selectAll[U](fn: (T, InQueryStreamSource) => GenTraversableOnce[U]): JinqIterator[U]
 
   /**
    * Pairs up each entry of the iterator with an iterator of related elements.
@@ -244,7 +277,7 @@ trait JinqIterator[T] extends Iterator[T] {
    *           compared.
    * @return the maximum of the values returned by the function
    */
-  def max[V <% java.lang.Comparable[V]](fn: (T) => V): V 
+  def max[V <% java.lang.Comparable[V]](fn: (T) => V): V
 
   /**
    * Finds the smallest or minimum element of an iterator.
@@ -260,7 +293,7 @@ trait JinqIterator[T] extends Iterator[T] {
    *           compared.
    * @return the minimum of the values returned by the function
    */
-  def min[V <% Comparable[V] ](fn: (T) => V): V 
+  def min[V <% Comparable[V]](fn: (T) => V): V
 
   /**
    * Finds the average of the elements of an iterator.
@@ -372,17 +405,6 @@ trait JinqIterator[T] extends Iterator[T] {
    *            iterator contains zero or more than one element
    */
   def getOnlyValue(): T
-  
-  // Allow the use of some standard Scala Iterator functional operations.
-  override def filter(p: T => Boolean) = {
-    where(p)
-  }
-  override def map[B](p: T => B) = {
-    select(p)
-  }
-  override def length = {
-    count().asInstanceOf[Int]
-  }
 }
 
 object JinqIterator {

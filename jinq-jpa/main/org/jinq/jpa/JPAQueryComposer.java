@@ -406,17 +406,29 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    }
 
    @Override
+   public <U> QueryComposer<U> selectAll(Object selectLambda)
+   {
+      return applyTransformWithLambda(new JoinTransform(getConfig(), false, false), selectLambda);
+   }
+
+   @Override
+   public <U> QueryComposer<U> selectAllWithSource(Object selectLambda)
+   {
+      return applyTransformWithLambda(new JoinTransform(getConfig(), true, false), selectLambda);
+   }
+
+   @Override
    public <U> JPAQueryComposer<Pair<T, U>> join(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
-      return applyTransformWithLambda(new JoinTransform(getConfig(), false), joinLambda);
+      return applyTransformWithLambda(new JoinTransform(getConfig(), false, true), joinLambda);
    }
 
    @Override
    public <U> JPAQueryComposer<Pair<T, U>> joinWithSource(
          org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> joinLambda)
    {
-      return applyTransformWithLambda(new JoinTransform(getConfig(), true), joinLambda);
+      return applyTransformWithLambda(new JoinTransform(getConfig(), true, true), joinLambda);
    }
    
    @Override

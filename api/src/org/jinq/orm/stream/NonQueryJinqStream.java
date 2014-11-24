@@ -94,6 +94,18 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    }
 
    @Override
+   public <U> JinqStream<U> selectAll(Join<T, U> select)
+   {
+      return wrap(flatMap( val -> select.join(val) ));
+   }
+
+   @Override
+   public <U> JinqStream<U> selectAll(JoinWithSource<T, U> select)
+   {
+      return wrap(flatMap( val -> select.join(val, inQueryStreamSource) ));
+   }
+
+   @Override
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join)
    {
       // TODO: This stream should be constructed on the fly

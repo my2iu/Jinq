@@ -12,6 +12,7 @@ import org.jinq.jpa.transform.ScalaOuterJoinTransform
 import org.jinq.orm.stream.scala.InQueryStreamSource
 import org.jinq.orm.stream.scala.JinqIterator
 import org.jinq.orm.stream.scala.NonQueryJinqIterator
+import _root_.scala.collection.GenTraversableOnce
 
 class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource: InQueryStreamSource) extends JinqIterator[T] {
   val GENERIC_TRANSLATION_FAIL_MESSAGE = "Could not translate Scala code to a query";
@@ -42,149 +43,140 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     new NonQueryJinqIterator(this, inQueryStreamSource)
   }
 
-  @Override
-  def where(fn: (T) => Boolean): JinqIterator[T] = {
+  override def where(fn: (T) => Boolean): JinqIterator[T] = {
     val newComposer = queryComposer.where(fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().where(fn)
   }
 
-  @Override
-  def where(fn: (T, InQueryStreamSource) => Boolean): JinqIterator[T] = {
+  override def where(fn: (T, InQueryStreamSource) => Boolean): JinqIterator[T] = {
     val newComposer = queryComposer.whereWithSource(fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().where(fn)
   }
 
-  @Override
-  def select[U](fn: (T) => U): JinqIterator[U] = {
+  override def select[U](fn: (T) => U): JinqIterator[U] = {
     val newComposer: JPAQueryComposer[U] = queryComposer.select(fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().select(fn)
   }
 
-  @Override
-  def select[U](fn: (T, InQueryStreamSource) => U): JinqIterator[U] = {
+  override def select[U](fn: (T, InQueryStreamSource) => U): JinqIterator[U] = {
     val newComposer: JPAQueryComposer[U] = queryComposer.selectWithSource(fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().select(fn)
   }
 
-  @Override
-  def join[U](fn: (T) => JinqIterator[U]): JinqIterator[(T, U)] = {
-    val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaJoinTransform(queryComposer.getConfig(), false), fn);
+  override def selectAll[U](fn: (T) => GenTraversableOnce[U]): JinqIterator[U] = {
+    val newComposer: JPAQueryComposer[U] = queryComposer.applyTransformWithLambda(new ScalaJoinTransform(queryComposer.getConfig(), false, false), fn);
+    if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
+    asNonQuery().selectAll(fn)
+  }
+
+  override def selectAll[U](fn: (T, InQueryStreamSource) => GenTraversableOnce[U]): JinqIterator[U] = {
+    val newComposer: JPAQueryComposer[U] = queryComposer.applyTransformWithLambda(new ScalaJoinTransform(queryComposer.getConfig(), true, false), fn);
+    if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
+    asNonQuery().selectAll(fn)
+  }
+
+  override def join[U](fn: (T) => JinqIterator[U]): JinqIterator[(T, U)] = {
+    val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaJoinTransform(queryComposer.getConfig(), false, true), fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().join(fn)
   }
 
-  @Override
-  def join[U](fn: (T, InQueryStreamSource) => JinqIterator[U]): JinqIterator[(T, U)] = {
-    val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaJoinTransform(queryComposer.getConfig(), true), fn);
+  override def join[U](fn: (T, InQueryStreamSource) => JinqIterator[U]): JinqIterator[(T, U)] = {
+    val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaJoinTransform(queryComposer.getConfig(), true, true), fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().join(fn)
   }
 
-  @Override
-  def leftOuterJoin[U](fn: (T) => JinqIterator[U]): JinqIterator[Tuple2[T, U]] = {
+  override def leftOuterJoin[U](fn: (T) => JinqIterator[U]): JinqIterator[Tuple2[T, U]] = {
     val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaOuterJoinTransform(queryComposer.getConfig()), fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().leftOuterJoin(fn)
   }
 
-  @Override
-  def count(): java.lang.Long = {
+  override def count(): java.lang.Long = {
     val count: java.lang.Long = queryComposer.count();
     if (count != null) return count;
     asNonQuery().count()
 
   }
 
-  @Override
-  def sumInteger(fn: (T) => java.lang.Integer): java.lang.Long = {
+  override def sumInteger(fn: (T) => java.lang.Integer): java.lang.Long = {
     val value = queryComposer.sum(fn, classOf[Integer]).asInstanceOf[java.lang.Long];
     if (value != null) return value;
     asNonQuery().sumInteger(fn)
   }
 
-  @Override
-  def sumLong(fn: (T) => java.lang.Long): java.lang.Long = {
+  override def sumLong(fn: (T) => java.lang.Long): java.lang.Long = {
     val value = queryComposer.sum(fn, classOf[java.lang.Long]).asInstanceOf[java.lang.Long];
     if (value != null) return value;
     asNonQuery().sumLong(fn)
   }
 
-  @Override
-  def sumDouble(fn: (T) => java.lang.Double): java.lang.Double = {
+  override def sumDouble(fn: (T) => java.lang.Double): java.lang.Double = {
     val value = queryComposer.sum(fn, classOf[java.lang.Double]).asInstanceOf[java.lang.Double];
     if (value != null) return value;
     asNonQuery().sumDouble(fn)
   }
 
-  @Override
-  def sumBigDecimal(fn: (T) => BigDecimal): BigDecimal = {
+  override def sumBigDecimal(fn: (T) => BigDecimal): BigDecimal = {
     val value = queryComposer.sum(fn, classOf[BigDecimal]).asInstanceOf[BigDecimal];
     if (value != null) return value;
     asNonQuery().sumBigDecimal(fn)
   }
 
-  @Override
-  def sumBigInteger(fn: (T) => BigInteger): BigInteger = {
+  override def sumBigInteger(fn: (T) => BigInteger): BigInteger = {
     val value = queryComposer.sum(fn, classOf[BigInteger]).asInstanceOf[BigInteger];
     if (value != null) return value;
     asNonQuery().sumBigInteger(fn)
   }
 
-  @Override
-  def max[V <% java.lang.Comparable[V]](fn: (T) => V): V = {
+  override def max[V <% java.lang.Comparable[V]](fn: (T) => V): V = {
     val value: V = queryComposer.max(fn);
     if (value != null) return value;
     asNonQuery().max(fn)
   }
 
-  @Override
-  def min[V <% java.lang.Comparable[V]](fn: (T) => V): V = {
+  override def min[V <% java.lang.Comparable[V]](fn: (T) => V): V = {
     val value: V = queryComposer.min(fn);
     if (value != null) return value;
     asNonQuery().min(fn)
   }
 
-  @Override
-  def avg[V](fn: (T) => V)(implicit num: Numeric[V]): java.lang.Double = {
+  override def avg[V](fn: (T) => V)(implicit num: Numeric[V]): java.lang.Double = {
     val value = queryComposer.avg(fn);
     if (value != null) return value;
     asNonQuery().avg(fn)
   }
 
-  @Override
-  def sortedBy[V <% java.lang.Comparable[V]](fn: (T) => V): JinqIterator[T] = {
+  override def sortedBy[V <% java.lang.Comparable[V]](fn: (T) => V): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.sortedBy(fn, true);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().sortedBy(fn)
   }
 
-  @Override
-  def sortedDescendingBy[V <% java.lang.Comparable[V]](fn: (T) => V): JinqIterator[T] = {
+  override def sortedDescendingBy[V <% java.lang.Comparable[V]](fn: (T) => V): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.sortedBy(fn, false);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().sortedDescendingBy(fn)
   }
 
-  @Override
-  def limit(n: Long): JinqIterator[T] = {
+  override def limit(n: Long): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.limit(n);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().limit(n)
   }
 
-  @Override
-  def skip(n: Long): JinqIterator[T] = {
+  override def skip(n: Long): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.skip(n);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().skip(n)
   }
 
-  @Override
-  def distinct(): JinqIterator[T] = {
+  override def distinct(): JinqIterator[T] = {
     val newComposer: JPAQueryComposer[T] = queryComposer.distinct();
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().distinct()
@@ -257,16 +249,28 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     asNonQuery().group(groupingFn, valueFn1, valueFn2, valueFn3, valueFn4)
   }
 
-  @Override
-  def setHint(name: String, value: Object): JinqJPAScalaIterator[T] = {
+  override def setHint(name: String, value: Object): JinqJPAScalaIterator[T] = {
     queryComposer.setHint(name, value);
     return this;
   }
 
-  @Override
-  def getOnlyValue(): T = {
+  override def getOnlyValue(): T = {
     val vals = toBuffer;
     if (vals.length == 1) return vals(0);
     throw new NoSuchElementException();
+  }
+
+  // Allow the use of some standard Scala Iterator functional operations.
+  override def filter(p: T => Boolean) = {
+    where(p)
+  }
+  override def map[B](p: T => B) = {
+    select(p)
+  }
+  override def flatMap[B](p: T => GenTraversableOnce[B]) = {
+    selectAll(p)
+  }
+  override def length = {
+    count().asInstanceOf[Int]
   }
 }

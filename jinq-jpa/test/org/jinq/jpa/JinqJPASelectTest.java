@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Lineorder;
+import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
@@ -137,5 +138,18 @@ public class JinqJPASelectTest extends JinqJPATestBase
       assertEquals("SELECT DISTINCT A.item.name FROM Lineorder A ORDER BY A.item.name ASC", query);
       assertEquals(5, itemsSold.size());
       assertEquals("Lawnmowers", itemsSold.get(0));
+   }
+   
+   @Test
+   public void testSelectAll()
+   {
+      List<String> suppliers = streams.streamAll(em, Item.class)
+            .where(i -> i.getName().equals("Screws"))
+            .selectAll(i -> JinqStream.from(i.getSuppliers()))
+            .select(s -> s.getName())
+            .toList();
+      assertEquals("SELECT B.name FROM Item A JOIN A.suppliers B WHERE A.name = 'Screws'", query);
+      assertEquals(1, suppliers.size());
+      assertEquals("HW Supplier", suppliers.get(0));
    }
 }

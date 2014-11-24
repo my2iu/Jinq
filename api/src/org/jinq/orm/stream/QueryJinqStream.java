@@ -68,6 +68,22 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
 
    @Override
+   public <U> JinqStream<U> selectAll(Join<T, U> select)
+   {
+      QueryComposer<U> newComposer = queryComposer.selectAll(select);
+      if (newComposer != null) return new QueryJinqStream<U>(newComposer, inQueryStreamSource);
+      return super.selectAll(select);
+   }
+
+   @Override
+   public <U> JinqStream<U> selectAll(JoinWithSource<T, U> select)
+   {
+      QueryComposer<U> newComposer = queryComposer.selectAllWithSource(select);
+      if (newComposer != null) return new QueryJinqStream<U>(newComposer, inQueryStreamSource);
+      return super.selectAll(select);
+   }
+
+   @Override
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join)
    {
       QueryComposer<Pair<T, U>> newComposer = queryComposer.join(join);

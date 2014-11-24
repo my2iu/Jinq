@@ -742,6 +742,18 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   }
 
   @Test
+  def testSelectAll() {
+    val suppliers = streamAll(em, classOf[Item])
+      .where(_.getName() eq "Screws")
+      .selectAll(_.getSuppliers)
+      .select(_.getName())
+      .toList;
+    Assert.assertEquals("SELECT B.name FROM Item A JOIN A.suppliers B WHERE A.name = 'Screws'", query);
+    Assert.assertEquals(1, suppliers.length);
+    Assert.assertEquals("HW Supplier", suppliers(0));
+  }
+
+  @Test
   def testString() {
     val value = "UK";
     val customers = streamAll(em, classOf[Customer])
@@ -1236,10 +1248,9 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
 
   @Test
   def testScalaComprehensions() {
-    val customers = 
-      (for (c <- streamAll(em, classOf[Customer]) if c.getCountry == "UK") 
-        yield c.getName
-      ).toList
+    val customers =
+      (for (c <- streamAll(em, classOf[Customer]) if c.getCountry == "UK")
+        yield c.getName).toList
     Assert.assertEquals("SELECT A.name FROM Customer A WHERE A.country IS NOT NULL AND A.country = 'UK' OR A.country IS NULL AND 'UK' IS NULL", query);
     Assert.assertEquals(1, customers.length);
     Assert.assertEquals("Dave", customers(0));

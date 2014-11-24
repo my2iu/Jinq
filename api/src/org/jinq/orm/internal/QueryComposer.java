@@ -28,6 +28,8 @@ public interface QueryComposer<T>
    public <E extends Exception> QueryComposer<T> whereWithSource(Object test);
    public <U> QueryComposer<U> select(Object select);
    public <U> QueryComposer<U> selectWithSource(Object select);
+   public <U> QueryComposer<U> selectAll(Object select);
+   public <U> QueryComposer<U> selectAllWithSource(Object select);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
    public <U> QueryComposer<Pair<T, U>> joinWithSource(JinqStream.JoinWithSource<T,U> join);
    public <U> QueryComposer<Pair<T, U>> leftOuterJoin(JinqStream.Join<T,U> join);

@@ -121,6 +121,37 @@ public interface JinqStream<T> extends Stream<T>
     */
    public <U> JinqStream<U> select(SelectWithSource<T, U> select);
 
+   /**
+    * Transforms the elements in the stream. The method allows you to rewrite
+    * each element from the stream, so that they contain only certain fields or
+    * to do some calculation based on the values of the fields. Unlike a normal
+    * select(), this method allows you to return a stream of elements. The 
+    * stream elements will all be added to the final stream.
+    * 
+    * <pre>
+    * {@code JinqStream<Country> stream = ...;
+    * JinqStream<City> result = stream.selectAll(c -> JinqStream.from(c.getCities()));
+    * }
+    * </pre>
+    * 
+    * @see #select(Select)
+    * @param select
+    *           function applied to the elements of the stream. When passed an
+    *           element from the stream, the function should return a stream of
+    *           new values that will be flattened and placed in the new stream
+    * @return a new stream that uses only the new rewritten stream elements
+    */
+   public <U> JinqStream<U> selectAll(Join<T, U> select);
+
+   /**
+    * Transforms the elements in the stream. This version also passes an
+    * {@link InQueryStreamSource} to the select function so that the function
+    * can create new streams of elements to use in subqueries.
+    * 
+    * @see #selectAll(Join)
+    */
+   public <U> JinqStream<U> selectAll(JoinWithSource<T, U> select);
+
    // TODO: Joins are somewhat dangerous because certain types of joins that are
    // expressible here are NOT expressible in SQL. (Moving a join into
    // a from clause is only possible if the join does not access variables from

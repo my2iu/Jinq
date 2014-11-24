@@ -5,9 +5,9 @@ import org.jinq.jpa.jpqlquery.ScalaTupleRowReader;
 
 public class ScalaJoinTransform extends JoinTransform
 {
-   public ScalaJoinTransform(JPQLQueryTransformConfiguration config, boolean withSource)
+   public ScalaJoinTransform(JPQLQueryTransformConfiguration config, boolean withSource, boolean joinAsPairs)
    {
-      super(config, withSource);
+      super(config, withSource, joinAsPairs);
    }
    
    @Override

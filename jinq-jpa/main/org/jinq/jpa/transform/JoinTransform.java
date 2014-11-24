@@ -14,10 +14,14 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public class JoinTransform extends JPQLOneLambdaQueryTransform
 {
    boolean withSource;
-   public JoinTransform(JPQLQueryTransformConfiguration config, boolean withSource)
+   boolean joinAsPairs;
+   public JoinTransform(JPQLQueryTransformConfiguration config, boolean withSource, boolean joinAsPairs)
    {
       super(config);
       this.withSource = withSource;
+      // The old data should be merged with the new data using pairs
+      // (otherwise, the new data simply replaces the old data)
+      this.joinAsPairs = joinAsPairs;
    }
    
    static boolean isSimpleFrom(JPQLQuery<?> query)
@@ -60,9 +64,16 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
                SelectFromWhere<?> toMerge = (SelectFromWhere<?>)returnExpr;
                SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
                toReturn.froms.add(toMerge.froms.get(0));
-               toReturn.cols = new ColumnExpressions<>(createPairReader(sfw.cols.reader, toMerge.cols.reader));
-               toReturn.cols.columns.addAll(sfw.cols.columns);
-               toReturn.cols.columns.addAll(toMerge.cols.columns);
+               if (joinAsPairs)
+               {
+                  toReturn.cols = new ColumnExpressions<>(createPairReader(sfw.cols.reader, toMerge.cols.reader));
+                  toReturn.cols.columns.addAll(sfw.cols.columns);
+                  toReturn.cols.columns.addAll(toMerge.cols.columns);
+               }
+               else
+               {
+                  toReturn.cols = (ColumnExpressions<U>) toMerge.cols;
+               }
                return toReturn;
             }
             

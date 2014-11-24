@@ -93,7 +93,7 @@ public class ScalaSymbExToSubQuery extends SymbExToSubQuery
             }
             else if (sig.equals(ScalaMetamodelUtil.streamJoin))
             {
-               JoinTransform transform = new ScalaJoinTransform(config, false);
+               JoinTransform transform = new ScalaJoinTransform(config, false, true);
                transformedQuery = transform.apply(subQuery, lambda, argHandler); 
             }
             else
