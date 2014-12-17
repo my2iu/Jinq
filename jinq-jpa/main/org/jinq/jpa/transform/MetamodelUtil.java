@@ -2,7 +2,9 @@ package org.jinq.jpa.transform;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.IdentifiableType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
@@ -108,50 +111,77 @@ public class MetamodelUtil
       safeMethods.add(sig);
    }
    
+   private void findMetamodelEntityGetters(IdentifiableType<?> entity, Collection<String> subclassNames)
+   {
+      for (SingularAttribute<?,?> singularAttrib: entity.getDeclaredSingularAttributes())
+      {
+         Class<?> fieldJavaType = singularAttrib.getJavaType();
+         Member javaMember = singularAttrib.getJavaMember();
+         String name = javaMember.getName(); 
+         if (javaMember instanceof Field)
+         {
+            // We'll have to guess the getter name based on the name of the field.
+            name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+         }
+         if (fieldJavaType.isEnum())
+         {
+            // Record the enum, and mark equals() using the enum as safe
+            String enumTypeName = org.objectweb.asm.Type.getInternalName(fieldJavaType); 
+            enums.put(enumTypeName, Arrays.asList(((Class<Enum<?>>)fieldJavaType).getEnumConstants()));
+            MethodSignature eqMethod = new MethodSignature(enumTypeName, "equals", "(Ljava/lang/Object;)Z"); 
+            comparisonMethods.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);
+            safeMethods.add(eqMethod);
+         }
+         String returnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(fieldJavaType)); 
+         MethodSignature methodSig = new MethodSignature(
+               org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
+               name,
+               returnType);
+         fieldMethods.put(methodSig, new MetamodelUtilAttribute(singularAttrib));
+         // The method is also callable from its subclasses
+         for (String className: subclassNames)
+         {
+            MethodSignature sig = new MethodSignature(className, name, returnType);
+            fieldMethods.put(sig, new MetamodelUtilAttribute(singularAttrib));
+         }
+      }
+      for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
+      {
+         Member javaMember = pluralAttrib.getJavaMember();
+         String name = javaMember.getName(); 
+         if (javaMember instanceof Field)
+         {
+            // We'll have to guess the getter name based on the name of the field.
+            name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+         }
+         String returnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(pluralAttrib.getJavaType())); 
+         MethodSignature methodSig = new MethodSignature(
+               org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
+               name,
+               returnType);
+         nLinkMethods.put(methodSig, new MetamodelUtilAttribute(pluralAttrib));
+         // The method is also callable from its subclasses
+         for (String className: subclassNames)
+         {
+            MethodSignature sig = new MethodSignature(className, name, returnType);
+            nLinkMethods.put(sig, new MetamodelUtilAttribute(pluralAttrib));
+         }
+      }
+      if (entity.getSupertype() != null)
+      {
+         IdentifiableType<?> jpaObject = entity.getSupertype();
+         String className = org.objectweb.asm.Type.getInternalName(entity.getJavaType());
+         List<String> newSubclasses = new ArrayList<>();
+         newSubclasses.add(className);
+         findMetamodelEntityGetters(jpaObject, newSubclasses);
+      }
+   }
+   
    private void findMetamodelGetters()
    {
       for (EntityType<?> entity: metamodel.getEntities())
       {
-         for (SingularAttribute<?,?> singularAttrib: entity.getDeclaredSingularAttributes())
-         {
-            Class<?> fieldJavaType = singularAttrib.getJavaType();
-            Member javaMember = singularAttrib.getJavaMember();
-            String name = javaMember.getName(); 
-            if (javaMember instanceof Field)
-            {
-               // We'll have to guess the getter name based on the name of the field.
-               name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
-            }
-            MethodSignature methodSig = new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
-                  name,
-                  org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(fieldJavaType)));
-            if (fieldJavaType.isEnum())
-            {
-               // Record the enum, and mark equals() using the enum as safe
-               String enumTypeName = org.objectweb.asm.Type.getInternalName(fieldJavaType); 
-               enums.put(enumTypeName, Arrays.asList(((Class<Enum<?>>)fieldJavaType).getEnumConstants()));
-               MethodSignature eqMethod = new MethodSignature(enumTypeName, "equals", "(Ljava/lang/Object;)Z"); 
-               comparisonMethods.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);
-               safeMethods.add(eqMethod);
-            }
-            fieldMethods.put(methodSig, new MetamodelUtilAttribute(singularAttrib));
-         }
-         for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
-         {
-            Member javaMember = pluralAttrib.getJavaMember();
-            String name = javaMember.getName(); 
-            if (javaMember instanceof Field)
-            {
-               // We'll have to guess the getter name based on the name of the field.
-               name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
-            }
-            MethodSignature methodSig = new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
-                  name,
-                  org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(pluralAttrib.getJavaType())));
-            nLinkMethods.put(methodSig, new MetamodelUtilAttribute(pluralAttrib));
-         }
+         findMetamodelEntityGetters(entity, new ArrayList<>());
       }
    }
    
