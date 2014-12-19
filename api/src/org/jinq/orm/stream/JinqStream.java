@@ -152,6 +152,26 @@ public interface JinqStream<T> extends Stream<T>
     */
    public <U> JinqStream<U> selectAll(JoinWithSource<T, U> select);
 
+   /**
+    * A variant of selectAll() that can be used if you want to join to a
+    * collection without the trouble of converting it to a JinqStream
+    * first.
+    * 
+    * <pre>
+    * {@code JinqStream<Country> stream = ...;
+    * JinqStream<City> result = stream.selectAll(c -> c.getCities());
+    * }
+    * </pre>
+    * 
+    * @see #selectAll(Join)
+    * @param select
+    *           function applied to the elements of the stream. When passed an
+    *           element from the stream, the function should return a collection 
+    *           of new values that will be flattened and placed in the new stream
+    * @return a new stream that uses only the new rewritten stream elements
+    */
+   public <U> JinqStream<U> selectAllList(JoinToIterable<T, U> select);
+   
    // TODO: Joins are somewhat dangerous because certain types of joins that are
    // expressible here are NOT expressible in SQL. (Moving a join into
    // a from clause is only possible if the join does not access variables from
@@ -171,6 +191,12 @@ public interface JinqStream<T> extends Stream<T>
    public static interface JoinWithSource<U, V> extends Serializable
    {
       public JinqStream<V> join(U val, InQueryStreamSource source);
+   }
+
+   @FunctionalInterface
+   public static interface JoinToIterable<U, V> extends Serializable
+   {
+      public Iterable<V> join(U val);
    }
 
    /**
@@ -202,6 +228,15 @@ public interface JinqStream<T> extends Stream<T>
    public <U> JinqStream<Pair<T, U>> join(JoinWithSource<T, U> join);
 
    /**
+    * A variant of join() that can be used if you want to join to a
+    * collection without the trouble of converting it to a JinqStream
+    * first.
+    * 
+    * @see #join(Join)
+    */
+   public <U> JinqStream<Pair<T, U>> joinList(JoinToIterable<T, U> join);
+
+   /**
     * Pairs up each entry of the stream with a stream of related elements. Uses
     * a left outer join during the pairing up process, so even if an element is
     * not joined with anything, a pair will still be created in the output
@@ -227,6 +262,15 @@ public interface JinqStream<T> extends Stream<T>
     * @return a new stream with the paired up elements
     */
    public <U> JinqStream<Pair<T, U>> leftOuterJoin(Join<T, U> join);
+
+   /**
+    * A variant of leftOuterJoin() that can be used if you want to join to a
+    * collection without the trouble of converting it to a JinqStream
+    * first.
+    * 
+    * @see #leftOuterJoin(Join)
+    */
+   public <U> JinqStream<Pair<T, U>> leftOuterJoinList(JoinToIterable<T, U> join);
 
    @FunctionalInterface
    public static interface AggregateGroup<W, U, V> extends Serializable

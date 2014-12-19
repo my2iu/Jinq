@@ -84,6 +84,14 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
 
    @Override
+   public <U> JinqStream<U> selectAllList(JoinToIterable<T, U> select)
+   {
+      QueryComposer<U> newComposer = queryComposer.selectAllIterable(select);
+      if (newComposer != null) return new QueryJinqStream<U>(newComposer, inQueryStreamSource);
+      return super.selectAllList(select);
+   }
+   
+   @Override
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join)
    {
       QueryComposer<Pair<T, U>> newComposer = queryComposer.join(join);
@@ -100,11 +108,27 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
 
    @Override
+   public <U> JinqStream<Pair<T, U>> joinList(JoinToIterable<T, U> join)
+   {
+      QueryComposer<Pair<T, U>> newComposer = queryComposer.joinIterable(join);
+      if (newComposer != null) return new QueryJinqStream<Pair<T, U>>(newComposer, inQueryStreamSource);
+      return super.joinList(join);
+   }
+   
+   @Override
    public <U> JinqStream<Pair<T, U>> leftOuterJoin(Join<T,U> join)
    {
       QueryComposer<Pair<T, U>> newComposer = queryComposer.leftOuterJoin(join);
       if (newComposer != null) return new QueryJinqStream<Pair<T, U>>(newComposer, inQueryStreamSource);
       return super.leftOuterJoin(join);
+   }
+   
+   @Override
+   public <U> JinqStream<Pair<T, U>> leftOuterJoinList(JoinToIterable<T, U> join)
+   {
+      QueryComposer<Pair<T, U>> newComposer = queryComposer.leftOuterJoinIterable(join);
+      if (newComposer != null) return new QueryJinqStream<Pair<T, U>>(newComposer, inQueryStreamSource);
+      return super.leftOuterJoinList(join);
    }
 
    @Override

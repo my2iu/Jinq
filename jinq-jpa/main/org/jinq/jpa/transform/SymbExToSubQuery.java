@@ -23,11 +23,13 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
 {
    final SymbExArgumentHandler argHandler;
    JPQLQueryTransformConfiguration config = new JPQLQueryTransformConfiguration();
+   boolean isExpectingStream;
 
-   SymbExToSubQuery(JPQLQueryTransformConfiguration config, SymbExArgumentHandler argumentHandler)
+   SymbExToSubQuery(JPQLQueryTransformConfiguration config, SymbExArgumentHandler argumentHandler, boolean isExpectingStream)
    {
       this.config = config;
       this.argHandler = argumentHandler;
+      this.isExpectingStream = isExpectingStream;
    }
    
    @Override public JPQLQuery<?> defaultValue(TypedValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -52,90 +54,97 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
    @Override public JPQLQuery<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
-      if (MetamodelUtil.inQueryStream.equals(sig))
+      if (isExpectingStream)
       {
-         return handleInQueryStreamSource(val.base, val.args.get(0));
-      }
-      else if (isStreamMethod(sig))
-      {
-         SymbExPassDown passdown = SymbExPassDown.with(val, false);
-         
-         // Check out what stream we're aggregating
-         JPQLQuery<?> subQuery = val.base.visit(this, passdown);
-         
-         // Extract the lambda used
-         LambdaAnalysis lambda = null;
-         if (val.args.size() > 0)
+         if (MetamodelUtil.inQueryStream.equals(sig))
          {
-            if (!(val.args.get(0) instanceof LambdaFactory))
-               throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
-            LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
+            return handleInQueryStreamSource(val.base, val.args.get(0));
+         }
+         else if (isStreamMethod(sig))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            
+            // Check out what stream we're aggregating
+            JPQLQuery<?> subQuery = val.base.visit(this, passdown);
+            
+            // Extract the lambda used
+            LambdaAnalysis lambda = null;
+            if (val.args.size() > 0)
+            {
+               if (!(val.args.get(0) instanceof LambdaFactory))
+                  throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
+               LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
+               try {
+                  lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, 
+                        lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
+               } catch (Exception e)
+               {
+                  throw new TypedValueVisitorException("Could not analyze the lambda code", e);
+               }
+            }
+
             try {
-               lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, 
-                     lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
-            } catch (Exception e)
-            {
-               throw new TypedValueVisitorException("Could not analyze the lambda code", e);
-            }
-         }
+               JPQLQuery<?> transformedQuery;
+               if (sig.equals(MethodChecker.streamDistinct))
+               {
+                  DistinctTransform transform = new DistinctTransform(config);
+                  transformedQuery = transform.apply(subQuery, argHandler); 
+               }
+               else if (sig.equals(MethodChecker.streamSelect))
+               {
+                  SelectTransform transform = new SelectTransform(config, false);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
+               else if (sig.equals(MethodChecker.streamWhere))
+               {
+                  WhereTransform transform = new WhereTransform(config, false);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
+               else if (sig.equals(MethodChecker.streamJoin))
+               {
+                  JoinTransform transform = new JoinTransform(config, false, true, true);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
+               else
+                  throw new TypedValueVisitorException("Unknown stream operation: " + sig);
 
-         try {
-            JPQLQuery<?> transformedQuery;
-            if (sig.equals(MethodChecker.streamDistinct))
+               return transformedQuery;
+            } 
+            catch (QueryTransformException e)
             {
-               DistinctTransform transform = new DistinctTransform(config);
-               transformedQuery = transform.apply(subQuery, argHandler); 
+               throw new TypedValueVisitorException("Subquery could not be transformed.", e);
             }
-            else if (sig.equals(MethodChecker.streamSelect))
-            {
-               SelectTransform transform = new SelectTransform(config, false);
-               transformedQuery = transform.apply(subQuery, lambda, argHandler); 
-            }
-            else if (sig.equals(MethodChecker.streamWhere))
-            {
-               WhereTransform transform = new WhereTransform(config, false);
-               transformedQuery = transform.apply(subQuery, lambda, argHandler); 
-            }
-            else if (sig.equals(MethodChecker.streamJoin))
-            {
-               JoinTransform transform = new JoinTransform(config, false, true);
-               transformedQuery = transform.apply(subQuery, lambda, argHandler); 
-            }
-            else
-               throw new TypedValueVisitorException("Unknown stream operation: " + sig);
-
-            return transformedQuery;
-         } 
-         catch (QueryTransformException e)
-         {
-            throw new TypedValueVisitorException("Subquery could not be transformed.", e);
-         }
-//         // Return the aggregated columns that we've now calculated
-//         if (transformedQuery.getClass() == SelectOnly.class)
-//         {
-//            SelectOnly<?> select = (SelectOnly<?>)transformedQuery;
-//            return select.cols;
-//         }
-//         else if (transformedQuery.isValidSubquery() && transformedQuery instanceof SelectFromWhere) 
-//         {
-//            SelectFromWhere<?> sfw = (SelectFromWhere<?>)transformedQuery;
-//            ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
-//            for (Expression col: sfw.cols.columns)
+//            // Return the aggregated columns that we've now calculated
+//            if (transformedQuery.getClass() == SelectOnly.class)
 //            {
-//               SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
-//               oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
-//               toReturn.columns.add(SubqueryExpression.from(oneColQuery));
+//               SelectOnly<?> select = (SelectOnly<?>)transformedQuery;
+//               return select.cols;
 //            }
-//            return toReturn;
-//         }
-//         else
-//         {
-//            throw new TypedValueVisitorException("Unknown subquery type");
-//         }
+//            else if (transformedQuery.isValidSubquery() && transformedQuery instanceof SelectFromWhere) 
+//            {
+//               SelectFromWhere<?> sfw = (SelectFromWhere<?>)transformedQuery;
+//               ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
+//               for (Expression col: sfw.cols.columns)
+//               {
+//                  SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
+//                  oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
+//                  toReturn.columns.add(SubqueryExpression.from(oneColQuery));
+//               }
+//               return toReturn;
+//            }
+//            else
+//            {
+//               throw new TypedValueVisitorException("Unknown subquery type");
+//            }
 
+         }
       }
       else
-         return super.virtualMethodCallValue(val, in);
+      {
+         JPQLQuery<?> nLink = handlePossibleNavigationalLink(val, true, in);
+         if (nLink != null) return nLink;
+      }
+      return super.virtualMethodCallValue(val, in);
    }
 
    protected JPQLQuery<?> handleInQueryStreamSource(
@@ -155,7 +164,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
          throw new TypedValueVisitorException("Streaming an unknown type");
       return JPQLQuery.findAllEntities(entityName);
    }
-   
+
    /**
     * if unknownVal is not a handled navigational link, null will be 
     * returned. Otherwise, a query representing the link will be returned

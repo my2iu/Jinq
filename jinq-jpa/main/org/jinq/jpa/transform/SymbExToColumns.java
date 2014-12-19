@@ -399,7 +399,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          SymbExPassDown passdown = SymbExPassDown.with(val, false);
          
          // Check out what stream we're aggregating
-         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler);
+         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler, true);
          JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
          
          // Extract the lambda used
@@ -468,7 +468,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          SymbExPassDown passdown = SymbExPassDown.with(val, false);
          
          // Check out what stream we're aggregating
-         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler);
+         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler, true);
          JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
 
          if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 

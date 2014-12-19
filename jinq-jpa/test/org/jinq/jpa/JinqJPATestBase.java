@@ -10,7 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -19,6 +18,8 @@ import org.junit.BeforeClass;
 
 public class JinqJPATestBase
 {
+   // TODO: If these are static, then multiple tests can't be run
+   //   simultaneously.
    static EntityManagerFactory entityManagerFactory;
    static JinqJPAStreamProvider streams;
 

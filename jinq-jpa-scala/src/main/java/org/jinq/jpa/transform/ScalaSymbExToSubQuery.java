@@ -15,7 +15,7 @@ public class ScalaSymbExToSubQuery extends SymbExToSubQuery
    ScalaSymbExToSubQuery(JPQLQueryTransformConfiguration config,
          SymbExArgumentHandler argumentHandler)
    {
-      super(config, argumentHandler);
+      super(config, argumentHandler, true);
    }
 
 

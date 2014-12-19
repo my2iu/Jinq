@@ -7,7 +7,7 @@ public class ScalaJoinTransform extends JoinTransform
 {
    public ScalaJoinTransform(JPQLQueryTransformConfiguration config, boolean withSource, boolean joinAsPairs)
    {
-      super(config, withSource, joinAsPairs);
+      super(config, withSource, joinAsPairs, true);
    }
    
    @Override

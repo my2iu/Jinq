@@ -30,9 +30,12 @@ public interface QueryComposer<T>
    public <U> QueryComposer<U> selectWithSource(Object select);
    public <U> QueryComposer<U> selectAll(Object select);
    public <U> QueryComposer<U> selectAllWithSource(Object select);
+   public <U> QueryComposer<U> selectAllIterable(Object select);
    public <U> QueryComposer<Pair<T, U>> join(JinqStream.Join<T,U> join);
    public <U> QueryComposer<Pair<T, U>> joinWithSource(JinqStream.JoinWithSource<T,U> join);
+   public <U> QueryComposer<Pair<T, U>> joinIterable(JinqStream.JoinToIterable<T,U> join);
    public <U> QueryComposer<Pair<T, U>> leftOuterJoin(JinqStream.Join<T,U> join);
+   public <U> QueryComposer<Pair<T, U>> leftOuterJoinIterable(JinqStream.JoinToIterable<T,U> join);
 //   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 
    // returns null if the aggregates cannot be calculated

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 import org.jinq.tuples.Tuple3;
@@ -106,6 +107,12 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    }
 
    @Override
+   public <U> JinqStream<U> selectAllList(JoinToIterable<T, U> select)
+   {
+      return wrap(flatMap( val -> StreamSupport.stream(select.join(val).spliterator(), false) ));
+   }
+
+   @Override
    public <U> JinqStream<Pair<T, U>> join(Join<T,U> join)
    {
       // TODO: This stream should be constructed on the fly
@@ -130,6 +137,19 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    }
 
    @Override
+   public <U> JinqStream<Pair<T, U>> joinList(
+         org.jinq.orm.stream.JinqStream.JoinToIterable<T, U> join)
+   {
+      // TODO: This stream should be constructed on the fly
+      final Stream.Builder<Pair<T,U>> streamBuilder = Stream.builder();
+      forEach( left -> {
+         for (U right: join.join(left)) {
+             streamBuilder.accept(new Pair<>(left, right)); 
+         }});
+      return wrap(streamBuilder.build());
+   }
+
+   @Override
    public <U> JinqStream<Pair<T, U>> leftOuterJoin(Join<T,U> join)
    {
       // TODO: This stream should be constructed on the fly
@@ -139,6 +159,24 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
             join.join(left).forEach( right -> 
                { streamBuilder.accept(new Pair<>(left, right)); });
          else
+            streamBuilder.accept(new Pair<>(left, null));
+         });
+      return wrap(streamBuilder.build());
+   }
+
+   @Override
+   public <U> JinqStream<Pair<T, U>> leftOuterJoinList(
+         org.jinq.orm.stream.JinqStream.JoinToIterable<T, U> join)
+   {
+      // TODO: This stream should be constructed on the fly
+      final Stream.Builder<Pair<T,U>> streamBuilder = Stream.builder();
+      forEach( left -> {
+         int count = 0;
+         for (U right: join.join(left)) {
+            streamBuilder.accept(new Pair<>(left, right));
+            count++;
+         }
+         if (count == 0)
             streamBuilder.accept(new Pair<>(left, null));
          });
       return wrap(streamBuilder.build());

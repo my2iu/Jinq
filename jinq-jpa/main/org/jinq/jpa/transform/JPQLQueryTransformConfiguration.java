@@ -29,9 +29,9 @@ public class JPQLQueryTransformConfiguration
       return new SymbExToColumns(this, argumentHandler);
    }
    
-   public SymbExToSubQuery newSymbExToSubQuery(SymbExArgumentHandler argumentHandler)
+   public SymbExToSubQuery newSymbExToSubQuery(SymbExArgumentHandler argumentHandler, boolean isExpectingStream)
    {
-      return new SymbExToSubQuery(this, argumentHandler);
+      return new SymbExToSubQuery(this, argumentHandler, isExpectingStream);
    }
 
    public Map<String, TypedValue> findLambdaAsClassConstructorParameters(MethodSignature sig, List<TypedValue> args) throws QueryTransformException

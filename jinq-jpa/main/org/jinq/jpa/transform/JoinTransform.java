@@ -15,15 +15,41 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
 {
    boolean withSource;
    boolean joinAsPairs;
-   public JoinTransform(JPQLQueryTransformConfiguration config, boolean withSource, boolean joinAsPairs)
+   boolean isExpectingStream;
+   public JoinTransform(JPQLQueryTransformConfiguration config, boolean withSource, boolean joinAsPairs, boolean isExpectingStream)
    {
       super(config);
       this.withSource = withSource;
+      this.isExpectingStream = isExpectingStream;
       // The old data should be merged with the new data using pairs
       // (otherwise, the new data simply replaces the old data)
       this.joinAsPairs = joinAsPairs;
    }
    
+   public JoinTransform(JPQLQueryTransformConfiguration config)
+   {
+      this(config, false, true, true);
+   }
+   
+   public JoinTransform isWithSource(boolean withSource)
+   {
+      this.withSource = withSource;
+      return this;
+   }
+
+   public JoinTransform setIsExpectingStream(boolean isExpectingStream)
+   {
+      this.isExpectingStream = isExpectingStream;
+      return this;
+   }
+   
+   public JoinTransform setJoinAsPairs(boolean joinAsPairs)
+   {
+      this.joinAsPairs = joinAsPairs;
+      return this;
+   }
+
+
    static boolean isSimpleFrom(JPQLQuery<?> query)
    {
       if (!query.isSelectFromWhere()) return false;
@@ -45,7 +71,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
-            SymbExToSubQuery translator = config.newSymbExToSubQuery(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, withSource));
+            SymbExToSubQuery translator = config.newSymbExToSubQuery(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, withSource), isExpectingStream);
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 

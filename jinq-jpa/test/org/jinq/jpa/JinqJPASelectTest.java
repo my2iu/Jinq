@@ -152,4 +152,17 @@ public class JinqJPASelectTest extends JinqJPATestBase
       assertEquals(1, suppliers.size());
       assertEquals("HW Supplier", suppliers.get(0));
    }
+   
+   @Test
+   public void testSelectAllList()
+   {
+      List<String> suppliers = streams.streamAll(em, Item.class)
+            .where(i -> i.getName().equals("Screws"))
+            .selectAllList(i -> i.getSuppliers())
+            .select(s -> s.getName())
+            .toList();
+      assertEquals("SELECT B.name FROM Item A JOIN A.suppliers B WHERE A.name = 'Screws'", query);
+      assertEquals(1, suppliers.size());
+      assertEquals("HW Supplier", suppliers.get(0));
+   }
 }

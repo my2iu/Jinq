@@ -16,9 +16,11 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 
 public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
 {
-   public OuterJoinTransform(JPQLQueryTransformConfiguration config)
+   boolean isExpectingStream;
+   public OuterJoinTransform(JPQLQueryTransformConfiguration config, boolean isExpectingStream)
    {
       super(config);
+      this.isExpectingStream = isExpectingStream;
    }
 
    private boolean isChainedLink(Expression links)
@@ -68,7 +70,7 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             
-            SymbExToSubQuery translator = config.newSymbExToSubQuery(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, false));
+            SymbExToSubQuery translator = config.newSymbExToSubQuery(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, lambda, config.metamodel, parentArgumentScope, false), isExpectingStream);
 
             // TODO: Handle this case by translating things to use SELECT CASE 
             if (lambda.symbolicAnalysis.paths.size() > 1) 

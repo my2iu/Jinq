@@ -30,8 +30,9 @@ public class ScalaJPQLQueryTransformConfiguration extends
 
    @Override
    public SymbExToSubQuery newSymbExToSubQuery(
-         SymbExArgumentHandler argumentHandler)
+         SymbExArgumentHandler argumentHandler, boolean isExpectingStream)
    {
+      if (!isExpectingStream) throw new IllegalArgumentException("Jinq for Scala uses implicit conversions and does not allow joins to non-streams");
       return new ScalaSymbExToSubQuery(this, argumentHandler);
    }
 
