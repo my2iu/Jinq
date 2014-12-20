@@ -2,8 +2,10 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.Expression;
+import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
@@ -16,7 +18,8 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
    boolean withSource;
    boolean joinAsPairs;
    boolean isExpectingStream;
-   public JoinTransform(JPQLQueryTransformConfiguration config, boolean withSource, boolean joinAsPairs, boolean isExpectingStream)
+   boolean isJoinFetch;
+   public JoinTransform(JPQLQueryTransformConfiguration config, boolean withSource, boolean joinAsPairs, boolean isExpectingStream, boolean isJoinFetch)
    {
       super(config);
       this.withSource = withSource;
@@ -24,14 +27,15 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
       // The old data should be merged with the new data using pairs
       // (otherwise, the new data simply replaces the old data)
       this.joinAsPairs = joinAsPairs;
+      this.isJoinFetch = isJoinFetch;
    }
    
    public JoinTransform(JPQLQueryTransformConfiguration config)
    {
-      this(config, false, true, true);
+      this(config, false, true, true, false);
    }
    
-   public JoinTransform isWithSource(boolean withSource)
+   public JoinTransform setWithSource(boolean withSource)
    {
       this.withSource = withSource;
       return this;
@@ -49,6 +53,11 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
       return this;
    }
 
+   public JoinTransform setIsJoinFetch(boolean isJoinFetch)
+   {
+      this.isJoinFetch = isJoinFetch;
+      return this;
+   }
 
    static boolean isSimpleFrom(JPQLQuery<?> query)
    {
@@ -89,7 +98,30 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
             {
                SelectFromWhere<?> toMerge = (SelectFromWhere<?>)returnExpr;
                SelectFromWhere<U> toReturn = (SelectFromWhere<U>)sfw.shallowCopy();
-               toReturn.froms.add(toMerge.froms.get(0));
+               if (isJoinFetch)
+               {
+                  From from = toMerge.froms.get(0);
+                  if (!OuterJoinTransform.isLeftOuterJoinCompatible(toMerge))
+                     throw new QueryTransformException("Left outer join must be applied to a navigational link");
+                  From.FromNavigationalLinksGeneric joinFetchFrom = From.forNavigationalLinksJoinFetch((From.FromNavigationalLinks)from);
+//                  if (!isJoinFetch && OuterJoinTransform.isChainedLink(outerJoinFrom.links))
+//                  {
+//                     // The left outer join only applies to the end part of
+//                     // links. So we'll pull off the earlier part of the chain
+//                     // and make them a separate alias.
+//                     ReadFieldExpression outerLinks = (ReadFieldExpression)outerJoinFrom.links;
+//                     From baseFrom = From.forNavigationalLinks(outerLinks.base);
+//                     toReturn.froms.add(baseFrom);
+//                     outerJoinFrom.links = new ReadFieldExpression(new FromAliasExpression(baseFrom), outerLinks.field);
+//                  }
+                  toReturn.froms.add(joinFetchFrom);
+                  OuterJoinTransform.rewriteFromAliases(toMerge, from, joinFetchFrom);
+                  
+               }
+               else
+               {
+                  toReturn.froms.add(toMerge.froms.get(0));
+               }
                if (joinAsPairs)
                {
                   toReturn.cols = new ColumnExpressions<>(createPairReader(sfw.cols.reader, toMerge.cols.reader));

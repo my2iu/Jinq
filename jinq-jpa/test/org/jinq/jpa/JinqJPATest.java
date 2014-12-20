@@ -121,6 +121,18 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Conglomerate", results.get(1).getTwo().getName());
       assertEquals("HW Supplier", results.get(4).getTwo().getName());
    }
+   
+   @Test
+   public void testJoinFetchList()
+   {
+      List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
+            .joinFetchList(lo -> lo.getItem().getSuppliers())
+            .where(pair -> pair.getOne().getSale().getCustomer().getName().equals("Alice"))
+            .toList();
+      assertEquals("SELECT A, B FROM Lineorder A JOIN FETCH A.item.suppliers B WHERE A.sale.customer.name = 'Alice'", query);
+      // The semantics of JOIN FETCH are a little inconsistent
+      // so it's hard to know exactly will be returned.
+   }
 
    @Test
    public void testJoinEntity()
@@ -191,6 +203,19 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name = 'Talent'", query);
       Collections.sort(results, (c1, c2) -> c1.getTwo().getName().compareTo(c2.getTwo().getName()));
       assertEquals(1, results.size());
+   }
+
+   @Test
+   public void testOuterJoinFetch()
+   {
+      List<Item> results = streams.streamAll(em, Item.class)
+            .where(i -> i.getName().equals("Widgets"))
+            .leftOuterJoinFetch(i -> JinqStream.from(i.getSuppliers()))
+            .select(pair -> pair.getOne())
+            .toList();
+      assertEquals("SELECT A FROM Item A LEFT OUTER JOIN FETCH A.suppliers B WHERE A.name = 'Widgets'", query);
+      // The semantics of JOIN FETCH are a little inconsistent
+      // so it's hard to know exactly will be returned.
    }
 
    @Test(expected=IllegalArgumentException.class)

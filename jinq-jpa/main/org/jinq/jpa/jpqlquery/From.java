@@ -3,6 +3,7 @@ package org.jinq.jpa.jpqlquery;
 public abstract class From implements JPQLFragment
 {
    abstract void generateFromString(QueryGenerationState queryState, boolean isFirst);
+   public boolean isPrecededByComma() { return true; }
 
    protected void prepareQueryGeneration(Expression.QueryGenerationPreparationPhase preparePhase,
          QueryGenerationState queryState)
@@ -35,6 +36,20 @@ public abstract class From implements JPQLFragment
       return from;
    }
 
+   public static FromNavigationalLinksLeftOuterJoinFetch forNavigationalLinksLeftOuterJoinFetch(FromNavigationalLinks link)
+   {
+      FromNavigationalLinksLeftOuterJoinFetch from = new FromNavigationalLinksLeftOuterJoinFetch();
+      from.links = link.links;
+      return from;
+   }
+
+   public static FromNavigationalLinksJoinFetch forNavigationalLinksJoinFetch(FromNavigationalLinks link)
+   {
+      FromNavigationalLinksJoinFetch from = new FromNavigationalLinksJoinFetch();
+      from.links = link.links;
+      return from;
+   }
+
    public static class FromEntity extends From
    {
       public String entityName;
@@ -46,10 +61,13 @@ public abstract class From implements JPQLFragment
       }
    }
    
-   public static class FromNavigationalLinks extends From
+   public static abstract class FromNavigationalLinksGeneric extends From
    {
       public Expression links;
-      
+   }
+   
+   public static class FromNavigationalLinks extends FromNavigationalLinksGeneric
+   {
       @Override
       void generateFromString(QueryGenerationState queryState, boolean isFirst)
       {
@@ -57,12 +75,11 @@ public abstract class From implements JPQLFragment
             queryState.queryString += " JOIN ";
          links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
       }
+      @Override public boolean isPrecededByComma() { return false; }
    }
 
-   public static class FromNavigationalLinksLeftOuterJoin extends From
+   public static class FromNavigationalLinksLeftOuterJoin extends FromNavigationalLinksGeneric
    {
-      public Expression links;
-      
       @Override
       void generateFromString(QueryGenerationState queryState, boolean isFirst)
       {
@@ -70,5 +87,30 @@ public abstract class From implements JPQLFragment
             queryState.queryString += " LEFT OUTER JOIN ";
          links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
       }
+      @Override public boolean isPrecededByComma() { return false; }
+   }
+   
+   public static class FromNavigationalLinksLeftOuterJoinFetch extends FromNavigationalLinksGeneric
+   {
+      @Override
+      void generateFromString(QueryGenerationState queryState, boolean isFirst)
+      {
+         if (!isFirst)
+            queryState.queryString += " LEFT OUTER JOIN FETCH ";
+         links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+      }
+      @Override public boolean isPrecededByComma() { return false; }
+   }
+
+   public static class FromNavigationalLinksJoinFetch extends FromNavigationalLinksGeneric
+   {
+      @Override
+      void generateFromString(QueryGenerationState queryState, boolean isFirst)
+      {
+         if (!isFirst)
+            queryState.queryString += " JOIN FETCH ";
+         links.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+      }
+      @Override public boolean isPrecededByComma() { return false; }
    }
 }

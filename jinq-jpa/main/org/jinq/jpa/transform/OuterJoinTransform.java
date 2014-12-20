@@ -17,13 +17,32 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
 {
    boolean isExpectingStream;
-   public OuterJoinTransform(JPQLQueryTransformConfiguration config, boolean isExpectingStream)
+   boolean isJoinFetch;
+   public OuterJoinTransform(JPQLQueryTransformConfiguration config, boolean isExpectingStream, boolean isJoinFetch)
    {
       super(config);
       this.isExpectingStream = isExpectingStream;
+      this.isJoinFetch = isJoinFetch;
    }
 
-   private boolean isChainedLink(Expression links)
+   public OuterJoinTransform(JPQLQueryTransformConfiguration config)
+   {
+      this(config, true, false);
+   }
+
+   public OuterJoinTransform setIsExpectingStream(boolean isExpectingStream)
+   {
+      this.isExpectingStream = isExpectingStream;
+      return this;
+   }
+   
+   public OuterJoinTransform setIsJoinFetch(boolean isJoinFetch)
+   {
+      this.isJoinFetch = isJoinFetch;
+      return this;
+   }
+
+   static boolean isChainedLink(Expression links)
    {
       if (links instanceof ReadFieldExpression)
          return ((ReadFieldExpression)links).base instanceof ReadFieldExpression;
@@ -31,7 +50,7 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
    }
    
 
-   private boolean isLeftOuterJoinCompatible(SelectFromWhere<?> toMerge)
+   static boolean isLeftOuterJoinCompatible(SelectFromWhere<?> toMerge)
    {
       From from = toMerge.froms.get(0);
       if (!(from instanceof From.FromNavigationalLinks))
@@ -46,7 +65,7 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
       return true;
    }
    
-   private void rewriteFromAliases(SelectFromWhere<?> toMerge, From oldFrom, From newFrom)
+   static void rewriteFromAliases(SelectFromWhere<?> toMerge, From oldFrom, From newFrom)
    {
       for (Expression expr: toMerge.cols.columns)
       {
@@ -91,8 +110,12 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
                From from = toMerge.froms.get(0);
                if (!isLeftOuterJoinCompatible(toMerge))
                   throw new QueryTransformException("Left outer join must be applied to a navigational link");
-               From.FromNavigationalLinksLeftOuterJoin outerJoinFrom = From.forNavigationalLinksLeftOuterJoin((From.FromNavigationalLinks)from);
-               if (isChainedLink(outerJoinFrom.links))
+               From.FromNavigationalLinksGeneric outerJoinFrom;
+               if (isJoinFetch)
+                  outerJoinFrom = From.forNavigationalLinksLeftOuterJoinFetch((From.FromNavigationalLinks)from);
+               else
+                  outerJoinFrom = From.forNavigationalLinksLeftOuterJoin((From.FromNavigationalLinks)from);
+               if (!isJoinFetch && isChainedLink(outerJoinFrom.links))
                {
                   // The left outer join only applies to the end part of
                   // links. So we'll pull off the earlier part of the chain

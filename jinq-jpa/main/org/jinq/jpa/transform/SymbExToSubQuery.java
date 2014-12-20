@@ -102,7 +102,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
                }
                else if (sig.equals(MethodChecker.streamJoin))
                {
-                  JoinTransform transform = new JoinTransform(config, false, true, true);
+                  JoinTransform transform = new JoinTransform(config);
                   transformedQuery = transform.apply(subQuery, lambda, argHandler); 
                }
                else

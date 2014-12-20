@@ -95,8 +95,7 @@ public class SelectFromWhere<T> extends SelectOnly<T>
          {
             if (!isFirst)
             {
-               if (!(from instanceof From.FromNavigationalLinksLeftOuterJoin)
-                     && !(from instanceof From.FromNavigationalLinks))
+               if (from.isPrecededByComma())
                   queryState.queryString += ", ";
             }
             from.generateFromString(queryState, isFirst);

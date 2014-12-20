@@ -7,7 +7,7 @@ public class ScalaOuterJoinTransform extends OuterJoinTransform
 {
    public ScalaOuterJoinTransform(JPQLQueryTransformConfiguration config)
    {
-      super(config, true);
+      super(config, true, false);
    }
    
    @Override

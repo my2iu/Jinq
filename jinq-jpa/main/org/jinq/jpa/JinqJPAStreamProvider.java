@@ -15,7 +15,6 @@ import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
 import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
-import org.jinq.orm.stream.QueryJinqStream;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
@@ -48,7 +47,7 @@ public class JinqJPAStreamProvider
     * @return a stream of the results of querying the database for all
     *    entities of the given type.
     */
-   public <U> JinqStream<U> streamAll(final EntityManager em, Class<U> entity)
+   public <U> JPAJinqStream<U> streamAll(final EntityManager em, Class<U> entity)
    {
       String entityName = metamodel.entityNameFromClass(entity);
       Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ?
@@ -61,7 +60,7 @@ public class JinqJPAStreamProvider
             cachedQuery = cachedQueries.cacheFindAllEntities(entityName, cachedQuery);
       }
       JPQLQuery<U> query = (JPQLQuery<U>)cachedQuery.get();
-      return new QueryJinqStream<>(JPAQueryComposer.findAllEntities(
+      return new QueryJPAJinqStream<>(JPAQueryComposer.findAllEntities(
                   metamodel, cachedQueries, lambdaAnalyzer, jpqlQueryTransformConfigurationFactory,
                   em, hints, query),
             new InQueryStreamSource() {
