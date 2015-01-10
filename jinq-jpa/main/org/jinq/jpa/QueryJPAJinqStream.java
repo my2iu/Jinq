@@ -42,37 +42,37 @@ class QueryJPAJinqStream<T> extends QueryJinqStream<T> implements JPAJinqStream<
    
    // New JPA-specific API
    @Override
-   public <U> JPAJinqStream<Pair<T, U>> joinFetch(
+   public <U> JPAJinqStream<T> joinFetch(
          org.jinq.orm.stream.JinqStream.Join<T, U> join)
    {
-      QueryComposer<Pair<T, U>> newComposer = jpaComposer.joinFetch(join);
+      QueryComposer<T> newComposer = jpaComposer.joinFetch(join);
       if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
       return new JPAJinqStreamWrapper<>(this).joinFetch(join);
    }
 
    @Override
-   public <U> JPAJinqStream<Pair<T, U>> joinFetchList(
+   public <U> JPAJinqStream<T> joinFetchList(
          org.jinq.orm.stream.JinqStream.JoinToIterable<T, U> join)
    {
-      QueryComposer<Pair<T, U>> newComposer = jpaComposer.joinFetchIterable(join);
+      QueryComposer<T> newComposer = jpaComposer.joinFetchIterable(join);
       if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
       return new JPAJinqStreamWrapper<>(this).joinFetchList(join);
    }
 
    @Override
-   public <U> JPAJinqStream<Pair<T, U>> leftOuterJoinFetch(
+   public <U> JPAJinqStream<T> leftOuterJoinFetch(
          org.jinq.orm.stream.JinqStream.Join<T, U> join)
    {
-      QueryComposer<Pair<T, U>> newComposer = jpaComposer.leftOuterJoinFetch(join);
+      QueryComposer<T> newComposer = jpaComposer.leftOuterJoinFetch(join);
       if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
       return new JPAJinqStreamWrapper<>(this).leftOuterJoinFetch(join);
    }
 
    @Override
-   public <U> JPAJinqStream<Pair<T, U>> leftOuterJoinFetchList(
+   public <U> JPAJinqStream<T> leftOuterJoinFetchList(
          org.jinq.orm.stream.JinqStream.JoinToIterable<T, U> join)
    {
-      QueryComposer<Pair<T, U>> newComposer = jpaComposer.leftOuterJoinFetchIterable(join);
+      QueryComposer<T> newComposer = jpaComposer.leftOuterJoinFetchIterable(join);
       if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
       return new JPAJinqStreamWrapper<>(this).leftOuterJoinFetchList(join);
    }

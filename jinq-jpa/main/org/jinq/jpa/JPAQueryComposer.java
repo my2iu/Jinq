@@ -26,6 +26,7 @@ import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLQueryTransformConfiguration;
 import org.jinq.jpa.transform.JPQLQueryTransformConfigurationFactory;
+import org.jinq.jpa.transform.JoinFetchTransform;
 import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaAnalysis;
 import org.jinq.jpa.transform.LambdaAnalysisFactory;
@@ -444,15 +445,15 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return applyTransformWithLambda(new JoinTransform(getConfig()).setWithSource(false).setJoinAsPairs(true).setIsExpectingStream(false), joinLambda);
    }
 
-   public <U> JPAQueryComposer<Pair<T, U>> joinFetch(
+   public <U> JPAQueryComposer<T> joinFetch(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
-      return applyTransformWithLambda(new JoinTransform(getConfig()).setIsExpectingStream(true).setIsJoinFetch(true), joinLambda);
+      return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsExpectingStream(true).setIsOuterJoinFetch(false), joinLambda);
    }
 
-   public <U> QueryComposer<Pair<T, U>> joinFetchIterable(JoinToIterable<T, U> joinLambda)
+   public <U> QueryComposer<T> joinFetchIterable(JoinToIterable<T, U> joinLambda)
    {
-      return applyTransformWithLambda(new JoinTransform(getConfig()).setIsExpectingStream(false).setIsJoinFetch(true), joinLambda);
+      return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsExpectingStream(false).setIsOuterJoinFetch(false), joinLambda);
    }
 
    @Override
@@ -469,16 +470,16 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return applyTransformWithLambda(new OuterJoinTransform(getConfig()).setIsExpectingStream(false), joinLambda);
    }
 
-   public <U> JPAQueryComposer<Pair<T, U>> leftOuterJoinFetch(
+   public <U> JPAQueryComposer<T> leftOuterJoinFetch(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
-      return applyTransformWithLambda(new OuterJoinTransform(getConfig()).setIsJoinFetch(true), joinLambda);
+      return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsOuterJoinFetch(true), joinLambda);
    }
 
-   public <U> QueryComposer<Pair<T, U>> leftOuterJoinFetchIterable(
+   public <U> QueryComposer<T> leftOuterJoinFetchIterable(
          JoinToIterable<T, U> joinLambda)
    {
-      return applyTransformWithLambda(new OuterJoinTransform(getConfig()).setIsExpectingStream(false).setIsJoinFetch(true), joinLambda);
+      return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsExpectingStream(false).setIsOuterJoinFetch(true), joinLambda);
    }
 
    @Override
