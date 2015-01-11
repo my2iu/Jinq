@@ -18,6 +18,7 @@ import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
+import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
@@ -125,13 +126,18 @@ public class JinqJPATest extends JinqJPATestBase
    @Test
    public void testJoinFetchList()
    {
-      List<Pair<Lineorder, Supplier>> results = streams.streamAll(em, Lineorder.class)
-            .joinFetchList(lo -> lo.getItem().getSuppliers())
-            .where(pair -> pair.getOne().getSale().getCustomer().getName().equals("Alice"))
+      List<Sale> results = streams.streamAll(em, Sale.class)
+            .joinFetchList(s -> s.getLineorders())
+            .where(s -> s.getCustomer().getName().equals("Alice"))
+            .distinct()
             .toList();
-      assertEquals("SELECT A, B FROM Lineorder A JOIN FETCH A.item.suppliers B WHERE A.sale.customer.name = 'Alice'", query);
+      assertEquals("SELECT DISTINCT A FROM Sale A JOIN FETCH A.lineorders B WHERE A.customer.name = 'Alice'", query);
       // The semantics of JOIN FETCH are a little inconsistent
-      // so it's hard to know exactly will be returned.
+      // so it's hard to know exactly will be returned. EclipseLink seems
+      // to treat it like a regular join, so you need to use DISTINCT to prevent
+      // the same result from appearing too many times, but Hibernate will leave 
+      // the join fetched items out of result sets even if you include it there..
+      assertEquals(2, results.size());
    }
 
    @Test
@@ -208,14 +214,18 @@ public class JinqJPATest extends JinqJPATestBase
    @Test
    public void testOuterJoinFetch()
    {
-      List<Item> results = streams.streamAll(em, Item.class)
-            .where(i -> i.getName().equals("Widgets"))
-            .leftOuterJoinFetch(i -> JinqStream.from(i.getSuppliers()))
-            .select(pair -> pair.getOne())
+      List<Sale> results = streams.streamAll(em, Sale.class)
+            .leftOuterJoinFetch(s -> JinqStream.from(s.getLineorders()))
+            .where(s -> s.getCustomer().getName().equals("Alice"))
+            .distinct()
             .toList();
-      assertEquals("SELECT A FROM Item A LEFT OUTER JOIN FETCH A.suppliers B WHERE A.name = 'Widgets'", query);
+      assertEquals("SELECT DISTINCT A FROM Sale A LEFT OUTER JOIN FETCH A.lineorders B WHERE A.customer.name = 'Alice'", query);
       // The semantics of JOIN FETCH are a little inconsistent
-      // so it's hard to know exactly will be returned.
+      // so it's hard to know exactly will be returned. EclipseLink seems
+      // to treat it like a regular join, so you need to use DISTINCT to prevent
+      // the same result from appearing too many times, but Hibernate will leave 
+      // the join fetched items out of result sets even if you include it there..
+      assertEquals(2, results.size());
    }
 
    @Test(expected=IllegalArgumentException.class)
@@ -401,7 +411,8 @@ public class JinqJPATest extends JinqJPATestBase
       // Query q = em.createQuery("SELECT B FROM Customer D, (SELECT DICTINCT A FROM Sale A) B");  // Trying to see how subqueries in a FROM work--it seems like subqueries in FROM are not implemented or barely working
       // Query q = em.createQuery("SELECT A.name FROM Customer A WHERE A.salary < (SELECT B.salary FROM Customer B WHERE B.name = 'Alice') ");  // Checking for JPQL support for subqueries returning a single value
       // Query q = em.createQuery("SELECT A, B FROM Sale A join A.customer B WHERE B.name = 'Alice'");  // Hibernate seems to require you to actually use the "join" keyword when using a plural navigational link instead of letting you use commas.
-      Query q = em.createQuery("SELECT A, B FROM Item A join A.suppliers B WHERE A.name = 'Widgets'");  // Hibernate seems to require you to actually use the "join" keyword when using a plural navigational link instead of letting you use commas.
+      // Query q = em.createQuery("SELECT A, B FROM Item A join A.suppliers B WHERE A.name = 'Widgets'");  // Hibernate seems to require you to actually use the "join" keyword when using a plural navigational link instead of letting you use commas.
+      Query q = em.createQuery("SELECT A, B FROM Item A JOIN FETCH A.suppliers B WHERE A.name = 'Widgets'");  // In a JOIN FETCH, Hibernate doesn't include the "JOINed" supplier in the result set.  
 
       List results = q.getResultList();
 //      for (Object o : results)

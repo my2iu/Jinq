@@ -15,10 +15,9 @@ public interface JPAJinqStream<T> extends JinqStream<T>
    // New JPA-specific API
    
    /**
-    * The items of the stream will be joined with the elements referred to
-    * by a plural association, and those associated elements will be fetched
-    * from the database. The stream itself will still return the same
-    * elements though.
+    * When executing the query, the items referred to be the plural 
+    * association will be fetched as well. The stream itself will 
+    * still return the same elements though.
     * 
     * <pre>
     * {@code JinqStream<Country> stream = ...;
@@ -32,22 +31,22 @@ public interface JPAJinqStream<T> extends JinqStream<T>
     *           element from the stream, the function should return a stream of
     *           values that should be fetched as well 
     */
-   public <U> JPAJinqStream<Pair<T, U>> joinFetch(Join<T, U> join);
+   public <U> JPAJinqStream<T> joinFetch(Join<T, U> join);
    
    /**
     * @see #joinFetch(Join)
     */
-   public <U> JPAJinqStream<Pair<T, U>> joinFetchList(JoinToIterable<T, U> join);
+   public <U> JPAJinqStream<T> joinFetchList(JoinToIterable<T, U> join);
    
    /**
     * @see #joinFetch(Join)
     */
-   public <U> JPAJinqStream<Pair<T, U>> leftOuterJoinFetch(Join<T, U> join);
+   public <U> JPAJinqStream<T> leftOuterJoinFetch(Join<T, U> join);
    
    /**
     * @see #joinFetch(Join)
     */
-   public <U> JPAJinqStream<Pair<T, U>> leftOuterJoinFetchList(JoinToIterable<T, U> join);
+   public <U> JPAJinqStream<T> leftOuterJoinFetchList(JoinToIterable<T, U> join);
 
    
    

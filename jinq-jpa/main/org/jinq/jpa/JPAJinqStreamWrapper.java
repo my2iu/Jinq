@@ -325,31 +325,31 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
    //   JOIN FETCH and LEFT OUTER JOIN FETCH
    
    @Override
-   public <U> JPAJinqStream<Pair<T, U>> joinFetch(
+   public <U> JPAJinqStream<T> joinFetch(
          org.jinq.orm.stream.JinqStream.Join<T, U> join)
    {
-      return join(join);
+      return this;
    }
 
    @Override
-   public <U> JPAJinqStream<Pair<T, U>> joinFetchList(
+   public <U> JPAJinqStream<T> joinFetchList(
          org.jinq.orm.stream.JinqStream.JoinToIterable<T, U> join)
    {
-      return joinList(join);
+      return this;
    }
 
    @Override
-   public <U> JPAJinqStream<Pair<T, U>> leftOuterJoinFetch(
+   public <U> JPAJinqStream<T> leftOuterJoinFetch(
          org.jinq.orm.stream.JinqStream.Join<T, U> join)
    {
-      return leftOuterJoin(join);
+      return this;
    }
 
    @Override
-   public <U> JPAJinqStream<Pair<T, U>> leftOuterJoinFetchList(
+   public <U> JPAJinqStream<T> leftOuterJoinFetchList(
          org.jinq.orm.stream.JinqStream.JoinToIterable<T, U> join)
    {
-      return leftOuterJoinList(join);
+      return this;
    }
 
 

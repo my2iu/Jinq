@@ -5,7 +5,6 @@ import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.FromAliasExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
-import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
