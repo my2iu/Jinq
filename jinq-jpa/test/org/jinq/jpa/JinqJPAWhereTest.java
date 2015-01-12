@@ -2,8 +2,11 @@ package org.jinq.jpa;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Sale;
@@ -118,6 +121,28 @@ public class JinqJPAWhereTest extends JinqJPATestBase
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Bob", results.get(0).getName());
+   }
+   
+   @Test
+   public void testWhereJPQLIn()
+   {
+       List<String> names = Arrays.asList("Bob", "Alice", "Dave");
+       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+	           .where(c -> JPQL.in(c.getName(), names));
+       assertEquals("SELECT A FROM Customer A WHERE A.name IN :param0", customers.getDebugQueryString());
+       List<Customer> results = customers.toList();
+       assertEquals(3, results.size());
+   }
+   
+   @Test
+   public void testWhereContains()
+   {
+       Set<String> names = new HashSet<>(Arrays.asList("Bob", "Alice", "Dave"));
+       JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+	           .where(c -> names.contains(c.getName()));
+       assertEquals("SELECT A FROM Customer A WHERE A.name IN :param0", customers.getDebugQueryString());
+       List<Customer> results = customers.toList();
+       assertEquals(3, results.size());
    }
    
    @Test

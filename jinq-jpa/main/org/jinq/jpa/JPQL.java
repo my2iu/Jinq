@@ -1,5 +1,6 @@
 package org.jinq.jpa;
 
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 /**
@@ -63,5 +64,10 @@ public class JPQL
       }
       regex += Pattern.quote(subpattern);
       return str.matches(regex);
+   }
+   
+   public static boolean in(Object obj, Collection<?> collection) 
+   {
+      return collection.contains(obj);
    }
 }

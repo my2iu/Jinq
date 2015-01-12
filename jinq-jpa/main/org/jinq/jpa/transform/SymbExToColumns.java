@@ -548,6 +548,16 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
                               base.getOnlyColumn())
                         , new ConstantExpression("1")));
          }
+         else if (sig.equals(MethodChecker.collectionContains)
+               ||sig.equals(MethodChecker.setContains)
+               ||sig.equals(MethodChecker.listContains))
+         {
+             SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+             ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
+             ColumnExpressions<?> collection = val.base.visit(this, passdown);
+             return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+                   new BinaryExpression("IN", base.getOnlyColumn(), collection.getOnlyColumn())); 
+         }
          throw new TypedValueVisitorException("Do not know how to translate the method " + sig + " into a JPQL function");
       }
       else if (sig.equals(TransformationClassAnalyzer.stringBuilderToString))
@@ -623,6 +633,14 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             ColumnExpressions<?> pattern = val.args.get(1).visit(this, passdown);
             return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
                   new BinaryExpression("LIKE", base.getOnlyColumn(), pattern.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.jpqlIn))
+         {
+             SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+             ColumnExpressions<?> base = val.args.get(0).visit(this, passdown);
+             ColumnExpressions<?> pattern = val.args.get(1).visit(this, passdown);
+             return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+                   new BinaryExpression("IN", base.getOnlyColumn(), pattern.getOnlyColumn())); 
          }
          else if (sig.equals(MethodChecker.mathAbsDouble)
                || sig.equals(MethodChecker.mathAbsInt)

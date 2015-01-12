@@ -46,6 +46,9 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Calendar"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/math/BigDecimal"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/math/BigInteger"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Collection"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/List"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Set"));
    }
 
    public LambdaParameterArgumentHandler(LambdaAnalysis lambda, MetamodelUtil metamodel, SymbExArgumentHandler parentArgumentScope, boolean hasInQueryStreamSource)
