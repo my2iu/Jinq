@@ -11,6 +11,7 @@ import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.FunctionExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.ParameterAsQuery;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
@@ -623,6 +624,44 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             ColumnExpressions<?> pattern = val.args.get(1).visit(this, passdown);
             return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
                   new BinaryExpression("LIKE", base.getOnlyColumn(), pattern.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.jpqlIsInList)
+               || sig.equals(MethodChecker.jpqlListContains))
+         {
+            TypedValue listVal = (sig.equals(MethodChecker.jpqlIsInList) ? val.args.get(1) : val.args.get(0));
+            TypedValue itemVal = (sig.equals(MethodChecker.jpqlIsInList) ? val.args.get(0) : val.args.get(1));
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            ColumnExpressions<?> item = itemVal.visit(this, passdown);
+
+            // Handle the collection part of isInList as a subquery
+            SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler, false);
+            JPQLQuery<?> subQuery = listVal.visit(translator, passdown);
+
+            if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 
+            {
+               SelectFromWhere<?> sfw = (SelectFromWhere<?>)subQuery;
+               // Check if the subquery is a simple navigational link
+               // (These sorts of subqueries don't really work well at all in JPA, so 
+               // there's no point in over-optimizing it--in fact, the full subquery
+               // works fine in Hibernate, but the optimized version does not)
+//               if (sfw.isSelectFromWhere() && sfw.where == null 
+//                     && sfw.froms.size() == 1 && sfw.froms.get(0) instanceof From.FromNavigationalLinks
+//                     && sfw.cols.getNumColumns() == 1 && sfw.cols.getOnlyColumn() instanceof FromAliasExpression)
+//               {
+//                  return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+//                        new BinaryExpression("IN", item.getOnlyColumn(),
+//                              ((From.FromNavigationalLinks)sfw.froms.get(0)).links)); 
+//               }
+//               else
+                  return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+                        new BinaryExpression("IN", item.getOnlyColumn(), SubqueryExpression.from(sfw))); 
+            }
+            else if (subQuery.isValidSubquery() && subQuery instanceof ParameterAsQuery)
+            {
+               ParameterAsQuery<?> paramQuery = (ParameterAsQuery<?>)subQuery;
+               return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+                     new BinaryExpression("IN", item.getOnlyColumn(), paramQuery.cols.getOnlyColumn())); 
+            }
          }
          else if (sig.equals(MethodChecker.mathAbsDouble)
                || sig.equals(MethodChecker.mathAbsInt)

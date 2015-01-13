@@ -1,5 +1,7 @@
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
+import java.lang.reflect.Method;
+
 import org.objectweb.asm.Type;
 
 public class MethodSignature
@@ -44,5 +46,13 @@ public class MethodSignature
    public @Override String toString()
    {
       return owner + ":" + name + desc;
+   }
+   
+   public static MethodSignature fromMethod(Method m)
+   {
+      return new MethodSignature(
+            Type.getInternalName(m.getDeclaringClass()), 
+            m.getName(),
+            Type.getMethodDescriptor(m));
    }
 }

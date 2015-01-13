@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -300,6 +301,17 @@ public class JinqJPATypesTest extends JinqJPATestBase
    }
 
    @Test
+   public void testEntity()
+   {
+      Item widgets = streams.streamAll(em, Item.class).where(i -> i.getName().equals("Widgets")).getOnlyValue();
+      List<Lineorder> orders = streams.streamAll(em, Lineorder.class)
+            .where(lo -> lo.getItem() == widgets)
+            .toList();
+      assertEquals("SELECT A FROM Lineorder A WHERE A.item = :param0", query);
+      assertEquals(3, orders.size());
+   }
+
+   @Test
    public void testDivide()
    {
       double val = 5.0;
@@ -414,4 +426,32 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .toList();
       assertEquals("SELECT A FROM Supplier A WHERE A.country IS NOT NULL", query);
    }
+   
+   @Test
+   public void testCollection()
+   {
+      ArrayList<String> names = new ArrayList<>();
+      names.add("Alice");
+      names.add("John");
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+         .where(c -> JPQL.isInList(c.getName(), names))
+         .toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.name IN :param0", query);
+      assertEquals(1, customers.size());
+      assertEquals("Alice", customers.get(0).getName());
+   }
+   
+   @Test(expected=javax.persistence.PersistenceException.class)
+   public void testCollectionSubQuery()
+   {
+      // EclipseLink can't seem to handle IN where the elements are entities,
+      // but Hibernate is actually ok with it.
+      Item widgets = streams.streamAll(em, Item.class).where(i -> i.getName().equals("Widgets")).getOnlyValue();
+      List<Supplier> suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> JPQL.listContains(s.getItems(), widgets))
+            .toList();
+      assertEquals("SELECT A FROM Supplier A WHERE :param0 IN (SELECT B FROM A.items B)", query);
+      assertEquals(2, suppliers.size());
+   }
+
 }

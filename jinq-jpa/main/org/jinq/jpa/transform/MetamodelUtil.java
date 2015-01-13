@@ -185,6 +185,11 @@ public class MetamodelUtil
       }
    }
    
+   public <U> boolean isKnownEntityType(String entityClassName)
+   {
+      return entityNameFromClassName(entityClassName) != null;
+   }
+   
    public <U> String entityNameFromClass(Class<U> entity)
    {
       EntityType<U> entityType = metamodel.entity(entity);

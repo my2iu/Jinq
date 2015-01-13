@@ -10,7 +10,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
 public class Annotations
 {
-   private static Class<?> asmTypeToClass(Type t) throws ClassNotFoundException
+   public static Class<?> asmTypeToClass(Type t) throws ClassNotFoundException
    {
       String name = t.getClassName();
       switch (name) 

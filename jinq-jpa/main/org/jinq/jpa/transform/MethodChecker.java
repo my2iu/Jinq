@@ -1,9 +1,12 @@
 package org.jinq.jpa.transform;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.jinq.jpa.JPQL;
 
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
@@ -21,7 +24,9 @@ class MethodChecker implements PathAnalysisMethodChecker
 
    public final static MethodSignature objectEquals = new MethodSignature("java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 
-   public final static MethodSignature jpqlLike = new MethodSignature("org/jinq/jpa/JPQL", "like", "(Ljava/lang/String;Ljava/lang/String;)Z");
+   public final static MethodSignature jpqlLike;
+   public final static MethodSignature jpqlIsInList;
+   public final static MethodSignature jpqlListContains;
    public final static MethodSignature mathSqrt = new MethodSignature("java/lang/Math", "sqrt", "(D)D");
    public final static MethodSignature mathAbsDouble = new MethodSignature("java/lang/Math", "abs", "(D)D");
    public final static MethodSignature mathAbsInt = new MethodSignature("java/lang/Math", "abs", "(I)I");
@@ -35,12 +40,27 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature stringLength = new MethodSignature("java/lang/String", "length", "()I");
    public final static MethodSignature stringSubstring = new MethodSignature("java/lang/String", "substring", "(II)Ljava/lang/String;");
    public final static MethodSignature stringIndexOf = new MethodSignature("java/lang/String", "indexOf", "(Ljava/lang/String;)I");
+   
+   static {
+      try {
+         // I'm initializing some of these method signatures through reflection 
+         // instead of statically so that it's easier to find breakages due to method renaming etc.
+         jpqlLike = MethodSignature.fromMethod(JPQL.class.getMethod("like", String.class, String.class));
+         jpqlIsInList = MethodSignature.fromMethod(JPQL.class.getMethod("isInList", Object.class, Collection.class));
+         jpqlListContains = MethodSignature.fromMethod(JPQL.class.getMethod("listContains", Collection.class, Object.class));
+      } catch (NoSuchMethodException | SecurityException e)
+      {
+         throw new IllegalArgumentException("Cannot initialize MethodChecker because it cannot find a needed method", e);
+      }
+   }
 // TODO: I'm not sure how to cast integers to strings in JPQL   
 //   public final static MethodSignature stringBuilderAppendInt = new MethodSignature("java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;");
    final static Set<MethodSignature> jpqlFunctionMethods = new HashSet<>();
    final static Set<MethodSignature> jpqlFunctionStaticMethods = new HashSet<>();
    static {
       jpqlFunctionStaticMethods.add(jpqlLike);
+      jpqlFunctionStaticMethods.add(jpqlIsInList);
+      jpqlFunctionStaticMethods.add(jpqlListContains);
       jpqlFunctionStaticMethods.add(mathSqrt);
       jpqlFunctionStaticMethods.add(mathAbsDouble);
       jpqlFunctionStaticMethods.add(mathAbsInt);
