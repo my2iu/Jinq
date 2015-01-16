@@ -3,6 +3,8 @@ package org.jinq.jpa;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import org.jinq.orm.stream.JinqStream;
+
 /**
  * Provides Java implementations of certain JPQL functions.
  *
@@ -73,16 +75,32 @@ public class JPQL
     * @param list Collection of different items
     * @return true if the item is in the list
     */
-   public static <U> boolean isInList(U item, Collection<U> list)
+   public static <U> Boolean isInList(U item, Collection<U> list)
    {
-      return list.contains(item);
+      return isIn(item, JinqStream.from(list));
    }
-   
+
+   /**
+    * Variation of the method isInList() that works on JinqStreams
+    * @see #isInList()
+    */
+   public static <U> Boolean isIn(final U item, JinqStream<U> stream)
+   {
+      if (item == null) return null;
+      int max = stream.max(element -> element == null ? 0 : (item.equals(element) ? 1: -1));
+      if (max < 0)
+         return false;
+      else if (max > 0)
+         return true;
+      else
+         return null;
+   }
+
    /**
     * Alternate syntax for the method isInList()
     * @see #isInList()
     */
-   public static <U> boolean listContains(Collection<U> list, U item)
+   public static <U> Boolean listContains(Collection<U> list, U item)
    {
       return isInList(item, list);
    }

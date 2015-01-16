@@ -625,16 +625,20 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
                   new BinaryExpression("LIKE", base.getOnlyColumn(), pattern.getOnlyColumn())); 
          }
-         else if (sig.equals(MethodChecker.jpqlIsInList)
+         else if (sig.equals(MethodChecker.jpqlIsIn) 
+               || sig.equals(MethodChecker.jpqlIsInList)
                || sig.equals(MethodChecker.jpqlListContains))
          {
-            TypedValue listVal = (sig.equals(MethodChecker.jpqlIsInList) ? val.args.get(1) : val.args.get(0));
-            TypedValue itemVal = (sig.equals(MethodChecker.jpqlIsInList) ? val.args.get(0) : val.args.get(1));
+            boolean isItemFirst = (sig.equals(MethodChecker.jpqlIsIn) 
+               || sig.equals(MethodChecker.jpqlIsInList));
+            boolean isExpectingStream = (sig.equals(MethodChecker.jpqlIsIn));
+            TypedValue listVal = (isItemFirst ? val.args.get(1) : val.args.get(0));
+            TypedValue itemVal = (isItemFirst ? val.args.get(0) : val.args.get(1));
             SymbExPassDown passdown = SymbExPassDown.with(val, false);
             ColumnExpressions<?> item = itemVal.visit(this, passdown);
 
             // Handle the collection part of isInList as a subquery
-            SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler, false);
+            SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler, isExpectingStream);
             JPQLQuery<?> subQuery = listVal.visit(translator, passdown);
 
             if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 

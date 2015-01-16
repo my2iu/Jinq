@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
@@ -409,5 +412,34 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT A FROM Customer A WHERE A.debt < (SELECT B.debt FROM Customer B WHERE B.name = 'Alice')", query);
       assertEquals(1, customers.size());
       assertEquals("Eve", customers.get(0).getName());
+   }
+   
+   @Test
+   public void testIsIn()
+   {
+      ArrayList<String> names = new ArrayList<>();
+      names.add("Alice");
+      names.add("John");
+      assertEquals(null, JPQL.isInList(null, names));
+      assertEquals(true, JPQL.isInList("John", names));
+      assertEquals(false, JPQL.isInList("Bob", names));
+      names.add(null);
+      assertEquals(null, JPQL.isInList("Bob", names));
+      assertEquals(true, JPQL.isInList("John", names));
+   }
+   
+   @Test
+   public void testIsInStream()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+            .where(c -> !JPQL.isIn("Widgets", JinqStream.from(c.getSales())
+                  .selectAllList(s -> s.getLineorders())
+                  .select(lo -> lo.getItem().getName())))
+            .sortedBy(c -> c.getName())
+            .toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT 'Widgets' IN (SELECT C.item.name FROM A.sales B JOIN B.lineorders C) ORDER BY A.name ASC", query);
+      assertEquals(2, customers.size());
+      assertEquals("Bob", customers.get(0).getName());
+      assertEquals("Dave", customers.get(1).getName());
    }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jinq.jpa.JPQL;
+import org.jinq.orm.stream.JinqStream;
 
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
@@ -25,6 +26,7 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature objectEquals = new MethodSignature("java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 
    public final static MethodSignature jpqlLike;
+   public final static MethodSignature jpqlIsIn;
    public final static MethodSignature jpqlIsInList;
    public final static MethodSignature jpqlListContains;
    public final static MethodSignature mathSqrt = new MethodSignature("java/lang/Math", "sqrt", "(D)D");
@@ -46,8 +48,13 @@ class MethodChecker implements PathAnalysisMethodChecker
          // I'm initializing some of these method signatures through reflection 
          // instead of statically so that it's easier to find breakages due to method renaming etc.
          jpqlLike = MethodSignature.fromMethod(JPQL.class.getMethod("like", String.class, String.class));
+         jpqlIsIn = MethodSignature.fromMethod(JPQL.class.getMethod("isIn", Object.class, JinqStream.class));
          jpqlIsInList = MethodSignature.fromMethod(JPQL.class.getMethod("isInList", Object.class, Collection.class));
          jpqlListContains = MethodSignature.fromMethod(JPQL.class.getMethod("listContains", Collection.class, Object.class));
+
+         streamSelectAll = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAll", JinqStream.Join.class));
+         streamSelectAllList = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAllList", JinqStream.JoinToIterable.class));
+         streamJoinList = MethodSignature.fromMethod(JinqStream.class.getMethod("joinList", JinqStream.JoinToIterable.class));
       } catch (NoSuchMethodException | SecurityException e)
       {
          throw new IllegalArgumentException("Cannot initialize MethodChecker because it cannot find a needed method", e);
@@ -59,6 +66,7 @@ class MethodChecker implements PathAnalysisMethodChecker
    final static Set<MethodSignature> jpqlFunctionStaticMethods = new HashSet<>();
    static {
       jpqlFunctionStaticMethods.add(jpqlLike);
+      jpqlFunctionStaticMethods.add(jpqlIsIn);
       jpqlFunctionStaticMethods.add(jpqlIsInList);
       jpqlFunctionStaticMethods.add(jpqlListContains);
       jpqlFunctionStaticMethods.add(mathSqrt);
@@ -87,8 +95,11 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/JinqStream", "count", "()J");
    public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/JinqStream", "distinct", "()Lorg/jinq/orm/stream/JinqStream;");
    public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/JinqStream", "select", "(Lorg/jinq/orm/stream/JinqStream$Select;)Lorg/jinq/orm/stream/JinqStream;");
+   public final static MethodSignature streamSelectAll;
+   public final static MethodSignature streamSelectAllList;
    public final static MethodSignature streamWhere = new MethodSignature("org/jinq/orm/stream/JinqStream", "where", "(Lorg/jinq/orm/stream/JinqStream$Where;)Lorg/jinq/orm/stream/JinqStream;");
    public final static MethodSignature streamJoin = new MethodSignature("org/jinq/orm/stream/JinqStream", "join", "(Lorg/jinq/orm/stream/JinqStream$Join;)Lorg/jinq/orm/stream/JinqStream;");
+   public final static MethodSignature streamJoinList;
    public final static MethodSignature streamGetOnlyValue = new MethodSignature("org/jinq/orm/stream/JinqStream", "getOnlyValue", "()Ljava/lang/Object;");
    
    private static final Set<MethodSignature> subqueryMethods = 
@@ -105,8 +116,11 @@ class MethodChecker implements PathAnalysisMethodChecker
       subqueryMethods.add(streamCount);
       subqueryMethods.add(streamDistinct);
       subqueryMethods.add(streamSelect);
+      subqueryMethods.add(streamSelectAll);
+      subqueryMethods.add(streamSelectAllList);
       subqueryMethods.add(streamWhere);
       subqueryMethods.add(streamJoin);
+      subqueryMethods.add(streamJoinList);
       subqueryMethods.add(streamGetOnlyValue);
    }
    

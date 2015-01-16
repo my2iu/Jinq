@@ -47,8 +47,11 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
    {
       return sig.equals(MethodChecker.streamDistinct)
             || sig.equals(MethodChecker.streamSelect)
+            || sig.equals(MethodChecker.streamSelectAll)
+            || sig.equals(MethodChecker.streamSelectAllList)
             || sig.equals(MethodChecker.streamWhere)
-            || sig.equals(MethodChecker.streamJoin);
+            || sig.equals(MethodChecker.streamJoin)
+            || sig.equals(MethodChecker.streamJoinList);
    }
    
    @Override public JPQLQuery<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -95,6 +98,16 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
                   SelectTransform transform = new SelectTransform(config, false);
                   transformedQuery = transform.apply(subQuery, lambda, argHandler); 
                }
+               else if (sig.equals(MethodChecker.streamSelectAll))
+               {
+                  JoinTransform transform = new JoinTransform(config).setJoinAsPairs(false);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
+               else if (sig.equals(MethodChecker.streamSelectAllList))
+               {
+                  JoinTransform transform = new JoinTransform(config).setJoinAsPairs(false).setIsExpectingStream(false);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
                else if (sig.equals(MethodChecker.streamWhere))
                {
                   WhereTransform transform = new WhereTransform(config, false);
@@ -103,6 +116,11 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
                else if (sig.equals(MethodChecker.streamJoin))
                {
                   JoinTransform transform = new JoinTransform(config);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
+               else if (sig.equals(MethodChecker.streamJoinList))
+               {
+                  JoinTransform transform = new JoinTransform(config).setIsExpectingStream(false);
                   transformedQuery = transform.apply(subQuery, lambda, argHandler); 
                }
                else
