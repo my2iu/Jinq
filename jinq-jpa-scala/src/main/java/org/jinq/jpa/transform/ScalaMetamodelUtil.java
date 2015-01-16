@@ -227,7 +227,7 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       return new ScalaMethodChecker(
             getSafeMethodAnnotations(), 
             getSafeMethods(), getSafeStaticMethods(),
-            isObjectEqualsSafe);
+            isObjectEqualsSafe, true);
    }
    
    static boolean isAggregateMethod(MethodSignature sig)

@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -440,7 +441,25 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(1, customers.size());
       assertEquals("Alice", customers.get(0).getName());
    }
-   
+
+   @Test
+   public void testCollectionContains()
+   {
+      // Technically, we can't be sure whether calls to Collection.contains()
+      // has weird side-effects that we can't emulate using a database query,
+      // but people really want to be able to write code like this, and it's
+      // normally safe, so we'll let it go through.
+      HashSet<String> names = new HashSet<>();
+      names.add("Alice");
+      names.add("John");
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+         .where(c -> names.contains(c.getName()))
+         .toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.name IN :param0", query);
+      assertEquals(1, customers.size());
+      assertEquals("Alice", customers.get(0).getName());
+   }
+
    @Test(expected=javax.persistence.PersistenceException.class)
    public void testCollectionSubQuery()
    {

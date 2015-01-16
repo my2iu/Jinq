@@ -17,6 +17,7 @@ public class JPQLQueryTransformConfiguration
     */
    public ClassLoader alternateClassLoader;
    public boolean isObjectEqualsSafe;
+   public boolean isCollectionContainsSafe;
 
    public Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> 
       getComparisonMethods()

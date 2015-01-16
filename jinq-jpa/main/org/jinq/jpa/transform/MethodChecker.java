@@ -22,6 +22,7 @@ class MethodChecker implements PathAnalysisMethodChecker
    private final Set<MethodSignature> safeMethods;
    private final Set<MethodSignature> safeStaticMethods;
    private final boolean isObjectEqualsSafe;
+   private final boolean isCollectionContainsSafe;
 
    public final static MethodSignature objectEquals = new MethodSignature("java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
 
@@ -127,12 +128,14 @@ class MethodChecker implements PathAnalysisMethodChecker
    MethodChecker(Set<Class<?>> safeMethodAnnotations,
          Set<MethodSignature> safeMethods,
          Set<MethodSignature> safeStaticMethods, 
-         boolean isObjectEqualsSafe)
+         boolean isObjectEqualsSafe,
+         boolean isCollectionContainsSafe)
    {
       this.safeMethodAnnotations = safeMethodAnnotations;
       this.safeMethods = safeMethods;
       this.safeStaticMethods = safeStaticMethods;
       this.isObjectEqualsSafe = isObjectEqualsSafe;
+      this.isCollectionContainsSafe = isCollectionContainsSafe;
    }
 
    /* (non-Javadoc)
@@ -155,11 +158,13 @@ class MethodChecker implements PathAnalysisMethodChecker
       if (isObjectEqualsSafe && objectEquals.equals(m))
       {
          return OperationSideEffect.NONE;
-      } else if (safeMethods.contains(m) || subqueryMethods.contains(m)
+      }
+      else if (safeMethods.contains(m) || subqueryMethods.contains(m)
             || jpqlFunctionMethods.contains(m))
       {
          return OperationSideEffect.NONE;
-      } else
+      }
+      else
       {
          // Use reflection to get info about the method (or would it be better
          // to do this through direct bytecode inspection?), and see if it's
@@ -168,6 +173,12 @@ class MethodChecker implements PathAnalysisMethodChecker
          {
             Method reflectedMethod = Annotations
                   .asmMethodSignatureToReflectionMethod(m);
+            // Special handling of Collection.contains() for subclasses of Collection.
+            if (isCollectionContainsSafe 
+                  && "contains".equals(m.name) 
+                  && "(Ljava/lang/Object;)Z".equals(m.desc)
+                  && Collection.class.isAssignableFrom(reflectedMethod.getDeclaringClass()))
+               return OperationSideEffect.NONE; 
             if (Annotations.methodHasSomeAnnotations(reflectedMethod,
                   safeMethodAnnotations))
                return OperationSideEffect.NONE;

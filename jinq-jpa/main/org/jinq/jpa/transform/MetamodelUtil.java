@@ -323,6 +323,6 @@ public class MetamodelUtil
       return new MethodChecker(
             getSafeMethodAnnotations(), 
             getSafeMethods(), getSafeStaticMethods(),
-            isObjectEqualsSafe);
+            isObjectEqualsSafe, true);
    }
 }

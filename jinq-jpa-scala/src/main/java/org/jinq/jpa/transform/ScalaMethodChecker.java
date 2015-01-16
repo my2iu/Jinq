@@ -11,12 +11,12 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter.Operation
 
 public class ScalaMethodChecker extends MethodChecker
 {
-
    ScalaMethodChecker(Set<Class<?>> safeMethodAnnotations,
          Set<MethodSignature> safeMethods,
-         Set<MethodSignature> safeStaticMethods, boolean isObjectEqualsSafe)
+         Set<MethodSignature> safeStaticMethods, 
+         boolean isObjectEqualsSafe, boolean isCollectionContainsSafe)
    {
-      super(safeMethodAnnotations, safeMethods, safeStaticMethods, isObjectEqualsSafe);
+      super(safeMethodAnnotations, safeMethods, safeStaticMethods, isObjectEqualsSafe, isCollectionContainsSafe);
    }
    
    @Override
