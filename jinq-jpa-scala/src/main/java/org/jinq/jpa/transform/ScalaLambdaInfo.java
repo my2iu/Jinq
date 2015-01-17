@@ -20,9 +20,9 @@ public class ScalaLambdaInfo extends LambdaInfo
    }
 
    @Override
-   public LambdaAnalysis fullyAnalyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean throwExceptionOnFailure)
+   public LambdaAnalysis fullyAnalyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
-      return LambdaAnalysis.fullyAnalyzeClassAsLambda(this, new LambdaAnalysis.LambdaAsClassAnalysisConfig(), numLambdaArgs, metamodel, alternateClassLoader, isObjectEqualsSafe, throwExceptionOnFailure);
+      return LambdaAnalysis.fullyAnalyzeClassAsLambda(this, new LambdaAnalysis.LambdaAsClassAnalysisConfig(), numLambdaArgs, metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
    }
 
 }

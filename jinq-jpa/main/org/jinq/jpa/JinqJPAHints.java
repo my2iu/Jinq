@@ -11,6 +11,7 @@ class JinqJPAHints
       dieOnError = oldHints.dieOnError;
       useCaching = oldHints.useCaching;
       isObjectEqualsSafe = oldHints.isObjectEqualsSafe;
+      isCollectionContainsSafe = oldHints.isCollectionContainsSafe;
    }
    
    public int automaticResultsPagingSize = 10000;
@@ -19,6 +20,7 @@ class JinqJPAHints
    public boolean dieOnError = true;
    public boolean useCaching = true;
    public boolean isObjectEqualsSafe = false;
+   public boolean isCollectionContainsSafe = true;
    
    public boolean setHint(String name, Object val)
    {
@@ -34,6 +36,8 @@ class JinqJPAHints
          useCaching = (Boolean)val;
       else if ("isObjectEqualsSafe".equals(name) && val instanceof Boolean)
          isObjectEqualsSafe = (Boolean)val;
+      else if ("isCollectionContainsSafe".equals(name) && val instanceof Boolean)
+         isCollectionContainsSafe = (Boolean)val;
       else
          return false;
       return true;

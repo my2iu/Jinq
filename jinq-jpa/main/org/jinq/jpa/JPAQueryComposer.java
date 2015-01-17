@@ -275,7 +275,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          cachedQuery = Optional.empty();
          JPQLQuery<U> newQuery = null;
          try {
-            LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.dieOnError);
+            LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.isCollectionContainsSafe, hints.dieOnError);
             if (lambdaAnalysis == null) { translationFail(); return null; }
             getConfig().checkLambdaSideEffects(lambdaAnalysis);
             newQuery = transform.apply(query, lambdaAnalysis, null);
@@ -317,7 +317,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
             LambdaAnalysis[] lambdaAnalyses = new LambdaAnalysis[lambdaInfos.length];
             for (int n = 0; n < lambdaInfos.length; n++)
             {
-               lambdaAnalyses[n] = lambdaInfos[n].fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.dieOnError);
+               lambdaAnalyses[n] = lambdaInfos[n].fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.isCollectionContainsSafe, hints.dieOnError);
                if (lambdaAnalyses[n] == null) { translationFail(); return null; }
                getConfig().checkLambdaSideEffects(lambdaAnalyses[n]);
             }
@@ -353,6 +353,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          transformationConfig.metamodel = metamodel;
          transformationConfig.alternateClassLoader = hints.lambdaClassLoader;
          transformationConfig.isObjectEqualsSafe = hints.isObjectEqualsSafe;
+         transformationConfig.isCollectionContainsSafe = hints.isCollectionContainsSafe;
       }
       return transformationConfig;
    }

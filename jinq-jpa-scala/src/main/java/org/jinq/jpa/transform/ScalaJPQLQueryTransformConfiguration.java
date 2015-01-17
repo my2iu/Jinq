@@ -73,7 +73,7 @@ public class ScalaJPQLQueryTransformConfiguration extends
          TransformationClassAnalyzer classAnalyzer = 
                new TransformationClassAnalyzer(sig.owner, alternateClassLoader);
          PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-               metamodel.getMethodChecker(isObjectEqualsSafe));
+               metamodel.getMethodChecker(isObjectEqualsSafe, isCollectionContainsSafe));
          MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(sig.name, sig.desc, pathAnalysisFactory);
          if (analysis == null) throw new QueryTransformException("Symbolic execution of constructor failed");
          if (analysis.paths.size() != 1) throw new QueryTransformException("Symbolic execution of constructor failed");
@@ -114,7 +114,7 @@ public class ScalaJPQLQueryTransformConfiguration extends
                   TransformationClassAnalyzer classAnalyzer = 
                         new TransformationClassAnalyzer(call.m.owner, alternateClassLoader);
                   PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-                        metamodel.getMethodChecker(isObjectEqualsSafe));
+                        metamodel.getMethodChecker(isObjectEqualsSafe, isCollectionContainsSafe));
                   MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(call.m.name, call.m.desc, pathAnalysisFactory);
                   analyzeConstructor(analysis);
                   continue;
