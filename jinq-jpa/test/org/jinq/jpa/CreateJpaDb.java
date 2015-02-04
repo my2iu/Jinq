@@ -96,6 +96,7 @@ public class CreateJpaDb
       s.setRevenue(revenue);
       s.setHasFreeShipping(hasFreeShipping);
       s.setSignature(name.getBytes(Charset.forName("UTF-8")));
+      s.setSignatureExpiry(Date.from(Instant.now()));
       return s;
    }
    

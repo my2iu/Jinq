@@ -84,7 +84,10 @@ public class JinqJPAStreamProvider
     * The Hibernate metamodel seems to hold incorrect information about
     * composite keys or entities that use other entities as keys or something.
     * This method provides a way for programmers to specify correct 
-    * information for those types of mappings.
+    * information for those types of mappings. Note: this method does not handle
+    * inherited methods properly (the method will always be attached to class that
+    * the method was declared in). Use the alternate form of this method if you  
+    * want to register a method declared in a superclass. 
     * @param m entity method that Jinq should rewrite into a field access for queries
     * @param fieldName name of the field that Jinq should use in queries when it encounters the method call
     * @param isPlural whether the method returns a single entity or a collection of them
@@ -95,6 +98,26 @@ public class JinqJPAStreamProvider
       metamodel.insertAssociationAttribute(
             new MethodSignature(
                   org.objectweb.asm.Type.getInternalName(m.getDeclaringClass()),
+                  m.getName(),
+                  org.objectweb.asm.Type.getMethodDescriptor(m)),
+            attrib, isPlural);
+   }
+   
+   /**
+    * This is an alternate version of registerAssociationAttribute() that
+    * allows you to manually register a method of a class that is declared in 
+    * a superclass.
+    * @param m entity method that Jinq should rewrite into a field access for queries
+    * @param methodClass the class that the method will be called against
+    * @param fieldName name of the field that Jinq should use in queries when it encounters the method call
+    * @param isPlural whether the method returns a single entity or a collection of them
+    */
+   public void registerAssociationAttribute(Method m, Class<?> methodClass, String fieldName, boolean isPlural)
+   {
+      MetamodelUtilAttribute attrib = new MetamodelUtilAttribute(fieldName, true);
+      metamodel.insertAssociationAttribute(
+            new MethodSignature(
+                  org.objectweb.asm.Type.getInternalName(methodClass),
                   m.getName(),
                   org.objectweb.asm.Type.getMethodDescriptor(m)),
             attrib, isPlural);

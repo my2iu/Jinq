@@ -473,4 +473,20 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(2, suppliers.size());
    }
 
+   @Test
+   public void testInheritedDate()
+   {
+      // EclipseLink has a weird behaviour where the Criteria API reports that
+      // the type of SignatureSupplier.getSignatureExpiry() contains a java.sql.Timestamp
+      // and not a java.util.Date. BUT, the Java member does list the correct type
+      // and the member is shown existing in subclasses too with the correct type
+      // (but Jinq ignores the versions in the subclasses because the member is
+      // attached to the parent).
+      List <Date> suppliers = streams.streamAll(em, Supplier.class)
+            .select(s -> s.getSignatureExpiry())
+            .toList();
+      assertEquals("SELECT A.signatureExpiry FROM Supplier A", query);
+      assertEquals(3, suppliers.size());
+   }
+
 }

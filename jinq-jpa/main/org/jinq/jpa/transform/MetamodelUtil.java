@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -132,17 +133,47 @@ public class MetamodelUtil
             comparisonMethods.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);
             safeMethods.add(eqMethod);
          }
-         String returnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(fieldJavaType)); 
+         String returnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(fieldJavaType));
+         // EclipseLink sometimes lists a different Java type in the attribute than 
+         // what's used in the actual method (e.g. a Timestamp instead of a Date because
+         // I guess that's what is being used internally). In those cases, we'll 
+         // record both versions.
+         String alternateReturnType = null;
+         if (javaMember instanceof Field)
+         {
+            alternateReturnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(((Field)javaMember).getType()));
+            if (returnType.equals(alternateReturnType)) alternateReturnType = null;
+         } 
+         else if (javaMember instanceof Method)
+         {
+            alternateReturnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(((Method)javaMember).getReturnType()));
+            if (returnType.equals(alternateReturnType)) alternateReturnType = null;
+         }
+         // Register the method to field mapping
          MethodSignature methodSig = new MethodSignature(
                org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
                name,
                returnType);
          fieldMethods.put(methodSig, new MetamodelUtilAttribute(singularAttrib));
-         // The method is also callable from its subclasses
+         if (alternateReturnType != null)
+         {
+            MethodSignature alternateMethodSig = new MethodSignature(
+                  org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
+                  name,
+                  alternateReturnType);
+            fieldMethods.put(alternateMethodSig, new MetamodelUtilAttribute(singularAttrib));
+         }
+         // The method is also callable from its subclasses, so register the method
+         // in its subclasses as well.
          for (String className: subclassNames)
          {
             MethodSignature sig = new MethodSignature(className, name, returnType);
             fieldMethods.put(sig, new MetamodelUtilAttribute(singularAttrib));
+            if (alternateReturnType != null)
+            {
+               MethodSignature alternateSig = new MethodSignature(className, name, alternateReturnType);
+               fieldMethods.put(alternateSig, new MetamodelUtilAttribute(singularAttrib));
+            }
          }
       }
       for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
