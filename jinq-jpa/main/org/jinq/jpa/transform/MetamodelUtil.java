@@ -112,6 +112,24 @@ public class MetamodelUtil
       safeMethods.add(sig);
    }
    
+   private void insertFieldMethod(String className, String methodName, String returnType, MetamodelUtilAttribute fieldAttribute)
+   {
+      MethodSignature methodSig = new MethodSignature(
+            className,
+            methodName, 
+            returnType);
+      fieldMethods.put(methodSig, fieldAttribute);
+   }
+   
+   private void insertNLinkMethod(String className, String methodName, String returnType, MetamodelUtilAttribute pluralAttribute)
+   {
+      MethodSignature methodSig = new MethodSignature(
+            className,
+            methodName, 
+            returnType);
+      nLinkMethods.put(methodSig, pluralAttribute);
+   }
+   
    private void findMetamodelEntityGetters(IdentifiableType<?> entity, Collection<String> subclassNames)
    {
       for (SingularAttribute<?,?> singularAttrib: entity.getDeclaredSingularAttributes())
@@ -149,31 +167,28 @@ public class MetamodelUtil
             alternateReturnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(((Method)javaMember).getReturnType()));
             if (returnType.equals(alternateReturnType)) alternateReturnType = null;
          }
+         // EclipseLink lists the fields of superclasses in their subclasses, so
+         // we can register those immediately without having to recurse into the
+         // superclass
+         String declaredClassName = org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass());
+         String entityClassName = org.objectweb.asm.Type.getInternalName(entity.getJavaType());
+         if (entityClassName.equals(declaredClassName)) entityClassName = null;
          // Register the method to field mapping
-         MethodSignature methodSig = new MethodSignature(
-               org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
-               name,
-               returnType);
-         fieldMethods.put(methodSig, new MetamodelUtilAttribute(singularAttrib));
+         MetamodelUtilAttribute fieldAttribute = new MetamodelUtilAttribute(singularAttrib);
+         insertFieldMethod(declaredClassName, name, returnType, fieldAttribute);
+         if (entityClassName != null)
+            insertFieldMethod(entityClassName, name, returnType, fieldAttribute);
          if (alternateReturnType != null)
-         {
-            MethodSignature alternateMethodSig = new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
-                  name,
-                  alternateReturnType);
-            fieldMethods.put(alternateMethodSig, new MetamodelUtilAttribute(singularAttrib));
-         }
+            insertFieldMethod(declaredClassName, name, alternateReturnType, fieldAttribute);
+         if (alternateReturnType != null && entityClassName != null)
+            insertFieldMethod(entityClassName, name, alternateReturnType, fieldAttribute);
          // The method is also callable from its subclasses, so register the method
          // in its subclasses as well.
          for (String className: subclassNames)
          {
-            MethodSignature sig = new MethodSignature(className, name, returnType);
-            fieldMethods.put(sig, new MetamodelUtilAttribute(singularAttrib));
+            insertFieldMethod(className, name, returnType, fieldAttribute);
             if (alternateReturnType != null)
-            {
-               MethodSignature alternateSig = new MethodSignature(className, name, alternateReturnType);
-               fieldMethods.put(alternateSig, new MetamodelUtilAttribute(singularAttrib));
-            }
+               insertFieldMethod(className, name, alternateReturnType, fieldAttribute);
          }
       }
       for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
@@ -186,16 +201,21 @@ public class MetamodelUtil
             name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
          }
          String returnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(pluralAttrib.getJavaType())); 
-         MethodSignature methodSig = new MethodSignature(
-               org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass()),
-               name,
-               returnType);
-         nLinkMethods.put(methodSig, new MetamodelUtilAttribute(pluralAttrib));
+         // EclipseLink lists the fields of superclasses in their subclasses, so
+         // we can register those immediately without having to recurse into the
+         // superclass
+         String declaredClassName = org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass());
+         String entityClassName = org.objectweb.asm.Type.getInternalName(entity.getJavaType());
+         if (entityClassName.equals(declaredClassName)) entityClassName = null;
+         // Register the method and variants
+         MetamodelUtilAttribute nLinkAttrib = new MetamodelUtilAttribute(pluralAttrib);
+         insertNLinkMethod(declaredClassName, name, returnType, nLinkAttrib);
+         if (entityClassName != null)
+            insertNLinkMethod(entityClassName, name, returnType, nLinkAttrib);
          // The method is also callable from its subclasses
          for (String className: subclassNames)
          {
-            MethodSignature sig = new MethodSignature(className, name, returnType);
-            nLinkMethods.put(sig, new MetamodelUtilAttribute(pluralAttrib));
+            insertNLinkMethod(className, name, returnType, nLinkAttrib);
          }
       }
       if (entity.getSupertype() != null)
