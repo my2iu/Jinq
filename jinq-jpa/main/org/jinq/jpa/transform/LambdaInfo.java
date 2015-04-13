@@ -28,13 +28,13 @@ public class LambdaInfo
       SerializedLambda s;
       try {
          s = SerializedLambda.extractLambda(lambda);
-         if (s == null) 
-         {
-            if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda. This error sometimes occurs because your lambda references objects that aren't Serializable.");
-            return null;
-         }
       } catch (Exception e)
       { 
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda. This error sometimes occurs because your lambda references objects that aren't Serializable.", e);
+         return null;
+      }
+      if (s == null) 
+      {
          if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not extract code from lambda. This error sometimes occurs because your lambda references objects that aren't Serializable.");
          return null;
       }
