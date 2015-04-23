@@ -39,7 +39,8 @@ public class Sale implements Serializable {
    private Date date;
    @Temporal(TemporalType.DATE)
    private Calendar calendar;
-   long creditCard;
+   @Embedded
+   private CreditCard creditCard;
 
    public Sale() {
    }
@@ -92,15 +93,15 @@ public class Sale implements Serializable {
    public void setSqlTimestamp(java.sql.Timestamp timestamp) {
       this.sqlTimestamp = timestamp;
    }
-   
-   public long getCreditCard() {
-      return this.creditCard;
+
+   public CreditCard getCreditCard() 
+   {
+      return creditCard;
    }
    
-   public void setCreditCard(long creditCard) {
+   public void setCreditCard(CreditCard creditCard) {
       this.creditCard = creditCard;
    }
-
 
    public List<Lineorder> getLineorders() {
       return this.lineorders;

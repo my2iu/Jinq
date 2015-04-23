@@ -12,6 +12,7 @@ import java.util.Date;
 
 import javax.persistence.EntityManager;
 
+import org.jinq.jpa.test.entities.CreditCard;
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.ItemType;
@@ -57,6 +58,11 @@ public class CreateJpaDb
       java.sql.Time sqlTime = new java.sql.Time(hour, 0, 0);
       java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(year, month, day, hour, 0, 0, 0);
       
+      CreditCard creditCard = new CreditCard();
+      creditCard.setName(customer.getName());
+      creditCard.setNumber(123456);
+      creditCard.setCvv(123);
+      
       Sale s = new Sale();
       s.setDate(date);
       s.setCalendar(cal);
@@ -64,6 +70,7 @@ public class CreateJpaDb
       s.setSqlTime(sqlTime);
       s.setSqlTimestamp(sqlTimestamp);
       s.setCustomer(customer);
+      s.setCreditCard(creditCard);
       return s;
    }
 

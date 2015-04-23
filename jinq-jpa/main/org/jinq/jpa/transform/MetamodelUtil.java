@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.IdentifiableType;
+import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
@@ -37,7 +39,14 @@ public class MetamodelUtil
    private final Set<MethodSignature> safeStaticMethods;
    final Map<String, List<Enum<?>>> enums;
    public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
-   public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals; 
+   public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals;
+   
+   /**
+    * The classes that have been analyzed or are in the process of being analyzed to
+    * extract getter method information (this is here to prevent infinite loops in case there
+    * are cycles in the entities being analyzed--I'm not sure that's actually possible though)
+    */
+   private Set<String> scannedClasses = new HashSet<>();
    
    public static final MethodSignature inQueryStream = new MethodSignature("org/jinq/orm/stream/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/JinqStream;");
    
@@ -129,8 +138,16 @@ public class MetamodelUtil
             returnType);
       nLinkMethods.put(methodSig, pluralAttribute);
    }
+
+   private void findMetamodelEntityGetters(ManagedType<?> entity)
+   {
+      if (scannedClasses.contains(entity.getJavaType().getName()))
+         return;
+      scannedClasses.add(entity.getJavaType().getName());
+      findMetamodelEntityGetters(entity, new ArrayList<>());
+   }
    
-   private void findMetamodelEntityGetters(IdentifiableType<?> entity, Collection<String> subclassNames)
+   private void findMetamodelEntityGetters(ManagedType<?> entity, Collection<String> subclassNames)
    {
       for (SingularAttribute<?,?> singularAttrib: entity.getDeclaredSingularAttributes())
       {
@@ -190,6 +207,12 @@ public class MetamodelUtil
             if (alternateReturnType != null)
                insertFieldMethod(className, name, alternateReturnType, fieldAttribute);
          }
+         // The attribute might be an embedded type, in which case, we need to scan the 
+         // embedded type for getters as well since it won't show up as an entity.
+         if (singularAttrib.getType() instanceof EmbeddableType)
+         {
+            findMetamodelEntityGetters((EmbeddableType)singularAttrib.getType());
+         }
       }
       for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
       {
@@ -218,13 +241,17 @@ public class MetamodelUtil
             insertNLinkMethod(className, name, returnType, nLinkAttrib);
          }
       }
-      if (entity.getSupertype() != null)
+      if (entity instanceof IdentifiableType)
       {
-         IdentifiableType<?> jpaObject = entity.getSupertype();
-         String className = org.objectweb.asm.Type.getInternalName(entity.getJavaType());
-         List<String> newSubclasses = new ArrayList<>();
-         newSubclasses.add(className);
-         findMetamodelEntityGetters(jpaObject, newSubclasses);
+         IdentifiableType idEntity = (IdentifiableType)entity; 
+         if (idEntity.getSupertype() != null)
+         {
+            IdentifiableType<?> jpaObject = idEntity.getSupertype();
+            String className = org.objectweb.asm.Type.getInternalName(entity.getJavaType());
+            List<String> newSubclasses = new ArrayList<>();
+            newSubclasses.add(className);
+            findMetamodelEntityGetters(jpaObject, newSubclasses);
+         }
       }
    }
    
@@ -232,7 +259,7 @@ public class MetamodelUtil
    {
       for (EntityType<?> entity: metamodel.getEntities())
       {
-         findMetamodelEntityGetters(entity, new ArrayList<>());
+         findMetamodelEntityGetters(entity);
       }
    }
    

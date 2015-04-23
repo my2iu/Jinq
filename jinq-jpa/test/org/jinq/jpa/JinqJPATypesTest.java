@@ -489,4 +489,14 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(3, suppliers.size());
    }
 
+   @Test
+   public void testEmbedded()
+   {
+      List<Sale> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getCreditCard().getName().equals("Alice"))
+            .toList();
+      assertEquals("SELECT A FROM Sale A WHERE A.creditCard.name = 'Alice'", query);
+      assertEquals(2, sales.size());
+      assertEquals("Alice", sales.get(0).getCreditCard().getName());
+   }
 }

@@ -355,7 +355,7 @@ public class JinqJPATest extends JinqJPATestBase
       // It looks like int -> long -> BigInteger -> BigDecimal -> double
       Object obj;
 
-      obj = em.createQuery("SELECT A.quantity + A.sale.creditCard FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      obj = em.createQuery("SELECT A.quantity + A.sale.creditCard.number FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
       assertTrue(obj instanceof Long);  // int + long = long
       obj = em.createQuery("SELECT A.quantity + A.item.saleprice FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
       assertTrue(obj instanceof Double);  // int + double = double
@@ -366,13 +366,13 @@ public class JinqJPATest extends JinqJPATestBase
       obj = em.createQuery("SELECT A.quantity + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
       assertTrue(obj instanceof Double);  // int + decimal constant = Double
 
-      obj = em.createQuery("SELECT A.sale.creditCard + A.item.saleprice FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      obj = em.createQuery("SELECT A.sale.creditCard.number + A.item.saleprice FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
       assertTrue(obj instanceof Double);  // long + double = double
-      obj = em.createQuery("SELECT A.sale.creditCard + A.transactionConfirmation FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      obj = em.createQuery("SELECT A.sale.creditCard.number + A.transactionConfirmation FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
       assertTrue(obj instanceof BigInteger);  // long + BigInteger = BigInteger
-      obj = em.createQuery("SELECT A.sale.creditCard + A.total FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      obj = em.createQuery("SELECT A.sale.creditCard.number + A.total FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
       assertTrue(obj instanceof BigDecimal);  // long + BigDecimal = BigDecimal
-      obj = em.createQuery("SELECT A.sale.creditCard + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
+      obj = em.createQuery("SELECT A.sale.creditCard.number + 1.0 FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
       assertTrue(obj instanceof Double);  // long + decimal constant = Double
 
       obj = em.createQuery("SELECT A.item.saleprice + A.transactionConfirmation FROM Lineorder A WHERE A.item.name='Talent'").getSingleResult();
