@@ -1,9 +1,11 @@
 package org.jinq.jpa.test.entities;
 
+import java.io.Serializable;
+
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class CreditCard
+public class CreditCard implements Serializable
 {
    long number;
    int cvv;

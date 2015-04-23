@@ -38,6 +38,7 @@ public class MetamodelUtil
    private final Set<MethodSignature> safeMethods;
    private final Set<MethodSignature> safeStaticMethods;
    final Map<String, List<Enum<?>>> enums;
+   private final Set<String> knownEmbeddedtypes = new HashSet<>();
    public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
    public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals;
    
@@ -211,7 +212,9 @@ public class MetamodelUtil
          // embedded type for getters as well since it won't show up as an entity.
          if (singularAttrib.getType() instanceof EmbeddableType)
          {
-            findMetamodelEntityGetters((EmbeddableType)singularAttrib.getType());
+            EmbeddableType embed = (EmbeddableType)singularAttrib.getType();
+            knownEmbeddedtypes.add(embed.getJavaType().getName());
+            findMetamodelEntityGetters(embed);
          }
       }
       for (PluralAttribute<?,?,?> pluralAttrib: entity.getDeclaredPluralAttributes())
@@ -263,9 +266,10 @@ public class MetamodelUtil
       }
    }
    
-   public <U> boolean isKnownEntityType(String entityClassName)
+   public <U> boolean isKnownManagedType(String entityClassName)
    {
-      return entityNameFromClassName(entityClassName) != null;
+      return entityNameFromClassName(entityClassName) != null 
+            || knownEmbeddedtypes.contains(entityClassName);
    }
    
    public <U> String entityNameFromClass(Class<U> entity)

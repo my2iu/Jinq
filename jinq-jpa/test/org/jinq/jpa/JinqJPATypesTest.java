@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jinq.jpa.test.entities.CreditCard;
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.ItemType;
@@ -498,5 +499,18 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("SELECT A FROM Sale A WHERE A.creditCard.name = 'Alice'", query);
       assertEquals(2, sales.size());
       assertEquals("Alice", sales.get(0).getCreditCard().getName());
+      
+      // Use an embedded type as a query parameter
+      CreditCard card = new CreditCard();
+      card.setName("Dave");
+      card.setNumber(123456);
+      card.setCvv(123);
+      sales = streams.streamAll(em, Sale.class)
+            .setHint("isObjectEqualsSafe", true)  // compiler translated .equals() to Object.equals() here for some reason
+            .where(s -> s.getCreditCard().equals(card))
+            .toList();
+      assertEquals("SELECT A FROM Sale A WHERE A.creditCard = :param0", query);
+      assertEquals(1, sales.size());
+      assertEquals("Dave", sales.get(0).getCreditCard().getName());
    }
 }
