@@ -107,8 +107,8 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    public final static MethodSignature streamSumInt = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumInteger", "(Lscala/Function1;)Ljava/lang/Long;");
    public final static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumDouble", "(Lscala/Function1;)Ljava/lang/Double;");
    public final static MethodSignature streamSumLong = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumLong", "(Lscala/Function1;)Ljava/lang/Long;");
-   public final static MethodSignature streamSumBigDecimal = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumBigDecimal", "(Lscala/Function1;)Ljava/lang/BigDecimal;");
-   public final static MethodSignature streamSumBigInteger = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumBigInteger", "(Lscala/Function1;)Ljava/lang/BigInteger;");
+   public final static MethodSignature streamSumBigDecimal = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumBigDecimal", "(Lscala/Function1;)Ljava/math/BigDecimal;");
+   public final static MethodSignature streamSumBigInteger = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "sumBigInteger", "(Lscala/Function1;)Ljava/math/BigInteger;");
    public final static MethodSignature streamMax = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "max", "(Lscala/Function1;Lscala/Function1;)Ljava/lang/Object;");
    public final static MethodSignature streamMin = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "min", "(Lscala/Function1;Lscala/Function1;)Ljava/lang/Object;");
    public final static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "avg", "(Lscala/Function1;Lscala/math/Numeric;)Ljava/lang/Double;");

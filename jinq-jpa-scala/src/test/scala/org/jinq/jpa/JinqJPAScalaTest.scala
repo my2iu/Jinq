@@ -404,6 +404,13 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
           stream => stream.min(c => c.getSalary()),
           stream => stream.max(c => c.getSalary())));
     Assert.assertEquals("SELECT COUNT(A), MIN(A.salary), MAX(A.salary) FROM Customer A", query);
+    
+    Assert.assertEquals((new BigDecimal(2467), BigInteger.valueOf(66000)),
+      streamAll(em, classOf[Lineorder])
+        .aggregate(stream => stream.sumBigDecimal(lo => lo.getTotal()),
+          stream => stream.sumBigInteger(lo => lo.getTransactionConfirmation())));
+    Assert.assertEquals("SELECT SUM(A.total), SUM(A.transactionConfirmation) FROM Lineorder A", query);
+
   }
 
   @Test
