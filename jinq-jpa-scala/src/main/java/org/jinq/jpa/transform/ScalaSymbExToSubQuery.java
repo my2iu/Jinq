@@ -13,15 +13,19 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 public class ScalaSymbExToSubQuery extends SymbExToSubQuery
 {
    ScalaSymbExToSubQuery(JPQLQueryTransformConfiguration config,
-         SymbExArgumentHandler argumentHandler)
+         SymbExArgumentHandler argumentHandler, boolean isExpectingStream)
    {
-      super(config, argumentHandler, true);
+      super(config, argumentHandler, isExpectingStream);
    }
 
 
    @Override public JPQLQuery<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
    {
       MethodSignature sig = val.getSignature();
+      if (!isExpectingStream)
+      {
+         return super.virtualMethodCallValue(val, in);
+      }
       if (ScalaMetamodelUtil.INQUERYSTREAMSOURCE_STREAM.equals(sig))
       {
          return handleInQueryStreamSource(val.base, val.args.get(0));
@@ -94,6 +98,11 @@ public class ScalaSymbExToSubQuery extends SymbExToSubQuery
             else if (sig.equals(ScalaMetamodelUtil.streamJoin))
             {
                JoinTransform transform = new ScalaJoinTransform(config, false, true);
+               transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+            }
+            else if (sig.equals(ScalaMetamodelUtil.streamSelectAll))
+            {
+               JoinTransform transform = new ScalaJoinTransform(config).setJoinAsPairs(false);
                transformedQuery = transform.apply(subQuery, lambda, argHandler); 
             }
             else

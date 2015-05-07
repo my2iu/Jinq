@@ -10,6 +10,11 @@ public class ScalaJoinTransform extends JoinTransform
       super(config, withSource, joinAsPairs, true, false);
    }
    
+   public ScalaJoinTransform(JPQLQueryTransformConfiguration config)
+   {
+      this(config, false, true);
+   }
+
    @Override
    protected <U> RowReader<U> createPairReader(RowReader<?> a, RowReader<?> b)
    {

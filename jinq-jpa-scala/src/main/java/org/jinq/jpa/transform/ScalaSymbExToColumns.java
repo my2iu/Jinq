@@ -187,6 +187,15 @@ public class ScalaSymbExToColumns extends SymbExToColumns
 
          throw new TypedValueVisitorException("Cannot apply getOnlyValue() to the given subquery");
       }
+      else if (sig.equals(ScalaMetamodelUtil.streamContains))
+      {
+//         boolean isItemFirst = (sig.equals(MethodChecker.jpqlIsIn) 
+//               || sig.equals(MethodChecker.jpqlIsInList));
+//            boolean isExpectingStream = (sig.equals(MethodChecker.jpqlIsIn));
+//            TypedValue listVal = (isItemFirst ? val.args.get(1) : val.args.get(0));
+//            TypedValue itemVal = (isItemFirst ? val.args.get(0) : val.args.get(1));
+         return handleIsIn(val, val.base, val.args.get(0), true);
+      }
       else if (sig.equals(ScalaMetamodelUtil.STRINGBUILDER_STRING))
       {
          List<ColumnExpressions<?>> concatenatedStrings = new ArrayList<>();

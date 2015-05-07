@@ -683,7 +683,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          return super.staticMethodCallValue(val, in);
    }
 
-   private ColumnExpressions<?> handleIsIn(TypedValue parent,
+   protected ColumnExpressions<?> handleIsIn(TypedValue parent,
          TypedValue listVal, TypedValue itemVal, boolean isExpectingStream)
          throws TypedValueVisitorException
    {

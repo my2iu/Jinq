@@ -253,7 +253,9 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
          // motion will be used to push those field accesses or method calls
          // outside the query where they will be evaluated and then passed in
          // as a parameter)
-         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) && !metamodel.isKnownEnumType(argType.getInternalName()))
+         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) 
+               && !metamodel.isKnownEnumType(argType.getInternalName())
+               && !metamodel.isKnownManagedType(argType.getClassName()))
             throw new TypedValueVisitorException("Accessing a field with unhandled type");
 
          return ColumnExpressions.singleColumn(new SimpleRowReader<>(),

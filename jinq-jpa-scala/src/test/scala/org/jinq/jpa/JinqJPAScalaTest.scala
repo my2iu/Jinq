@@ -58,6 +58,22 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     countries = countries.sortBy(c => c);
     Assert.assertEquals("Canada", countries(0));
   }
+  
+  @Test
+  def testJoinFetchList() {
+    val results = streamAll(em, classOf[Sale])
+      .joinFetch(_.getLineorders())
+      .where(_.getCustomer().getName().equals("Alice"))
+      .distinct
+      .toList;
+    Assert.assertEquals("SELECT DISTINCT A FROM Sale A JOIN FETCH A.lineorders B WHERE A.customer.name = 'Alice'", query);
+    // The semantics of JOIN FETCH are a little inconsistent
+    // so it's hard to know exactly will be returned. EclipseLink seems
+    // to treat it like a regular join, so you need to use DISTINCT to prevent
+    // the same result from appearing too many times, but Hibernate will leave 
+    // the join fetched items out of result sets even if you include it there..
+    Assert.assertEquals(2, results.length);
+  }
 
   @Test
   def testJoinEntity() {
@@ -175,6 +191,23 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("SELECT A, B FROM Lineorder A LEFT OUTER JOIN A.item B WHERE B.name IS NOT NULL AND B.name = 'Talent' OR B.name IS NULL AND 'Talent' IS NULL", query);
     results = results.sortBy(c1 => c1._2.getName());
     Assert.assertEquals(1, results.length);
+  }
+
+  @Test
+  def testOuterJoinFetch()
+  {
+    val results = streamAll(em, classOf[Sale])
+      .leftOuterJoinFetch(_.getLineorders())
+      .where(_.getCustomer().getName().equals("Alice"))
+      .distinct
+      .toList;
+     Assert.assertEquals("SELECT DISTINCT A FROM Sale A LEFT OUTER JOIN FETCH A.lineorders B WHERE A.customer.name = 'Alice'", query);
+     // The semantics of JOIN FETCH are a little inconsistent
+     // so it's hard to know exactly will be returned. EclipseLink seems
+     // to treat it like a regular join, so you need to use DISTINCT to prevent
+     // the same result from appearing too many times, but Hibernate will leave 
+     // the join fetched items out of result sets even if you include it there..
+     Assert.assertEquals(2, results.length);
   }
 
   //   @Test(expected=IllegalArgumentException.class)
@@ -656,6 +689,29 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("Eve", customers(0).getName());
   }
 
+  @Test
+  def testIsInStream() {
+    val customers = streamAll(em, classOf[Customer])
+      .where(!_.getSales.selectAll(_.getLineorders).select(_.getItem.getName).contains("Widgets"))
+      .sortedBy(_.getName)
+      .toList;
+    Assert.assertEquals("SELECT A FROM Customer A WHERE NOT 'Widgets' IN (SELECT C.item.name FROM A.sales B JOIN B.lineorders C) ORDER BY A.name ASC", query);
+    Assert.assertEquals(2, customers.length);
+    Assert.assertEquals("Bob", customers(0).getName);
+    Assert.assertEquals("Dave", customers(1).getName);
+    
+//    val talentSale = streamAll(em, classOf[Lineorder])
+//      .where(_.getItem.getName == "Talent")
+//      .select(_.getSale)
+//      .getOnlyValue;
+//    val buyer = streamAll(em, classOf[Customer])
+//      .where(_.getSales.contains(talentSale))
+//      .toList
+//    Assert.assertEquals("SELECT A FROM Customer A WHERE :param0 IN A.sales", query);
+//    Assert.assertEquals(1, buyer.length);
+//    Assert.assertEquals("Dave", buyer(0).getName);
+  }
+  
   @Test
   def testSelectMath() {
     val customers = streamAll(em, classOf[Customer])

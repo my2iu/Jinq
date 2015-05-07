@@ -161,7 +161,6 @@ trait JinqIterator[T] extends Iterator[T] {
    * val resultHighest =
    *    iterator.leftOuterJoin(c => JinqIterator.of(c.getHighestMountain));
    * }}}
-   * </pre>
    *
    * @see #join
    * @param fn
@@ -175,6 +174,31 @@ trait JinqIterator[T] extends Iterator[T] {
    */
   def leftOuterJoin[U](fn: (T) => JinqIterator[U]): JinqIterator[Tuple2[T, U]]
 
+  /**
+   * When executing the query, the items referred to be the plural 
+   * association will be fetched as well. The stream itself will 
+   * still return the same elements though. This reduces the number
+   * of database calls needed to fetch things from a database. 
+   * 
+   * {{{
+   * val iterator: JinqIterator[Country] = ...
+   * val result =
+   *    iterator.joinFetch(_.getCities);
+   * }}}
+   * 
+   * @param join
+   *           function applied to the elements of the stream. When passed an
+   *           element from the stream, the function should return a stream of
+   *           values that should be fetched as well 
+   */
+  def joinFetch[U](fn: (T) => JinqIterator[U]): JinqIterator[T]
+
+  /**
+   * @see #joinFetch 
+   */
+  def leftOuterJoinFetch[U](fn: (T) => JinqIterator[U]): JinqIterator[T]
+
+  
   /**
    * Groups together elements from the iterator that share a common key.
    * Aggregates can then be calculated over the elements in each group.

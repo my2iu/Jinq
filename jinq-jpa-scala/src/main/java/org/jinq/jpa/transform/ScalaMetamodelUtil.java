@@ -115,9 +115,11 @@ public class ScalaMetamodelUtil extends MetamodelUtil
    public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "count", "()Ljava/lang/Long;");
    public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "distinct", "()Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "select", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
+   public final static MethodSignature streamSelectAll = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "selectAll", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature streamWhere = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "where", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature streamJoin = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "join", "(Lscala/Function1;)Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature streamGetOnlyValue = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "getOnlyValue", "()Ljava/lang/Object;");
+   public final static MethodSignature streamContains = new MethodSignature("org/jinq/orm/stream/scala/JinqIterator", "contains", "(Ljava/lang/Object;)Z");
    
    private static final Set<MethodSignature> subqueryMethods = 
          new HashSet<>();
@@ -136,6 +138,8 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       subqueryMethods.add(streamWhere);
       subqueryMethods.add(streamJoin);
       subqueryMethods.add(streamGetOnlyValue);
+      subqueryMethods.add(streamSelectAll);
+      subqueryMethods.add(streamContains);
    }
 
    static Set<MethodSignature> KnownSafeMethods = new HashSet<>();
@@ -248,7 +252,8 @@ public class ScalaMetamodelUtil extends MetamodelUtil
       return sig.equals(ScalaMetamodelUtil.streamDistinct)
             || sig.equals(ScalaMetamodelUtil.streamSelect)
             || sig.equals(ScalaMetamodelUtil.streamWhere)
-            || sig.equals(ScalaMetamodelUtil.streamJoin);
+            || sig.equals(ScalaMetamodelUtil.streamJoin)
+            || sig.equals(ScalaMetamodelUtil.streamSelectAll);
    }
 
 

@@ -65,6 +65,14 @@ class NonQueryJinqIterator[T](_wrapped: Iterator[T], _inQueryStreamSource: InQue
         joined.map(right => (left, right))
     }))
   }
+  
+  override def joinFetch[U](fn: (T) => JinqIterator[U]): JinqIterator[T] = {
+    this;    
+  }
+
+  override def leftOuterJoinFetch[U](fn: (T) => JinqIterator[U]): JinqIterator[T] = {
+    this;
+  }
 
   override def count(): java.lang.Long = {
     val count = length
