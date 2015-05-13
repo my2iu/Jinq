@@ -142,9 +142,15 @@ public class MetamodelUtil
 
    private void findMetamodelEntityGetters(ManagedType<?> entity)
    {
+      // Apparently, this can happen with Envers and its generated audit tables
+      if (entity.getJavaType() == null) return;
+      
+      // Make sure we don't scan the same entity twice
       if (scannedClasses.contains(entity.getJavaType().getName()))
          return;
       scannedClasses.add(entity.getJavaType().getName());
+      
+      // Actually scan the entity now and extract its getters
       findMetamodelEntityGetters(entity, new ArrayList<>());
    }
    
