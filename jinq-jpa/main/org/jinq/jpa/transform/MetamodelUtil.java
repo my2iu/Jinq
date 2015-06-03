@@ -31,14 +31,14 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 public abstract class MetamodelUtil
 {
    private final Set<Class<?>> safeMethodAnnotations;
-   final Map<MethodSignature, MetamodelUtilAttribute> fieldMethods;
-   final Map<MethodSignature, MetamodelUtilAttribute> nLinkMethods;
+   protected final Map<MethodSignature, MetamodelUtilAttribute> fieldMethods;
+   protected final Map<MethodSignature, MetamodelUtilAttribute> nLinkMethods;
    protected final Set<MethodSignature> safeMethods;
    protected final Set<MethodSignature> safeStaticMethods;
-   final Map<String, List<Enum<?>>> enums;
-   private final Set<String> knownEmbeddedtypes = new HashSet<>();
-   public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
-   public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals;
+   protected final Map<String, List<Enum<?>>> enums;
+   protected final Set<String> knownEmbeddedtypes = new HashSet<>();
+   protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
+   protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals;
    
    /**
     * The classes that have been analyzed or are in the process of being analyzed to
@@ -97,6 +97,7 @@ public abstract class MetamodelUtil
       fieldMethods = new HashMap<>();
       nLinkMethods = new HashMap<>();
       comparisonMethodsWithObjectEquals = new HashMap<>();
+      comparisonMethodsWithObjectEquals.put(MethodChecker.objectEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
    }
    
    /**
@@ -160,12 +161,7 @@ public abstract class MetamodelUtil
          }
          if (fieldJavaType.isEnum())
          {
-            // Record the enum, and mark equals() using the enum as safe
-            String enumTypeName = org.objectweb.asm.Type.getInternalName(fieldJavaType); 
-            enums.put(enumTypeName, Arrays.asList(((Class<Enum<?>>)fieldJavaType).getEnumConstants()));
-            MethodSignature eqMethod = new MethodSignature(enumTypeName, "equals", "(Ljava/lang/Object;)Z"); 
-            comparisonMethods.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);
-            safeMethods.add(eqMethod);
+            registerEnum(fieldJavaType);
          }
          String returnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(fieldJavaType));
          // EclipseLink sometimes lists a different Java type in the attribute than 
@@ -254,6 +250,17 @@ public abstract class MetamodelUtil
             findMetamodelEntityGetters(jpaObject, newSubclasses);
          }
       }
+   }
+
+   protected void registerEnum(Class<?> fieldJavaType)
+   {
+      // Record the enum, and mark equals() using the enum as safe
+      String enumTypeName = org.objectweb.asm.Type.getInternalName(fieldJavaType); 
+      enums.put(enumTypeName, Arrays.asList(((Class<Enum<?>>)fieldJavaType).getEnumConstants()));
+      MethodSignature eqMethod = new MethodSignature(enumTypeName, "equals", "(Ljava/lang/Object;)Z"); 
+      comparisonMethods.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);
+      comparisonMethodsWithObjectEquals.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);
+      safeMethods.add(eqMethod);
    }
    
    public <U> boolean isKnownManagedType(String entityClassName)

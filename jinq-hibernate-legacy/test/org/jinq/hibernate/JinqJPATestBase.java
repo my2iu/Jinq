@@ -47,10 +47,13 @@ public class JinqJPATestBase
       sessionFactory = configuration.buildSessionFactory(serviceRegistry);
       streams = new JinqHibernateStreamProvider(sessionFactory);
 
-//      // Hibernate seems to generate incorrect metamodel data for some types of
-//      // associations, so we have to manually supply the correct information here.
-//      streams.registerAssociationAttribute(Lineorder.class.getMethod("getItem"), "item", false);
-//      streams.registerAssociationAttribute(Lineorder.class.getMethod("getSale"), "sale", false);
+      // Hibernate's ClassMetadata doesn't have as much information as the Criteria API 
+      // metamodel, so I'm going to have to manually specify some of the associations
+      
+      // Oddly enough, these two attributes are the same ones incorrectly encoded in 
+      // Hibernate's Criteria API metamodel as well.
+       streams.registerAssociationAttribute(Lineorder.class.getMethod("getItem"), "item", false);
+       streams.registerAssociationAttribute(Lineorder.class.getMethod("getSale"), "sale", false);
       
       Session session = sessionFactory.openSession();
       new CreateHibernateDb(session).createDatabase();

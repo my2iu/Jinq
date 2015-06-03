@@ -15,9 +15,7 @@ public class MetamodelUtilFromMetamodel extends MetamodelUtil
       
       findMetamodelGetters();
       safeMethods.addAll(fieldMethods.keySet());
-      safeMethods.addAll(nLinkMethods.keySet());
-      comparisonMethodsWithObjectEquals.putAll(comparisonMethods);
-      comparisonMethodsWithObjectEquals.put(MethodChecker.objectEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
+      safeMethods.addAll(nLinkMethods.keySet());      
    }
 
    protected void findMetamodelGetters()
