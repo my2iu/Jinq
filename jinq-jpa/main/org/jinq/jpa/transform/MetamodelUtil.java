@@ -28,15 +28,13 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
  * Provides helper methods for extracting useful information from
  * a JPA metamodel.
  */
-public class MetamodelUtil
+public abstract class MetamodelUtil
 {
-   final Metamodel metamodel;
-
    private final Set<Class<?>> safeMethodAnnotations;
    final Map<MethodSignature, MetamodelUtilAttribute> fieldMethods;
    final Map<MethodSignature, MetamodelUtilAttribute> nLinkMethods;
-   private final Set<MethodSignature> safeMethods;
-   private final Set<MethodSignature> safeStaticMethods;
+   protected final Set<MethodSignature> safeMethods;
+   protected final Set<MethodSignature> safeStaticMethods;
    final Map<String, List<Enum<?>>> enums;
    private final Set<String> knownEmbeddedtypes = new HashSet<>();
    public final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
@@ -77,9 +75,8 @@ public class MetamodelUtil
       TUPLE_ACCESSORS.put(TransformationClassAnalyzer.tuple8GetEight, 8);
    }
 
-   public MetamodelUtil(Metamodel metamodel)
+   public MetamodelUtil()
    {
-      this.metamodel = metamodel;
       enums = new HashMap<>();
       comparisonMethods = new HashMap<>();
       safeMethodAnnotations = new HashSet<Class<?>>();
@@ -99,12 +96,7 @@ public class MetamodelUtil
       safeStaticMethods.add(TransformationClassAnalyzer.booleanValueOf);
       fieldMethods = new HashMap<>();
       nLinkMethods = new HashMap<>();
-      
-      findMetamodelGetters();
-      safeMethods.addAll(fieldMethods.keySet());
-      safeMethods.addAll(nLinkMethods.keySet());
-      comparisonMethodsWithObjectEquals = new HashMap<>(comparisonMethods);
-      comparisonMethodsWithObjectEquals.put(MethodChecker.objectEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
+      comparisonMethodsWithObjectEquals = new HashMap<>();
    }
    
    /**
@@ -140,7 +132,7 @@ public class MetamodelUtil
       nLinkMethods.put(methodSig, pluralAttribute);
    }
 
-   private void findMetamodelEntityGetters(ManagedType<?> entity)
+   protected void findMetamodelEntityGetters(ManagedType<?> entity)
    {
       // Apparently, this can happen with Envers and its generated audit tables
       if (entity.getJavaType() == null) return;
@@ -264,26 +256,13 @@ public class MetamodelUtil
       }
    }
    
-   private void findMetamodelGetters()
-   {
-      for (EntityType<?> entity: metamodel.getEntities())
-      {
-         findMetamodelEntityGetters(entity);
-      }
-   }
-   
    public <U> boolean isKnownManagedType(String entityClassName)
    {
       return entityNameFromClassName(entityClassName) != null 
             || knownEmbeddedtypes.contains(entityClassName);
    }
    
-   public <U> String entityNameFromClass(Class<U> entity)
-   {
-      EntityType<U> entityType = metamodel.entity(entity);
-      if (entityType == null) return null;
-      return entityType.getName();
-   }
+   public abstract <U> String entityNameFromClass(Class<U> entity);
    
    /**
     * Returns the name of the entity referred to by the given class name
@@ -291,13 +270,7 @@ public class MetamodelUtil
     * @return if className refers to a known JPA entity, then the
     * name of the entity if returned. If not, null is returned 
     */
-   public String entityNameFromClassName(String className)
-   {
-      for (EntityType<?> entity: metamodel.getEntities())
-         if (entity.getJavaType().getName().equals(className))
-            return entity.getName();
-      return null;
-   }
+   public abstract String entityNameFromClassName(String className);
    
    /**
     * Returns true if a method is used to get a singular attribute field from an entity

@@ -9,7 +9,7 @@ import javax.persistence.metamodel.Metamodel;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
-public class ScalaMetamodelUtil extends MetamodelUtil
+public class ScalaMetamodelUtil extends MetamodelUtilFromMetamodel
 {
    public final static MethodSignature INQUERYSTREAMSOURCE_STREAM = new MethodSignature("org/jinq/orm/stream/scala/InQueryStreamSource", "stream", "(Ljava/lang/Class;)Lorg/jinq/orm/stream/scala/JinqIterator;");
    public final static MethodSignature ITERABLE_TO_JINQ = new MethodSignature("org/jinq/orm/stream/scala/JinqConversions$", "jinq", "(Ljava/lang/Iterable;)Lorg/jinq/orm/stream/scala/JinqIterator;");
