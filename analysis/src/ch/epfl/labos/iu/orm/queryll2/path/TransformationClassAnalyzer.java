@@ -60,6 +60,7 @@ public class TransformationClassAnalyzer
    public final static String DBSET_CLASS = "Lch/epfl/labos/iu/orm/DBSet;";
    public final static String JINQSTREAM_CLASS = "Lorg/jinq/orm/stream/JinqStream;";
    public final static MethodSignature stringEquals = new MethodSignature("java/lang/String", "equals", "(Ljava/lang/Object;)Z");
+   public final static MethodSignature stringCompareTo = new MethodSignature("java/lang/String", "compareTo", "(Ljava/lang/String;)I");
    public final static MethodSignature stringLike = new MethodSignature("ch/epfl/labos/iu/orm/Util", "SQLStringLike", "(Ljava/lang/String;Ljava/lang/String;)Z");
    public final static MethodSignature newStringBuilderString = new MethodSignature("java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
    public final static MethodSignature newStringBuilder = new MethodSignature("java/lang/StringBuilder", "<init>", "()V");
@@ -160,6 +161,7 @@ public class TransformationClassAnalyzer
       TransformationClassMethods.put(DOUBLESORTER_SUPERCLASS, DOUBLESORTER_METHOD);
       TransformationClassMethods.put(STRINGSORTER_SUPERCLASS, STRINGSORTER_METHOD);
       KnownSafeMethods.add(stringEquals);
+      KnownSafeMethods.add(stringCompareTo);
       KnownSafeStaticMethods.add(stringLike);
       KnownSafeMethods.add(newStringBuilderString);
       KnownSafeMethods.add(newStringBuilder);

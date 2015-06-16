@@ -34,14 +34,15 @@ public class JinqJPATypesTest extends JinqJPATestBase
    {
       String val = "UK";
       List<Pair<Customer, String>> customers = streams.streamAll(em, Customer.class)
-            .where(c -> c.getCountry().equals(val) || c.getName().equals("Alice"))
+            .where(c -> c.getCountry().equals(val) || c.getName().equals("Alice") || c.getName().compareTo("D") > 0)
             .select(c -> new Pair<>(c, c.getName()))
             .toList();
       customers = customers.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
-      assertEquals("SELECT A, A.name FROM Customer A WHERE A.country = :param0 OR A.country <> :param1 AND A.name = 'Alice'", query);
-      assertEquals(2, customers.size());
+      assertEquals("SELECT A, A.name FROM Customer A WHERE A.country = :param0 OR A.country <> :param1 AND A.name = 'Alice' OR A.country <> :param2 AND A.name <> 'Alice' AND A.name > 'D'", query);
+      assertEquals(3, customers.size());
       assertEquals("Alice", customers.get(0).getTwo());
       assertEquals("Dave", customers.get(1).getTwo());
+      assertEquals("Eve", customers.get(2).getTwo());
    }
 
    @Test

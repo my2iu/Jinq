@@ -149,6 +149,8 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
       mathMethods = new HashMap<>();
       mathMethodsType = new HashMap<>();
       
+      mathMethods.put(TransformationClassAnalyzer.stringCompareTo, Op.cmp);
+      mathMethodsType.put(TransformationClassAnalyzer.stringCompareTo, Type.INT_TYPE);
       mathMethods.put(TransformationClassAnalyzer.bigDecimalCompareTo, Op.cmp);
       mathMethodsType.put(TransformationClassAnalyzer.bigDecimalCompareTo, Type.INT_TYPE);
       mathMethods.put(TransformationClassAnalyzer.bigDecimalAdd, Op.plus);
