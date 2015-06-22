@@ -33,7 +33,9 @@ public class SampleMain
       streams = new JinqJPAStreamProvider(entityManagerFactory);
       
       // Hibernate seems to generate incorrect metamodel data for some types of
-      // associations, so we have to manually supply the correct information here.
+      // associations (specifically, the @ManyToOne relation), so we have to 
+      // manually supply the correct information to Jinq here. This is not needed
+      // for EclipseLink. 
       streams.registerAssociationAttribute(Lineorder.class.getMethod("getItem"), "item", false);
       streams.registerAssociationAttribute(Lineorder.class.getMethod("getSale"), "sale", false);
       
