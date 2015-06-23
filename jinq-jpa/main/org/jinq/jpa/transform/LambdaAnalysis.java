@@ -14,6 +14,9 @@ import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisFactory;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisSimplifier;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter.OperationSideEffect;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 
 import com.user00.thunk.SerializedLambda;
@@ -159,6 +162,20 @@ public class LambdaAnalysis
 
    public static LambdaAnalysis fullyAnalyzeLambda(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
+      // Lambdas are usually encoded as static method references, but when
+      // method handles are used as lambdas, the JDK sometimes encodes them
+      // as other things
+      if (!lambdaInfo.isInvokeStatic())
+      {
+         if (lambdaInfo.isInvokeVirtual())
+         {
+            // Special handling of invokeVirtual here.
+            return analyzeInvokeVirtual(lambdaInfo, metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
+         }
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Lambda has an unknown format (an unsupported type of method handle is possibly being used here)");
+         return null;
+      }
+      
       // TODO: The part below will need to be moved to a separate method.
       //   That way, we can used the serialized lambda info to check if
       //   we've cached the results of this analysis already without needing
@@ -179,6 +196,46 @@ public class LambdaAnalysis
          if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code", e);
          return null;
       }
+   }
+   
+   /**
+    * Oracle's JDK8 encodes method references directly as an "invoke virtual" lambda.
+    * (Eclipse seems to encode method references like a normal method). So here we
+    * handle this special case of an "invoke virtual" lambda.
+    */
+   protected static LambdaAnalysis analyzeInvokeVirtual(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   {
+      // If the invoke virtual comes from a method reference, then there shouldn't be any captured arugments 
+      SerializedLambda s = lambdaInfo.serializedLambda;
+      if (s.capturedArgs != null && s.capturedArgs.length > 0)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Cannot handle lambda method references to a virtual method including captured arguments");
+         return null;
+      }
+
+      // See if the method call is allowed. Create a fake method argument that reroutes
+      // to be the base of the method call.
+      MethodSignature sig = new MethodSignature(s.implClass, s.implMethodName, s.implMethodSignature);
+      Type [] argTypes = Type.getMethodType(sig.desc).getArgumentTypes();
+      MethodChecker checker = metamodel.getMethodChecker(isObjectEqualsSafe, isCollectionContainsSafe);
+      TypedValue fakeBase = new TypedValue.ArgValue(sig.getOwnerType(), 0);
+      List<TypedValue> fakeArgs = new ArrayList<>();
+      for (int n = 0; n < argTypes.length; n++)
+         fakeArgs.add(new TypedValue.ArgValue(argTypes[n], n+1));
+      if (OperationSideEffect.NONE != 
+            checker.isMethodSafe(sig, fakeBase, fakeArgs))
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code. Unknown method " + sig + " encountered.");
+         return null;
+      }
+      
+      // Create a fake analysis of the methods that's composed of only a call to the given method.
+      MethodCallValue.VirtualMethodCallValue methodCallVal = new MethodCallValue.VirtualMethodCallValue(
+            sig.owner, sig.name, sig.desc, fakeArgs, fakeBase); 
+      MethodAnalysisResults analysis = new MethodAnalysisResults();
+      analysis.addPath(new ArrayList<>(), methodCallVal, new ArrayList<>());
+      
+      return new LambdaAnalysis(lambdaInfo.Lambda, s, analysis, lambdaInfo.lambdaIndex);
    }
 
    /**

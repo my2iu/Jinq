@@ -28,6 +28,18 @@ public class JinqJPASelectTest extends JinqJPATestBase
    }
 
    @Test
+   public void testSelectMethodReference()
+   {
+      List<String> results = streams.streamAll(em, Customer.class)
+            .select(Customer::getCountry)
+            .toList();
+      assertEquals("SELECT A.country FROM Customer A", query);
+      assertEquals(5, results.size());
+      Collections.sort(results);
+      assertEquals("Canada", results.get(0));
+   }
+
+   @Test
    public void testSelectMath()
    {
       JinqStream<Integer> customers = streams.streamAll(em, Customer.class)

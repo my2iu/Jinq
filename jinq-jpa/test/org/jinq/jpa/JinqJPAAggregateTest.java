@@ -9,8 +9,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;

@@ -78,6 +78,18 @@ public class LambdaInfo
    {
       return serializedLambda.capturedArgs[argIndex];
    }
+   
+   // Is the lambda referring to a static method call
+   public boolean isInvokeStatic()
+   {
+      return serializedLambda.implMethodKind == 6;
+   }
+
+   // Is the lambda referring to a virtual method call
+   public boolean isInvokeVirtual()
+   {
+      return serializedLambda.implMethodKind == 5;
+   }
 
    public Object getField(String fieldName)
    {

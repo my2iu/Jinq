@@ -18,6 +18,7 @@ public class SerializedLambda implements Serializable {
     public String implClass;
     public String implMethodName;
     public String implMethodSignature;
+    public int implMethodKind;
     
     private final static byte[] serializedLambdaString = "java.lang.invoke.SerializedLambda".getBytes(StandardCharsets.US_ASCII);
     private final static byte[] serializedLambdaStringReplacement = "com.user00.thunk.SerializedLambda".getBytes(StandardCharsets.US_ASCII);

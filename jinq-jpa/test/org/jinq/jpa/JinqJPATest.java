@@ -20,10 +20,8 @@ import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
-import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.Where;
-import org.jinq.orm.stream.QueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Test;
 
@@ -277,6 +275,17 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Eve", results.get(0).getName());
       assertEquals("Bob", results.get(1).getName());
       assertEquals("Alice", results.get(2).getName());
+   }
+
+   @Test
+   public void testSortNumericMethodReference()
+   {
+      List<Customer> results = streams.streamAll(em, Customer.class)
+            .sortedDescendingBy(Customer::getSalary)
+            .toList();
+      assertEquals("SELECT A FROM Customer A ORDER BY A.salary DESC", query);
+      assertEquals(5, results.size());
+      assertEquals("Dave",  results.get(0).getName());
    }
 
    @Test
