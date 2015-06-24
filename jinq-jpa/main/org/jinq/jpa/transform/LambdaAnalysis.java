@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
@@ -203,19 +204,11 @@ public class LambdaAnalysis
     * (Eclipse seems to encode method references like a normal method). So here we
     * handle this special case of an "invoke virtual" lambda.
     */
-   protected static LambdaAnalysis analyzeInvokeVirtual(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   protected static MethodAnalysisResults analyzeInvokeVirtual(String methodClass, String methodName, String methodSignature, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
-      // If the invoke virtual comes from a method reference, then there shouldn't be any captured arugments 
-      SerializedLambda s = lambdaInfo.serializedLambda;
-      if (s.capturedArgs != null && s.capturedArgs.length > 0)
-      {
-         if (throwExceptionOnFailure) throw new IllegalArgumentException("Cannot handle lambda method references to a virtual method including captured arguments");
-         return null;
-      }
-
       // See if the method call is allowed. Create a fake method argument that reroutes
       // to be the base of the method call.
-      MethodSignature sig = new MethodSignature(s.implClass, s.implMethodName, s.implMethodSignature);
+      MethodSignature sig = new MethodSignature(methodClass, methodName, methodSignature);
       Type [] argTypes = Type.getMethodType(sig.desc).getArgumentTypes();
       MethodChecker checker = metamodel.getMethodChecker(isObjectEqualsSafe, isCollectionContainsSafe);
       TypedValue fakeBase = new TypedValue.ArgValue(sig.getOwnerType(), 0);
@@ -235,7 +228,38 @@ public class LambdaAnalysis
       MethodAnalysisResults analysis = new MethodAnalysisResults();
       analysis.addPath(new ArrayList<>(), methodCallVal, new ArrayList<>());
       
+      return analysis;
+   }
+   
+   protected static LambdaAnalysis analyzeInvokeVirtual(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   {
+      // If the invoke virtual comes from a method reference, then there shouldn't be any captured arguments 
+      SerializedLambda s = lambdaInfo.serializedLambda;
+      if (s.capturedArgs != null && s.capturedArgs.length > 0)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Cannot handle lambda method references to a virtual method including captured arguments");
+         return null;
+      }
+
+      MethodAnalysisResults analysis = analyzeInvokeVirtual(s.implClass, s.implMethodName, s.implMethodSignature, metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure); 
+      if (analysis == null) return null;
+      
       return new LambdaAnalysis(lambdaInfo.Lambda, s, analysis, lambdaInfo.lambdaIndex);
+   }
+
+   protected static LambdaAnalysis analyzeInvokeVirtual(Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   {
+      // If the invoke virtual comes from a method reference, then there shouldn't be any captured arguments 
+      if (indirectCapturedArgs.size() > 0)
+      {
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Cannot handle lambda method references to a virtual method including captured arguments");
+         return null;
+      }
+
+      MethodAnalysisResults analysis = analyzeInvokeVirtual(lambdaHandle.getOwner(), lambdaHandle.getName(), lambdaHandle.getDesc(), metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure); 
+      if (analysis == null) return null;
+      
+      return new LambdaAnalysis(analysis, indirectCapturedArgs, Type.getArgumentTypes(lambdaHandle.getDesc()).length);
    }
 
    /**
@@ -244,6 +268,20 @@ public class LambdaAnalysis
     */
    public static LambdaAnalysis analyzeMethod(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, boolean throwExceptionOnFailure)
    {
+      // Lambdas are usually encoded as static method references, but when
+      // method handles are used as lambdas, the JDK sometimes encodes them
+      // as other things
+      if (lambdaHandle.getTag() != Opcodes.H_INVOKESTATIC)
+      {
+         if (lambdaHandle.getTag() == Opcodes.H_INVOKEVIRTUAL)
+         {
+            // Special handling of invokeVirtual here.
+            return analyzeInvokeVirtual(lambdaHandle, indirectCapturedArgs, metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
+         }
+         if (throwExceptionOnFailure) throw new IllegalArgumentException("Lambda has an unknown format (an unsupported type of method handle is possibly being used here)");
+         return null;
+      }
+      
       // TODO: The part below will need to be moved to a separate method.
       //   That way, we can used the serialized lambda info to check if
       //   we've cached the results of this analysis already without needing

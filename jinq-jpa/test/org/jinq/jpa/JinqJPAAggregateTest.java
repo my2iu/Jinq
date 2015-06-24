@@ -411,7 +411,21 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals(1, customers.size());
       assertEquals("Eve", customers.get(0).getName());
    }
-   
+
+   @Test
+   public void testSubQueryNumericMethodReference()
+   {
+      List<Customer> results = streams.streamAll(em, Customer.class)
+            .where((c, db) -> {
+               int topSalary = db.stream(Customer.class).max(Customer::getSalary);
+               return c.getSalary() == topSalary; 
+            })
+            .toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.salary = (SELECT MAX(B.salary) FROM Customer B)", query);
+      assertEquals(1, results.size());
+      assertEquals("Dave",  results.get(0).getName());
+   }
+
    @Test
    public void testIsIn()
    {

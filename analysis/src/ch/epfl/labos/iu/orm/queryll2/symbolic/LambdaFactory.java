@@ -3,6 +3,7 @@ package ch.epfl.labos.iu.orm.queryll2.symbolic;
 import java.util.List;
 
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class LambdaFactory extends TypedValue
@@ -29,6 +30,16 @@ public class LambdaFactory extends TypedValue
       return lambdaMethod;
    }
    
+   public boolean isInvokeStatic()
+   {
+      return lambdaMethod.getTag() == Opcodes.H_INVOKESTATIC;
+   }
+
+   public boolean isInvokeVirtual()
+   {
+      return lambdaMethod.getTag() == Opcodes.H_INVOKEVIRTUAL;
+   }
+
    public List<TypedValue> getCapturedArgs()
    {
       return capturedArgs;

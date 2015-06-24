@@ -278,17 +278,6 @@ public class JinqJPATest extends JinqJPATestBase
    }
 
    @Test
-   public void testSortNumericMethodReference()
-   {
-      List<Customer> results = streams.streamAll(em, Customer.class)
-            .sortedDescendingBy(Customer::getSalary)
-            .toList();
-      assertEquals("SELECT A FROM Customer A ORDER BY A.salary DESC", query);
-      assertEquals(5, results.size());
-      assertEquals("Dave",  results.get(0).getName());
-   }
-
-   @Test
    public void testLimitSkip()
    {
       List<Customer> results = streams.streamAll(em, Customer.class)
