@@ -2,7 +2,7 @@ name := "sample-scala"
 
 
 libraryDependencies ++= Seq(
-  "org.jinq" % "jinq-jpa-scala" % "1.8.1",
+  "org.jinq" % "jinq-jpa-scala" % "1.8.2",
   "org.apache.derby" % "derby" % "10.10.1.1",
   "org.eclipse.persistence" % "eclipselink" % "2.5.1"
 //  "org.hibernate" % "hibernate-entitymanager" % "4.3.5.Final"

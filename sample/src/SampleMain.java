@@ -155,7 +155,7 @@ public class SampleMain
       out.println();
 
       // Grouping
-      out.println("Number of Screws bought by each customer");
+      out.println("NUMBER OF SCREWS BOUGHT BY EACH CUSTOMER");
       lineorders()
          .where(lo -> lo.getItem().getName().equals("Screws"))
          .group( lo -> lo.getSale().getCustomer().getName(),
