@@ -233,11 +233,11 @@ public class JinqJPATypesTest extends JinqJPATestBase
       // TODO: CASE...WHEN... is now done, and I've inserted a little hack to convert the 1 and 0 constants 
       //    into booleans, but EclipseLink is treating TRUE and FALSE and integers in the return type.
       List<Pair<Supplier, Boolean>> suppliers = streams.streamAll(em, Supplier.class)
-            .where(s -> s.getHasFreeShipping())
+            .where(s -> s.getHasFreeShipping() && Boolean.TRUE.equals(s.getHasFreeShipping()))
             .select(s -> new Pair<>(s, s.getHasFreeShipping() != true))
             .toList();
-      assertTrue("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN TRUE ELSE FALSE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query)
-            || "SELECT A, CASE WHEN A.hasFreeShipping = TRUE THEN FALSE ELSE TRUE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query));
+      assertTrue("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN TRUE ELSE FALSE END FROM Supplier A WHERE A.hasFreeShipping = TRUE AND TRUE = A.hasFreeShipping".equals(query)
+            || "SELECT A, CASE WHEN A.hasFreeShipping = TRUE THEN FALSE ELSE TRUE END FROM Supplier A WHERE A.hasFreeShipping = TRUE AND TRUE = A.hasFreeShipping".equals(query));
       assertEquals(1, suppliers.size());
       assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
       assertTrue(!suppliers.get(0).getTwo());

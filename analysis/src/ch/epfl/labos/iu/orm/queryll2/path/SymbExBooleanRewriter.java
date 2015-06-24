@@ -3,10 +3,11 @@ package ch.epfl.labos.iu.orm.queryll2.path;
 import org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.StaticMethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.GetStaticFieldValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueRewriterWalker;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.StaticMethodCallValue;
 
 /**
  * Java uses integers for booleans. This rewriter will rewrite integer
@@ -51,6 +52,17 @@ public class SymbExBooleanRewriter extends TypedValueRewriterWalker<Boolean, Run
                   return true;
                return super.staticMethodCallValue(val, in);
             }
+            @Override
+            public Boolean getStaticFieldValue(GetStaticFieldValue val,
+                  Boolean in) throws RuntimeException
+            {
+               if ("java/lang/Boolean".equals(val.owner))
+               {
+                  if ("TRUE".equals(val.name) || "FALSE".equals(val.name))
+                     return true;
+               }
+               return super.getStaticFieldValue(val, in);
+            }            
             @Override
             public Boolean binaryOpValue(TypedValue.BinaryOperationValue val, Boolean in) 
             {

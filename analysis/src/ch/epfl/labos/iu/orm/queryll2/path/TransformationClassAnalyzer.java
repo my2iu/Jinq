@@ -69,6 +69,7 @@ public class TransformationClassAnalyzer
    public final static MethodSignature newStringBuilder = new MethodSignature("java/lang/StringBuilder", "<init>", "()V");
    public final static MethodSignature stringBuilderAppendString = new MethodSignature("java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
    public final static MethodSignature stringBuilderToString = new MethodSignature("java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
+   public final static MethodSignature booleanEquals;
    public final static MethodSignature dateEquals = new MethodSignature("java/util/Date", "equals", "(Ljava/lang/Object;)Z");
    public final static MethodSignature dateBefore = new MethodSignature("java/util/Date", "before", "(Ljava/util/Date;)Z");
    public final static MethodSignature dateAfter = new MethodSignature("java/util/Date", "after", "(Ljava/util/Date;)Z");
@@ -168,6 +169,7 @@ public class TransformationClassAnalyzer
 
    static {
       try {
+         booleanEquals = MethodSignature.fromMethod(Boolean.class.getMethod("equals", Object.class));
          newTuple6 = MethodSignature.fromConstructor(Tuple6.class.getConstructor(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class));
          tuple6GetOne = MethodSignature.fromMethod(Tuple6.class.getMethod("getOne"));
          tuple6GetTwo = MethodSignature.fromMethod(Tuple6.class.getMethod("getTwo"));
@@ -220,6 +222,7 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(newStringBuilder);
       KnownSafeMethods.add(stringBuilderAppendString);
       KnownSafeMethods.add(stringBuilderToString);
+      KnownSafeMethods.add(booleanEquals);
       KnownSafeMethods.add(dateEquals);
       KnownSafeMethods.add(dateBefore);
       KnownSafeMethods.add(dateAfter);

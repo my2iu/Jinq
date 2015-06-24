@@ -124,6 +124,7 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
       
       // TODO: This changes the semantics of things a little bit
       comparisonMethods.put(TransformationClassAnalyzer.stringEquals, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.booleanEquals, ComparisonOp.eq);
       
       comparisonMethods.put(TransformationClassAnalyzer.dateEquals, ComparisonOp.eq);
       comparisonMethods.put(TransformationClassAnalyzer.dateBefore, ComparisonOp.lt);

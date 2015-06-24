@@ -126,6 +126,12 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             return ColumnExpressions.singleColumn(new SimpleRowReader<Enum<?>>(),
                   new ConstantExpression(enumFullName)); 
       }
+      else if ("java/lang/Boolean".equals(val.owner))
+      {
+         if ("TRUE".equals(val.name) || "FALSE".equals(val.name))
+            return ColumnExpressions.singleColumn(new SimpleRowReader<Integer>(),
+                  new ConstantExpression("TRUE".equals(val.name) ? "TRUE" : "FALSE")); 
+      }
       return defaultValue(val, in);
    }
 
