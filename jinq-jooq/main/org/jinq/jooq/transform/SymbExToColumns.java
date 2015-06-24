@@ -149,6 +149,8 @@ public class SymbExToColumns extends TypedValueVisitor<Void, ColumnExpressions<?
             || TransformationClassAnalyzer.newTuple3.equals(sig)
             || TransformationClassAnalyzer.newTuple4.equals(sig)
             || TransformationClassAnalyzer.newTuple5.equals(sig)
+            || TransformationClassAnalyzer.newTuple6.equals(sig)
+            || TransformationClassAnalyzer.newTuple7.equals(sig)
             || TransformationClassAnalyzer.newTuple8.equals(sig))
       {
          ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];

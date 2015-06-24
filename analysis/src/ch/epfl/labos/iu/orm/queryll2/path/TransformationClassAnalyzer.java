@@ -13,6 +13,9 @@ import java.util.Set;
 
 import org.jinq.orm.annotations.EntitySupplier;
 import org.jinq.orm.annotations.NoSideEffects;
+import org.jinq.tuples.Tuple6;
+import org.jinq.tuples.Tuple7;
+import org.jinq.tuples.Tuple8;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -111,15 +114,30 @@ public class TransformationClassAnalyzer
    public final static MethodSignature tuple5GetThree = new MethodSignature("org/jinq/tuples/Tuple5", "getThree", "()Ljava/lang/Object;");
    public final static MethodSignature tuple5GetFour = new MethodSignature("org/jinq/tuples/Tuple5", "getFour", "()Ljava/lang/Object;");
    public final static MethodSignature tuple5GetFive = new MethodSignature("org/jinq/tuples/Tuple5", "getFive", "()Ljava/lang/Object;");
-   public final static MethodSignature newTuple8 = new MethodSignature("org/jinq/tuples/Tuple8", "<init>", "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V");
-   public final static MethodSignature tuple8GetOne = new MethodSignature("org/jinq/tuples/Tuple8", "getOne", "()Ljava/lang/Object;");
-   public final static MethodSignature tuple8GetTwo = new MethodSignature("org/jinq/tuples/Tuple8", "getTwo", "()Ljava/lang/Object;");
-   public final static MethodSignature tuple8GetThree = new MethodSignature("org/jinq/tuples/Tuple8", "getThree", "()Ljava/lang/Object;");
-   public final static MethodSignature tuple8GetFour = new MethodSignature("org/jinq/tuples/Tuple8", "getFour", "()Ljava/lang/Object;");
-   public final static MethodSignature tuple8GetFive = new MethodSignature("org/jinq/tuples/Tuple8", "getFive", "()Ljava/lang/Object;");
-   public final static MethodSignature tuple8GetSix = new MethodSignature("org/jinq/tuples/Tuple8", "getSix", "()Ljava/lang/Object;");
-   public final static MethodSignature tuple8GetSeven = new MethodSignature("org/jinq/tuples/Tuple8", "getSeven", "()Ljava/lang/Object;");
-   public final static MethodSignature tuple8GetEight = new MethodSignature("org/jinq/tuples/Tuple8", "getEight", "()Ljava/lang/Object;");
+   public final static MethodSignature newTuple6;
+   public final static MethodSignature tuple6GetOne;
+   public final static MethodSignature tuple6GetTwo;
+   public final static MethodSignature tuple6GetThree;
+   public final static MethodSignature tuple6GetFour;
+   public final static MethodSignature tuple6GetFive;
+   public final static MethodSignature tuple6GetSix;
+   public final static MethodSignature newTuple7;
+   public final static MethodSignature tuple7GetOne;
+   public final static MethodSignature tuple7GetTwo;
+   public final static MethodSignature tuple7GetThree;
+   public final static MethodSignature tuple7GetFour;
+   public final static MethodSignature tuple7GetFive;
+   public final static MethodSignature tuple7GetSix;
+   public final static MethodSignature tuple7GetSeven;
+   public final static MethodSignature newTuple8;
+   public final static MethodSignature tuple8GetOne;
+   public final static MethodSignature tuple8GetTwo;
+   public final static MethodSignature tuple8GetThree;
+   public final static MethodSignature tuple8GetFour;
+   public final static MethodSignature tuple8GetFive;
+   public final static MethodSignature tuple8GetSix;
+   public final static MethodSignature tuple8GetSeven;
+   public final static MethodSignature tuple8GetEight;
    public final static MethodSignature streamSumInt = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumInteger", "(Lorg/jinq/orm/stream/JinqStream$CollectInteger;)Ljava/lang/Long;");
    public final static MethodSignature streamSumDouble = new MethodSignature("org/jinq/orm/stream/JinqStream", "sumDouble", "(Lorg/jinq/orm/stream/JinqStream$CollectDouble;)Ljava/lang/Double;");
    public final static MethodSignature streamMax = new MethodSignature("org/jinq/orm/stream/JinqStream", "max", "(Lorg/jinq/orm/stream/JinqStream$CollectComparable;)Ljava/lang/Comparable;");
@@ -148,6 +166,41 @@ public class TransformationClassAnalyzer
    public final static MethodSignature bigDecimalDoubleValue = new MethodSignature("java/math/BigDecimal", "doubleValue", "()D");
    public final static MethodSignature bigIntegerDoubleValue = new MethodSignature("java/math/BigInteger", "doubleValue", "()D");
 
+   static {
+      try {
+         newTuple6 = MethodSignature.fromConstructor(Tuple6.class.getConstructor(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class));
+         tuple6GetOne = MethodSignature.fromMethod(Tuple6.class.getMethod("getOne"));
+         tuple6GetTwo = MethodSignature.fromMethod(Tuple6.class.getMethod("getTwo"));
+         tuple6GetThree = MethodSignature.fromMethod(Tuple6.class.getMethod("getThree"));
+         tuple6GetFour = MethodSignature.fromMethod(Tuple6.class.getMethod("getFour"));
+         tuple6GetFive = MethodSignature.fromMethod(Tuple6.class.getMethod("getFive"));
+         tuple6GetSix = MethodSignature.fromMethod(Tuple6.class.getMethod("getSix"));
+         newTuple7 = MethodSignature.fromConstructor(Tuple7.class.getConstructor(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class, Object.class));
+         tuple7GetOne = MethodSignature.fromMethod(Tuple7.class.getMethod("getOne"));
+         tuple7GetTwo = MethodSignature.fromMethod(Tuple7.class.getMethod("getTwo"));
+         tuple7GetThree = MethodSignature.fromMethod(Tuple7.class.getMethod("getThree"));
+         tuple7GetFour = MethodSignature.fromMethod(Tuple7.class.getMethod("getFour"));
+         tuple7GetFive = MethodSignature.fromMethod(Tuple7.class.getMethod("getFive"));
+         tuple7GetSix = MethodSignature.fromMethod(Tuple7.class.getMethod("getSix"));
+         tuple7GetSeven = MethodSignature.fromMethod(Tuple7.class.getMethod("getSeven"));
+         newTuple8 = MethodSignature.fromConstructor(Tuple8.class.getConstructor(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class, Object.class, Object.class));
+         tuple8GetOne = MethodSignature.fromMethod(Tuple8.class.getMethod("getOne"));
+         tuple8GetTwo = MethodSignature.fromMethod(Tuple8.class.getMethod("getTwo"));
+         tuple8GetThree = MethodSignature.fromMethod(Tuple8.class.getMethod("getThree"));
+         tuple8GetFour = MethodSignature.fromMethod(Tuple8.class.getMethod("getFour"));
+         tuple8GetFive = MethodSignature.fromMethod(Tuple8.class.getMethod("getFive"));
+         tuple8GetSix = MethodSignature.fromMethod(Tuple8.class.getMethod("getSix"));
+         tuple8GetSeven = MethodSignature.fromMethod(Tuple8.class.getMethod("getSeven"));
+         tuple8GetEight = MethodSignature.fromMethod(Tuple8.class.getMethod("getEight"));
+      } 
+      catch (NoSuchMethodException | SecurityException e)
+      {
+         e.printStackTrace();
+         throw new IllegalArgumentException("Cannot find a method needed for analysis", e);
+      }
+      
+   }
+   
    static {
       TransformationClassMethods.put(GROUP_INTERFACE, GROUP_METHOD);
       TransformationClassMethods.put(JOIN_INTERFACE, JOIN_METHOD);
@@ -212,6 +265,21 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(tuple5GetThree);
       KnownSafeMethods.add(tuple5GetFour);
       KnownSafeMethods.add(tuple5GetFive);
+      KnownSafeMethods.add(newTuple6);
+      KnownSafeMethods.add(tuple6GetOne);
+      KnownSafeMethods.add(tuple6GetTwo);
+      KnownSafeMethods.add(tuple6GetThree);
+      KnownSafeMethods.add(tuple6GetFour);
+      KnownSafeMethods.add(tuple6GetFive);
+      KnownSafeMethods.add(tuple6GetSix);
+      KnownSafeMethods.add(newTuple7);
+      KnownSafeMethods.add(tuple7GetOne);
+      KnownSafeMethods.add(tuple7GetTwo);
+      KnownSafeMethods.add(tuple7GetThree);
+      KnownSafeMethods.add(tuple7GetFour);
+      KnownSafeMethods.add(tuple7GetFive);
+      KnownSafeMethods.add(tuple7GetSix);
+      KnownSafeMethods.add(tuple7GetSeven);
       KnownSafeMethods.add(newTuple8);
       KnownSafeMethods.add(tuple8GetOne);
       KnownSafeMethods.add(tuple8GetTwo);

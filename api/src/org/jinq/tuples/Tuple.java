@@ -14,6 +14,10 @@ public class Tuple
             return (T)new Tuple4(data[0], data[1], data[2], data[3]);
          case 5:
             return (T)new Tuple5(data[0], data[1], data[2], data[3], data[4]);
+         case 6:
+            return (T)new Tuple6(data[0], data[1], data[2], data[3], data[4], data[5]);
+         case 7:
+            return (T)new Tuple7(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
          case 8:
             return (T)new Tuple8(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
          default:

@@ -4,6 +4,8 @@ import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
 import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple6;
+import org.jinq.tuples.Tuple7;
 import org.jinq.tuples.Tuple8;
 import org.jooq.Record;
 
@@ -13,6 +15,8 @@ public class TupleRowReader<T> implements RowReader<T>
    public static final String TUPLE3_CLASS = Tuple3.class.getTypeName().replace('.', '/'); 
    public static final String TUPLE4_CLASS = Tuple4.class.getTypeName().replace('.', '/');
    public static final String TUPLE5_CLASS = Tuple5.class.getTypeName().replace('.', '/');
+   public static final String TUPLE6_CLASS = Tuple6.class.getTypeName().replace('.', '/');
+   public static final String TUPLE7_CLASS = Tuple7.class.getTypeName().replace('.', '/');
    public static final String TUPLE8_CLASS = Tuple8.class.getTypeName().replace('.', '/');
    
    RowReader<?>[] subreaders;
@@ -78,6 +82,10 @@ public class TupleRowReader<T> implements RowReader<T>
             return (T)new Tuple4(data[0], data[1], data[2], data[3]);
          case 5:
             return (T)new Tuple5(data[0], data[1], data[2], data[3], data[4]);
+         case 6:
+            return (T)new Tuple6(data[0], data[1], data[2], data[3], data[4], data[5]);
+         case 7:
+            return (T)new Tuple7(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
          case 8:
             return (T)new Tuple8(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
          default:
@@ -104,6 +112,16 @@ public class TupleRowReader<T> implements RowReader<T>
       else if (TUPLE5_CLASS.equals(tupleInternalName))
       {
          if (subreaders.length != 5)
+            throw new IllegalArgumentException("Wrong number of arguments when creating tuple");
+      }
+      else if (TUPLE6_CLASS.equals(tupleInternalName))
+      {
+         if (subreaders.length != 6)
+            throw new IllegalArgumentException("Wrong number of arguments when creating tuple");
+      }
+      else if (TUPLE7_CLASS.equals(tupleInternalName))
+      {
+         if (subreaders.length != 7)
             throw new IllegalArgumentException("Wrong number of arguments when creating tuple");
       }
       else if (TUPLE8_CLASS.equals(tupleInternalName))

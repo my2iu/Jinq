@@ -11,6 +11,13 @@ import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
+import org.jinq.tuples.Tuple;
+import org.jinq.tuples.Tuple3;
+import org.jinq.tuples.Tuple4;
+import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple6;
+import org.jinq.tuples.Tuple7;
+import org.jinq.tuples.Tuple8;
 import org.junit.Test;
 
 public class JinqJPASelectTest extends JinqJPATestBase
@@ -176,5 +183,57 @@ public class JinqJPASelectTest extends JinqJPATestBase
       assertEquals("SELECT B.name FROM Item A JOIN A.suppliers B WHERE A.name = 'Screws'", query);
       assertEquals(1, suppliers.size());
       assertEquals("HW Supplier", suppliers.get(0));
+   }
+   
+   private void checkTuples(List<?> tuples, Object...elements)
+   {
+      assertEquals(5, tuples.size());
+      assertEquals(Tuple.createTuple(elements), tuples.get(0));
+   }
+   
+   @Test
+   public void testTuples()
+   {
+      List<Pair<Integer, Integer>> tuples2 = 
+            streams.streamAll(em, Customer.class)
+                  .select(c -> new Pair<>(1, 2))
+                  .toList();
+      checkTuples(tuples2, 1, 2);
+      
+      List<Tuple3<Integer, Integer, Integer>> tuples3 = 
+            streams.streamAll(em, Customer.class)
+                  .select(c -> new Tuple3<>(1, 2, 3))
+                  .toList();
+      checkTuples(tuples3, 1, 2, 3);
+
+      List<Tuple4<Integer, Integer, Integer, Integer>> tuples4 = 
+            streams.streamAll(em, Customer.class)
+                  .select(c -> new Tuple4<>(1, 2, 3, 4))
+                  .toList();
+      checkTuples(tuples4, 1, 2, 3, 4);
+
+      List<Tuple5<Integer, Integer, Integer, Integer, Integer>> tuples5 = 
+            streams.streamAll(em, Customer.class)
+                  .select(c -> new Tuple5<>(1, 2, 3, 4, 5))
+                  .toList();
+      checkTuples(tuples5, 1, 2, 3, 4, 5);
+
+      List<Tuple6<Integer, Integer, Integer, Integer, Integer, Integer>> tuples6 = 
+            streams.streamAll(em, Customer.class)
+                  .select(c -> new Tuple6<>(1, 2, 3, 4, 5, 6))
+                  .toList();
+      checkTuples(tuples6, 1, 2, 3, 4, 5, 6);
+
+      List<Tuple7<Integer, Integer, Integer, Integer, Integer, Integer, Integer>> tuples7 = 
+            streams.streamAll(em, Customer.class)
+                  .select(c -> new Tuple7<>(1, 2, 3, 4, 5, 6, 7))
+                  .toList();
+      checkTuples(tuples7, 1, 2, 3, 4, 5, 6, 7);
+
+      List<Tuple8<Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer>> tuples8 = 
+            streams.streamAll(em, Customer.class)
+                  .select(c -> new Tuple8<>(1, 2, 3, 4, 5, 6, 7, 8))
+                  .toList();
+      checkTuples(tuples8, 1, 2, 3, 4, 5, 6, 7, 8);
    }
 }

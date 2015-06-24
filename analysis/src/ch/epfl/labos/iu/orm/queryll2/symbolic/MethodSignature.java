@@ -1,5 +1,6 @@
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import org.objectweb.asm.Type;
@@ -54,5 +55,13 @@ public class MethodSignature
             Type.getInternalName(m.getDeclaringClass()), 
             m.getName(),
             Type.getMethodDescriptor(m));
+   }
+   
+   public static MethodSignature fromConstructor(Constructor<?> m)
+   {
+      return new MethodSignature(
+            Type.getInternalName(m.getDeclaringClass()), 
+            "<init>",
+            Type.getConstructorDescriptor(m));
    }
 }

@@ -27,7 +27,6 @@ import org.objectweb.asm.Type;
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter.OperationSideEffect;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue.NullConstant;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
@@ -336,6 +335,8 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             || TransformationClassAnalyzer.newTuple3.equals(sig)
             || TransformationClassAnalyzer.newTuple4.equals(sig)
             || TransformationClassAnalyzer.newTuple5.equals(sig)
+            || TransformationClassAnalyzer.newTuple6.equals(sig)
+            || TransformationClassAnalyzer.newTuple7.equals(sig)
             || TransformationClassAnalyzer.newTuple8.equals(sig))
       {
          ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];

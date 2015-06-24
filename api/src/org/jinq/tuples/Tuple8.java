@@ -35,7 +35,7 @@ public class Tuple8<A, B, C, D, E, F, G, H> extends Tuple
    @Override
    public String toString()
    {
-      return "Tuple3(" + getOne() + "," + getTwo() + "," + getThree() + "," + getFour() + "," + getFive() + "," + getSix() + "," + getSeven() + "," + getEight() + ")";
+      return "Tuple8(" + getOne() + "," + getTwo() + "," + getThree() + "," + getFour() + "," + getFive() + "," + getSix() + "," + getSeven() + "," + getEight() + ")";
    }
 
    public boolean equals(Object obj)
