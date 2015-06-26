@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+	  <groupId>org.jinq</groupId>
+	  <artifactId>jinq</artifactId>
+	  <version>1.8.3-SNAPSHOT</version>
+  </parent>
+  <artifactId>jinq-asm-rebased</artifactId>
+  <packaging>jar</packaging>
+
+  <name>ASM Bytecode Framework Rebased for Jinq</name>
+  <description>A private copy of the ASM framework rebased for Jinq to avoid dependency conflicts</description>
+
+  <licenses>
+    <license>
+      <name>ASM License (BSD 3-Clause License)</name>
+      <url>http://asm.ow2.org/license.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>jarjar-maven-plugin</artifactId>
+          <version>1.9</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>jarjar-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jarjar</goal>
+            </goals>
+            <configuration>
+              <overwrite>true</overwrite>
+              <includes>
+                <include>*:asm*</include>
+              </includes>
+              <rules>
+                <rule>
+                  <pattern>org.objectweb.asm.**</pattern>
+                  <result>org.jinq.rebased.org.objectweb.asm.@1</result>
+                </rule>
+                <keep>
+                  <pattern>org.**</pattern>
+                </keep>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <dependencies>
+    <dependency>
+	  <groupId>org.ow2.asm</groupId>
+	  <artifactId>asm-all</artifactId>
+	  <version>5.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
