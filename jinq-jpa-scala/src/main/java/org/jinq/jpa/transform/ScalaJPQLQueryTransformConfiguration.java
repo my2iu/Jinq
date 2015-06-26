@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
 import ch.epfl.labos.iu.orm.queryll2.path.MethodSideEffect;

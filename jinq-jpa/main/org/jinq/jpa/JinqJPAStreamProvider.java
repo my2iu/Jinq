@@ -98,9 +98,9 @@ public class JinqJPAStreamProvider
       MetamodelUtilAttribute attrib = new MetamodelUtilAttribute(fieldName, true);
       metamodel.insertAssociationAttribute(
             new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(m.getDeclaringClass()),
+                  org.jinq.rebased.org.objectweb.asm.Type.getInternalName(m.getDeclaringClass()),
                   m.getName(),
-                  org.objectweb.asm.Type.getMethodDescriptor(m)),
+                  org.jinq.rebased.org.objectweb.asm.Type.getMethodDescriptor(m)),
             attrib, isPlural);
    }
    
@@ -118,9 +118,9 @@ public class JinqJPAStreamProvider
       MetamodelUtilAttribute attrib = new MetamodelUtilAttribute(fieldName, true);
       metamodel.insertAssociationAttribute(
             new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(methodClass),
+                  org.jinq.rebased.org.objectweb.asm.Type.getInternalName(methodClass),
                   m.getName(),
-                  org.objectweb.asm.Type.getMethodDescriptor(m)),
+                  org.jinq.rebased.org.objectweb.asm.Type.getMethodDescriptor(m)),
             attrib, isPlural);
    }
 }

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.jinq.rebased.org.objectweb.asm.Type;
 import org.jooq.Field;
 import org.jooq.Schema;
 import org.jooq.Table;
@@ -84,7 +85,7 @@ public class MetamodelUtil
    {
       for (Table<?> table: schema.getTables())
       {
-         String recordClassName = org.objectweb.asm.Type.getInternalName(table.getRecordType());
+         String recordClassName = Type.getInternalName(table.getRecordType());
          for (Field<?> field: table.fields())
          {
             String name = field.getName();
@@ -92,7 +93,7 @@ public class MetamodelUtil
             MethodSignature methodSig = new MethodSignature(
                   recordClassName,
                   getterName,
-                  org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(field.getType())));
+                  Type.getMethodDescriptor(Type.getType(field.getType())));
             fieldMethods.put(methodSig, field);
          }
       }

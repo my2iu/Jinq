@@ -2,7 +2,7 @@ package org.jinq.jpa.transform;
 
 import java.lang.reflect.Field;
 
-import org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 import com.user00.thunk.SerializedLambda;
 

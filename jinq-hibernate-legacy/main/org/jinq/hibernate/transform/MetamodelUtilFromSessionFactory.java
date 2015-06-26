@@ -72,9 +72,9 @@ public class MetamodelUtilFromSessionFactory extends MetamodelUtil
          // Try to find the getter method
          Method m = entityClass.getMethod(name);
          MethodSignature sig = new MethodSignature(
-               org.objectweb.asm.Type.getInternalName(entityClass),
+               org.jinq.rebased.org.objectweb.asm.Type.getInternalName(entityClass),
                m.getName(),
-               org.objectweb.asm.Type.getMethodDescriptor(m)); 
+               org.jinq.rebased.org.objectweb.asm.Type.getMethodDescriptor(m)); 
          
          MetamodelUtilAttribute attrib = new MetamodelUtilAttribute(fieldName, true);
          

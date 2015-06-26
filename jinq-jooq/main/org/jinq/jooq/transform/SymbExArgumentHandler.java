@@ -1,7 +1,7 @@
 package org.jinq.jooq.transform;
 
 import org.jinq.jooq.querygen.ColumnExpressions;
-import org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 

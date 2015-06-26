@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.analysis.Analyzer;
-import org.objectweb.asm.tree.analysis.AnalyzerException;
-import org.objectweb.asm.tree.analysis.BasicInterpreter;
+import org.jinq.rebased.org.objectweb.asm.tree.MethodNode;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.Analyzer;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.BasicInterpreter;
 
 class CFG
 {

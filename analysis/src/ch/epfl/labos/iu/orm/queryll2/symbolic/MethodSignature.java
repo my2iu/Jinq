@@ -3,7 +3,7 @@ package ch.epfl.labos.iu.orm.queryll2.symbolic;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 public class MethodSignature
 {

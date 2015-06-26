@@ -1,9 +1,9 @@
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.analysis.AnalyzerException;
-import org.objectweb.asm.tree.analysis.Value;
+import org.jinq.rebased.org.objectweb.asm.tree.AbstractInsnNode;
+import org.jinq.rebased.org.objectweb.asm.tree.FieldInsnNode;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.Value;
 
 import ch.epfl.labos.iu.orm.queryll2.path.MethodSideEffectFieldAssign;
 

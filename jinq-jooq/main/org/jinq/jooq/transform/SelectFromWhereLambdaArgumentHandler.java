@@ -10,7 +10,7 @@ import org.jinq.jooq.querygen.TableRowReader;
 import org.jooq.Field;
 import org.jooq.Table;
 import org.jooq.impl.DSL;
-import org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
 

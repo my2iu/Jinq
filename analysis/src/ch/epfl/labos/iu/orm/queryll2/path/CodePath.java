@@ -3,14 +3,14 @@ package ch.epfl.labos.iu.orm.queryll2.path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LookupSwitchInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TableSwitchInsnNode;
-import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.jinq.rebased.org.objectweb.asm.Opcodes;
+import org.jinq.rebased.org.objectweb.asm.tree.AbstractInsnNode;
+import org.jinq.rebased.org.objectweb.asm.tree.ClassNode;
+import org.jinq.rebased.org.objectweb.asm.tree.JumpInsnNode;
+import org.jinq.rebased.org.objectweb.asm.tree.LookupSwitchInsnNode;
+import org.jinq.rebased.org.objectweb.asm.tree.MethodNode;
+import org.jinq.rebased.org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.FrameWithHelpers;

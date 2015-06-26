@@ -17,9 +17,9 @@
   
   <dependencies>
     <dependency>
-	  <groupId>org.ow2.asm</groupId>
-	  <artifactId>asm-all</artifactId>
-	  <version>5.0.1</version>
+	  <groupId>org.jinq</groupId>
+	  <artifactId>jinq-asm-rebased</artifactId>
+	  <version>1.8.3-SNAPSHOT</version>
     </dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>

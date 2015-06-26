@@ -3,7 +3,7 @@ package ch.epfl.labos.iu.orm.queryll2.path;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;

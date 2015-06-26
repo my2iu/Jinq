@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.jinq.rebased.org.objectweb.asm.Handle;
+import org.jinq.rebased.org.objectweb.asm.Opcodes;
+import org.jinq.rebased.org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.path.MethodAnalysisResults;
 import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisFactory;

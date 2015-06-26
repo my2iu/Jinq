@@ -41,6 +41,7 @@
 	
   <modules>
   	<module>api</module>
+  	<module>jinq-asm-rebased</module>
   	<module>analysis</module>
     <module>jinq-jpa</module>
     <module>jinq-jpa-scala</module>

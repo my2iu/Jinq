@@ -15,6 +15,7 @@ import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
 import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 
@@ -97,9 +98,9 @@ public class JinqHibernateStreamProvider
       MetamodelUtilAttribute attrib = new MetamodelUtilAttribute(fieldName, true);
       metamodel.insertAssociationAttribute(
             new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(m.getDeclaringClass()),
+                  Type.getInternalName(m.getDeclaringClass()),
                   m.getName(),
-                  org.objectweb.asm.Type.getMethodDescriptor(m)),
+                  Type.getMethodDescriptor(m)),
             attrib, isPlural);
    }
    
@@ -117,9 +118,9 @@ public class JinqHibernateStreamProvider
       MetamodelUtilAttribute attrib = new MetamodelUtilAttribute(fieldName, true);
       metamodel.insertAssociationAttribute(
             new MethodSignature(
-                  org.objectweb.asm.Type.getInternalName(methodClass),
+                  Type.getInternalName(methodClass),
                   m.getName(),
-                  org.objectweb.asm.Type.getMethodDescriptor(m)),
+                  Type.getMethodDescriptor(m)),
             attrib, isPlural);
    }
 }

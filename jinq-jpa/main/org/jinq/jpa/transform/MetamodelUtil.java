@@ -20,6 +20,8 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
+import org.jinq.rebased.org.objectweb.asm.Type;
+
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
@@ -176,7 +178,7 @@ public abstract class MetamodelUtil
          {
             registerEnum(fieldJavaType);
          }
-         String returnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(fieldJavaType));
+         String returnType = Type.getMethodDescriptor(Type.getType(fieldJavaType));
          // EclipseLink sometimes lists a different Java type in the attribute than 
          // what's used in the actual method (e.g. a Timestamp instead of a Date because
          // I guess that's what is being used internally). In those cases, we'll 
@@ -184,19 +186,19 @@ public abstract class MetamodelUtil
          String alternateReturnType = null;
          if (javaMember instanceof Field)
          {
-            alternateReturnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(((Field)javaMember).getType()));
+            alternateReturnType = Type.getMethodDescriptor(Type.getType(((Field)javaMember).getType()));
             if (returnType.equals(alternateReturnType)) alternateReturnType = null;
          } 
          else if (javaMember instanceof Method)
          {
-            alternateReturnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(((Method)javaMember).getReturnType()));
+            alternateReturnType = Type.getMethodDescriptor(Type.getType(((Method)javaMember).getReturnType()));
             if (returnType.equals(alternateReturnType)) alternateReturnType = null;
          }
          // EclipseLink lists the fields of superclasses in their subclasses, so
          // we can register those immediately without having to recurse into the
          // superclass
-         String declaredClassName = org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass());
-         String entityClassName = org.objectweb.asm.Type.getInternalName(entity.getJavaType());
+         String declaredClassName = Type.getInternalName(javaMember.getDeclaringClass());
+         String entityClassName = Type.getInternalName(entity.getJavaType());
          if (entityClassName.equals(declaredClassName)) entityClassName = null;
          // Register the method to field mapping
          MetamodelUtilAttribute fieldAttribute = new MetamodelUtilAttribute(singularAttrib);
@@ -233,12 +235,12 @@ public abstract class MetamodelUtil
             // We'll have to guess the getter name based on the name of the field.
             name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
          }
-         String returnType = org.objectweb.asm.Type.getMethodDescriptor(org.objectweb.asm.Type.getType(pluralAttrib.getJavaType())); 
+         String returnType = Type.getMethodDescriptor(Type.getType(pluralAttrib.getJavaType())); 
          // EclipseLink lists the fields of superclasses in their subclasses, so
          // we can register those immediately without having to recurse into the
          // superclass
-         String declaredClassName = org.objectweb.asm.Type.getInternalName(javaMember.getDeclaringClass());
-         String entityClassName = org.objectweb.asm.Type.getInternalName(entity.getJavaType());
+         String declaredClassName = Type.getInternalName(javaMember.getDeclaringClass());
+         String entityClassName = Type.getInternalName(entity.getJavaType());
          if (entityClassName.equals(declaredClassName)) entityClassName = null;
          // Register the method and variants
          MetamodelUtilAttribute nLinkAttrib = new MetamodelUtilAttribute(pluralAttrib);
@@ -257,7 +259,7 @@ public abstract class MetamodelUtil
          if (idEntity.getSupertype() != null)
          {
             IdentifiableType<?> jpaObject = idEntity.getSupertype();
-            String className = org.objectweb.asm.Type.getInternalName(entity.getJavaType());
+            String className = Type.getInternalName(entity.getJavaType());
             List<String> newSubclasses = new ArrayList<>();
             newSubclasses.add(className);
             findMetamodelEntityGetters(jpaObject, newSubclasses);
@@ -268,7 +270,7 @@ public abstract class MetamodelUtil
    protected void registerEnum(Class<?> fieldJavaType)
    {
       // Record the enum, and mark equals() using the enum as safe
-      String enumTypeName = org.objectweb.asm.Type.getInternalName(fieldJavaType); 
+      String enumTypeName = Type.getInternalName(fieldJavaType); 
       enums.put(enumTypeName, Arrays.asList(((Class<Enum<?>>)fieldJavaType).getEnumConstants()));
       MethodSignature eqMethod = new MethodSignature(enumTypeName, "equals", "(Ljava/lang/Object;)Z"); 
       comparisonMethods.put(eqMethod, TypedValue.ComparisonValue.ComparisonOp.eq);

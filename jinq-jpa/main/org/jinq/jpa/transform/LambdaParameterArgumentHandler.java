@@ -10,7 +10,7 @@ import org.jinq.jpa.jpqlquery.ParameterAsQuery;
 import org.jinq.jpa.jpqlquery.ParameterExpression;
 import org.jinq.jpa.jpqlquery.ParameterFieldExpression;
 import org.jinq.jpa.jpqlquery.SimpleRowReader;
-import org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;

@@ -1,7 +1,7 @@
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.analysis.Value;
+import org.jinq.rebased.org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.Value;
 
 // Holds symbolic values of variables. This is the base value that
 // simply stores a type for the variable--it is specialized to hold

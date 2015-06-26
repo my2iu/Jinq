@@ -22,7 +22,7 @@ import org.jinq.jpa.jpqlquery.SimpleRowReader;
 import org.jinq.jpa.jpqlquery.SubqueryExpression;
 import org.jinq.jpa.jpqlquery.TupleRowReader;
 import org.jinq.jpa.jpqlquery.UnaryExpression;
-import org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;

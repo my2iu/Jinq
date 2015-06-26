@@ -16,10 +16,10 @@ import org.jinq.orm.annotations.NoSideEffects;
 import org.jinq.tuples.Tuple6;
 import org.jinq.tuples.Tuple7;
 import org.jinq.tuples.Tuple8;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.jinq.rebased.org.objectweb.asm.ClassReader;
+import org.jinq.rebased.org.objectweb.asm.tree.ClassNode;
+import org.jinq.rebased.org.objectweb.asm.tree.MethodNode;
+import org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 

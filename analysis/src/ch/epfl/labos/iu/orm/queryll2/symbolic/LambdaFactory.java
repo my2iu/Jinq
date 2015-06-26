@@ -2,9 +2,9 @@ package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
 import java.util.List;
 
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.jinq.rebased.org.objectweb.asm.Handle;
+import org.jinq.rebased.org.objectweb.asm.Opcodes;
+import org.jinq.rebased.org.objectweb.asm.Type;
 
 public class LambdaFactory extends TypedValue
 {
