@@ -8,6 +8,7 @@ INCLUDED JAR PACKAGES
   jinq - BSD, 2-clause
   derby - Apache License 2.0
   asm - BSD, 3-clause
+  jarjar - Apache License 2.0
   eclipselink - EPL/EDL 1.0
   javax.persistence - EPL/EDL 1.0
   openjpa - Apache License 2.0

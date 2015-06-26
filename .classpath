@@ -6,12 +6,15 @@
 	<classpathentry kind="src" path="jinq-jpa/test"/>
 	<classpathentry kind="src" path="sample/src"/>
 	<classpathentry kind="src" path="api/test"/>
+	<classpathentry kind="src" path="jinq-jooq/main"/>
+	<classpathentry kind="src" path="jinq-jpa-scala/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/asm-all-5.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/derby.jar"/>
 	<classpathentry kind="lib" path="lib/jooq-3.3.2.jar"/>
 	<classpathentry kind="lib" path="sample/lib/javax.persistence_2.1.0.v201304241213.jar"/>
 	<classpathentry kind="lib" path="sample/lib/eclipselink-2.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/scala-library-2.11.3.jar"/>
+	<classpathentry kind="lib" path="sample/lib/rebased-asm-all-5.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

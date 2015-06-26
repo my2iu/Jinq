@@ -1,14 +1,28 @@
 <?xml version="1.0"?>
 <project name="Jinq" default="Zip">
 
-	<property name="asm" location="lib/asm-all-5.0.1.jar"/>
+	<property name="asm" location="sample/lib/asm-all-5.0.1.jar"/>
+	<property name="rebasedasm" location="sample/lib/rebased-asm-all-5.0.1.jar"/>
+	<property name="jarjar" location="sample/lib/jarjar-1.4.jar"/>
+	<!--
 	<property name="derby" location="lib/derby.jar"/>
 	<property name="derbytools" location="lib/derbytools.jar"/>
 	<property name="derbydata" location="bin/derby/data"/>
+	-->
 	<property name="javax.persistence" location="lib/javax.persistence.jar"/>
 	<property name="jooq" location="lib/jooq-3.3.2.jar"/>
 
-	<target name="Build Jinq API">
+	<target name="Rebase ASM library">
+	    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
+	        classpath="${jarjar}"/>
+	    <jarjar jarfile="${rebasedasm}">
+	        <zipfileset src="${asm}"/>
+	    	<rule pattern="org.objectweb.asm.**" result="org.jinq.rebased.org.objectweb.asm.@1"/>
+	    	<keep pattern="org.**"/>
+	    </jarjar>
+	</target>
+	
+	<target name="Build Jinq API" depends="Rebase ASM library">
 		<mkdir dir="bin"/>
 		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
 			<src path="api/src"/>
@@ -19,7 +33,7 @@
 		<mkdir dir="bin"/>
 		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
 			<classpath>
-				<pathelement location="${asm}"/>
+				<pathelement location="${rebasedasm}"/>
 			</classpath>
 			<src path="analysis/src"/>
 		</javac>
@@ -38,7 +52,7 @@
 		<mkdir dir="jarbin"/>
 		<javac destdir="jarbin" fork="true" includeantruntime="false">
 			<classpath>
-				<pathelement location="${asm}"/>
+				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${jooq}"/>
 				<pathelement location="${javax.persistence}"/>
 			</classpath>
