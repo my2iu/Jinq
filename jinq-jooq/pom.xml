@@ -21,6 +21,7 @@
 	  <groupId>org.jooq</groupId>
 	  <artifactId>jooq</artifactId>
 	  <version>3.3.2</version>
+	  <scope>provided</scope>
 	</dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>
