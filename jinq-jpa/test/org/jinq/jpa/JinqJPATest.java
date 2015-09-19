@@ -453,6 +453,46 @@ public class JinqJPATest extends JinqJPATestBase
    }
 
    @Test
+   public void testJPQLStringContains()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+         .where( c -> c.getName().contains("Al"))
+         .toList();
+      assertEquals("SELECT A FROM Customer A WHERE LOCATE('Al', A.name) > 0", query);
+      assertEquals(1, customers.size());
+      assertEquals("Alice", customers.get(0).getName());
+
+      customers = streams.streamAll(em, Customer.class)
+            .where( c -> !c.getName().contains("Al"))
+            .toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT LOCATE('Al', A.name) > 0", query);
+      assertEquals(4, customers.size());
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testJPQLStringContainsCharSequence1()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+            .where( c -> c.getName().contains(new StringBuilder("A").append("l")))
+            .toList();
+      assertEquals("SELECT A FROM Customer A WHERE LOCATE('Al', A.name) > 0", query);
+      assertEquals(1, customers.size());
+      assertEquals("Alice", customers.get(0).getName());
+   }
+   
+   @Test(expected=IllegalArgumentException.class)
+   public void testJPQLStringContainsCharSequence2()
+   {
+      StringBuilder al = new StringBuilder("A").append("l");
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+            .where( c -> c.getName().contains(al))
+            .toList();
+      assertEquals("SELECT A FROM Customer A WHERE LOCATE('Al', A.name) > 0", query);
+      assertEquals(1, customers.size());
+      assertEquals("Alice", customers.get(0).getName());
+   }
+   
+   @Test
    public void testJPQLNumberFunctions()
    {
       List<Double> customers = streams.streamAll(em, Customer.class)
