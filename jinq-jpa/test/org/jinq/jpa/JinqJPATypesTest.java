@@ -89,6 +89,19 @@ public class JinqJPATypesTest extends JinqJPATestBase
    }
 
    @Test
+   public void testFloat()
+   {
+      float val = 1;
+      List<Pair<Supplier, Float>> suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> s.getPaymentDiscount() > s.getPaymentDiscount() + val + 2)
+            .select(s -> new Pair<>(s, s.getPaymentDiscount()))
+            .toList();
+      suppliers = suppliers.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
+      assertEquals("SELECT A, A.paymentDiscount FROM Supplier A WHERE A.paymentDiscount > A.paymentDiscount + :param0 + 2.0", query);
+      assertEquals(0, suppliers.size());
+   }
+
+   @Test
    public void testDouble()
    {
       double val = 1;

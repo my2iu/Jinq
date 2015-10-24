@@ -100,6 +100,7 @@ public abstract class MetamodelUtil
       safeMethods.addAll(TransformationClassAnalyzer.KnownSafeMethods);
       safeMethods.add(TransformationClassAnalyzer.integerIntValue);
       safeMethods.add(TransformationClassAnalyzer.longLongValue);
+      safeMethods.add(TransformationClassAnalyzer.floatFloatValue);
       safeMethods.add(TransformationClassAnalyzer.doubleDoubleValue);
       safeMethods.add(TransformationClassAnalyzer.booleanBooleanValue);
       safeMethods.add(inQueryStream);
@@ -107,6 +108,7 @@ public abstract class MetamodelUtil
       safeStaticMethods.addAll(TransformationClassAnalyzer.KnownSafeStaticMethods);
       safeStaticMethods.add(TransformationClassAnalyzer.integerValueOf);
       safeStaticMethods.add(TransformationClassAnalyzer.longValueOf);
+      safeStaticMethods.add(TransformationClassAnalyzer.floatValueOf);
       safeStaticMethods.add(TransformationClassAnalyzer.doubleValueOf);
       safeStaticMethods.add(TransformationClassAnalyzer.booleanValueOf);
       fieldMethods = new HashMap<>();

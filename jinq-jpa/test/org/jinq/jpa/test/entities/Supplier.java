@@ -21,6 +21,7 @@ public class Supplier extends SignatureSuperclass implements Serializable {
    private List<Item> items;
    private long revenue;
    private boolean hasFreeShipping;
+   private float paymentDiscount;
 
    public Supplier() {
    }
@@ -70,6 +71,13 @@ public class Supplier extends SignatureSuperclass implements Serializable {
       this.name = name;
    }
 
+   public float getPaymentDiscount() {
+      return this.paymentDiscount;
+   }
+
+   public void setPaymentDiscount(float paymentDiscount) {
+      this.paymentDiscount = paymentDiscount;
+   }
 
    //bi-directional many-to-many association to Item
    @ManyToMany(mappedBy="suppliers")

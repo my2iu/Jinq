@@ -83,6 +83,12 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             new ConstantExpression(Long.toString(val.val))); 
    }
 
+   @Override public ColumnExpressions<?> floatConstantValue(ConstantValue.FloatConstant val, SymbExPassDown in) throws TypedValueVisitorException
+   {
+      return ColumnExpressions.singleColumn(new SimpleRowReader<Float>(),
+            new ConstantExpression(Float.toString(val.val))); 
+   }
+   
    @Override public ColumnExpressions<?> doubleConstantValue(ConstantValue.DoubleConstant val, SymbExPassDown in) throws TypedValueVisitorException
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<Double>(),
@@ -392,6 +398,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       }
       else if (sig.equals(TransformationClassAnalyzer.integerIntValue)
             || sig.equals(TransformationClassAnalyzer.longLongValue)
+            || sig.equals(TransformationClassAnalyzer.floatFloatValue)
             || sig.equals(TransformationClassAnalyzer.doubleDoubleValue)
             || sig.equals(TransformationClassAnalyzer.booleanBooleanValue))
       {
@@ -636,6 +643,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       MethodSignature sig = val.getSignature();
       if (sig.equals(TransformationClassAnalyzer.integerValueOf)
             || sig.equals(TransformationClassAnalyzer.longValueOf)
+            || sig.equals(TransformationClassAnalyzer.floatValueOf)
             || sig.equals(TransformationClassAnalyzer.doubleValueOf)
             || sig.equals(TransformationClassAnalyzer.booleanValueOf))
       {
@@ -755,6 +763,9 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       numericPromotionPriority.put(Type.getObjectType("java/math/BigInteger"), n);
       n++;
       numericPromotionPriority.put(Type.getObjectType("java/math/BigDecimal"), n);
+      n++;
+      numericPromotionPriority.put(Type.FLOAT_TYPE, n);
+      numericPromotionPriority.put(Type.getObjectType("java/lang/Float"), n);
       n++;
       numericPromotionPriority.put(Type.DOUBLE_TYPE, n);
       numericPromotionPriority.put(Type.getObjectType("java/lang/Double"), n);

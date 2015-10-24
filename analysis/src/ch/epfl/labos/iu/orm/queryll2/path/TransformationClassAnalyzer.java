@@ -154,10 +154,12 @@ public class TransformationClassAnalyzer
    public final static MethodSignature integerValueOf = new MethodSignature("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
    public final static MethodSignature longValueOf = new MethodSignature("java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
    public final static MethodSignature doubleValueOf = new MethodSignature("java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+   public final static MethodSignature floatValueOf = new MethodSignature("java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
    public final static MethodSignature booleanValueOf = new MethodSignature("java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
    public final static MethodSignature integerIntValue = new MethodSignature("java/lang/Integer", "intValue", "()I");
    public final static MethodSignature longLongValue = new MethodSignature("java/lang/Long", "longValue", "()J");
    public final static MethodSignature doubleDoubleValue = new MethodSignature("java/lang/Double", "doubleValue", "()D");
+   public final static MethodSignature floatFloatValue = new MethodSignature("java/lang/Float", "floatValue", "()F");
    public final static MethodSignature booleanBooleanValue = new MethodSignature("java/lang/Boolean", "booleanValue", "()Z");
    public final static MethodSignature bigIntegerValueOfLong = new MethodSignature("java/math/BigInteger", "valueOf", "(J)Ljava/math/BigInteger;");
    public final static MethodSignature newBigDecimalLong = new MethodSignature("java/math/BigDecimal", "<init>", "(J)V");
