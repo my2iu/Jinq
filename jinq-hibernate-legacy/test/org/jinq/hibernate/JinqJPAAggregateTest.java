@@ -96,7 +96,11 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals(1117.0, (double)streams.streamAll(em, Item.class)
             .sumDouble(i -> i.getSaleprice()), 0.001);
       assertEquals("SELECT SUM(A.saleprice) FROM org.jinq.hibernate.test.entities.Item A", query);
-      
+
+      assertEquals(0.0, (double)streams.streamAll(em, Supplier.class)
+            .sumDouble(s -> 0.0 + s.getPaymentDiscount()), 0.001);  // sum of float values gets a double?
+      assertEquals("SELECT SUM(0.0 + A.paymentDiscount) FROM Supplier A", query);
+
       assertEquals(new BigDecimal(2467), streams.streamAll(em, Lineorder.class)
             .sumBigDecimal(lo -> lo.getTotal()));
       assertEquals("SELECT SUM(A.total) FROM org.jinq.hibernate.test.entities.Lineorder A", query);

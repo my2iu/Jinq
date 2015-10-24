@@ -21,6 +21,7 @@ public class Supplier implements Serializable {
    private long revenue;
    private boolean hasFreeShipping;
    private byte[] signature;
+   private float paymentDiscount;
 
    public Supplier() {
    }
@@ -61,7 +62,6 @@ public class Supplier implements Serializable {
       this.country = country;
    }
 
-
    public String getName() {
       return this.name;
    }
@@ -78,6 +78,13 @@ public class Supplier implements Serializable {
       this.signature = signature;
    }
 
+   public float getPaymentDiscount() {
+      return this.paymentDiscount;
+   }
+
+   public void setPaymentDiscount(float paymentDiscount) {
+      this.paymentDiscount = paymentDiscount;
+   }
 
    //bi-directional many-to-many association to Item
    @ManyToMany(mappedBy="suppliers")
