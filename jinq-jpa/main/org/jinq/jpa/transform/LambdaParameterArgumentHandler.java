@@ -102,11 +102,11 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       // outside the query where they will be evaluated and then passed in
       // as a parameter)
       try {
-      if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) 
-            && (Annotations.asmTypeToClass(argType).isPrimitive() || 
-                  (!metamodel.isKnownEnumType(argType.getInternalName()) 
-                  && !metamodel.isKnownManagedType(argType.getClassName()))))
-         throw new TypedValueVisitorException("Accessing a field with unhandled type");
+         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) 
+               && (Annotations.asmTypeToClass(argType).isPrimitive() || 
+                     (!metamodel.isKnownEnumType(argType.getInternalName()) 
+                     && !metamodel.isKnownManagedType(argType.getClassName()))))
+            throw new TypedValueVisitorException("Accessing a field with unhandled type: " + Annotations.asmTypeToClass(argType).getName());
       } 
       catch (ClassNotFoundException e) 
       {
@@ -262,10 +262,17 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
          // motion will be used to push those field accesses or method calls
          // outside the query where they will be evaluated and then passed in
          // as a parameter)
-         if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) 
-               && !metamodel.isKnownEnumType(argType.getInternalName())
-               && !metamodel.isKnownManagedType(argType.getClassName()))
-            throw new TypedValueVisitorException("Accessing a field with unhandled type");
+         try {
+            if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) 
+                  && (Annotations.asmTypeToClass(argType).isPrimitive() || 
+                        (!metamodel.isKnownEnumType(argType.getInternalName()) 
+                        && !metamodel.isKnownManagedType(argType.getClassName()))))
+               throw new TypedValueVisitorException("Accessing a field with unhandled type: " + Annotations.asmTypeToClass(argType).getName());
+         } 
+         catch (ClassNotFoundException e) 
+         {
+            throw new TypedValueVisitorException("Accessing a field with unhandled type", e);
+         }
 
          return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
                new ParameterFieldExpression(lambda.getLambdaIndex(), name)); 
