@@ -9,7 +9,7 @@
 
   <groupId>org.jinq</groupId>
   <artifactId>jinq</artifactId>
-  <version>1.8.5</version>
+  <version>1.8.6-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <name>Jinq</name>
@@ -28,7 +28,7 @@
   	<url>https://github.com/my2iu/Jinq</url>
   	<connection>scm:git:https://github.com/my2iu/Jinq.git</connection>
   	<developerConnection>scm:git:https://my2iu@github.com/my2iu/Jinq.git</developerConnection>
-    <tag>jinq-1.8.5</tag>
+    <tag>jinq-1.8.3</tag>
   </scm>
   
   <developers>
