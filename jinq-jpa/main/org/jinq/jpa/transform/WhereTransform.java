@@ -71,7 +71,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
          TypedValue returnVal = PathAnalysisSimplifier
-               .simplifyBoolean(path.getReturnValue(), config.getComparisonMethods());
+               .simplifyBoolean(path.getReturnValue(), config.getComparisonMethods(), config.isAllEqualsSafe);
          SymbExPassDown returnPassdown = SymbExPassDown.with(null, true);
          ColumnExpressions<?> returnColumns = returnVal.visit(translator, returnPassdown);
          if (!returnColumns.isSingleColumn())

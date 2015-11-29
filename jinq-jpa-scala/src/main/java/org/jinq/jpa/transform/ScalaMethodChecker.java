@@ -14,9 +14,9 @@ public class ScalaMethodChecker extends MethodChecker
    ScalaMethodChecker(Set<Class<?>> safeMethodAnnotations,
          Set<MethodSignature> safeMethods,
          Set<MethodSignature> safeStaticMethods, 
-         boolean isObjectEqualsSafe, boolean isCollectionContainsSafe)
+         boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe)
    {
-      super(safeMethodAnnotations, safeMethods, safeStaticMethods, isObjectEqualsSafe, isCollectionContainsSafe);
+      super(safeMethodAnnotations, safeMethods, safeStaticMethods, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe);
    }
    
    @Override

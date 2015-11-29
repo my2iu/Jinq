@@ -19,7 +19,8 @@ class JinqJPAHints
    public ClassLoader lambdaClassLoader = null;
    public boolean dieOnError = true;
    public boolean useCaching = true;
-   public boolean isObjectEqualsSafe = false;
+   public boolean isObjectEqualsSafe = true;
+   public boolean isAllEqualsSafe = true;
    public boolean isCollectionContainsSafe = true;
    
    public boolean setHint(String name, Object val)
@@ -36,6 +37,8 @@ class JinqJPAHints
          useCaching = (Boolean)val;
       else if ("isObjectEqualsSafe".equals(name) && val instanceof Boolean)
          isObjectEqualsSafe = (Boolean)val;
+      else if ("isAllEqualsSafe".equals(name) && val instanceof Boolean)
+         isAllEqualsSafe = (Boolean)val;
       else if ("isCollectionContainsSafe".equals(name) && val instanceof Boolean)
          isCollectionContainsSafe = (Boolean)val;
       else

@@ -111,10 +111,10 @@ public class LambdaAnalysis
    private boolean usesParametersAsFields;
    MethodAnalysisResults symbolicAnalysis;
 
-   public static LambdaAnalysis fullyAnalyzeClassAsLambda(LambdaInfo lambdaInfo, LambdaAsClassAnalysisConfig lambdaAsClassConfig, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   public static LambdaAnalysis fullyAnalyzeClassAsLambda(LambdaInfo lambdaInfo, LambdaAsClassAnalysisConfig lambdaAsClassConfig, int numLambdaArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
       try {
-         MethodAnalysisResults analysis = analyzeLambdaClass(lambdaInfo.Lambda.getClass(), metamodel, lambdaAsClassConfig, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe, isCollectionContainsSafe);
+         MethodAnalysisResults analysis = analyzeLambdaClass(lambdaInfo.Lambda.getClass(), metamodel, lambdaAsClassConfig, lambdaInfo.Lambda.getClass().getClassLoader(), isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -133,11 +133,11 @@ public class LambdaAnalysis
     * Used to analyze a lambda when we only have the name of the class used as the lambda
     * and not an actual reference to the lambda. 
     */
-   public static LambdaAnalysis analyzeClassAsLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, LambdaAsClassAnalysisConfig lambdaAsClassConfig, String className, Map<String, TypedValue> indirectParamMapping, boolean throwExceptionOnFailure) 
+   public static LambdaAnalysis analyzeClassAsLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, LambdaAsClassAnalysisConfig lambdaAsClassConfig, String className, Map<String, TypedValue> indirectParamMapping, boolean throwExceptionOnFailure) 
    {
       try {
          Class<?> c = Class.forName(className);
-         MethodAnalysisResults analysis = analyzeLambdaClass(c, metamodel, lambdaAsClassConfig, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe);
+         MethodAnalysisResults analysis = analyzeLambdaClass(c, metamodel, lambdaAsClassConfig, alternateClassLoader, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -161,7 +161,7 @@ public class LambdaAnalysis
       }
    }
 
-   public static LambdaAnalysis fullyAnalyzeLambda(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   public static LambdaAnalysis fullyAnalyzeLambda(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
       // Lambdas are usually encoded as static method references, but when
       // method handles are used as lambdas, the JDK sometimes encodes them
@@ -171,7 +171,7 @@ public class LambdaAnalysis
          if (lambdaInfo.isInvokeVirtual())
          {
             // Special handling of invokeVirtual here.
-            return analyzeInvokeVirtual(lambdaInfo, metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
+            return analyzeInvokeVirtual(lambdaInfo, metamodel, alternateClassLoader, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
          }
          if (throwExceptionOnFailure) throw new IllegalArgumentException("Lambda has an unknown format (an unsupported type of method handle is possibly being used here)");
          return null;
@@ -184,7 +184,7 @@ public class LambdaAnalysis
       SerializedLambda s = lambdaInfo.serializedLambda;
       try {
          if (s == null) return null;
-         MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, s.implClass, s.implMethodName, s.implMethodSignature);
+         MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe, s.implClass, s.implMethodName, s.implMethodSignature);
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -204,13 +204,13 @@ public class LambdaAnalysis
     * (Eclipse seems to encode method references like a normal method). So here we
     * handle this special case of an "invoke virtual" lambda.
     */
-   protected static MethodAnalysisResults analyzeInvokeVirtual(String methodClass, String methodName, String methodSignature, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   protected static MethodAnalysisResults analyzeInvokeVirtual(String methodClass, String methodName, String methodSignature, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
       // See if the method call is allowed. Create a fake method argument that reroutes
       // to be the base of the method call.
       MethodSignature sig = new MethodSignature(methodClass, methodName, methodSignature);
       Type [] argTypes = Type.getMethodType(sig.desc).getArgumentTypes();
-      MethodChecker checker = metamodel.getMethodChecker(isObjectEqualsSafe, isCollectionContainsSafe);
+      MethodChecker checker = metamodel.getMethodChecker(isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe);
       TypedValue fakeBase = new TypedValue.ArgValue(sig.getOwnerType(), 0);
       List<TypedValue> fakeArgs = new ArrayList<>();
       for (int n = 0; n < argTypes.length; n++)
@@ -231,7 +231,7 @@ public class LambdaAnalysis
       return analysis;
    }
    
-   protected static LambdaAnalysis analyzeInvokeVirtual(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   protected static LambdaAnalysis analyzeInvokeVirtual(LambdaInfo lambdaInfo, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
       // If the invoke virtual comes from a method reference, then there shouldn't be any captured arguments 
       SerializedLambda s = lambdaInfo.serializedLambda;
@@ -241,13 +241,13 @@ public class LambdaAnalysis
          return null;
       }
 
-      MethodAnalysisResults analysis = analyzeInvokeVirtual(s.implClass, s.implMethodName, s.implMethodSignature, metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure); 
+      MethodAnalysisResults analysis = analyzeInvokeVirtual(s.implClass, s.implMethodName, s.implMethodSignature, metamodel, alternateClassLoader, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure); 
       if (analysis == null) return null;
       
       return new LambdaAnalysis(lambdaInfo.Lambda, s, analysis, lambdaInfo.lambdaIndex);
    }
 
-   protected static LambdaAnalysis analyzeInvokeVirtual(Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   protected static LambdaAnalysis analyzeInvokeVirtual(Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
       // If the invoke virtual comes from a method reference, then there shouldn't be any captured arguments 
       if (indirectCapturedArgs.size() > 0)
@@ -256,7 +256,7 @@ public class LambdaAnalysis
          return null;
       }
 
-      MethodAnalysisResults analysis = analyzeInvokeVirtual(lambdaHandle.getOwner(), lambdaHandle.getName(), lambdaHandle.getDesc(), metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure); 
+      MethodAnalysisResults analysis = analyzeInvokeVirtual(lambdaHandle.getOwner(), lambdaHandle.getName(), lambdaHandle.getDesc(), metamodel, alternateClassLoader, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure); 
       if (analysis == null) return null;
       
       return new LambdaAnalysis(analysis, indirectCapturedArgs, Type.getArgumentTypes(lambdaHandle.getDesc()).length);
@@ -266,7 +266,7 @@ public class LambdaAnalysis
     * Used to analyze a lambda when we only have the name of the method used in the lambda
     * and not an actual reference to the lambda. 
     */
-   public static LambdaAnalysis analyzeMethod(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, boolean throwExceptionOnFailure)
+   public static LambdaAnalysis analyzeMethod(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, Handle lambdaHandle, List<TypedValue> indirectCapturedArgs, boolean throwExceptionOnFailure)
    {
       // Lambdas are usually encoded as static method references, but when
       // method handles are used as lambdas, the JDK sometimes encodes them
@@ -276,7 +276,7 @@ public class LambdaAnalysis
          if (lambdaHandle.getTag() == Opcodes.H_INVOKEVIRTUAL)
          {
             // Special handling of invokeVirtual here.
-            return analyzeInvokeVirtual(lambdaHandle, indirectCapturedArgs, metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
+            return analyzeInvokeVirtual(lambdaHandle, indirectCapturedArgs, metamodel, alternateClassLoader, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
          }
          if (throwExceptionOnFailure) throw new IllegalArgumentException("Lambda has an unknown format (an unsupported type of method handle is possibly being used here)");
          return null;
@@ -287,7 +287,7 @@ public class LambdaAnalysis
       //   we've cached the results of this analysis already without needing
       //   to redo all this analysis.
       try {
-         MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, lambdaHandle.getOwner(), lambdaHandle.getName(), lambdaHandle.getDesc());
+         MethodAnalysisResults analysis = analyzeLambda(metamodel, alternateClassLoader, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe, lambdaHandle.getOwner(), lambdaHandle.getName(), lambdaHandle.getDesc());
          if (analysis == null) 
          {
             if (throwExceptionOnFailure) throw new IllegalArgumentException("Could not analyze lambda code");
@@ -308,19 +308,19 @@ public class LambdaAnalysis
       }
    }
 
-   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, String className, String methodName, String methodSignature) throws IOException, AnalyzerException 
+   private static MethodAnalysisResults analyzeLambda(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, String className, String methodName, String methodSignature) throws IOException, AnalyzerException 
    {
       // Open up the corresponding class to analyze
       PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-            metamodel.getMethodChecker(isObjectEqualsSafe, isCollectionContainsSafe));
+            metamodel.getMethodChecker(isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe));
       TransformationClassAnalyzer classAnalyzer = 
             new TransformationClassAnalyzer(className, alternateClassLoader);
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe));
+      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe), isAllEqualsSafe);
       return analysis;
    }
 
-   private static MethodAnalysisResults analyzeLambdaClass(Class<?> lambdaClass, MetamodelUtil metamodel, LambdaAsClassAnalysisConfig lambdaAsClass, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe) throws IOException, AnalyzerException 
+   private static MethodAnalysisResults analyzeLambdaClass(Class<?> lambdaClass, MetamodelUtil metamodel, LambdaAsClassAnalysisConfig lambdaAsClass, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe) throws IOException, AnalyzerException 
    {
       // Open up the corresponding class to analyze
       TransformationClassAnalyzer classAnalyzer = 
@@ -329,9 +329,9 @@ public class LambdaAnalysis
       if (matchingMethod == null)
          throw new AnalyzerException(null, "Could not find a lambda method with the expected name in the class");
       PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
-            metamodel.getMethodChecker(isObjectEqualsSafe, isCollectionContainsSafe));
+            metamodel.getMethodChecker(isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe));
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(matchingMethod.getName(), Type.getMethodDescriptor(matchingMethod), pathAnalysisFactory);
-      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe));
+      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe), isAllEqualsSafe);
       return analysis;
    }
    

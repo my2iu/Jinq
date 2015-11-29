@@ -226,12 +226,12 @@ public class ScalaMetamodelUtil extends MetamodelUtilFromMetamodel
    }
    
    @Override
-   public MethodChecker getMethodChecker(boolean isObjectEqualsSafe, boolean isCollectionContainsSafe)
+   public MethodChecker getMethodChecker(boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe)
    {
       return new ScalaMethodChecker(
             getSafeMethodAnnotations(), 
             getSafeMethods(), getSafeStaticMethods(),
-            isObjectEqualsSafe, isCollectionContainsSafe);
+            isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe);
    }
    
    static boolean isAggregateMethod(MethodSignature sig)

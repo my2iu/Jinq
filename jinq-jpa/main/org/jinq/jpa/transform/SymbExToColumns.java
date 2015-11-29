@@ -14,6 +14,7 @@ import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.FunctionExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.ParameterAsQuery;
+import org.jinq.jpa.jpqlquery.ParameterExpression;
 import org.jinq.jpa.jpqlquery.ReadFieldExpression;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
@@ -370,6 +371,10 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          String fieldName = config.metamodel.fieldMethodToFieldName(sig);
          SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
          ColumnExpressions<?> base = val.base.visit(this, passdown);
+         if (base.getOnlyColumn() instanceof ParameterExpression)
+         {
+            throw new IllegalArgumentException("Cannot access fields and members of complex query parameters inside a query. Use simpler types for parameters (i.e. store the fields in local variables, then use these local variables as parameters for the query instead)");
+         }
          if (in.isExpectingConditional &&
                (sig.getReturnType().equals(Type.BOOLEAN_TYPE) 
                || sig.getReturnType().equals(Type.getObjectType("java/lang/Boolean"))))
@@ -429,7 +434,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
                throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
             LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
             try {
-               lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, config.isCollectionContainsSafe, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
+               lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, config.isAllEqualsSafe, config.isCollectionContainsSafe, lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
             } catch (Exception e)
             {
                throw new TypedValueVisitorException("Could not analyze the lambda code", e);

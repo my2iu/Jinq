@@ -78,7 +78,7 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
                   throw new TypedValueVisitorException("Expecting a lambda factory for aggregate method");
                LambdaFactory lambdaFactory = (LambdaFactory)val.args.get(0);
                try {
-                  lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, config.isCollectionContainsSafe,  
+                  lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, config.isAllEqualsSafe, config.isCollectionContainsSafe,  
                         lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
                } catch (Exception e)
                {

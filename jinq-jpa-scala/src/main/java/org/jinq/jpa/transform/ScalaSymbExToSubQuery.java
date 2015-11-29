@@ -56,7 +56,7 @@ public class ScalaSymbExToSubQuery extends SymbExToSubQuery
             {
                LambdaFactory lambdaFactory = (LambdaFactory)arg;
                try {
-                  lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, config.isCollectionContainsSafe,  
+                  lambda = LambdaAnalysis.analyzeMethod(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, config.isAllEqualsSafe, config.isCollectionContainsSafe,  
                         lambdaFactory.getLambdaMethod(), lambdaFactory.getCapturedArgs(), true);
                } catch (Exception e)
                {
@@ -68,7 +68,7 @@ public class ScalaSymbExToSubQuery extends SymbExToSubQuery
                MethodCallValue.VirtualMethodCallValue lambdaConstructor = (MethodCallValue.VirtualMethodCallValue)arg;
                try {
                   Map<String, TypedValue> indirectParamMapping = config.findLambdaAsClassConstructorParameters(lambdaConstructor.getSignature(), lambdaConstructor.args);
-                  lambda = LambdaAnalysis.analyzeClassAsLambda(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, config.isCollectionContainsSafe, new LambdaAnalysis.LambdaAsClassAnalysisConfig(), lambdaConstructor.getSignature().getOwnerType().getClassName(), indirectParamMapping, true);
+                  lambda = LambdaAnalysis.analyzeClassAsLambda(config.metamodel, config.alternateClassLoader, config.isObjectEqualsSafe, config.isAllEqualsSafe, config.isCollectionContainsSafe, new LambdaAnalysis.LambdaAsClassAnalysisConfig(), lambdaConstructor.getSignature().getOwnerType().getClassName(), indirectParamMapping, true);
                } catch (Exception e)
                {
                   throw new TypedValueVisitorException("Could not analyze the lambda code", e);

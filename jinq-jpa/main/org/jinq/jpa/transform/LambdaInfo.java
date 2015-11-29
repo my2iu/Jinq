@@ -111,9 +111,9 @@ public class LambdaInfo
       }
    }
    
-   public LambdaAnalysis fullyAnalyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
+   public LambdaAnalysis fullyAnalyze(MetamodelUtil metamodel, ClassLoader alternateClassLoader, boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe, boolean throwExceptionOnFailure)
    {
-      return LambdaAnalysis.fullyAnalyzeLambda(this, metamodel, alternateClassLoader, isObjectEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
+      return LambdaAnalysis.fullyAnalyzeLambda(this, metamodel, alternateClassLoader, isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe, throwExceptionOnFailure);
    }
 
    /**

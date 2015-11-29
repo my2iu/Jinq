@@ -116,4 +116,7 @@ public class Item implements Serializable {
 		return lineorder;
 	}
 
+	public boolean equals(Object obj) {
+	   return obj == this;
+	}
 }

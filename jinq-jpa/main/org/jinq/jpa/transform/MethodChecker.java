@@ -22,6 +22,7 @@ class MethodChecker implements PathAnalysisMethodChecker
    private final Set<MethodSignature> safeMethods;
    private final Set<MethodSignature> safeStaticMethods;
    private final boolean isObjectEqualsSafe;
+   private final boolean isAllEqualsSafe;
    private final boolean isCollectionContainsSafe;
 
    public final static MethodSignature objectEquals = new MethodSignature("java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
@@ -131,12 +132,14 @@ class MethodChecker implements PathAnalysisMethodChecker
          Set<MethodSignature> safeMethods,
          Set<MethodSignature> safeStaticMethods, 
          boolean isObjectEqualsSafe,
+         boolean isAllEqualsSafe,
          boolean isCollectionContainsSafe)
    {
       this.safeMethodAnnotations = safeMethodAnnotations;
       this.safeMethods = safeMethods;
       this.safeStaticMethods = safeStaticMethods;
       this.isObjectEqualsSafe = isObjectEqualsSafe;
+      this.isAllEqualsSafe = isAllEqualsSafe;
       this.isCollectionContainsSafe = isCollectionContainsSafe;
    }
 
@@ -157,7 +160,13 @@ class MethodChecker implements PathAnalysisMethodChecker
    public OperationSideEffect isMethodSafe(MethodSignature m, TypedValue base,
          List<TypedValue> args)
    {
-      if (isObjectEqualsSafe && objectEquals.equals(m))
+      if (isAllEqualsSafe 
+            && "equals".equals(m.name) 
+            && "(Ljava/lang/Object;)Z".equals(m.desc)) 
+      {
+         return OperationSideEffect.NONE;
+      }
+      else if (isObjectEqualsSafe && objectEquals.equals(m))
       {
          return OperationSideEffect.NONE;
       }

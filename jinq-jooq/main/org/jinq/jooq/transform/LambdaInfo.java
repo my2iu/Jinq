@@ -57,7 +57,7 @@ public class LambdaInfo
          TransformationClassAnalyzer classAnalyzer = 
                new TransformationClassAnalyzer(className);
          MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-         PathAnalysisSimplifier.cleanAndSimplify(analysis, Collections.emptyMap());
+         PathAnalysisSimplifier.cleanAndSimplify(analysis, Collections.emptyMap(), false);
          return analysis;
       } catch (IOException e)
       {

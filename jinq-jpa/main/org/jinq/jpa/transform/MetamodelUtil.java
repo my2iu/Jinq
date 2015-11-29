@@ -403,11 +403,11 @@ public abstract class MetamodelUtil
       return safeStaticMethods;
    }
    
-   public MethodChecker getMethodChecker(boolean isObjectEqualsSafe, boolean isCollectionContainsSafe)
+   public MethodChecker getMethodChecker(boolean isObjectEqualsSafe, boolean isAllEqualsSafe, boolean isCollectionContainsSafe)
    {
       return new MethodChecker(
             getSafeMethodAnnotations(), 
             getSafeMethods(), getSafeStaticMethods(),
-            isObjectEqualsSafe, isCollectionContainsSafe);
+            isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe);
    }
 }

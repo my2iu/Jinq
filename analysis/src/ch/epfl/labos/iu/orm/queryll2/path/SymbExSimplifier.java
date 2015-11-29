@@ -16,10 +16,12 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, RuntimeException>
 {
    final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> additionalComparisonMethods;
+   final boolean convertAllEquals;
    public SymbExSimplifier(
-         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> additionalComparisonMethods)
+         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> additionalComparisonMethods, boolean convertAllEquals)
    {
       this.additionalComparisonMethods = additionalComparisonMethods;
+      this.convertAllEquals = convertAllEquals;
    }
    
    public TypedValue defaultValue(TypedValue val, I in) 
@@ -184,6 +186,10 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
             return new TypedValue.MathOpValue(mathMethods.get(sig), mathMethodsType.get(sig), val.base, val.args.get(0));
          else
             return new TypedValue.MathOpValue(mathMethods.get(sig), val.base, val.args.get(0));
+      }
+      if (convertAllEquals && "equals".equals(sig.name) && "(Ljava/lang/Object;)Z".equals(sig.desc))
+      {
+         return new TypedValue.ComparisonValue(ComparisonOp.eq, val.base, val.args.get(0));
       }
       
       return methodCallValue(val, in);
