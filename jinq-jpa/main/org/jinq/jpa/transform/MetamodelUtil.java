@@ -41,6 +41,8 @@ public abstract class MetamodelUtil
    protected final Set<String> knownEmbeddedtypes = new HashSet<>();
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals;
+   protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethods; 
+   protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethodsWithObjectEquals;
    
    /**
     * The classes that have been analyzed or are in the process of being analyzed to
@@ -115,6 +117,10 @@ public abstract class MetamodelUtil
       nLinkMethods = new HashMap<>();
       comparisonMethodsWithObjectEquals = new HashMap<>();
       comparisonMethodsWithObjectEquals.put(MethodChecker.objectEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
+      comparisonStaticMethods = new HashMap<>();
+      comparisonStaticMethodsWithObjectEquals = new HashMap<>();
+      comparisonStaticMethodsWithObjectEquals.put(MethodChecker.guavaObjectsEqual, TypedValue.ComparisonValue.ComparisonOp.eq);
+      comparisonStaticMethodsWithObjectEquals.put(MethodChecker.objectsEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
    }
    
    /**
@@ -380,7 +386,7 @@ public abstract class MetamodelUtil
    }
    
    public Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> 
-      getComparisonMethods(boolean withObjectEquals)
+         getComparisonMethods(boolean withObjectEquals)
    {
       if (withObjectEquals)
          return comparisonMethodsWithObjectEquals;
@@ -388,6 +394,15 @@ public abstract class MetamodelUtil
          return comparisonMethods;
    }
 
+   public Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> 
+         getComparisonStaticMethods(boolean withObjectEquals)
+   {
+      if (withObjectEquals)
+         return comparisonStaticMethodsWithObjectEquals;
+      else
+         return comparisonStaticMethods;
+   }
+   
    public Set<Class<?>> getSafeMethodAnnotations()
    {
       return safeMethodAnnotations;

@@ -28,7 +28,7 @@ public class SelectTransform
          // TODO: Handle this case by translating things to use SELECT CASE 
          if (lambda.symbolicAnalysis.paths.size() > 1) return null;
          
-         ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)translator.transform(PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), Collections.emptyMap(), false));
+         ColumnExpressions<U> returnExpr = (ColumnExpressions<U>)translator.transform(PathAnalysisSimplifier.simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), Collections.emptyMap(), Collections.emptyMap(), false));
 
          return returnExpr;
       } catch (TypedValueVisitorException e)

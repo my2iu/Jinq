@@ -4,11 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.exception.SQLGrammarException;
 import org.jinq.hibernate.test.entities.Customer;
 import org.jinq.hibernate.test.entities.Sale;
 import org.jinq.hibernate.test.entities.Supplier;
+import org.jinq.hibernate.test.entities.Item;
+import org.jinq.hibernate.test.entities.Lineorder;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Test;
@@ -143,6 +146,41 @@ public class JinqJPAWhereTest extends JinqJPATestBase
       List<Pair<String, Date>> results = sales.toList();
       assertEquals(2, results.size());
       assertEquals("Alice", results.get(0).getOne());
+   }
+
+   @Test
+   public void testWhereObjectEquals()
+   {
+      JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+            .where((c) -> Objects.equals(c.getCountry(), "UK"));
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.country = 'UK'", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Dave", results.get(0).getName());
+   }
+
+   @Test
+   public void testEntityEquals()
+   {
+      Item widgets = streams.streamAll(em, Item.class).where(i -> i.getName().equals("Widgets")).getOnlyValue();
+      List<Lineorder> orders = streams.streamAll(em, Lineorder.class)
+            .setHint("isAllEqualsSafe", true)
+            .where(lo -> lo.getItem().equals(widgets))
+            .toList();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Lineorder A WHERE A.item = :param0", query);
+      assertEquals(3, orders.size());
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testEntityEqualsOff()
+   {
+      Item widgets = streams.streamAll(em, Item.class).where(i -> i.getName().equals("Widgets")).getOnlyValue();
+      List<Lineorder> orders = streams.streamAll(em, Lineorder.class)
+            .setHint("isAllEqualsSafe", false)
+            .where(lo -> lo.getItem().equals(widgets))
+            .toList();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Lineorder A WHERE A.item = :param0", query);
+      assertEquals(3, orders.size());
    }
 
 }

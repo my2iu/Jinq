@@ -9,6 +9,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.StaticMethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue.ComparisonOp;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.MathOpValue.Op;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
@@ -16,11 +17,14 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, RuntimeException>
 {
    final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> additionalComparisonMethods;
+   final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> additionalStaticComparisonMethods;
    final boolean convertAllEquals;
    public SymbExSimplifier(
-         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> additionalComparisonMethods, boolean convertAllEquals)
+         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> additionalComparisonMethods, 
+         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> additionalStaticComparisonMethods, boolean convertAllEquals)
    {
       this.additionalComparisonMethods = additionalComparisonMethods;
+      this.additionalStaticComparisonMethods = additionalStaticComparisonMethods;
       this.convertAllEquals = convertAllEquals;
    }
    
@@ -168,6 +172,19 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
       mathMethods.put(TransformationClassAnalyzer.bigIntegerSubtract, Op.minus);
    }      
    
+   @Override
+   public TypedValue staticMethodCallValue(MethodCallValue.StaticMethodCallValue val, I in)
+   {
+      // TODO: This changes the semantics of things a little bit
+      MethodSignature sig = val.getSignature();
+      if (additionalStaticComparisonMethods.containsKey(sig))
+      {
+         return new TypedValue.ComparisonValue(additionalStaticComparisonMethods.get(sig), val.args.get(0), val.args.get(1));
+      }
+      return super.staticMethodCallValue(val, in);
+   }
+   
+   @Override
    public TypedValue virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, I in) 
    {
       // TODO: This changes the semantics of things a little bit

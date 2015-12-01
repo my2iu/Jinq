@@ -316,7 +316,7 @@ public class LambdaAnalysis
       TransformationClassAnalyzer classAnalyzer = 
             new TransformationClassAnalyzer(className, alternateClassLoader);
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(methodName, methodSignature, pathAnalysisFactory);
-      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe), isAllEqualsSafe);
+      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe), metamodel.getComparisonStaticMethods(isObjectEqualsSafe), isAllEqualsSafe);
       return analysis;
    }
 
@@ -331,7 +331,7 @@ public class LambdaAnalysis
       PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
             metamodel.getMethodChecker(isObjectEqualsSafe, isAllEqualsSafe, isCollectionContainsSafe));
       MethodAnalysisResults analysis = classAnalyzer.analyzeLambdaMethod(matchingMethod.getName(), Type.getMethodDescriptor(matchingMethod), pathAnalysisFactory);
-      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe), isAllEqualsSafe);
+      PathAnalysisSimplifier.cleanAndSimplify(analysis, metamodel.getComparisonMethods(isObjectEqualsSafe), metamodel.getComparisonStaticMethods(isObjectEqualsSafe), isAllEqualsSafe);
       return analysis;
    }
    

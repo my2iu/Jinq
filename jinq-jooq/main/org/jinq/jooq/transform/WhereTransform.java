@@ -37,7 +37,7 @@ public class WhereTransform
             {
                PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
-               TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue(), Collections.emptyMap(), false);
+               TypedValue returnVal = PathAnalysisSimplifier.simplifyBoolean(path.getReturnValue(), Collections.emptyMap(), Collections.emptyMap(), false);
                ColumnExpressions<?> returnColumns = translator.transform(returnVal);
                if (!returnColumns.isSingleColumn()) throw new IllegalArgumentException("Where lambda should only return a single column of data");
                QueryPart returnExpr = returnColumns.getOnlyColumn();

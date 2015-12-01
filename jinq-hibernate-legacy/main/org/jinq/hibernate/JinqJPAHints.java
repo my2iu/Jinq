@@ -22,7 +22,7 @@ class JinqJPAHints
    public ClassLoader lambdaClassLoader = null;
    public boolean dieOnError = true;
    public boolean useCaching = true;
-   public boolean isObjectEqualsSafe = false;
+   public boolean isObjectEqualsSafe = true;
    public boolean isAllEqualsSafe = true;
    public boolean isCollectionContainsSafe = true;
    

@@ -87,7 +87,7 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
             
             SymbExPassDown passdown = SymbExPassDown.with(null, false);
             JPQLQuery<U> returnExpr = (JPQLQuery<U>)PathAnalysisSimplifier
-                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), config.getComparisonMethods(), config.isAllEqualsSafe)
+                  .simplify(lambda.symbolicAnalysis.paths.get(0).getReturnValue(), config.getComparisonMethods(), config.getComparisonStaticMethods(), config.isAllEqualsSafe)
                   .visit(translator, passdown);
 
             // Create the new query, merging in the analysis of the method

@@ -11,10 +11,13 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueRewriterWalker;
 
 public class PathAnalysisSimplifier
 {
-   public static TypedValue simplify(TypedValue value, Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods, boolean isAllEqualsConverted)
+   public static TypedValue simplify(TypedValue value, 
+         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods, 
+         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethods, 
+         boolean isAllEqualsConverted)
    {
       TypedValue simplifiedBooleanReturnValue = value
-            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods, isAllEqualsConverted)), null);
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods, comparisonStaticMethods, isAllEqualsConverted)), null);
       simplifiedBooleanReturnValue = simplifiedBooleanReturnValue.visit(new SymbExBooleanRewriter(), false);
       return simplifiedBooleanReturnValue;
 //      return value.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods)), null);
@@ -30,10 +33,10 @@ public class PathAnalysisSimplifier
 //      }
 //      return isTrueReturnValue; 
 //   }
-   public static TypedValue simplifyBoolean(TypedValue value, Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods, boolean isAllEqualsConverted)
+   public static TypedValue simplifyBoolean(TypedValue value, Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods, Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethods, boolean isAllEqualsConverted)
    {
       TypedValue simplifiedBooleanReturnValue = value
-            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods, isAllEqualsConverted)), null);
+            .visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods, comparisonStaticMethods, isAllEqualsConverted)), null);
       simplifiedBooleanReturnValue = simplifiedBooleanReturnValue.visit(new SymbExBooleanRewriter(), true);
       return simplifiedBooleanReturnValue;
    }
@@ -61,12 +64,13 @@ public class PathAnalysisSimplifier
 // }
    public static List<TypedValue> simplifyBooleans(List<TypedValue> conditions,
          Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods,
+         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethods,
          boolean isAllEqualsConverted)
    {
       List<TypedValue> newConditions = new ArrayList<TypedValue>();
       for (TypedValue cond: conditions)
       {
-         TypedValue simpcond = cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods, isAllEqualsConverted)), null);
+         TypedValue simpcond = cond.visit(new TypedValueRewriterWalker<Object, RuntimeException>(new SymbExSimplifier<Object>(comparisonMethods, comparisonStaticMethods, isAllEqualsConverted)), null);
          simpcond = simpcond.visit(new SymbExBooleanRewriter(), true);
          newConditions.add(simpcond);
       }
@@ -79,13 +83,14 @@ public class PathAnalysisSimplifier
     */
    public static void cleanAndSimplify(MethodAnalysisResults method,
          Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods,
+         Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethods,
          boolean isAllEqualsConverted)
    {
       List<PathAnalysis> pathsToDelete = new ArrayList<>();
       for (PathAnalysis path: method.paths)
       {
          List<TypedValue> simplifiedConditions = new ArrayList<>();
-         for (TypedValue val: PathAnalysisSimplifier.simplifyBooleans(path.getConditions(), comparisonMethods, isAllEqualsConverted))
+         for (TypedValue val: PathAnalysisSimplifier.simplifyBooleans(path.getConditions(), comparisonMethods, comparisonStaticMethods, isAllEqualsConverted))
          {
             if (val instanceof ConstantValue.BooleanConstant)
             {

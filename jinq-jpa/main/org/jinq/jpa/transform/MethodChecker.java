@@ -26,7 +26,9 @@ class MethodChecker implements PathAnalysisMethodChecker
    private final boolean isCollectionContainsSafe;
 
    public final static MethodSignature objectEquals = new MethodSignature("java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
-
+   public final static MethodSignature guavaObjectsEqual = new MethodSignature("com/google/common/base/Objects", "equal", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+   public final static MethodSignature objectsEquals = new MethodSignature("java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+   
    public final static MethodSignature jpqlLike;
    public final static MethodSignature jpqlIsIn;
    public final static MethodSignature jpqlIsInList;
@@ -149,6 +151,10 @@ class MethodChecker implements PathAnalysisMethodChecker
    @Override
    public OperationSideEffect isStaticMethodSafe(MethodSignature m)
    { 
+      if (isObjectEqualsSafe && (objectsEquals.equals(m) || guavaObjectsEqual.equals(m)))
+      {
+         return OperationSideEffect.NONE;
+      }
       return (safeStaticMethods.contains(m)
             || jpqlFunctionStaticMethods.contains(m)) ? OperationSideEffect.NONE : OperationSideEffect.UNSAFE; 
    }

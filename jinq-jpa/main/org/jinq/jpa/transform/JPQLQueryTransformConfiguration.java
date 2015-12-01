@@ -26,6 +26,12 @@ public class JPQLQueryTransformConfiguration
       return metamodel.getComparisonMethods(isObjectEqualsSafe);
    }
 
+   public Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> 
+      getComparisonStaticMethods()
+   {
+      return metamodel.getComparisonStaticMethods(isObjectEqualsSafe);
+   }
+
    public SymbExToColumns newSymbExToColumns(SymbExArgumentHandler argumentHandler)
    {
       return new SymbExToColumns(this, argumentHandler);

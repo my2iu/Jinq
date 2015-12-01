@@ -336,17 +336,6 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .where(lo -> lo.getItem().getName().equals(widgets.getName()));
    }
 
-   @Test
-   public void testEntityEquals()
-   {
-      Item widgets = streams.streamAll(em, Item.class).where(i -> i.getName().equals("Widgets")).getOnlyValue();
-      List<Lineorder> orders = streams.streamAll(em, Lineorder.class)
-            .where(lo -> lo.getItem().equals(widgets))
-            .toList();
-      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Lineorder A WHERE A.item = :param0", query);
-      assertEquals(3, orders.size());
-   }
-
    @Test(expected=ClassCastException.class) // Hibernate is doing numeric promotion incorrectly
    public void testDivide()
    {
