@@ -1,5 +1,8 @@
 package org.jinq.jpa.transform;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.Expression;
@@ -64,10 +67,12 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          SelectFromWhere<V> sfw, SymbExArgumentHandler parentArgumentScope) throws TypedValueVisitorException,
          QueryTransformException
    {
+      // Gather up the conditions for when the path is true (as a disjunction of conjunctive clauses--disjunctive normal form)
       SymbExToColumns translator = config.newSymbExToColumns(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, config.metamodel, parentArgumentScope, withSource));
-      Expression methodExpr = null;
+      List<List<Expression>> disjunction = new ArrayList<>();
       for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
       {
+         List<Expression> clauses = new ArrayList<>();
          PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
          TypedValue returnVal = PathAnalysisSimplifier
@@ -92,26 +97,34 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
                continue;
             }
          }
+         if (returnExpr != null)
+            clauses.add(returnExpr);
          
          // Handle where path conditions
-         Expression conditionExpr = pathConditionsToExpr(translator, path);
+         pathConditionsToClauses(translator, path, clauses);
          
-         // Merge path conditions and return value to create a value for the path
-         Expression pathExpr = returnExpr;
-         if (conditionExpr != null)
+         disjunction.add(clauses);
+         
+      }
+      // Convert the disjunction of clauses into a final expression
+      Expression methodExpr = null;
+      for (List<Expression> conjunction: disjunction)
+      {
+         Expression pathExpr = null;
+         for (Expression clause: conjunction)
          {
             if (pathExpr == null)
-               pathExpr = conditionExpr;
+               pathExpr = clause;
             else
-               pathExpr = new BinaryExpression("AND", pathExpr, conditionExpr);
+               pathExpr = new BinaryExpression("AND", pathExpr, clause);
          }
-         
          // Merge into new expression summarizing the method
          if (methodExpr != null)
             methodExpr = new BinaryExpression("OR", methodExpr, pathExpr);
          else
             methodExpr = pathExpr;
       }
+      
       return methodExpr;
    }
 
