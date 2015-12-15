@@ -53,6 +53,43 @@ public class MethodCallValue extends TypedValue
       return new MethodSignature(owner, name, desc);
    }
    
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (!super.equals(obj))
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      MethodCallValue other = (MethodCallValue) obj;
+      if (args == null)
+      {
+         if (other.args != null)
+            return false;
+      } else if (!args.equals(other.args))
+         return false;
+      if (desc == null)
+      {
+         if (other.desc != null)
+            return false;
+      } else if (!desc.equals(other.desc))
+         return false;
+      if (name == null)
+      {
+         if (other.name != null)
+            return false;
+      } else if (!name.equals(other.name))
+         return false;
+      if (owner == null)
+      {
+         if (other.owner != null)
+            return false;
+      } else if (!owner.equals(other.owner))
+         return false;
+      return true;
+   }
+
    // For static and special calls
    public static class StaticMethodCallValue extends MethodCallValue
    {
@@ -96,6 +133,25 @@ public class MethodCallValue extends TypedValue
       public VirtualMethodCallValue withNewArgs(List<TypedValue> newArgs, TypedValue newBase)
       {
          return new VirtualMethodCallValue(owner, name, desc, newArgs, newBase);
+      }
+
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         VirtualMethodCallValue other = (VirtualMethodCallValue) obj;
+         if (base == null)
+         {
+            if (other.base != null)
+               return false;
+         } else if (!base.equals(other.base))
+            return false;
+         return true;
       }
    }
 }

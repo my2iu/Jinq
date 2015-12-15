@@ -35,6 +35,20 @@ public class ConstantValue extends TypedValue
          return visitor.booleanConstantValue(this, input);
       }
       @Override public Boolean getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         BooleanConstant other = (BooleanConstant) obj;
+         if (val != other.val)
+            return false;
+         return true;
+      }
    }
    public static class ByteConstant extends ConstantValue
    {
@@ -50,6 +64,20 @@ public class ConstantValue extends TypedValue
          return visitor.byteConstantValue(this, input);
       }
       @Override public Byte getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         ByteConstant other = (ByteConstant) obj;
+         if (val != other.val)
+            return false;
+         return true;
+      }
    }
    public static class ShortConstant extends ConstantValue
    {
@@ -65,6 +93,20 @@ public class ConstantValue extends TypedValue
          return visitor.shortConstantValue(this, input);
       }
       @Override public Short getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         ShortConstant other = (ShortConstant) obj;
+         if (val != other.val)
+            return false;
+         return true;
+      }
    }
    public static class IntegerConstant extends ConstantValue
    {
@@ -80,6 +122,20 @@ public class ConstantValue extends TypedValue
          return visitor.integerConstantValue(this, input);
       }
       @Override public Integer getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         IntegerConstant other = (IntegerConstant) obj;
+         if (val != other.val)
+            return false;
+         return true;
+      }
    }
    public static class LongConstant extends ConstantValue
    {
@@ -95,6 +151,20 @@ public class ConstantValue extends TypedValue
          return visitor.longConstantValue(this, input);
       }
       @Override public Long getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         LongConstant other = (LongConstant) obj;
+         if (val != other.val)
+            return false;
+         return true;
+      }
    }
    public static class FloatConstant extends ConstantValue
    {
@@ -110,6 +180,20 @@ public class ConstantValue extends TypedValue
          return visitor.floatConstantValue(this, input);
       }
       @Override public Float getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         FloatConstant other = (FloatConstant) obj;
+         if (Float.floatToIntBits(val) != Float.floatToIntBits(other.val))
+            return false;
+         return true;
+      }
    }
    public static class DoubleConstant extends ConstantValue
    {
@@ -125,6 +209,20 @@ public class ConstantValue extends TypedValue
          return visitor.doubleConstantValue(this, input);
       }
       @Override public Double getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         DoubleConstant other = (DoubleConstant) obj;
+         if (Double.doubleToLongBits(val) != Double.doubleToLongBits(other.val))
+            return false;
+         return true;
+      }
    }
    public static class NullConstant extends ConstantValue
    {
@@ -154,6 +252,24 @@ public class ConstantValue extends TypedValue
          return visitor.stringConstantValue(this, input);
       }
       @Override public String getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         StringConstant other = (StringConstant) obj;
+         if (val == null)
+         {
+            if (other.val != null)
+               return false;
+         } else if (!val.equals(other.val))
+            return false;
+         return true;
+      }
    }
    public static class ClassConstant extends ConstantValue
    {
@@ -169,5 +285,23 @@ public class ConstantValue extends TypedValue
          return visitor.classConstantValue(this, input);
       }
       @Override public Type getConstant() { return val; }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         ClassConstant other = (ClassConstant) obj;
+         if (val == null)
+         {
+            if (other.val != null)
+               return false;
+         } else if (!val.equals(other.val))
+            return false;
+         return true;
+      }
    }
 }

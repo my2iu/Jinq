@@ -45,4 +45,29 @@ public class LambdaFactory extends TypedValue
       return capturedArgs;
    }
 
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (!super.equals(obj))
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      LambdaFactory other = (LambdaFactory) obj;
+      if (capturedArgs == null)
+      {
+         if (other.capturedArgs != null)
+            return false;
+      } else if (!capturedArgs.equals(other.capturedArgs))
+         return false;
+      if (lambdaMethod == null)
+      {
+         if (other.lambdaMethod != null)
+            return false;
+      } else if (!lambdaMethod.equals(other.lambdaMethod))
+         return false;
+      return true;
+   }
+
 }

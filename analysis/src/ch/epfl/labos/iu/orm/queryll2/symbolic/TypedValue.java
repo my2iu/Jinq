@@ -36,7 +36,26 @@ public class TypedValue implements Value
    {
       return visitor.unknownValue(this, input);
    }
-   
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      TypedValue other = (TypedValue) obj;
+      if (type == null)
+      {
+         if (other.type != null)
+            return false;
+      } else if (!type.equals(other.type))
+         return false;
+      return true;
+   }
+
 
    // Various specializations of this TypedValue (I'm putting them as
    // inner classes so that I can group them together)
@@ -56,6 +75,8 @@ public class TypedValue implements Value
       {
          return visitor.thisValue(this, input);
       }
+      
+      
    }
    
    public static class ArgValue extends TypedValue
@@ -74,6 +95,20 @@ public class TypedValue implements Value
       @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.argValue(this, input);
+      }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         ArgValue other = (ArgValue) obj;
+         if (index != other.index)
+            return false;
+         return true;
       }
    }
 
@@ -112,6 +147,36 @@ public class TypedValue implements Value
       {
          return visitor.getStaticFieldValue(this, input);
       }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         GetStaticFieldValue other = (GetStaticFieldValue) obj;
+         if (desc == null)
+         {
+            if (other.desc != null)
+               return false;
+         } else if (!desc.equals(other.desc))
+            return false;
+         if (name == null)
+         {
+            if (other.name != null)
+               return false;
+         } else if (!name.equals(other.name))
+            return false;
+         if (owner == null)
+         {
+            if (other.owner != null)
+               return false;
+         } else if (!owner.equals(other.owner))
+            return false;
+         return true;
+      }
    }
 
    public static class UnaryOperationValue extends TypedValue
@@ -134,6 +199,25 @@ public class TypedValue implements Value
       {
          return new UnaryOperationValue(type, newOperand);
       }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         UnaryOperationValue other = (UnaryOperationValue) obj;
+         if (operand == null)
+         {
+            if (other.operand != null)
+               return false;
+         } else if (!operand.equals(other.operand))
+            return false;
+         return true;
+      }
+      
    }
    public static class UnaryMathOpValue extends UnaryOperationValue
    {
@@ -165,6 +249,20 @@ public class TypedValue implements Value
       {
          return new UnaryMathOpValue(op, type, newOperand);
       }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         UnaryMathOpValue other = (UnaryMathOpValue) obj;
+         if (op != other.op)
+            return false;
+         return true;
+      }
    }
    public static class NotValue extends UnaryOperationValue
    {
@@ -183,6 +281,16 @@ public class TypedValue implements Value
       public UnaryOperationValue withNewChildren(TypedValue newOperand)
       {
          return new NotValue(newOperand);
+      }
+      // Creates a value for NOT(val), but might simplify the 
+      // resulting expression if it can do so easily
+      public static TypedValue invert(TypedValue val)
+      {
+         if (val.getClass() == NotValue.class)
+            return ((NotValue)val).operand;
+         if (val instanceof ComparisonValue)
+            return ((ComparisonValue)val).inverseValue();
+         return new NotValue(val);
       }
    }
    public static class GetFieldValue extends UnaryOperationValue
@@ -208,6 +316,36 @@ public class TypedValue implements Value
       @Override public GetFieldValue withNewChildren(TypedValue newOperand)
       {
          return new GetFieldValue(owner, name, desc, newOperand);
+      }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         GetFieldValue other = (GetFieldValue) obj;
+         if (desc == null)
+         {
+            if (other.desc != null)
+               return false;
+         } else if (!desc.equals(other.desc))
+            return false;
+         if (name == null)
+         {
+            if (other.name != null)
+               return false;
+         } else if (!name.equals(other.name))
+            return false;
+         if (owner == null)
+         {
+            if (other.owner != null)
+               return false;
+         } else if (!owner.equals(other.owner))
+            return false;
+         return true;
       }
    }
    public static class CastValue extends UnaryOperationValue
@@ -254,6 +392,36 @@ public class TypedValue implements Value
       {
          return new BinaryOperationValue(type, operation, newLeft, newRight);
       }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         BinaryOperationValue other = (BinaryOperationValue) obj;
+         if (left == null)
+         {
+            if (other.left != null)
+               return false;
+         } else if (!left.equals(other.left))
+            return false;
+         if (operation == null)
+         {
+            if (other.operation != null)
+               return false;
+         } else if (!operation.equals(other.operation))
+            return false;
+         if (right == null)
+         {
+            if (other.right != null)
+               return false;
+         } else if (!right.equals(other.right))
+            return false;
+         return true;
+      }
    }
    public static class MathOpValue extends BinaryOperationValue
    {
@@ -296,6 +464,20 @@ public class TypedValue implements Value
       @Override public MathOpValue withNewChildren(TypedValue newLeft, TypedValue newRight)
       {
          return new MathOpValue(op, newLeft, newRight);
+      }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         MathOpValue other = (MathOpValue) obj;
+         if (op != other.op)
+            return false;
+         return true;
       }
    }
    public static class ComparisonValue extends BinaryOperationValue
@@ -358,6 +540,20 @@ public class TypedValue implements Value
       @Override public ComparisonValue withNewChildren(TypedValue newLeft, TypedValue newRight)
       {
          return new ComparisonValue(compOp, newLeft, newRight);
+      }
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         ComparisonValue other = (ComparisonValue) obj;
+         if (compOp != other.compOp)
+            return false;
+         return true;
       }
    }
 }
