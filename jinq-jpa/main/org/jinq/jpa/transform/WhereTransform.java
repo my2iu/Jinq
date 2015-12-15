@@ -69,27 +69,21 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
    {
       // Gather up the conditions for when the path is true (as a disjunction of conjunctive clauses--disjunctive normal form)
       SymbExToColumns translator = config.newSymbExToColumns(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, config.metamodel, parentArgumentScope, withSource));
-      List<List<Expression>> disjunction = new ArrayList<>();
+      List<List<TypedValue>> disjunction = new ArrayList<>();
       for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
       {
-         List<Expression> clauses = new ArrayList<>();
+         List<TypedValue> clauses = new ArrayList<>();
          PathAnalysis path = where.symbolicAnalysis.paths.get(n);
 
          TypedValue returnVal = PathAnalysisSimplifier
                .simplifyBoolean(path.getReturnValue(), config.getComparisonMethods(), config.getComparisonStaticMethods(), config.isAllEqualsSafe);
-         SymbExPassDown returnPassdown = SymbExPassDown.with(null, true);
-         ColumnExpressions<?> returnColumns = returnVal.visit(translator, returnPassdown);
-         if (!returnColumns.isSingleColumn())
-            throw new QueryTransformException("Expecting single column");
-         Expression returnExpr = returnColumns.getOnlyColumn();
-
          if (returnVal instanceof ConstantValue.BooleanConstant)
          {
             if (((ConstantValue.BooleanConstant)returnVal).val)
             {
                // This path returns true, so it's redundant to actually
                // put true into the final code.
-               returnExpr = null;
+               returnVal = null;
             }
             else
             {
@@ -97,26 +91,31 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
                continue;
             }
          }
-         if (returnExpr != null)
-            clauses.add(returnExpr);
+         if (returnVal != null)
+            clauses.add(returnVal);
          
          // Handle where path conditions
-         pathConditionsToClauses(translator, path, clauses);
+         pathConditionsToClauses(path, clauses);
          
          disjunction.add(clauses);
-         
       }
       // Convert the disjunction of clauses into a final expression
       Expression methodExpr = null;
-      for (List<Expression> conjunction: disjunction)
+      for (List<TypedValue> conjunction: disjunction)
       {
          Expression pathExpr = null;
-         for (Expression clause: conjunction)
+         for (TypedValue clause: conjunction)
          {
+            SymbExPassDown passdown = SymbExPassDown.with(null, true);
+            ColumnExpressions<?> col = clause.visit(translator, passdown);
+            if (!col.isSingleColumn()) 
+               throw new TypedValueVisitorException("Expecting a single column result for path condition");
+            Expression expr = col.getOnlyColumn();
+
             if (pathExpr == null)
-               pathExpr = clause;
+               pathExpr = expr;
             else
-               pathExpr = new BinaryExpression("AND", pathExpr, clause);
+               pathExpr = new BinaryExpression("AND", pathExpr, expr);
          }
          // Merge into new expression summarizing the method
          if (methodExpr != null)

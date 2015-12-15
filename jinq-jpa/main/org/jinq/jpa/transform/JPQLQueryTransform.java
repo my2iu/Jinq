@@ -142,7 +142,15 @@ public abstract class JPQLQueryTransform
          clauses.add(expr);
       }
    }
-   
+
+   protected void pathConditionsToClauses(PathAnalysis path, List<TypedValue> clauses) throws TypedValueVisitorException
+   {
+      for (TypedValue cmp: path.getConditions())
+      {
+         clauses.add(cmp);
+      }
+   }
+
    /**
     * Returns a String that can be used to identify the type of transformation being applied.
     * This is useful for caching the effects of query transforms.
