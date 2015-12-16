@@ -129,20 +129,6 @@ public abstract class JPQLQueryTransform
       return conditionExpr;
    }
 
-   protected void pathConditionsToClauses(SymbExToColumns translator,
-         PathAnalysis path, List<Expression> clauses) throws TypedValueVisitorException
-   {
-      for (TypedValue cmp: path.getConditions())
-      {
-         SymbExPassDown passdown = SymbExPassDown.with(null, true);
-         ColumnExpressions<?> col = cmp.visit(translator, passdown);
-         if (!col.isSingleColumn()) 
-            throw new TypedValueVisitorException("Expecting a single column result for path condition");
-         Expression expr = col.getOnlyColumn();
-         clauses.add(expr);
-      }
-   }
-
    protected void pathConditionsToClauses(PathAnalysis path, List<TypedValue> clauses) throws TypedValueVisitorException
    {
       for (TypedValue cmp: path.getConditions())

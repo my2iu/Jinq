@@ -13,6 +13,7 @@ import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class JinqJPAWhereTest extends JinqJPATestBase
@@ -37,6 +38,68 @@ public class JinqJPAWhereTest extends JinqJPATestBase
       List<Customer> results = customers.toList();
       assertEquals(1, results.size());
       assertEquals("Alice", results.get(0).getName());
+   }
+
+   @Test
+   public void testWhereOrNull()
+   {
+      JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+           .where((c) -> c.getCountry().equals("UK") || c.getCountry() == null);
+      assertEquals("SELECT A FROM Customer A WHERE A.country = 'UK' OR A.country IS NULL", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Dave", results.get(0).getName());
+   }
+
+   @Test
+   public void testWhereOrChain()
+   {
+      List<String> customers = streams.streamAll(em, Customer.class)
+           .where((c) -> c.getCountry().equals("UK") || c.getCountry() == null || c.getName().equals("Bob"))
+           .select(c -> c.getName())
+           .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE A.country = 'UK' OR A.country IS NULL OR A.name = 'Bob'", query);
+      assertEquals(2, customers.size());
+      Assert.assertTrue(customers.contains("Dave"));
+      Assert.assertTrue(customers.contains("Bob"));
+   }
+
+   @Test
+   public void testWhereOrChainWithAnd()
+   {
+      List<String> customers = streams.streamAll(em, Customer.class)
+            .where((c) -> c.getCountry().equals("UK") || c.getCountry() == null || (c.getName().equals("Bob") && c.getCountry().equals("US")) || c.getCountry().equals("Switzerland"))
+            .select(c -> c.getName())
+            .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE A.country = 'UK' OR A.country IS NULL OR A.name <> 'Bob' AND A.country = 'Switzerland' OR A.name = 'Bob' AND A.country = 'US' OR A.name = 'Bob' AND A.country <> 'US' AND A.country = 'Switzerland'", query);
+      assertEquals(3, customers.size());
+      Assert.assertTrue(customers.contains("Alice"));
+      Assert.assertTrue(customers.contains("Dave"));
+      Assert.assertTrue(customers.contains("Bob"));
+   }
+
+   @Test
+   public void testWhereOrChainPrecededByAnd()
+   {
+      List<String> customers = streams.streamAll(em, Customer.class)
+            .where((c) -> (c.getCountry().equals("UK") && c.getName().equals("Dave")) || c.getName().equals("Bob"))
+            .select(c -> c.getName())
+            .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE A.country <> 'UK' AND A.name = 'Bob' OR A.country = 'UK' AND A.name = 'Dave' OR A.country = 'UK' AND A.name <> 'Dave' AND A.name = 'Bob'", query);
+      assertEquals(2, customers.size());
+      Assert.assertTrue(customers.contains("Dave"));
+      Assert.assertTrue(customers.contains("Bob"));
+   }
+
+   @Test
+   public void testWhereAndOr()
+   {
+      JinqStream<Customer> customers = streams.streamAll(em, Customer.class)
+           .where((c) -> (c.getCountry().equals("UK") || c.getCountry().equals("US")) && (c.getName().equals("Alice") || c.getName().equals("Dave")));
+      assertEquals("SELECT A FROM Customer A WHERE A.country = 'UK' AND A.name = 'Alice' OR A.country = 'UK' AND A.name <> 'Alice' AND A.name = 'Dave' OR A.country <> 'UK' AND A.country = 'US' AND A.name = 'Alice' OR A.country <> 'UK' AND A.country = 'US' AND A.name <> 'Alice' AND A.name = 'Dave'", customers.getDebugQueryString());
+      List<Customer> results = customers.toList();
+      assertEquals(1, results.size());
+      assertEquals("Dave", results.get(0).getName());
    }
 
    @Test

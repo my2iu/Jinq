@@ -40,7 +40,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(c -> new Pair<>(c, c.getName()))
             .toList();
       customers = customers.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
-      assertEquals("SELECT A, A.name FROM org.jinq.hibernate.test.entities.Customer A WHERE A.country = :param0 OR A.country <> :param1 AND A.name = 'Alice'", query);
+      assertEquals("SELECT A, A.name FROM org.jinq.hibernate.test.entities.Customer A WHERE A.country = :param0 OR A.name = 'Alice'", query);
       assertEquals(2, customers.size());
       assertEquals("Alice", customers.get(0).getTwo());
       assertEquals("Dave", customers.get(1).getTwo());
@@ -157,7 +157,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(s -> new Pair<>(s.getCustomer(), s.getCalendar()))
             .toList();
       sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
-      assertEquals("SELECT A.customer, A.calendar FROM org.jinq.hibernate.test.entities.Sale A WHERE A.calendar < :param0 OR A.calendar >= :param1 AND A.calendar = :param2", query);
+      assertEquals("SELECT A.customer, A.calendar FROM org.jinq.hibernate.test.entities.Sale A WHERE A.calendar < :param0 OR A.calendar = :param1", query);
       assertEquals(2, sales.size());
       assertEquals("Dave", sales.get(0).getOne().getName());
       assertEquals("Carol", sales.get(1).getOne().getName());
@@ -174,7 +174,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(s -> new Pair<>(s.getCustomer(), s.getSqlDate()))
             .toList();
       sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
-      assertEquals("SELECT A.customer, A.sqlDate FROM org.jinq.hibernate.test.entities.Sale A WHERE A.sqlDate < :param0 OR A.sqlDate >= :param1 AND A.sqlDate = :param2", query);
+      assertEquals("SELECT A.customer, A.sqlDate FROM org.jinq.hibernate.test.entities.Sale A WHERE A.sqlDate < :param0 OR A.sqlDate = :param1", query);
       assertEquals(2, sales.size());
       assertEquals("Dave", sales.get(0).getOne().getName());
       assertEquals("Carol", sales.get(1).getOne().getName());
@@ -191,7 +191,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(s -> new Pair<>(s.getCustomer(), s.getSqlTime()))
             .toList();
       sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
-      assertEquals("SELECT A.customer, A.sqlTime FROM org.jinq.hibernate.test.entities.Sale A WHERE A.sqlTime > :param0 OR A.sqlTime <= :param1 AND A.sqlTime = :param2", query);
+      assertEquals("SELECT A.customer, A.sqlTime FROM org.jinq.hibernate.test.entities.Sale A WHERE A.sqlTime > :param0 OR A.sqlTime = :param1", query);
       assertEquals(2, sales.size());
       assertEquals("Carol", sales.get(0).getOne().getName());
       assertEquals("Alice", sales.get(1).getOne().getName());
@@ -208,7 +208,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(s -> new Pair<>(s.getCustomer(), s.getSqlTimestamp()))
             .toList();
       sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
-      assertEquals("SELECT A.customer, A.sqlTimestamp FROM org.jinq.hibernate.test.entities.Sale A WHERE A.sqlTimestamp < :param0 OR A.sqlTimestamp >= :param1 AND A.sqlTimestamp = :param2", query);
+      assertEquals("SELECT A.customer, A.sqlTimestamp FROM org.jinq.hibernate.test.entities.Sale A WHERE A.sqlTimestamp < :param0 OR A.sqlTimestamp = :param1", query);
       assertEquals(2, sales.size());
       assertEquals("Dave", sales.get(0).getOne().getName());
       assertEquals("Carol", sales.get(1).getOne().getName());
@@ -266,7 +266,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(i -> new Pair<>(i, i.getType()))
             .toList();
       items = items.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
-      assertEquals("SELECT A, A.type FROM org.jinq.hibernate.test.entities.Item A WHERE A.type = :param0 OR A.type <> :param1 AND A.type = org.jinq.hibernate.test.entities.ItemType.BIG", query);
+      assertEquals("SELECT A, A.type FROM org.jinq.hibernate.test.entities.Item A WHERE A.type = :param0 OR A.type = org.jinq.hibernate.test.entities.ItemType.BIG", query);
       assertEquals(2, items.size());
       assertEquals("Lawnmowers", items.get(0).getOne().getName());
       assertEquals("Talent", items.get(1).getOne().getName());

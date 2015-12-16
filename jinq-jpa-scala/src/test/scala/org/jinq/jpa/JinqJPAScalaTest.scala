@@ -921,7 +921,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .select(s => (s.getCustomer(), s.getCalendar()))
       .toList
       .sortWith((a, b) => a._2.before(b._2));
-    Assert.assertEquals("SELECT A.customer, A.calendar FROM Sale A WHERE A.calendar < :param0 OR A.calendar >= :param1 AND A.calendar = :param2", query);
+    Assert.assertEquals("SELECT A.customer, A.calendar FROM Sale A WHERE A.calendar < :param0 OR A.calendar = :param1", query);
     Assert.assertEquals(2, sales.length);
     Assert.assertEquals("Dave", sales(0)._1.getName());
     Assert.assertEquals("Carol", sales(1)._1.getName());
@@ -936,7 +936,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .select(s => (s.getCustomer(), s.getSqlDate()))
       .toList
       .sortWith((a, b) => a._2.before(b._2));
-    Assert.assertEquals("SELECT A.customer, A.sqlDate FROM Sale A WHERE A.sqlDate < :param0 OR A.sqlDate >= :param1 AND A.sqlDate = :param2", query);
+    Assert.assertEquals("SELECT A.customer, A.sqlDate FROM Sale A WHERE A.sqlDate < :param0 OR A.sqlDate = :param1", query);
     Assert.assertEquals(2, sales.length);
     Assert.assertEquals("Dave", sales(0)._1.getName());
     Assert.assertEquals("Carol", sales(1)._1.getName());
@@ -951,7 +951,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .select(s => (s.getCustomer(), s.getSqlTime()))
       .toList
       .sortWith((a, b) => a._2.before(b._2));
-    Assert.assertEquals("SELECT A.customer, A.sqlTime FROM Sale A WHERE A.sqlTime > :param0 OR A.sqlTime <= :param1 AND A.sqlTime = :param2", query);
+    Assert.assertEquals("SELECT A.customer, A.sqlTime FROM Sale A WHERE A.sqlTime > :param0 OR A.sqlTime = :param1", query);
     Assert.assertEquals(2, sales.length);
     Assert.assertEquals("Carol", sales(0)._1.getName());
     Assert.assertEquals("Alice", sales(1)._1.getName());
@@ -966,7 +966,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
       .select(s => (s.getCustomer(), s.getSqlTimestamp()))
       .toList
       .sortWith((a, b) => a._2.before(b._2));
-    Assert.assertEquals("SELECT A.customer, A.sqlTimestamp FROM Sale A WHERE A.sqlTimestamp < :param0 OR A.sqlTimestamp >= :param1 AND A.sqlTimestamp = :param2", query);
+    Assert.assertEquals("SELECT A.customer, A.sqlTimestamp FROM Sale A WHERE A.sqlTimestamp < :param0 OR A.sqlTimestamp = :param1", query);
     Assert.assertEquals(2, sales.length);
     Assert.assertEquals("Dave", sales(0)._1.getName());
     Assert.assertEquals("Carol", sales(1)._1.getName());

@@ -99,6 +99,10 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          
          disjunction.add(clauses);
       }
+      
+      // Check for some common patterns that we can simplify
+      checkForOrChain(disjunction);
+      
       // Convert the disjunction of clauses into a final expression
       Expression methodExpr = null;
       for (List<TypedValue> conjunction: disjunction)
@@ -127,6 +131,33 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
       return methodExpr;
    }
 
+   /**
+    * Identifies a common pattern of a chain of ORs so that it
+    * can be encoded more simply.
+    */
+   private void checkForOrChain(List<List<TypedValue>> disjunction)
+   {
+      // TODO: Handle more complex patterns
+      // TODO: generate expressions that do not use NOT (causes problems with NULLs)
+      // TODO: do arbitrary expression simplification
+      // TODO: do expression generation earlier based on the original code structure
+      
+      // Just do a simple pattern match for now
+      List<TypedValue> canIgnoreClauses = new ArrayList<>();
+      for (int n = 0; n < disjunction.size(); n++)
+      {
+         // If there's only value VAL, then we can remove NOT(VAL) from all other conjunctions 
+         List<TypedValue> conjunction = disjunction.get(n);
+         if (conjunction.size() != 1)
+            break;
+         TypedValue not = TypedValue.NotValue.invert(conjunction.get(0));
+         canIgnoreClauses.add(not);
+         // Remove NOT(VAL) from all subsequent clauses
+         for (int i = n + 1; i < disjunction.size(); i++)
+            disjunction.get(i).remove(not);
+      }
+   }
+   
    @Override 
    public String getTransformationTypeCachingTag()
    {
