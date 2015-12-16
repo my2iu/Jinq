@@ -54,6 +54,18 @@ public class MethodCallValue extends TypedValue
    }
    
    @Override
+   public int hashCode()
+   {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result + ((args == null) ? 0 : args.hashCode());
+      result = prime * result + ((desc == null) ? 0 : desc.hashCode());
+      result = prime * result + ((name == null) ? 0 : name.hashCode());
+      result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+      return result;
+   }
+
+   @Override
    public boolean equals(Object obj)
    {
       if (this == obj)
@@ -133,6 +145,15 @@ public class MethodCallValue extends TypedValue
       public VirtualMethodCallValue withNewArgs(List<TypedValue> newArgs, TypedValue newBase)
       {
          return new VirtualMethodCallValue(owner, name, desc, newArgs, newBase);
+      }
+
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((base == null) ? 0 : base.hashCode());
+         return result;
       }
 
       @Override

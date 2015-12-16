@@ -38,6 +38,15 @@ public class TypedValue implements Value
    }
 
    @Override
+   public int hashCode()
+   {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((type == null) ? 0 : type.hashCode());
+      return result;
+   }
+
+   @Override
    public boolean equals(Object obj)
    {
       if (this == obj)
@@ -97,6 +106,14 @@ public class TypedValue implements Value
          return visitor.argValue(this, input);
       }
       @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + index;
+         return result;
+      }
+      @Override
       public boolean equals(Object obj)
       {
          if (this == obj)
@@ -146,6 +163,16 @@ public class TypedValue implements Value
       @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
       {
          return visitor.getStaticFieldValue(this, input);
+      }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((desc == null) ? 0 : desc.hashCode());
+         result = prime * result + ((name == null) ? 0 : name.hashCode());
+         result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+         return result;
       }
       @Override
       public boolean equals(Object obj)
@@ -200,6 +227,14 @@ public class TypedValue implements Value
          return new UnaryOperationValue(type, newOperand);
       }
       @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((operand == null) ? 0 : operand.hashCode());
+         return result;
+      }
+      @Override
       public boolean equals(Object obj)
       {
          if (this == obj)
@@ -248,6 +283,14 @@ public class TypedValue implements Value
       public UnaryOperationValue withNewChildren(TypedValue newOperand)
       {
          return new UnaryMathOpValue(op, type, newOperand);
+      }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((op == null) ? 0 : op.hashCode());
+         return result;
       }
       @Override
       public boolean equals(Object obj)
@@ -316,6 +359,16 @@ public class TypedValue implements Value
       @Override public GetFieldValue withNewChildren(TypedValue newOperand)
       {
          return new GetFieldValue(owner, name, desc, newOperand);
+      }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((desc == null) ? 0 : desc.hashCode());
+         result = prime * result + ((name == null) ? 0 : name.hashCode());
+         result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+         return result;
       }
       @Override
       public boolean equals(Object obj)
@@ -393,6 +446,17 @@ public class TypedValue implements Value
          return new BinaryOperationValue(type, operation, newLeft, newRight);
       }
       @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((left == null) ? 0 : left.hashCode());
+         result = prime * result
+               + ((operation == null) ? 0 : operation.hashCode());
+         result = prime * result + ((right == null) ? 0 : right.hashCode());
+         return result;
+      }
+      @Override
       public boolean equals(Object obj)
       {
          if (this == obj)
@@ -464,6 +528,14 @@ public class TypedValue implements Value
       @Override public MathOpValue withNewChildren(TypedValue newLeft, TypedValue newRight)
       {
          return new MathOpValue(op, newLeft, newRight);
+      }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((op == null) ? 0 : op.hashCode());
+         return result;
       }
       @Override
       public boolean equals(Object obj)
@@ -540,6 +612,14 @@ public class TypedValue implements Value
       @Override public ComparisonValue withNewChildren(TypedValue newLeft, TypedValue newRight)
       {
          return new ComparisonValue(compOp, newLeft, newRight);
+      }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((compOp == null) ? 0 : compOp.hashCode());
+         return result;
       }
       @Override
       public boolean equals(Object obj)

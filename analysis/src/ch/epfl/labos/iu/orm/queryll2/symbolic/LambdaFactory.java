@@ -46,6 +46,18 @@ public class LambdaFactory extends TypedValue
    }
 
    @Override
+   public int hashCode()
+   {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result
+            + ((capturedArgs == null) ? 0 : capturedArgs.hashCode());
+      result = prime * result
+            + ((lambdaMethod == null) ? 0 : lambdaMethod.hashCode());
+      return result;
+   }
+
+   @Override
    public boolean equals(Object obj)
    {
       if (this == obj)

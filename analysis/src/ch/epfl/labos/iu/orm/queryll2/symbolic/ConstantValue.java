@@ -36,6 +36,14 @@ public class ConstantValue extends TypedValue
       }
       @Override public Boolean getConstant() { return val; }
       @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + (val ? 1231 : 1237);
+         return result;
+      }
+      @Override
       public boolean equals(Object obj)
       {
          if (this == obj)
@@ -64,6 +72,14 @@ public class ConstantValue extends TypedValue
          return visitor.byteConstantValue(this, input);
       }
       @Override public Byte getConstant() { return val; }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + val;
+         return result;
+      }
       @Override
       public boolean equals(Object obj)
       {
@@ -94,6 +110,14 @@ public class ConstantValue extends TypedValue
       }
       @Override public Short getConstant() { return val; }
       @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + val;
+         return result;
+      }
+      @Override
       public boolean equals(Object obj)
       {
          if (this == obj)
@@ -122,6 +146,14 @@ public class ConstantValue extends TypedValue
          return visitor.integerConstantValue(this, input);
       }
       @Override public Integer getConstant() { return val; }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + val;
+         return result;
+      }
       @Override
       public boolean equals(Object obj)
       {
@@ -152,6 +184,14 @@ public class ConstantValue extends TypedValue
       }
       @Override public Long getConstant() { return val; }
       @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + (int) (val ^ (val >>> 32));
+         return result;
+      }
+      @Override
       public boolean equals(Object obj)
       {
          if (this == obj)
@@ -181,6 +221,14 @@ public class ConstantValue extends TypedValue
       }
       @Override public Float getConstant() { return val; }
       @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + Float.floatToIntBits(val);
+         return result;
+      }
+      @Override
       public boolean equals(Object obj)
       {
          if (this == obj)
@@ -209,6 +257,16 @@ public class ConstantValue extends TypedValue
          return visitor.doubleConstantValue(this, input);
       }
       @Override public Double getConstant() { return val; }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         long temp;
+         temp = Double.doubleToLongBits(val);
+         result = prime * result + (int) (temp ^ (temp >>> 32));
+         return result;
+      }
       @Override
       public boolean equals(Object obj)
       {
@@ -253,6 +311,14 @@ public class ConstantValue extends TypedValue
       }
       @Override public String getConstant() { return val; }
       @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((val == null) ? 0 : val.hashCode());
+         return result;
+      }
+      @Override
       public boolean equals(Object obj)
       {
          if (this == obj)
@@ -285,6 +351,14 @@ public class ConstantValue extends TypedValue
          return visitor.classConstantValue(this, input);
       }
       @Override public Type getConstant() { return val; }
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + ((val == null) ? 0 : val.hashCode());
+         return result;
+      }
       @Override
       public boolean equals(Object obj)
       {
