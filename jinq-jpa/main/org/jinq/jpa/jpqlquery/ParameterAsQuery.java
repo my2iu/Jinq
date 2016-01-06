@@ -48,7 +48,12 @@ public class ParameterAsQuery<T> extends JPQLQuery<T>
    {
       return false;
    }
-   
+
+   public boolean canAggregate()
+   {
+      return false;
+   }
+
    public boolean isValidSubquery()
    {
       return true;

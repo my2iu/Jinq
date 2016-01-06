@@ -324,6 +324,22 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    }
 
    @Test(expected=IllegalArgumentException.class)
+   public void testGroupByHavingAggregate()
+   {
+      // Disallow aggregation of GROUP BYs (could be implemented using subqueries
+      // in the FROM clause, but JPQL doesn't seem to support that)
+      long results = 
+            streams.streamAll(em, Lineorder.class)
+                  .where(lo -> "Screws".equals(lo.getItem().getName()))
+                  .select(lo -> lo.getSale())
+                  .group(s -> new Pair<String, Integer>(s.getCustomer().getName(), s.getCustomer().getSalary()), 
+                        (c, stream) -> c.getTwo() + stream.count())
+                  .where(group -> group.getTwo() < 220)
+                  .count();
+      assertEquals(1, results);
+   }
+
+   @Test(expected=IllegalArgumentException.class)
    public void testSortGroupByFail()
    {
       // Cannot do a group by after a sort

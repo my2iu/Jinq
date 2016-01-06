@@ -51,6 +51,11 @@ public class SelectOnly<T> extends JPQLQuery<T>
       return !isAggregated && !isDistinct;
    }
    
+   public boolean canAggregate()
+   {
+      return !isAggregated;
+   }
+   
    public boolean isValidSubquery()
    {
       return false;

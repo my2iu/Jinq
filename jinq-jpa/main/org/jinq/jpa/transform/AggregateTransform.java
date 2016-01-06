@@ -31,7 +31,7 @@ public class AggregateTransform extends JPQLOneLambdaQueryTransform
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis lambda, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
-         if (query.isSelectFromWhere() || query instanceof SelectOnly)
+         if (query.canAggregate())
          {
             SelectOnly<V> select = (SelectOnly<V>)query;
             Expression aggregatedExpr = null;

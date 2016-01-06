@@ -54,6 +54,12 @@ public class GroupedSelectFromWhere<T, U> extends SelectFromWhere<T>
    }
    
    @Override
+   public boolean canAggregate()
+   {
+      return false;
+   }
+   
+   @Override
    public GroupedSelectFromWhere<T, U> shallowCopy()
    {
       GroupedSelectFromWhere<T, U> copy = new GroupedSelectFromWhere<>();

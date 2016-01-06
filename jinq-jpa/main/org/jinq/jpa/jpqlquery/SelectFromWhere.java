@@ -176,6 +176,11 @@ public class SelectFromWhere<T> extends SelectOnly<T>
       return isSelectFromWhere();
    }
    
+   public boolean canAggregate()
+   {
+      return !isAggregated && sort.isEmpty() && limit < 0 && skip < 0;
+   }
+   
    public boolean isValidSubquery()
    {
       return limit < 0 && skip < 0 && sort.isEmpty();
