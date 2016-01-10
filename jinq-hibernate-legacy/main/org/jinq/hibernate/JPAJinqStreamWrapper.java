@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.jinq.jpa.JPAJinqStream;
 import org.jinq.orm.stream.JinqStream;
@@ -127,6 +128,12 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
    public long count()
    {
       return wrapped.count();
+   }
+   
+   @Override
+   public Optional<T> findOne()
+   {
+      return wrapped.findOne();
    }
 
    @Override
