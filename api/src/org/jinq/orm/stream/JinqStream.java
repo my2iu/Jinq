@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jinq.tuples.Pair;
@@ -579,6 +580,22 @@ public interface JinqStream<T> extends Stream<T>
     */
    @Override
    public long count();
+
+   /**
+    * A convenience method for getting the contents of a stream when it contains
+    * 0 or 1 values. If the stream contains more than one value, an exception 
+    * will be thrown. 
+    * 
+    * It cannot be used in subqueries.
+    *
+    * @see Stream#findFirst()
+    * 
+    * @return an Optional with the single element contained in the stream or
+    *            an empty Optional if the stream is empty
+    * @throws java.util.NoSuchElementException
+    *            stream contains more than one element
+    */
+   public Optional<T> findOne();
 
    /**
     * If the stream contains only a single value, this method will return that

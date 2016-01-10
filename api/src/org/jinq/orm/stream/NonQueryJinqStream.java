@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -386,6 +387,15 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    public JinqStream<T> distinct()
    {
       return wrap(distinct());
+   }
+
+   @Override
+   public Optional<T> findOne()
+   {
+      List<T> vals = collect(Collectors.toList());
+      if (vals.isEmpty()) return Optional.empty();
+      if (vals.size() == 1) return Optional.of(vals.get(0));
+      throw new NoSuchElementException();
    }
 
    @Override

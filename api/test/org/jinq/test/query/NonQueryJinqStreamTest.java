@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.After;
@@ -82,4 +84,16 @@ public class NonQueryJinqStreamTest
       assertEquals(Arrays.asList(new Pair<>(0, null), new Pair<>(1, 1)), list);
    }
 
+   @Test
+   public void testFindOne()
+   {
+      assertEquals(1, new NonQueryJinqStream<>( Stream.of(1) ).findOne().get().intValue());
+      assertFalse(new NonQueryJinqStream<>( Stream.of() ).findOne().isPresent());
+   }
+   
+   @Test(expected=NoSuchElementException.class)
+   public void testFindOneException()
+   {
+      new NonQueryJinqStream<>( Stream.of(1, 2) ).findOne();
+   }
 }
