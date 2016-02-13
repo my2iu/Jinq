@@ -21,6 +21,7 @@ import org.jinq.jpa.test.entities.Customer;
 import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.ItemType;
 import org.jinq.jpa.test.entities.Lineorder;
+import org.jinq.jpa.test.entities.PhoneNumber;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
@@ -271,7 +272,22 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Talent", items.get(1).getOne().getName());
       assertEquals(ItemType.OTHER, items.get(1).getTwo());
    }
-   
+
+   @Test
+   public void testConverter()
+   {
+      PhoneNumber val = new PhoneNumber("1", "555", "5552222");
+      List<Pair<Customer, PhoneNumber>> phones= streams.streamAll(em, Customer.class)
+            .where(c -> c.getPhone().equals(val))
+            .select(c -> new Pair<>(c, c.getPhone()))
+            .toList();
+      phones = phones.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
+      assertEquals("SELECT A, A.phone FROM Customer A WHERE A.phone = :param0", query);
+      assertEquals(1, phones.size());
+      assertEquals("Bob", phones.get(0).getOne().getName());
+      assertEquals(val, phones.get(0).getTwo());
+   }
+
    @Test
    public void testBigDecimal()
    {

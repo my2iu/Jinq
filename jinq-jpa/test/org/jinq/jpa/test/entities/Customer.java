@@ -20,10 +20,11 @@ public class Customer implements Serializable {
 	private String name;
 	private int salary;
 	private List<Sale> sales;
+	private PhoneNumber phone;
 
 	public Customer() {
+	   phone = new PhoneNumber();
 	}
-
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -40,7 +41,7 @@ public class Customer implements Serializable {
 	public String getCountry() {
 		return this.country;
 	}
-
+	
 	public void setCountry(String country) {
 		this.country = country;
 	}
@@ -72,6 +73,15 @@ public class Customer implements Serializable {
 		this.salary = salary;
 	}
 
+	@Convert(converter = PhoneNumberToStringConverter.class)
+	public PhoneNumber getPhone() {
+	   return this.phone;
+	}
+	
+	public void setPhone(PhoneNumber phone) {
+	   this.phone = phone;
+	}
+
 
 	//bi-directional many-to-one association to Sale
 	@OneToMany(mappedBy="customer")
@@ -96,5 +106,5 @@ public class Customer implements Serializable {
 
 		return sale;
 	}
-
+	
 }

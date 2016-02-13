@@ -7,6 +7,8 @@
 		<class>org.jinq.jpa.test.entities.Sale</class>
 		<class>org.jinq.jpa.test.entities.Supplier</class>
 		<class>org.jinq.jpa.test.entities.LineorderPK</class>
+		<!-- Converters -->
+		<class>org.jinq.jpa.test.entities.PhoneNumberToStringConverter</class>
 		<properties>
 			<property name="eclipselink.target-database" value="Derby"/>
 			<property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>

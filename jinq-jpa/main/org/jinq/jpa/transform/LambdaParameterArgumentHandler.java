@@ -105,7 +105,8 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
          if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) 
                && (Annotations.asmTypeToClass(argType).isPrimitive() || 
                      (!metamodel.isKnownEnumType(argType.getInternalName()) 
-                     && !metamodel.isKnownManagedType(argType.getClassName()))))
+                     && !metamodel.isKnownManagedType(argType.getClassName())
+                     && !metamodel.isKnownConvertedType(argType.getClassName()))))
             throw new TypedValueVisitorException("Accessing a field with unhandled type: " + Annotations.asmTypeToClass(argType).getName());
       } 
       catch (ClassNotFoundException e) 
@@ -266,7 +267,8 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
             if (!ALLOWED_QUERY_PARAMETER_TYPES.contains(argType) 
                   && (Annotations.asmTypeToClass(argType).isPrimitive() || 
                         (!metamodel.isKnownEnumType(argType.getInternalName()) 
-                        && !metamodel.isKnownManagedType(argType.getClassName()))))
+                        && !metamodel.isKnownManagedType(argType.getClassName())
+                        && !metamodel.isKnownConvertedType(argType.getClassName()))))
                throw new TypedValueVisitorException("Accessing a field with unhandled type: " + Annotations.asmTypeToClass(argType).getName());
          } 
          catch (ClassNotFoundException e) 

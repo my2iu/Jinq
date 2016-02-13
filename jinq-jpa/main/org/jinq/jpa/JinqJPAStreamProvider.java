@@ -123,4 +123,14 @@ public class JinqJPAStreamProvider
                   org.jinq.rebased.org.objectweb.asm.Type.getMethodDescriptor(m)),
             attrib, isPlural);
    }
+   
+   /**
+    * When using fields in JPA with AttributeConverters, you need to register the class
+    * used by the field with Jinq so that it will allow objects of that type to be used in queries
+    * @param convertedType class of the object used with AttributeConverters that Jinq should allow
+    */
+   public void registerAttributeConverterType(Class<?> convertedType)
+   {
+      metamodel.insertConvertedType(convertedType.getName());
+   }
 }

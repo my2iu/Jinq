@@ -11,6 +11,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.jinq.jpa.test.entities.Lineorder;
+import org.jinq.jpa.test.entities.PhoneNumber;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -38,6 +39,9 @@ public class JinqJPATestBase
       // associations, so we have to manually supply the correct information here.
       streams.registerAssociationAttribute(Lineorder.class.getMethod("getItem"), "item", false);
       streams.registerAssociationAttribute(Lineorder.class.getMethod("getSale"), "sale", false);
+      
+      // Register types that are used by AttributeConverters
+      streams.registerAttributeConverterType(PhoneNumber.class);
       
       EntityManager em = entityManagerFactory.createEntityManager();
       new CreateJpaDb(em).createDatabase();

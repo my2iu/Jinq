@@ -13,10 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.IdentifiableType;
 import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
@@ -38,6 +36,7 @@ public abstract class MetamodelUtil
    protected final Set<MethodSignature> safeMethods;
    protected final Set<MethodSignature> safeStaticMethods;
    protected final Map<String, List<Enum<?>>> enums;
+   protected final Set<String> convertedTypes;
    protected final Set<String> knownEmbeddedtypes = new HashSet<>();
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethods; 
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals;
@@ -95,6 +94,7 @@ public abstract class MetamodelUtil
    public MetamodelUtil()
    {
       enums = new HashMap<>();
+      convertedTypes = new HashSet<>();
       comparisonMethods = new HashMap<>();
       safeMethodAnnotations = new HashSet<Class<?>>();
       safeMethodAnnotations.addAll(TransformationClassAnalyzer.SafeMethodAnnotations);
@@ -121,6 +121,16 @@ public abstract class MetamodelUtil
       comparisonStaticMethodsWithObjectEquals = new HashMap<>();
       comparisonStaticMethodsWithObjectEquals.put(MethodChecker.guavaObjectsEqual, TypedValue.ComparisonValue.ComparisonOp.eq);
       comparisonStaticMethodsWithObjectEquals.put(MethodChecker.objectsEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
+   }
+   
+   /**
+    * Allows you to register the existence of a class that JPA uses AttributeConverters to 
+    * convert for database use.
+    * @param className full class name of the type 
+    */
+   public void insertConvertedType(String className)
+   {
+      convertedTypes.add(className);
    }
    
    /**
@@ -363,6 +373,16 @@ public abstract class MetamodelUtil
    public boolean isKnownEnumType(String className)
    {
       return enums.containsKey(className);
+   }
+   
+   /**
+    * Returns true if a Class refers to a known type used by AttributeConverters
+    * @param className class name using asm style / between package parts
+    * @return
+    */
+   public boolean isKnownConvertedType(String className)
+   {
+      return convertedTypes.contains(className);
    }
    
    /**
