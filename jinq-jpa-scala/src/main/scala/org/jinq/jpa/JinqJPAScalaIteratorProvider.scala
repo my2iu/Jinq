@@ -92,4 +92,14 @@ class JinqJPAScalaIteratorProvider(_metamodel: Metamodel) {
         Type.getMethodDescriptor(m)),
       attrib, isPlural);
   }
+  
+  /**
+    * When using fields in JPA with AttributeConverters, you need to register the class
+    * used by the field with Jinq so that it will allow objects of that type to be used in queries
+    * @param convertedType class of the object used with AttributeConverters that Jinq should allow
+    */
+  def registerAttributeConverterType[U](convertedType : Class[U]) {
+    metamodel.insertConvertedType(convertedType.getName());
+  }
+
 }

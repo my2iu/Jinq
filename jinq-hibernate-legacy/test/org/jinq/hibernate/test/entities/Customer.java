@@ -22,9 +22,11 @@ public class Customer implements Serializable {
 	private String name;
 	private int salary;
 	private List<Sale> sales;
+        private PhoneNumber phone;
 
-	public Customer() {
-	}
+        public Customer() {
+           phone = new PhoneNumber();
+        }
 
 
 	@Id
@@ -73,6 +75,15 @@ public class Customer implements Serializable {
 	public void setSalary(int salary) {
 		this.salary = salary;
 	}
+
+       @Convert(converter = PhoneNumberToStringConverter.class)
+        public PhoneNumber getPhone() {
+           return this.phone;
+        }
+	                
+        public void setPhone(PhoneNumber phone) {
+           this.phone = phone;
+        }
 
 
 	//bi-directional many-to-one association to Sale

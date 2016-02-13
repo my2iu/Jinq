@@ -6,10 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -17,6 +13,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.jinq.hibernate.JinqHibernateStreamProvider;
 import org.jinq.hibernate.test.entities.Lineorder;
+import org.jinq.hibernate.test.entities.PhoneNumber;
 import org.jinq.jpa.JPAQueryLogger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -52,9 +49,12 @@ public class JinqJPATestBase
       
       // Oddly enough, these two attributes are the same ones incorrectly encoded in 
       // Hibernate's Criteria API metamodel as well.
-       streams.registerAssociationAttribute(Lineorder.class.getMethod("getItem"), "item", false);
-       streams.registerAssociationAttribute(Lineorder.class.getMethod("getSale"), "sale", false);
+      streams.registerAssociationAttribute(Lineorder.class.getMethod("getItem"), "item", false);
+      streams.registerAssociationAttribute(Lineorder.class.getMethod("getSale"), "sale", false);
       
+      // Register types that are used by AttributeConverters
+      streams.registerAttributeConverterType(PhoneNumber.class);
+
       Session session = sessionFactory.openSession();
       new CreateHibernateDb(session).createDatabase();
       session.close();

@@ -16,6 +16,7 @@ import org.jinq.hibernate.test.entities.Customer;
 import org.jinq.hibernate.test.entities.Item;
 import org.jinq.hibernate.test.entities.ItemType;
 import org.jinq.hibernate.test.entities.Lineorder;
+import org.jinq.hibernate.test.entities.PhoneNumber;
 import org.jinq.hibernate.test.entities.Sale;
 import org.jinq.hibernate.test.entities.Supplier;
 
@@ -28,13 +29,14 @@ public class CreateHibernateDb
       this.session = session;
    }
    
-   private Customer createCustomer(String name, String country, int debt, int salary)
+   private Customer createCustomer(String name, String country, int debt, int salary, String phone)
    {
       Customer c = new Customer();
       c.setName(name);
       c.setDebt(debt);
       c.setSalary(salary);
       c.setCountry(country);
+      c.setPhone(new PhoneNumber("1", "555", phone));
       return c;
    }
    
@@ -110,11 +112,11 @@ public class CreateHibernateDb
    {
       session.beginTransaction();
 
-      Customer alice = createCustomer("Alice", "Switzerland", 100, 200);
-      Customer bob = createCustomer("Bob", "Switzerland", 200, 300);
-      Customer carol = createCustomer("Carol", "USA", 300, 250);
-      Customer dave = createCustomer("Dave", "UK", 100, 500);
-      Customer eve = createCustomer("Eve", "Canada", 10, 30); 
+      Customer alice = createCustomer("Alice", "Switzerland", 100, 200, "5551111");
+      Customer bob = createCustomer("Bob", "Switzerland", 200, 300, "5552222");
+      Customer carol = createCustomer("Carol", "USA", 300, 250, "5553333");
+      Customer dave = createCustomer("Dave", "UK", 100, 500, "5554444");
+      Customer eve = createCustomer("Eve", "Canada", 10, 30, "5555555"); 
       session.persist(alice);
       session.persist(bob);
       session.persist(carol);

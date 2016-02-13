@@ -3,18 +3,16 @@ package org.jinq.jpa;
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.Map
-
 import _root_.scala.collection.mutable.ArrayBuffer
-
 import org.jinq.jpa.test.entities.Lineorder
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
-
 import javax.persistence.EntityManager
 import javax.persistence.EntityManagerFactory
 import javax.persistence.Persistence
+import org.jinq.jpa.test.entities.PhoneNumber
 
 object JinqJPAScalaTestBase {
   var entityManagerFactory: EntityManagerFactory = _
@@ -30,6 +28,9 @@ object JinqJPAScalaTestBase {
       streams.registerAssociationAttribute(classOf[Lineorder].getMethod("getItem"), "item", false);
       streams.registerAssociationAttribute(classOf[Lineorder].getMethod("getSale"), "sale", false);
       
+      // Register types that are used by AttributeConverters
+      streams.registerAttributeConverterType(classOf[PhoneNumber]);
+
       var em = entityManagerFactory.createEntityManager();
       new CreateJpaDb(em).createDatabase();
       em.close();

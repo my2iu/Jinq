@@ -20,6 +20,7 @@ import java.nio.charset.Charset
 import java.nio.ByteBuffer
 import java.util.Calendar
 import org.jinq.orm.stream.scala.InQueryStreamSource
+import org.jinq.jpa.test.entities.PhoneNumber
 
 class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   private def streamAll[U](em: EntityManager, entityClass: java.lang.Class[U]): JinqIterator[U] = {
@@ -1027,6 +1028,20 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("Lawnmowers", items(0)._1.getName());
     Assert.assertEquals("Talent", items(1)._1.getName());
     Assert.assertEquals(ItemType.OTHER, items(1)._2);
+  }
+  
+  @Test
+  def testConverter() {
+    val value = new PhoneNumber("1", "555", "5552222");
+    val phones = streamAll(em, classOf[Customer])
+      .where(c => c.getPhone().equals(value))
+      .select(c => (c, c.getPhone()))
+      .toList
+      .sortBy(c => c._1.getName());
+    Assert.assertEquals("SELECT A, A.phone FROM Customer A WHERE A.phone = :param0", query);
+    Assert.assertEquals(1, phones.length);
+    Assert.assertEquals("Bob", phones(0)._1.getName());
+    Assert.assertEquals(value, phones(0)._2);
   }
 
   @Test

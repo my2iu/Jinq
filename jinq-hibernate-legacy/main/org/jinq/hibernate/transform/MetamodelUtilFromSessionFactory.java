@@ -20,6 +20,7 @@ import org.hibernate.type.StringType;
 import org.hibernate.type.TimeType;
 import org.hibernate.type.TimestampType;
 import org.hibernate.type.Type;
+import org.hibernate.type.descriptor.converter.AttributeConverterTypeAdapter;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
 
@@ -38,7 +39,7 @@ public class MetamodelUtilFromSessionFactory extends MetamodelUtil
          ClassMetadata entityData = factory.getClassMetadata(entityClassName);
          classToEntityName.put(entityData.getMappedClass(), entityData.getEntityName());
          classNameToEntityName.put(entityClassName, entityData.getEntityName());
-         System.out.println(entityClassName + " " + entityData.getMappedClass().getCanonicalName() + " " + entityData.getEntityName());
+         //System.out.println(entityClassName + " " + entityData.getMappedClass().getCanonicalName() + " " + entityData.getEntityName());
          // TODO: It turns out all three values are the same, but I think it's ok for now.
          
          scanClassMetadata(entityData);
@@ -59,7 +60,7 @@ public class MetamodelUtilFromSessionFactory extends MetamodelUtil
       if (meta.getIdentifierPropertyName() != null)
          registerEntityField(entityClass, meta.getIdentifierPropertyName(), meta.getIdentifierType());
       
-      System.out.println(names + " " + types);
+      //System.out.println(names + " " + types);
    }
    
    private void registerEntityField(Class<?> entityClass, String fieldName,
@@ -89,7 +90,8 @@ public class MetamodelUtilFromSessionFactory extends MetamodelUtil
                || type instanceof DateType
                || type instanceof TimeType
                || type instanceof BinaryType
-               || (type.isAssociationType() && !type.isCollectionType()))
+               || (type.isAssociationType() && !type.isCollectionType())
+               || type instanceof AttributeConverterTypeAdapter)
          {
             insertAssociationAttribute(sig, attrib, false);
          }

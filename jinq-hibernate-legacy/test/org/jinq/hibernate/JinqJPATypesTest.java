@@ -22,6 +22,7 @@ import org.jinq.hibernate.test.entities.Customer;
 import org.jinq.hibernate.test.entities.Item;
 import org.jinq.hibernate.test.entities.ItemType;
 import org.jinq.hibernate.test.entities.Lineorder;
+import org.jinq.hibernate.test.entities.PhoneNumber;
 import org.jinq.hibernate.test.entities.Sale;
 import org.jinq.hibernate.test.entities.Supplier;
 import org.jinq.jpa.JPQL;
@@ -273,6 +274,21 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(ItemType.OTHER, items.get(1).getTwo());
    }
    
+   @Test
+   public void testConverter()
+   {
+      PhoneNumber val = new PhoneNumber("1", "555", "5552222");
+      List<Pair<Customer, PhoneNumber>> phones= streams.streamAll(em, Customer.class)
+            .where(c -> c.getPhone().equals(val))
+            .select(c -> new Pair<>(c, c.getPhone()))
+            .toList();
+      phones = phones.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
+      assertEquals("SELECT A, A.phone FROM org.jinq.hibernate.test.entities.Customer A WHERE A.phone = :param0", query);
+      assertEquals(1, phones.size());
+      assertEquals("Bob", phones.get(0).getOne().getName());
+      assertEquals(val, phones.get(0).getTwo());
+   }
+
    @Test(expected=Exception.class)  // Hibernate generating code that Derby can't handle--TODO: investigate further later
    public void testBigDecimal()
    {
