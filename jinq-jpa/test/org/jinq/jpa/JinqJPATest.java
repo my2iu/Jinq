@@ -410,12 +410,13 @@ public class JinqJPATest extends JinqJPATestBase
       // Query q = em.createQuery("SELECT A.name FROM Customer A WHERE A.salary < (SELECT B.salary FROM Customer B WHERE B.name = 'Alice') ");  // Checking for JPQL support for subqueries returning a single value
       // Query q = em.createQuery("SELECT A, B FROM Sale A join A.customer B WHERE B.name = 'Alice'");  // Hibernate seems to require you to actually use the "join" keyword when using a plural navigational link instead of letting you use commas.
       // Query q = em.createQuery("SELECT A, B FROM Item A join A.suppliers B WHERE A.name = 'Widgets'");  // Hibernate seems to require you to actually use the "join" keyword when using a plural navigational link instead of letting you use commas.
-      Query q = em.createQuery("SELECT A, B FROM Item A JOIN FETCH A.suppliers B WHERE A.name = 'Widgets'");  // In a JOIN FETCH, Hibernate doesn't include the "JOINed" supplier in the result set.  
+      // Query q = em.createQuery("SELECT A, B FROM Item A JOIN FETCH A.suppliers B WHERE A.name = 'Widgets'");  // In a JOIN FETCH, Hibernate doesn't include the "JOINed" supplier in the result set.  
+      Query q = em.createQuery("SELECT A.name, B.name FROM Item A LEFT JOIN Supplier B ON A.itemid = B.supplierid");  // Is LEFT OUTER JOIN with ON supported?  
       // Query q = em.createQuery("SELECT A FROM Customer A WHERE ((A.debt) >= 90) IS FALSE");  // Test of existence of IS FALSE (it doesn't exist) 
 
       List results = q.getResultList();
-//      for (Object o : results)
-//         System.out.println(o);
+      for (Object o : results)
+         System.out.println(o);
    }
    
    @Test
