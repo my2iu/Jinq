@@ -129,7 +129,7 @@ public abstract class JPQLQueryTransform
       return conditionExpr;
    }
 
-   protected void pathConditionsToClauses(PathAnalysis path, List<TypedValue> clauses) throws TypedValueVisitorException
+   protected static void pathConditionsToClauses(PathAnalysis path, List<TypedValue> clauses) throws TypedValueVisitorException
    {
       for (TypedValue cmp: path.getConditions())
       {

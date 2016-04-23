@@ -96,4 +96,22 @@ public class NonQueryJinqStreamTest
    {
       new NonQueryJinqStream<>( Stream.of(1, 2) ).findOne();
    }
+   
+   @Test
+   public void testLeftOuterJoinOn()
+   {
+      Pair<Integer, Integer>[] vals = 
+            new NonQueryJinqStream<>( Stream.of(1, 2) )
+                  .leftOuterJoin(
+                        (val, source) -> new NonQueryJinqStream<>( Stream.of(1, 3) ),
+                        (a, b) -> a == b
+                  )
+                  .toList()
+                  .toArray(new Pair[0]);
+      assertArrayEquals(
+            new Pair[] {
+                  new Pair<>(1, 1),
+                  new Pair<>(2, null)
+            }, vals);
+   }
 }

@@ -23,6 +23,7 @@ import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.Where;
 import org.jinq.tuples.Pair;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class JinqJPATest extends JinqJPATestBase
@@ -236,6 +237,55 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("SELECT A, B FROM Customer A LEFT OUTER JOIN A.country B", query);
       assertEquals(5, results.size());
    }
+   
+   @Test
+   public void testOuterJoinOn()
+   {
+      List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
+            .leftOuterJoin(
+                  (i, source) -> source.stream(Supplier.class),
+                  (item, supplier) -> item.getName().substring(0, 1).equals(supplier.getName().substring(0, 1)))
+            .toList();
+      assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN Supplier B ON SUBSTRING(A.name, 0 + 1, 1 - 0) = SUBSTRING(B.name, 0 + 1, 1 - 0)", query);
+      Collections.sort(results, (c1, c2) -> c1.getOne().getName().compareTo(c2.getOne().getName()));
+      assertEquals(5, results.size());
+      assertEquals("Lawnmowers", results.get(0).getOne().getName());
+      Assert.assertNull(results.get(0).getTwo());
+      assertEquals("Talent", results.get(2).getOne().getName());
+      assertEquals("Talent Agency", results.get(2).getTwo().getName());
+   }
+   
+   @Test
+   public void testOuterJoinOnTrueAndNavigationalLinks()
+   {
+      List<Pair<Item, Supplier>> results = streams.streamAll(em, Item.class)
+            .leftOuterJoin(
+                  (i, source) -> JinqStream.from(i.getSuppliers()),
+                  (item, supplier) -> true)
+            .toList();
+      assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN A.suppliers B", query);
+      assertEquals(6, results.size());
+   }
+
+   @Test
+   public void testOuterJoinOnWithParametersAndIndirect()
+   {
+      String match = "Screws";
+      List<Pair<String, Supplier>> results = streams.streamAll(em, Item.class)
+            .select(i -> i.getName())
+            .leftOuterJoin(
+                  (i, source) -> source.stream(Supplier.class),
+                  (itemName, supplier) -> itemName.equals(match))
+            .toList();
+      assertEquals("SELECT A.name, B FROM Item A LEFT OUTER JOIN Supplier B ON A.name = :param0", query);
+      Collections.sort(results, (c1, c2) -> c1.getOne().compareTo(c2.getOne()));
+      assertEquals(7, results.size());
+      assertEquals("Lawnmowers", results.get(0).getOne());
+      Assert.assertNull(results.get(0).getTwo());
+      assertEquals("Screws", results.get(1).getOne());
+      assertEquals("Screws", results.get(2).getOne());
+      assertEquals("Screws", results.get(3).getOne());
+   }
 
    @Test
    public void testSort()
@@ -415,8 +465,8 @@ public class JinqJPATest extends JinqJPATestBase
       // Query q = em.createQuery("SELECT A FROM Customer A WHERE ((A.debt) >= 90) IS FALSE");  // Test of existence of IS FALSE (it doesn't exist) 
 
       List results = q.getResultList();
-      for (Object o : results)
-         System.out.println(o);
+//      for (Object o : results)
+//         System.out.println(o);
    }
    
    @Test

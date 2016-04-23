@@ -98,9 +98,8 @@ public class SelectFromWhere<T> extends SelectOnly<T>
                if (from.isPrecededByComma())
                   queryState.queryString += ", ";
             }
-            from.generateFromString(queryState, isFirst);
+            from.generateFromString(queryState, queryState.getFromAlias(from), isFirst);
             isFirst = false;
-            queryState.queryString += " " + queryState.getFromAlias(from);
          }
       }
       if (where != null)

@@ -248,6 +248,15 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
    {
       return wrap(wrapped.leftOuterJoinList(join));
    }
+   
+   @Override
+   public <U> JinqStream<Pair<T, U>> leftOuterJoin(
+         org.jinq.orm.stream.JinqStream.JoinWithSource<T, U> join, 
+         org.jinq.orm.stream.JinqStream.WhereForOn<T, U> on)
+   {
+      return wrap(wrapped.leftOuterJoin(join, on));
+   }
+
 
    @Override
    public <U, V> JPAJinqStream<Pair<U, V>> group(

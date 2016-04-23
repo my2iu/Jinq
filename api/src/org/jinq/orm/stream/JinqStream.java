@@ -274,6 +274,50 @@ public interface JinqStream<T> extends Stream<T>
    public <U> JinqStream<Pair<T, U>> leftOuterJoinList(JoinToIterable<T, U> join);
 
    @FunctionalInterface
+   public static interface WhereForOn<U, V> extends Serializable
+   {
+      public boolean where(U obj1, V obj2);
+   }
+   
+   /**
+    * Pairs up each entry of the stream with a stream of related elements. Uses
+    * a left outer join during the pairing up process, so even if an element is
+    * not joined with anything, a pair will still be created in the output
+    * stream consisting of the element paired with null. This version also passes 
+    * an {@link InQueryStreamSource} to the join function so that the function 
+    * can join elements with unrelated streams of entities from a database
+    * and an ON clause can be specified that will determine which elements from
+    * the two streams will be joined together. 
+    * 
+    * <pre>
+    * {@code JinqStream<Country> stream = ...;
+    * JinqStream<Pair<Country, Mountain>> result = 
+    *    stream.leftOuterJoin(
+    *            (c, source) -> source.stream(Mountain.class), 
+    *            (country, mountain) -> country.getName().equals(mountain.getCountry()));
+    * }
+    * </pre>
+    * 
+    * @see #leftOuterJoin(Join)
+    * @param join
+    *           function applied to the elements of the stream. When passed an
+    *           element from the stream, the function should return a stream of
+    *           values that should be paired up with that stream element. The
+    *           function must use a JPA association or navigational link as the
+    *           base for the stream returned. Both singular or plural
+    *           associations are allowed.
+    * @param on
+    *           this is a comparison function that returns true if the elements
+    *           from the two streams should be joined together. It is similar to
+    *           a standard where() clause except that the elements from the two
+    *           streams are passed in as separate parameters for convenience
+    *           (as opposed to being passed in as a pair)
+    * @return a new stream with the paired up elements
+    */
+   public <U> JinqStream<Pair<T, U>> leftOuterJoin(JoinWithSource<T, U> join, WhereForOn<T, U> on);
+
+   
+   @FunctionalInterface
    public static interface AggregateGroup<W, U, V> extends Serializable
    {
       public V aggregateSelect(W key, JinqStream<U> val);

@@ -34,6 +34,7 @@ import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MultiAggregateTransform;
+import org.jinq.jpa.transform.OuterJoinOnTransform;
 import org.jinq.jpa.transform.OuterJoinTransform;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
@@ -43,6 +44,7 @@ import org.jinq.orm.internal.QueryComposer;
 import org.jinq.orm.stream.JinqStream.AggregateGroup;
 import org.jinq.orm.stream.JinqStream.JoinToIterable;
 import org.jinq.orm.stream.JinqStream.Select;
+import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
@@ -296,6 +298,43 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfo);
    }
 
+   public <U> JPAQueryComposer<U> applyTransformWithTwoLambdas(OuterJoinOnTransform transform, Object lambda1, Object lambda2)
+   {
+      LambdaInfo lambdaInfo1 = lambdaAnalyzer.extractSurfaceInfo(lambda1, lambdas.size(), hints.dieOnError);
+      if (lambdaInfo1 == null) { translationFail(); return null; }
+      LambdaInfo lambdaInfo2 = lambdaAnalyzer.extractSurfaceInfo(lambda2, lambdas.size() + 1, hints.dieOnError);
+      if (lambdaInfo2 == null) { translationFail(); return null; }
+      Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ?
+            cachedQueries.findInCache(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo1.getLambdaSourceString(), lambdaInfo2.getLambdaSourceString()}) : null;
+      if (cachedQuery == null)
+      {
+         cachedQuery = Optional.empty();
+         JPQLQuery<U> newQuery = null;
+         try {
+            LambdaAnalysis lambdaAnalysis1 = lambdaInfo1.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.isAllEqualsSafe, hints.isCollectionContainsSafe, hints.dieOnError);
+            if (lambdaAnalysis1 == null) { translationFail(); return null; }
+            LambdaAnalysis lambdaAnalysis2 = lambdaInfo2.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.isAllEqualsSafe, hints.isCollectionContainsSafe, hints.dieOnError);
+            if (lambdaAnalysis2 == null) { translationFail(); return null; }
+            getConfig().checkLambdaSideEffects(lambdaAnalysis1);
+            getConfig().checkLambdaSideEffects(lambdaAnalysis1);
+            newQuery = transform.apply(query, lambdaAnalysis1, lambdaAnalysis2, null);
+         }
+         catch (QueryTransformException e)
+         {
+            translationFail(e);
+         }
+         finally 
+         {
+            // Always cache the resulting query, even if it is an error
+            cachedQuery = Optional.ofNullable(newQuery);
+            if (hints.useCaching)
+               cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), new String[] {lambdaInfo1.getLambdaSourceString(), lambdaInfo2.getLambdaSourceString()}, cachedQuery);
+         }
+      }
+      if (!cachedQuery.isPresent()) { translationFail(); return null; }
+      return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfo1, lambdaInfo2);
+   }
+
    public <U> JPAQueryComposer<U> applyTransformWithLambdas(JPQLMultiLambdaQueryTransform transform, Object [] groupingLambdas)
    {
       LambdaInfo[] lambdaInfos = new LambdaInfo[groupingLambdas.length];
@@ -471,6 +510,13 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    {
       return applyTransformWithLambda(new OuterJoinTransform(getConfig()).setIsExpectingStream(false), joinLambda);
    }
+   
+   @Override
+   public <U> QueryComposer<Pair<T, U>> leftOuterJoinWithSource(JinqStream.JoinWithSource<T,U> join, JinqStream.WhereForOn<T, U> on)
+   {
+      return applyTransformWithTwoLambdas(new OuterJoinOnTransform(getConfig()).setIsExpectingStream(true), join, on);
+   }
+
 
    public <U> JPAQueryComposer<T> leftOuterJoinFetch(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)

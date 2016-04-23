@@ -12,11 +12,13 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-
+import org.jinq.orm.stream.JinqStream.JoinWithSource;
+import org.jinq.orm.stream.JinqStream.WhereForOn;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 import org.jinq.tuples.Tuple3;
@@ -183,6 +185,26 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       return wrap(streamBuilder.build());
    }
 
+   @Override
+   public <U> JinqStream<Pair<T, U>> leftOuterJoin(JoinWithSource<T, U> join, WhereForOn<T, U> on)
+   {
+      // TODO: This stream should be constructed on the fly
+      final Stream.Builder<Pair<T,U>> streamBuilder = Stream.builder();
+      forEach( left -> {
+         AtomicBoolean wasMatched = new AtomicBoolean();
+         join.join(left, inQueryStreamSource).forEach( right -> {
+            if (on.where(left, right))
+            {
+               wasMatched.set(true);
+               streamBuilder.accept(new Pair<>(left, right));
+            }
+         });
+         if (!wasMatched.get())
+            streamBuilder.accept(new Pair<>(left, null));
+         });
+      return wrap(streamBuilder.build());
+   }
+ 
    protected <U, W extends Tuple> JinqStream<W> groupToTuple(Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
       Map<U, List<T>> groups = collect(Collectors.groupingBy(in -> select.select(in)));

@@ -64,11 +64,18 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
    }
 
    private <V> Expression computeWhereReturnExpr(LambdaAnalysis where,
-         SelectFromWhere<V> sfw, SymbExArgumentHandler parentArgumentScope) throws TypedValueVisitorException,
-         QueryTransformException
+         SelectFromWhere<V> sfw, SymbExArgumentHandler parentArgumentScope) 
+               throws TypedValueVisitorException, QueryTransformException
+   {
+      return computeWhereReturnExpr(config, where, sfw, SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, config.metamodel, parentArgumentScope, withSource));
+   }
+
+   public static <V> Expression computeWhereReturnExpr(JPQLQueryTransformConfiguration config, LambdaAnalysis where,
+         SelectFromWhere<V> sfw, LambdaParameterArgumentHandler argumentHandler) 
+               throws TypedValueVisitorException, QueryTransformException
    {
       // Gather up the conditions for when the path is true (as a disjunction of conjunctive clauses--disjunctive normal form)
-      SymbExToColumns translator = config.newSymbExToColumns(SelectFromWhereLambdaArgumentHandler.fromSelectFromWhere(sfw, where, config.metamodel, parentArgumentScope, withSource));
+      SymbExToColumns translator = config.newSymbExToColumns(argumentHandler);
       List<List<TypedValue>> disjunction = new ArrayList<>();
       for (int n = 0; n < where.symbolicAnalysis.paths.size(); n++)
       {
@@ -135,7 +142,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
     * Identifies a common pattern of a chain of ORs so that it
     * can be encoded more simply.
     */
-   private void checkForOrChain(List<List<TypedValue>> disjunction)
+   private static void checkForOrChain(List<List<TypedValue>> disjunction)
    {
       // TODO: Handle more complex patterns
       // TODO: generate expressions that do not use NOT (causes problems with NULLs)

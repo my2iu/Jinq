@@ -127,7 +127,7 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
       return super.leftOuterJoin(join);
    }
-   
+
    @Override
    public <U> JinqStream<Pair<T, U>> leftOuterJoinList(JoinToIterable<T, U> join)
    {
@@ -136,6 +136,14 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
       return super.leftOuterJoinList(join);
    }
 
+   @Override
+   public <U> JinqStream<Pair<T, U>> leftOuterJoin(JoinWithSource<T, U> join, WhereForOn<T, U> on)
+   {
+      QueryComposer<Pair<T, U>> newComposer = queryComposer.leftOuterJoinWithSource(join, on);
+      if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
+      return super.leftOuterJoin(join, on);
+   }
+   
    @Override
    protected <U, W extends Tuple> JinqStream<W> groupToTuple(Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
