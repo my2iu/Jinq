@@ -66,6 +66,16 @@ class NonQueryJinqIterator[T](_wrapped: Iterator[T], _inQueryStreamSource: InQue
     }))
   }
   
+  override def leftOuterJoin[U](join: (T, InQueryStreamSource) => JinqIterator[U], on: (T, U) => Boolean) : JinqIterator[Tuple2[T, U]] = {
+    wrap(flatMap((left: T) => {
+      val joined = join(left, inQueryStreamSource).filter(right => on(left, right)).toBuffer
+      if (joined.isEmpty)
+        List((left, null.asInstanceOf[U]))
+      else
+        joined.map(right => (left, right))
+    }))
+  }
+  
   override def joinFetch[U](fn: (T) => JinqIterator[U]): JinqIterator[T] = {
     this;    
   }

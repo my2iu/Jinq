@@ -14,6 +14,7 @@ import org.jinq.orm.stream.scala.JinqIterator
 import org.jinq.orm.stream.scala.NonQueryJinqIterator
 import _root_.scala.collection.GenTraversableOnce
 import org.jinq.jpa.transform.JoinFetchTransform
+import org.jinq.jpa.transform.ScalaOuterJoinOnTransform
 
 class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource: InQueryStreamSource) extends JinqIterator[T] {
   val GENERIC_TRANSLATION_FAIL_MESSAGE = "Could not translate Scala code to a query";
@@ -96,6 +97,12 @@ class JinqJPAScalaIterator[T](_query: JPAQueryComposer[T], _inQueryStreamSource:
     val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithLambda(new ScalaOuterJoinTransform(queryComposer.getConfig()), fn);
     if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
     asNonQuery().leftOuterJoin(fn)
+  }
+  
+  override def leftOuterJoin[U](join: (T, InQueryStreamSource) => JinqIterator[U], on: (T, U) => Boolean) : JinqIterator[Tuple2[T, U]] = {
+    val newComposer: JPAQueryComposer[(T, U)] = queryComposer.applyTransformWithTwoLambdas(new ScalaOuterJoinOnTransform(queryComposer.getConfig()), join, on);
+    if (newComposer != null) return new JinqJPAScalaIterator(newComposer, inQueryStreamSource);
+    asNonQuery().leftOuterJoin(join, on)
   }
   
   override def joinFetch[U](fn: (T) => JinqIterator[U]): JinqIterator[T] = {

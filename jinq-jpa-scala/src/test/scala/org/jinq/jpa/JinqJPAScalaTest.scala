@@ -118,6 +118,53 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("Conglomerate", results(0)._2.getName());
     Assert.assertEquals("HW Supplier", results(1)._2.getName());
   }
+     
+  @Test
+  def testOuterJoinOn() {
+    var results = streamAll(em, classOf[Item])
+      .leftOuterJoin(
+          (i, source) => source.stream(classOf[Supplier]),
+          (item, supplier : Supplier) => item.getName().substring(0, 1) == supplier.getName().substring(0, 1))
+      .toList;
+    
+    Assert.assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN Supplier B ON SUBSTRING(A.name, 0 + 1, 1 - 0) IS NOT NULL AND SUBSTRING(A.name, 0 + 1, 1 - 0) = SUBSTRING(B.name, 0 + 1, 1 - 0) OR SUBSTRING(A.name, 0 + 1, 1 - 0) IS NULL AND SUBSTRING(B.name, 0 + 1, 1 - 0) IS NULL", query);
+    results = results.sortBy(c1 => c1._1.getName());
+    Assert.assertEquals(5, results.length);
+    Assert.assertEquals("Lawnmowers", results(0)._1.getName());
+    Assert.assertNull(results(0)._2);
+    Assert.assertEquals("Talent", results(2)._1.getName());
+    Assert.assertEquals("Talent Agency", results(2)._2.getName());
+  }
+   
+  @Test
+  def testOuterJoinOnTrueAndNavigationalLinks() {
+    var results = streamAll(em, classOf[Item])
+      .leftOuterJoin(
+          (i, source) => i.getSuppliers,
+          (item, supplier : Supplier) => true)
+      .toList;
+    Assert.assertEquals("SELECT A, B FROM Item A LEFT OUTER JOIN A.suppliers B", query);
+    Assert.assertEquals(6, results.length);
+  }
+
+  @Test
+  def testOuterJoinOnWithParametersAndIndirect() {
+    val m = "Screws";
+    var results = streamAll(em, classOf[Item])
+      .select(i => i.getName())
+      .leftOuterJoin(
+          (i, source) => source.stream(classOf[Supplier]),
+          (item, supplier : Supplier) => item == m)
+      .toList;
+    Assert.assertEquals("SELECT A.name, B FROM Item A LEFT OUTER JOIN Supplier B ON A.name IS NOT NULL AND A.name = :param0 OR A.name IS NULL AND :param1 IS NULL", query);
+    results = results.sortBy(c1 => c1._1);
+    Assert.assertEquals(7, results.length);
+    Assert.assertEquals("Lawnmowers", results(0)._1);
+    Assert.assertNull(results(0)._2);
+    Assert.assertEquals("Screws", results(1)._1);
+    Assert.assertEquals("Screws", results(2)._1);
+    Assert.assertEquals("Screws", results(3)._1);
+  }
 
   //   @Test
   //   def testStreamPages()
