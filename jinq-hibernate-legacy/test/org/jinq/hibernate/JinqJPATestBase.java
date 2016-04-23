@@ -38,10 +38,12 @@ public class JinqJPATestBase
    public static void setUpBeforeClass() throws Exception
    {
       Configuration configuration = new Configuration().configure("META-INF/hibernate.cfg.xml");
-      ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-         .applySettings(configuration.getProperties())
-         .build();
-      sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+//      ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+//         .applySettings(configuration.getProperties())
+//         .build();
+//      sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+      // Hibernate keeps changing how it's configured. The old way no longer works, apparently.
+      sessionFactory = configuration.buildSessionFactory();
       streams = new JinqHibernateStreamProvider(sessionFactory);
 
       // Hibernate's ClassMetadata doesn't have as much information as the Criteria API 

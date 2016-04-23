@@ -91,6 +91,11 @@ public interface JPAJinqStream<T> extends JinqStream<T>
    public <U> JPAJinqStream<Pair<T, U>> leftOuterJoinList(JoinToIterable<T, U> join);
 
    @Override
+   public <U> JPAJinqStream<Pair<T, U>> leftOuterJoin(
+         JinqStream.JoinWithSource<T, U> join,
+         JinqStream.WhereForOn<T, U> on);
+   
+   @Override
    public <U, V> JPAJinqStream<Pair<U, V>> group(Select<T, U> select,
          AggregateGroup<U, T, V> aggregate);
 
