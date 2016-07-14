@@ -56,9 +56,9 @@ public class CreateJpaDb
       // SQL and JPA has some issues with timezones, so we'll manually
       // set the years and stuff for dates using deprecated methods to 
       // ensure we consistently get certain values in the database.
-      java.sql.Date sqlDate = new java.sql.Date(year, month, day);
+      java.sql.Date sqlDate = new java.sql.Date(year - 1900, month, day);
       java.sql.Time sqlTime = new java.sql.Time(hour, 0, 0);
-      java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(year, month, day, hour, 0, 0, 0);
+      java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(year - 1900, month, day, hour, 0, 0, 0);
       
       CreditCard creditCard = new CreditCard();
       creditCard.setName(customer.getName());
