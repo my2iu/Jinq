@@ -1,5 +1,8 @@
 package org.jinq.jpa;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
@@ -20,6 +23,18 @@ public class JPQL
    public static boolean like(String str, String pattern)
    {
       return like(str, pattern, "");
+   }
+   
+   public static Date currentDate() {
+	   return new Date(new java.util.Date().getTime());
+   }
+
+   public static Timestamp currentTimestamp() {
+	   return new Timestamp(new java.util.Date().getTime());
+   }
+
+   public static Time currentTime() {
+	   return new Time(new java.util.Date().getTime());
    }
    
    /**

@@ -167,8 +167,8 @@ public class JinqJPATypesTest extends JinqJPATestBase
    @Test
    public void testSqlDate()
    {
-      java.sql.Date val = new java.sql.Date(2002, 1, 1);
-      java.sql.Date val2 = new java.sql.Date(2003, 1, 1);
+      java.sql.Date val = new java.sql.Date(2002 - 1900, 1, 1);
+      java.sql.Date val2 = new java.sql.Date(2003 - 1900, 1, 1);
       List<Pair<Customer, java.sql.Date>> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getSqlDate().before(val) || s.getSqlDate().equals(val2))
             .select(s -> new Pair<>(s.getCustomer(), s.getSqlDate()))
@@ -201,8 +201,8 @@ public class JinqJPATypesTest extends JinqJPATestBase
    @Test
    public void testSqlTimestamp()
    {
-      java.sql.Timestamp val = new java.sql.Timestamp(2002, 1, 1, 1, 0, 0, 0);
-      java.sql.Timestamp val2 = new java.sql.Timestamp(2003, 1, 1, 1, 0, 0, 0);
+      java.sql.Timestamp val = new java.sql.Timestamp(2002 - 1900, 1, 1, 1, 0, 0, 0);
+      java.sql.Timestamp val2 = new java.sql.Timestamp(2003 - 1900, 1, 1, 1, 0, 0, 0);
       List<Pair<Customer, java.sql.Timestamp>> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getSqlTimestamp().before(val) || s.getSqlTimestamp().equals(val2))
             .select(s -> new Pair<>(s.getCustomer(), s.getSqlTimestamp()))

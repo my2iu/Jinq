@@ -33,6 +33,9 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature jpqlIsIn;
    public final static MethodSignature jpqlIsInList;
    public final static MethodSignature jpqlListContains;
+   public final static MethodSignature jpqlCurrentDate;
+   public final static MethodSignature jpqlCurrentTimestamp;
+   public final static MethodSignature jpqlCurrentTime;
    public final static MethodSignature mathSqrt = new MethodSignature("java/lang/Math", "sqrt", "(D)D");
    public final static MethodSignature mathAbsDouble = new MethodSignature("java/lang/Math", "abs", "(D)D");
    public final static MethodSignature mathAbsInt = new MethodSignature("java/lang/Math", "abs", "(I)I");
@@ -57,6 +60,10 @@ class MethodChecker implements PathAnalysisMethodChecker
          jpqlIsInList = MethodSignature.fromMethod(JPQL.class.getMethod("isInList", Object.class, Collection.class));
          jpqlListContains = MethodSignature.fromMethod(JPQL.class.getMethod("listContains", Collection.class, Object.class));
 
+         jpqlCurrentTimestamp = MethodSignature.fromMethod(JPQL.class.getMethod("currentTimestamp"));
+         jpqlCurrentDate = MethodSignature.fromMethod(JPQL.class.getMethod("currentDate"));
+         jpqlCurrentTime = MethodSignature.fromMethod(JPQL.class.getMethod("currentTime"));
+
          streamSelectAll = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAll", JinqStream.Join.class));
          streamSelectAllList = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAllList", JinqStream.JoinToIterable.class));
          streamJoinList = MethodSignature.fromMethod(JinqStream.class.getMethod("joinList", JinqStream.JoinToIterable.class));
@@ -74,6 +81,9 @@ class MethodChecker implements PathAnalysisMethodChecker
       jpqlFunctionStaticMethods.add(jpqlIsIn);
       jpqlFunctionStaticMethods.add(jpqlIsInList);
       jpqlFunctionStaticMethods.add(jpqlListContains);
+      jpqlFunctionStaticMethods.add(jpqlCurrentDate);
+      jpqlFunctionStaticMethods.add(jpqlCurrentTimestamp);
+      jpqlFunctionStaticMethods.add(jpqlCurrentTime);
       jpqlFunctionStaticMethods.add(mathSqrt);
       jpqlFunctionStaticMethods.add(mathAbsDouble);
       jpqlFunctionStaticMethods.add(mathAbsInt);
