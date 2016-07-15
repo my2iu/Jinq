@@ -9,6 +9,12 @@ public class FunctionExpression extends Expression
    List<Expression> arguments = new ArrayList<>();
    String functionName;
    
+   public static FunctionExpression noParam(String name) {
+      FunctionExpression func = new FunctionExpression();
+      func.functionName = name;
+      return func;
+   }
+   
    public static FunctionExpression singleParam(String name, Expression base)
    {
       FunctionExpression func = new FunctionExpression();
@@ -40,6 +46,7 @@ public class FunctionExpression extends Expression
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
       queryState.appendQuery(functionName);
+      if (arguments.isEmpty()) return;
       queryState.appendQuery("(");
       boolean isFirst = true;
       for (Expression arg: arguments)

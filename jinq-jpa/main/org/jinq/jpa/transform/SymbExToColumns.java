@@ -260,9 +260,20 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       // Handle operations with NULL separately
       if (leftVal instanceof ConstantValue.NullConstant || rightVal instanceof ConstantValue.NullConstant)
          return binaryOpWithNull(opString, leftVal, rightVal, passdown);
+      // XXX: here we need to skip this assertion because our tipes are
+      // not the same (example a Date and a java.sql.Date), but are comparable.
+      boolean skipAssert = false;
+      if (leftVal.getType().toString().equals("Ljava/util/Date;")) {
+    	  String name = rightVal.getType().toString();
+    	  skipAssert = name.equals("Ljava/sql/Timestamp;") ||
+    			  name.equals("Ljava/sql/Time;") ||
+    			  name.equals("Ljava/sql/Date;");
+      }
+
       // Check if we have a valid numeric promotion (i.e. one side has a widening cast
       // to match the type of the other side).
-      assert(leftVal.getType().equals(rightVal.getType()) 
+      assert(skipAssert 
+    		|| leftVal.getType().equals(rightVal.getType()) 
             || (leftVal.getType().getInternalName().equals("java/lang/Object") && config.isObjectEqualsSafe)// in Scala, many comparisons are done on Objects
             || (rightVal.getType().getInternalName().equals("java/lang/Object") && config.isObjectEqualsSafe));
       if (isWideningCast(leftVal))
@@ -708,6 +719,21 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             ColumnExpressions<?> base = baseVal.visit(this, passdown);
             return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
                   FunctionExpression.singleParam("SQRT", base.getOnlyColumn())); 
+         }
+         else if (sig.equals(MethodChecker.jpqlCurrentDate))
+         {
+            return ColumnExpressions.noColumn(new SimpleRowReader<>(),
+                  FunctionExpression.noParam("CURRENT_DATE")); 
+         }
+         else if (sig.equals(MethodChecker.jpqlCurrentTimestamp))
+         {
+            return ColumnExpressions.noColumn(new SimpleRowReader<>(),
+                  FunctionExpression.noParam("CURRENT_TIMESTAMP")); 
+         }
+         else if (sig.equals(MethodChecker.jpqlCurrentTime))
+         {
+            return ColumnExpressions.noColumn(new SimpleRowReader<>(),
+                  FunctionExpression.noParam("CURRENT_TIME")); 
          }
          throw new TypedValueVisitorException("Do not know how to translate the method " + sig + " into a JPQL function");
       }

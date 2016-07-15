@@ -18,6 +18,13 @@ public class ColumnExpressions<T>
       this.reader = reader;
    }
    
+   public static <U> ColumnExpressions<U> noColumn(RowReader<U> reader, Expression expr) {
+	   
+      ColumnExpressions<U> columnExpressions = new ColumnExpressions<>(reader);
+      columnExpressions.columns.add(expr);
+      return columnExpressions;
+   }
+   
    public static <U> ColumnExpressions<U> singleColumn(RowReader<U> reader, Expression expr)
    {
       ColumnExpressions<U> columnExpressions = new ColumnExpressions<>(reader);
