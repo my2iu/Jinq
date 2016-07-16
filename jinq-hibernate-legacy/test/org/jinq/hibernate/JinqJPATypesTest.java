@@ -7,7 +7,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -118,11 +120,35 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Widgets", items.get(1).getOne().getName());
       assertTrue(Math.abs((double)items.get(1).getTwo() - 10) < 0.1);
    }
+   
+   private Date getBogusDate(int year, int month, int day)
+   {
+      // Performs a bogus conversion of a year-month-day into an old Java Date type
+      return Date.from(java.sql.Timestamp.valueOf(LocalDateTime.of(year, month, day, 1, 0)).toInstant());
+   }
+
+   private java.sql.Date getBogusSqlDate(int year, int month, int day)
+   {
+      // All the Java sql date and time stuff is ambiguous about timezones, so we're basically just ignoring major issues here
+      return java.sql.Date.valueOf(LocalDate.of(year, month, day));
+   }
+
+   private java.sql.Time getBogusSqlTime(int hour, int minute)
+   {
+      // All the Java sql date and time stuff is ambiguous about timezones, so we're basically just ignoring major issues here
+      return java.sql.Time.valueOf(LocalTime.of(hour, minute));
+   }
+
+   private java.sql.Timestamp getBogusSqlTimestamp(int year, int month, int day, int hour, int minute)
+   {
+      // All the Java sql date and time stuff is ambiguous about timezones, so we're basically just ignoring major issues here
+      return java.sql.Timestamp.valueOf(LocalDateTime.of(year, month, day, hour, minute));
+   }
 
    @Test
    public void testDate()
    {
-      Date val = Date.from(LocalDateTime.of(2002, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
+      Date val = getBogusDate(2002, 1, 1);
       List<Pair<Customer, Date>> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getDate().before(val))
             .select(s -> new Pair<>(s.getCustomer(), s.getDate()))
@@ -136,7 +162,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
    @Test
    public void testDateEquals()
    {
-      Date val = Date.from(LocalDateTime.of(2001, 1, 1, 1, 0).toInstant(ZoneOffset.UTC));
+      Date val = getBogusDate(2001, 1, 1);
       List<String> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getDate().equals(val))
             .select(s -> s.getCustomer().getName())
@@ -150,9 +176,9 @@ public class JinqJPATypesTest extends JinqJPATestBase
    public void testCalendar()
    {
       Calendar val = Calendar.getInstance();
-      val.setTime(Date.from(LocalDateTime.of(2002, 1, 1, 0, 0).toInstant(ZoneOffset.UTC)));
+      val.setTime(getBogusDate(2002, 1, 1));
       Calendar val2 = Calendar.getInstance();
-      val2.setTime(Date.from(LocalDateTime.of(2003, 1, 1, 1, 0).toInstant(ZoneOffset.UTC)));
+      val2.setTime(getBogusDate(2003, 1, 1));
       List<Pair<Customer, Calendar>> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getCalendar().before(val) || s.getCalendar().equals(val2))
             .select(s -> new Pair<>(s.getCustomer(), s.getCalendar()))
@@ -164,12 +190,11 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Carol", sales.get(1).getOne().getName());
    }
 
-   @SuppressWarnings("deprecation")
    @Test
    public void testSqlDate()
    {
-      java.sql.Date val = new java.sql.Date(2002, 1, 1);
-      java.sql.Date val2 = new java.sql.Date(2003, 1, 1);
+      java.sql.Date val = getBogusSqlDate(2002, 1, 1);
+      java.sql.Date val2 = getBogusSqlDate(2003, 1, 1);
       List<Pair<Customer, java.sql.Date>> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getSqlDate().before(val) || s.getSqlDate().equals(val2))
             .select(s -> new Pair<>(s.getCustomer(), s.getSqlDate()))
@@ -181,12 +206,11 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Carol", sales.get(1).getOne().getName());
    }
 
-   @SuppressWarnings("deprecation")
    @Test
    public void testSqlTime()
    {
-      java.sql.Time val = new java.sql.Time(6, 0, 0);
-      java.sql.Time val2 = new java.sql.Time(5, 0, 0);
+      java.sql.Time val = getBogusSqlTime(6, 0);
+      java.sql.Time val2 = getBogusSqlTime(5, 0);
       List<Pair<Customer, java.sql.Time>> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getSqlTime().after(val) || s.getSqlTime().equals(val2))
             .select(s -> new Pair<>(s.getCustomer(), s.getSqlTime()))
@@ -198,12 +222,11 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Alice", sales.get(1).getOne().getName());
    }
 
-   @SuppressWarnings("deprecation")
    @Test
    public void testSqlTimestamp()
    {
-      java.sql.Timestamp val = new java.sql.Timestamp(2002, 1, 1, 1, 0, 0, 0);
-      java.sql.Timestamp val2 = new java.sql.Timestamp(2003, 1, 1, 1, 0, 0, 0);
+      java.sql.Timestamp val = getBogusSqlTimestamp(2002, 1, 1, 1, 0);
+      java.sql.Timestamp val2 = getBogusSqlTimestamp(2003, 1, 1, 1, 0);
       List<Pair<Customer, java.sql.Timestamp>> sales = streams.streamAll(em, Sale.class)
             .where(s -> s.getSqlTimestamp().before(val) || s.getSqlTimestamp().equals(val2))
             .select(s -> new Pair<>(s.getCustomer(), s.getSqlTimestamp()))

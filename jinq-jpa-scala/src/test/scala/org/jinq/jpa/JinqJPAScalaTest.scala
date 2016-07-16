@@ -1,26 +1,30 @@
 package org.jinq.jpa;
 
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.util.Calendar
+import java.util.Date
+
 import org.jinq.jpa.test.entities.Customer
+import org.jinq.jpa.test.entities.Item
+import org.jinq.jpa.test.entities.ItemType
+import org.jinq.jpa.test.entities.Lineorder
+import org.jinq.jpa.test.entities.PhoneNumber
+import org.jinq.jpa.test.entities.Sale
+import org.jinq.jpa.test.entities.Supplier
+import org.jinq.orm.stream.scala.InQueryStreamSource
+import org.jinq.orm.stream.scala.JinqConversions.jinq
 import org.jinq.orm.stream.scala.JinqIterator
 import org.junit.Assert
 import org.junit.Test
+
 import javax.persistence.EntityManager
-import org.jinq.jpa.test.entities.Item
-import org.jinq.jpa.test.entities.Lineorder
-import java.math.BigDecimal
-import java.math.BigInteger
-import org.jinq.jpa.test.entities.Supplier
-import org.jinq.jpa.test.entities.Sale
-import org.jinq.orm.stream.scala.JinqConversions._
-import java.time.ZoneOffset
-import java.time.LocalDateTime
-import java.util.Date
-import org.jinq.jpa.test.entities.ItemType
-import java.nio.charset.Charset
-import java.nio.ByteBuffer
-import java.util.Calendar
-import org.jinq.orm.stream.scala.InQueryStreamSource
-import org.jinq.jpa.test.entities.PhoneNumber
 
 class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   private def streamAll[U](em: EntityManager, entityClass: java.lang.Class[U]): JinqIterator[U] = {
@@ -932,10 +936,30 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     Assert.assertEquals("Widgets", items(1)._1.getName());
     Assert.assertTrue(Math.abs(items(1)._2 - 10) < 0.1);
   }
+  
+  private def getBogusDate(year:Int, month:Int, day:Int) : Date = {
+     // Performs a bogus conversion of a year-month-day into an old Java Date type
+     Date.from(java.sql.Timestamp.valueOf(LocalDateTime.of(year, month, day, 1, 0)).toInstant());
+  }
+
+  private def getBogusSqlDate(year:Int, month:Int, day:Int) : java.sql.Date = {
+     // All the Java sql date and time stuff is ambiguous about timezones, so we're basically just ignoring major issues here
+     java.sql.Date.valueOf(LocalDate.of(year, month, day));
+  }
+
+  private def getBogusSqlTime(hour:Int, minute:Int) : java.sql.Time = {
+     // All the Java sql date and time stuff is ambiguous about timezones, so we're basically just ignoring major issues here
+     java.sql.Time.valueOf(LocalTime.of(hour, minute));
+  }
+
+  private def getBogusSqlTimestamp(year:Int, month:Int, day:Int, hour:Int, minute:Int) : java.sql.Timestamp = {
+     // All the Java sql date and time stuff is ambiguous about timezones, so we're basically just ignoring major issues here
+     java.sql.Timestamp.valueOf(LocalDateTime.of(year, month, day, hour, minute));
+  }
 
   @Test
   def testDate() {
-    val value = Date.from(LocalDateTime.of(2002, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
+    val value = getBogusDate(2002, 1, 1);
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getDate().before(value))
       .select(s => (s.getCustomer(), s.getDate()))
@@ -948,7 +972,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
 
   @Test
   def testDateEquals() {
-    val value = Date.from(LocalDateTime.of(2001, 1, 1, 1, 0).toInstant(ZoneOffset.UTC));
+    val value = getBogusDate(2001, 1, 1);
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getDate() == value)
       .select(s => s.getCustomer().getName())
@@ -961,9 +985,9 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   @Test
   def testCalendar() {
     val val1 = Calendar.getInstance();
-    val1.setTime(Date.from(LocalDateTime.of(2002, 1, 1, 0, 0).toInstant(ZoneOffset.UTC)));
+    val1.setTime(getBogusDate(2002, 1, 1));
     val val2 = Calendar.getInstance();
-    val2.setTime(Date.from(LocalDateTime.of(2003, 1, 1, 1, 0).toInstant(ZoneOffset.UTC)));
+    val2.setTime(getBogusDate(2003, 1, 1));
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getCalendar().before(val1) || s.getCalendar().equals(val2))
       .select(s => (s.getCustomer(), s.getCalendar()))
@@ -977,8 +1001,8 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
 
   @Test
   def testSqlDate() {
-    val val1 = new java.sql.Date(2002, 1, 1);
-    val val2 = new java.sql.Date(2003, 1, 1);
+    val val1 = getBogusSqlDate(2002, 1, 1);
+    val val2 = getBogusSqlDate(2003, 1, 1);
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getSqlDate().before(val1) || s.getSqlDate().equals(val2))
       .select(s => (s.getCustomer(), s.getSqlDate()))
@@ -992,8 +1016,8 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
 
   @Test
   def testSqlTime() {
-    val val1 = new java.sql.Time(6, 0, 0);
-    val val2 = new java.sql.Time(5, 0, 0);
+    val val1 = getBogusSqlTime(6, 0);
+    val val2 = getBogusSqlTime(5, 0);
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getSqlTime().after(val1) || s.getSqlTime().equals(val2))
       .select(s => (s.getCustomer(), s.getSqlTime()))
@@ -1007,8 +1031,8 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
 
   @Test
   def testSqlTimestamp() {
-    val val1 = new java.sql.Timestamp(2002, 1, 1, 1, 0, 0, 0);
-    val val2 = new java.sql.Timestamp(2003, 1, 1, 1, 0, 0, 0);
+    val val1 = getBogusSqlTimestamp(2002, 1, 1, 1, 0);
+    val val2 = getBogusSqlTimestamp(2003, 1, 1, 1, 0);
     val sales = streamAll(em, classOf[Sale])
       .where(s => s.getSqlTimestamp().before(val1) || s.getSqlTimestamp().equals(val2))
       .select(s => (s.getCustomer(), s.getSqlTimestamp()))

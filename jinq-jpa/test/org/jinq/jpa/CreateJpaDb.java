@@ -4,8 +4,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -46,19 +47,23 @@ public class CreateJpaDb
       return createSale(customer, year, 1, 1, 1);
    }
 
-   @SuppressWarnings("deprecation")
    private Sale createSale(Customer customer, int year, int month, int day, int hour)
    {
-      Instant instant = LocalDateTime.of(year, month, day, hour, 0).toInstant(ZoneOffset.UTC);
-      Date date = Date.from(instant);
+      LocalDate localDate = LocalDate.of(year, month, day);
+      LocalTime localTime = LocalTime.of(hour, 0);
+      LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
+      // All these conversions from the new Java 8 time API to the old Java date stuff is
+      // sort of bogus, but it's fine because Java is ambiguous as to how timezones and dates
+      // are treated in the database, so we can ignore those problems for the purposes of the tests 
+      Date date = Date.from(java.sql.Timestamp.valueOf(localDateTime).toInstant());
       Calendar cal = Calendar.getInstance();
       cal.setTime(date);
       // SQL and JPA has some issues with timezones, so we'll manually
       // set the years and stuff for dates using deprecated methods to 
       // ensure we consistently get certain values in the database.
-      java.sql.Date sqlDate = new java.sql.Date(year, month, day);
-      java.sql.Time sqlTime = new java.sql.Time(hour, 0, 0);
-      java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(year, month, day, hour, 0, 0, 0);
+      java.sql.Date sqlDate = java.sql.Date.valueOf(localDate);
+      java.sql.Time sqlTime = java.sql.Time.valueOf(localTime);
+      java.sql.Timestamp sqlTimestamp = java.sql.Timestamp.valueOf(localDateTime);
       
       CreditCard creditCard = new CreditCard();
       creditCard.setName(customer.getName());
@@ -105,6 +110,7 @@ public class CreateJpaDb
       s.setRevenue(revenue);
       s.setHasFreeShipping(hasFreeShipping);
       s.setSignature(name.getBytes(Charset.forName("UTF-8")));
+      // Another ambiguous date usage
       s.setSignatureExpiry(Date.from(Instant.now()));
       return s;
    }
