@@ -158,6 +158,18 @@ public class JinqJPAStreamProvider
             returnType.getName(), m, tupleIndexReaders);
    }
    
+   /**
+    * Instead of using Jinq's Pair, Tuple3, Tuple4, ... types for holding more than one
+    * return value, you can also configure Jinq to recognize some other data type for
+    * holding more than one value. These custom tuples can only be used in a few 
+    * locations since in many cases the use of Jinq's tuples are hard-coded in Jinq's APIs.
+    * 
+    * This API is for registering a constructor that can be used to create the object to be 
+    * used as a tuple. Each parameter of the method should be a field of the tuple.
+    * 
+    *  You can optionally supply methods (declared on the tuple object) that can be used to
+    *  read values from the tuple
+    */
    public void registerCustomTupleConstructor(Constructor<?> m, Method...tupleIndexReaders)
    {
       Class<?> tupleType = m.getDeclaringClass();

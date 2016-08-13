@@ -13,6 +13,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -574,5 +575,86 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Sale A WHERE A.creditCard = :param0", query);
       assertEquals(1, sales.size());
       assertEquals("Dave", sales.get(0).getCreditCard().getName());
+   }
+   
+   public static class CustomerPurchases
+   {
+      public CustomerPurchases(String name, long count)
+      {
+         this.name = name;
+         this.count = count;
+      }
+
+      
+      String name;
+      long count;
+      
+      public String getName() { return name; }
+      public long getCount() { return count; }
+      
+      public static CustomerPurchases from(String name, long count)
+      {
+         return new CustomerPurchases(name, count);
+      }
+   }
+   
+   @Test
+   public void testCustomTuple() throws NoSuchMethodException, SecurityException
+   {
+      streams.registerCustomTupleStaticBuilder(CustomerPurchases.class.getMethod("from", String.class, Long.TYPE));
+      List<CustomerPurchases> purchases = streams.streamAll(em, Customer.class)
+            .select(c -> CustomerPurchases.from(c.getName(), JinqStream.from(c.getSales()).count()))
+            .toList();
+      assertEquals("SELECT B.name, (SELECT COUNT(A) FROM B.sales A) FROM org.jinq.hibernate.test.entities.Customer B", query);
+      assertEquals(5, purchases.size());
+      purchases.sort(Comparator.comparing(cp -> cp.name));
+      assertEquals("Alice", purchases.get(0).name);
+      assertEquals(2, purchases.get(0).count);
+      assertEquals("Carol", purchases.get(2).name);
+      assertEquals(2, purchases.get(2).count);
+      assertEquals("Eve", purchases.get(4).name);
+      assertEquals(1, purchases.get(4).count);
+   }
+   
+   @Test
+   public void testCustomTupleReadIndex() throws NoSuchMethodException, SecurityException
+   {
+      streams.registerCustomTupleStaticBuilder(
+            CustomerPurchases.class.getMethod("from", String.class, Long.TYPE),
+            CustomerPurchases.class.getMethod("getName"),
+            CustomerPurchases.class.getMethod("getCount"));
+      List<CustomerPurchases> purchases = streams.streamAll(em, Customer.class)
+            .select(c -> CustomerPurchases.from(c.getName(), JinqStream.from(c.getSales()).count()))
+            .sortedBy(cp -> cp.getName())
+            .toList();
+      assertEquals("SELECT B.name, (SELECT COUNT(A) FROM B.sales A) FROM org.jinq.hibernate.test.entities.Customer B ORDER BY B.name ASC", query);
+      assertEquals(5, purchases.size());
+      assertEquals("Alice", purchases.get(0).name);
+      assertEquals(2, purchases.get(0).count);
+      assertEquals("Carol", purchases.get(2).name);
+      assertEquals(2, purchases.get(2).count);
+      assertEquals("Eve", purchases.get(4).name);
+      assertEquals(1, purchases.get(4).count);
+   }
+
+   @Test
+   public void testCustomTupleConstructor() throws NoSuchMethodException, SecurityException
+   {
+      streams.registerCustomTupleConstructor(
+            CustomerPurchases.class.getConstructor(String.class, Long.TYPE),
+            CustomerPurchases.class.getMethod("getName"),
+            CustomerPurchases.class.getMethod("getCount"));
+      List<CustomerPurchases> purchases = streams.streamAll(em, Customer.class)
+            .select(c -> new CustomerPurchases(c.getName(), JinqStream.from(c.getSales()).count()))
+            .sortedBy(cp -> cp.getName())
+            .toList();
+      assertEquals("SELECT B.name, (SELECT COUNT(A) FROM B.sales A) FROM org.jinq.hibernate.test.entities.Customer B ORDER BY B.name ASC", query);
+      assertEquals(5, purchases.size());
+      assertEquals("Alice", purchases.get(0).name);
+      assertEquals(2, purchases.get(0).count);
+      assertEquals("Carol", purchases.get(2).name);
+      assertEquals(2, purchases.get(2).count);
+      assertEquals("Eve", purchases.get(4).name);
+      assertEquals(1, purchases.get(4).count);
    }
 }
