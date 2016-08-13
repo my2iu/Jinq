@@ -1,6 +1,7 @@
 package org.jinq.jpa;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -132,5 +133,27 @@ public class JinqJPAStreamProvider
    public void registerAttributeConverterType(Class<?> convertedType)
    {
       metamodel.insertConvertedType(convertedType.getName());
+   }
+   
+   /**
+    * Instead of using Jinq's Pair, Tuple3, Tuple4, ... types for holding more than one
+    * return value, you can also configure Jinq to recognize some other data type for
+    * holding more than one value. These custom tuples can only be used in a few 
+    * locations since in many cases the use of Jinq's tuples are hard-coded in Jinq's APIs.
+    * 
+    * This API is for registering a static method (not a constructor) that can be used 
+    * to create the object to be used as a tuple. The return type of the method should
+    * be the tuple class. Each parameter of the method should be a field of the tuple.
+    * 
+    *  You can optionally supply methods (declared on the tuple object) that can be used to
+    *  read values from the tuple
+    */
+   public void registerCustomTupleStaticBuilder(Method m, Method...tupleIndexReaders)
+   {
+      Class<?> returnType = m.getReturnType();
+      if (returnType.isPrimitive())
+         throw new IllegalArgumentException("Builder method for custom tuple must return the custom tuple object");
+      metamodel.insertCustomTupleBuilder(
+            returnType.getName(), m, tupleIndexReaders);
    }
 }

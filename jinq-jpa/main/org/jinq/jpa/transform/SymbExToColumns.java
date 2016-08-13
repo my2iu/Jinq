@@ -6,10 +6,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
 import org.jinq.jpa.jpqlquery.ConstantExpression;
+import org.jinq.jpa.jpqlquery.CustomTupleRowReader;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.FunctionExpression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
@@ -352,19 +354,8 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             || TransformationClassAnalyzer.newTuple7.equals(sig)
             || TransformationClassAnalyzer.newTuple8.equals(sig))
       {
-         ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];
-         // TODO: This is a little wonky passing down isExpectingConditional, but I think it's right for those times you create a tuple with booleans and then extract the booleans later
-         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
-         for (int n = 0; n < vals.length; n++)
-            vals[n] = val.args.get(n).visit(this, passdown);
-         RowReader<?> [] valReaders = new RowReader[vals.length];
-         for (int n = 0; n < vals.length; n++)
-            valReaders[n] = vals[n].reader;
-
-         ColumnExpressions<?> toReturn = new ColumnExpressions<>(TupleRowReader.createReaderForTuple(sig.owner, valReaders));
-         for (int n = 0; n < vals.length; n++)
-            toReturn.columns.addAll(vals[n].columns);
-         return toReturn;
+         Function<RowReader<?>[], RowReader<?>> tupleReaderMaker = (RowReader<?>[] valReaders) -> TupleRowReader.createReaderForTuple(sig.owner, valReaders);
+         return handleMakeTupleMethodCall(val, in, tupleReaderMaker);
       }
       else if (config.metamodel.isSingularAttributeFieldMethod(sig))
       {
@@ -711,8 +702,35 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          }
          throw new TypedValueVisitorException("Do not know how to translate the method " + sig + " into a JPQL function");
       }
+      else if (config.metamodel.customTupleStaticBuilderMethods.containsKey(sig))
+      {
+         CustomTupleInfo tupleInfo = config.metamodel.customTupleStaticBuilderMethods.get(sig);
+         Function<RowReader<?>[], RowReader<?>> tupleReaderMaker = (RowReader<?>[] valReaders) -> new CustomTupleRowReader<>(tupleInfo.staticBuilder, valReaders);
+         return handleMakeTupleMethodCall(val, in, tupleReaderMaker);
+      }
       else
          return super.staticMethodCallValue(val, in);
+   }
+
+   private ColumnExpressions<?> handleMakeTupleMethodCall(
+         MethodCallValue val, SymbExPassDown in,
+         Function<RowReader<?>[], RowReader<?>> tupleReaderMaker)
+               throws TypedValueVisitorException
+   {
+      
+      ColumnExpressions<?> [] vals = new ColumnExpressions<?> [val.args.size()];
+      // TODO: This is a little wonky passing down isExpectingConditional, but I think it's right for those times you create a tuple with booleans and then extract the booleans later
+      SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+      for (int n = 0; n < vals.length; n++)
+         vals[n] = val.args.get(n).visit(this, passdown);
+      RowReader<?> [] valReaders = new RowReader[vals.length];
+      for (int n = 0; n < vals.length; n++)
+         valReaders[n] = vals[n].reader;
+
+      ColumnExpressions<?> toReturn = new ColumnExpressions<>(tupleReaderMaker.apply(valReaders));
+      for (int n = 0; n < vals.length; n++)
+         toReturn.columns.addAll(vals[n].columns);
+      return toReturn;
    }
 
    protected ColumnExpressions<?> handleIsIn(TypedValue parent,

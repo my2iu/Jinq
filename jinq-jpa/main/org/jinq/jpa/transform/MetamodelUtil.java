@@ -3,6 +3,7 @@ package org.jinq.jpa.transform;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +43,7 @@ public abstract class MetamodelUtil
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonMethodsWithObjectEquals;
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethods; 
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethodsWithObjectEquals;
+   protected final Map<MethodSignature, CustomTupleInfo> customTupleStaticBuilderMethods;
    
    /**
     * The classes that have been analyzed or are in the process of being analyzed to
@@ -121,6 +123,7 @@ public abstract class MetamodelUtil
       comparisonStaticMethodsWithObjectEquals = new HashMap<>();
       comparisonStaticMethodsWithObjectEquals.put(MethodChecker.guavaObjectsEqual, TypedValue.ComparisonValue.ComparisonOp.eq);
       comparisonStaticMethodsWithObjectEquals.put(MethodChecker.objectsEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
+      customTupleStaticBuilderMethods = new HashMap<>();
    }
    
    /**
@@ -131,6 +134,29 @@ public abstract class MetamodelUtil
    public void insertConvertedType(String className)
    {
       convertedTypes.add(className);
+   }
+   
+   /**
+    * Allows you to register your own Java class that can be used as a tuple in some limited
+    * situations.
+    * @param tupleIndexReader 
+    */
+   public void insertCustomTupleBuilder(String className, Method builderMethod, Method...tupleIndexReaders)
+   {
+      if (!Modifier.isStatic(builderMethod.getModifiers()))
+         throw new IllegalArgumentException("Builder method for custom tuple must be a static method");
+
+      MethodSignature builderSig = new MethodSignature(
+            org.jinq.rebased.org.objectweb.asm.Type.getInternalName(builderMethod.getDeclaringClass()),
+            builderMethod.getName(),
+            org.jinq.rebased.org.objectweb.asm.Type.getMethodDescriptor(builderMethod));
+
+      safeStaticMethods.add(builderSig);
+      CustomTupleInfo tupleInfo = new CustomTupleInfo();
+      tupleInfo.className = className;
+      tupleInfo.staticBuilder = builderMethod;
+      tupleInfo.staticBuilderSig = builderSig;
+      customTupleStaticBuilderMethods.put(builderSig, tupleInfo);
    }
    
    /**
