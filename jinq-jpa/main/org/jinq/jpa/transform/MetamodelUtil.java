@@ -1,5 +1,6 @@
 package org.jinq.jpa.transform;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -44,6 +45,8 @@ public abstract class MetamodelUtil
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethods; 
    protected final Map<MethodSignature, TypedValue.ComparisonValue.ComparisonOp> comparisonStaticMethodsWithObjectEquals;
    protected final Map<MethodSignature, CustomTupleInfo> customTupleStaticBuilderMethods;
+   protected final Map<MethodSignature, CustomTupleInfo> customTupleConstructorMethods;
+   protected final Map<MethodSignature, Integer> customTupleAccessorMethods;
    
    /**
     * The classes that have been analyzed or are in the process of being analyzed to
@@ -124,6 +127,8 @@ public abstract class MetamodelUtil
       comparisonStaticMethodsWithObjectEquals.put(MethodChecker.guavaObjectsEqual, TypedValue.ComparisonValue.ComparisonOp.eq);
       comparisonStaticMethodsWithObjectEquals.put(MethodChecker.objectsEquals, TypedValue.ComparisonValue.ComparisonOp.eq);
       customTupleStaticBuilderMethods = new HashMap<>();
+      customTupleConstructorMethods = new HashMap<>();
+      customTupleAccessorMethods = new HashMap<>();
    }
    
    /**
@@ -139,26 +144,62 @@ public abstract class MetamodelUtil
    /**
     * Allows you to register your own Java class that can be used as a tuple in some limited
     * situations.
-    * @param tupleIndexReader 
     */
    public void insertCustomTupleBuilder(String className, Method builderMethod, Method...tupleIndexReaders)
    {
       if (!Modifier.isStatic(builderMethod.getModifiers()))
          throw new IllegalArgumentException("Builder method for custom tuple must be a static method");
 
-      MethodSignature builderSig = new MethodSignature(
-            org.jinq.rebased.org.objectweb.asm.Type.getInternalName(builderMethod.getDeclaringClass()),
-            builderMethod.getName(),
-            org.jinq.rebased.org.objectweb.asm.Type.getMethodDescriptor(builderMethod));
-
+      MethodSignature builderSig = MethodSignature.fromMethod(builderMethod);
       safeStaticMethods.add(builderSig);
+      insertCustomTupleIndexGetters(tupleIndexReaders);
+      
       CustomTupleInfo tupleInfo = new CustomTupleInfo();
       tupleInfo.className = className;
       tupleInfo.staticBuilder = builderMethod;
       tupleInfo.staticBuilderSig = builderSig;
       customTupleStaticBuilderMethods.put(builderSig, tupleInfo);
    }
+
+   /**
+    * Allows you to register your own Java class that can be used as a tuple in some limited
+    * situations.
+    */
+   public void insertCustomTupleConstructor(String className, Constructor<?> constructor, Method...tupleIndexReaders)
+   {
+      MethodSignature constructorSig = MethodSignature.fromConstructor(constructor);
+      safeMethods.add(constructorSig);
+      insertCustomTupleIndexGetters(tupleIndexReaders);
+      
+      CustomTupleInfo tupleInfo = new CustomTupleInfo();
+      tupleInfo.className = className;
+      tupleInfo.constructor = constructor;
+      tupleInfo.constructorSig = constructorSig;
+      customTupleConstructorMethods.put(constructorSig, tupleInfo);
+   }
    
+   private void insertCustomTupleIndexGetters(Method...tupleIndexReaders)
+   {
+      if (tupleIndexReaders != null)
+      {
+         int idx = 1;
+         for (Method tupleIndex: tupleIndexReaders)
+         {
+            if (Modifier.isStatic(tupleIndex.getModifiers()))
+               throw new IllegalArgumentException("Method for reading a value from a custom tuple must be a virtual method declared on the custom tuple class");
+            if (tupleIndex.getParameterCount() != 0)
+               throw new IllegalArgumentException("Method for reading a value from a custom tuple must not take any arguments");
+            MethodSignature sig = new MethodSignature(
+                  org.jinq.rebased.org.objectweb.asm.Type.getInternalName(tupleIndex.getDeclaringClass()),
+                  tupleIndex.getName(),
+                  org.jinq.rebased.org.objectweb.asm.Type.getMethodDescriptor(tupleIndex));
+            customTupleAccessorMethods.put(sig, idx);
+            safeMethods.add(sig);
+            idx++;
+         }
+      }
+   }
+
    /**
     * The Hibernate metamodel seems to hold incorrect information about
     * composite keys or entities that use other entities as keys or something.

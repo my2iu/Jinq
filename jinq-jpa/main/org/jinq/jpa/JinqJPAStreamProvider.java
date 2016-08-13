@@ -1,5 +1,6 @@
 package org.jinq.jpa;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
@@ -155,5 +156,12 @@ public class JinqJPAStreamProvider
          throw new IllegalArgumentException("Builder method for custom tuple must return the custom tuple object");
       metamodel.insertCustomTupleBuilder(
             returnType.getName(), m, tupleIndexReaders);
+   }
+   
+   public void registerCustomTupleConstructor(Constructor<?> m, Method...tupleIndexReaders)
+   {
+      Class<?> tupleType = m.getDeclaringClass();
+      metamodel.insertCustomTupleConstructor(
+            tupleType.getName(), m, tupleIndexReaders);
    }
 }

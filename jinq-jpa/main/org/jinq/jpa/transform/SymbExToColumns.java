@@ -357,6 +357,12 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          Function<RowReader<?>[], RowReader<?>> tupleReaderMaker = (RowReader<?>[] valReaders) -> TupleRowReader.createReaderForTuple(sig.owner, valReaders);
          return handleMakeTupleMethodCall(val, in, tupleReaderMaker);
       }
+      else if (config.metamodel.customTupleConstructorMethods.containsKey(sig))
+      {
+         CustomTupleInfo tupleInfo = config.metamodel.customTupleConstructorMethods.get(sig);
+         Function<RowReader<?>[], RowReader<?>> tupleReaderMaker = (RowReader<?>[] valReaders) -> new CustomTupleRowReader<>(null, tupleInfo.constructor, valReaders);
+         return handleMakeTupleMethodCall(val, in, tupleReaderMaker);
+      }
       else if (config.metamodel.isSingularAttributeFieldMethod(sig))
       {
          String fieldName = config.metamodel.fieldMethodToFieldName(sig);
@@ -388,6 +394,19 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          RowReader<?> subreader = ((TupleRowReader<?>)base.reader).getReaderForIndex(idx);
          ColumnExpressions<?> toReturn = new ColumnExpressions<>(subreader);
          int baseOffset = ((TupleRowReader<?>)base.reader).getColumnForIndex(idx);
+         for (int n = 0; n < subreader.getNumColumns(); n++)
+            toReturn.columns.add(base.columns.get(n + baseOffset));
+         return toReturn;
+      }
+      else if (config.metamodel.customTupleAccessorMethods.containsKey(sig))
+      {
+         int idx = config.metamodel.customTupleAccessorMethods.get(sig) - 1;
+         // TODO: This is a little wonky passing down isExpectingConditional, but I think it's right for those times you create a tuple with booleans and then extract the booleans later
+         SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
+         ColumnExpressions<?> base = val.base.visit(this, passdown);
+         RowReader<?> subreader = ((CustomTupleRowReader<?>)base.reader).getReaderForIndex(idx);
+         ColumnExpressions<?> toReturn = new ColumnExpressions<>(subreader);
+         int baseOffset = ((CustomTupleRowReader<?>)base.reader).getColumnForIndex(idx);
          for (int n = 0; n < subreader.getNumColumns(); n++)
             toReturn.columns.add(base.columns.get(n + baseOffset));
          return toReturn;
@@ -705,7 +724,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       else if (config.metamodel.customTupleStaticBuilderMethods.containsKey(sig))
       {
          CustomTupleInfo tupleInfo = config.metamodel.customTupleStaticBuilderMethods.get(sig);
-         Function<RowReader<?>[], RowReader<?>> tupleReaderMaker = (RowReader<?>[] valReaders) -> new CustomTupleRowReader<>(tupleInfo.staticBuilder, valReaders);
+         Function<RowReader<?>[], RowReader<?>> tupleReaderMaker = (RowReader<?>[] valReaders) -> new CustomTupleRowReader<>(tupleInfo.staticBuilder, null, valReaders);
          return handleMakeTupleMethodCall(val, in, tupleReaderMaker);
       }
       else

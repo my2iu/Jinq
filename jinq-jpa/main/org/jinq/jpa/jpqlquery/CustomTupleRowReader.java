@@ -1,5 +1,6 @@
 package org.jinq.jpa.jpqlquery;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -9,11 +10,15 @@ import java.lang.reflect.Method;
 public class CustomTupleRowReader<T> implements RowReader<T>
 {
    Method staticBuilder;
+   Constructor constructor;
    RowReader<?>[] subreaders;
    
-   public CustomTupleRowReader(Method staticBuilder, RowReader<?>[] subreaders)
+   public CustomTupleRowReader(Method staticBuilder, Constructor constructor, RowReader<?>[] subreaders)
    {
+      if (staticBuilder == null && constructor == null)
+         throw new IllegalArgumentException("Either a constructor or static method for building the custom tuple is required");
       this.staticBuilder = staticBuilder;
+      this.constructor = constructor;
       this.subreaders = subreaders;
    }
 
@@ -44,10 +49,13 @@ public class CustomTupleRowReader<T> implements RowReader<T>
          offset += subreaders[n].getNumColumns();
       }
       try {
-         return (T)staticBuilder.invoke(null, data);
-      } catch (IllegalAccessException | InvocationTargetException e)
+         if (staticBuilder != null)
+            return (T)staticBuilder.invoke(null, data);
+         else
+            return (T)constructor.newInstance(data);
+      } catch (IllegalAccessException | InvocationTargetException | InstantiationException e)
       {
-         throw new IllegalArgumentException("Cannot invoke builder method for custom tuple", e);
+         throw new IllegalArgumentException("Cannot invoke constructor or builder method for custom tuple", e);
       }
    }
    
