@@ -8,11 +8,12 @@ import java.util.List;
 /**
  * The persistent class for the SUPPLIERS database table.
  * 
+ * This entity uses a MappedSuperclass to store some of its fields.
  */
 @Entity
 @Table(name="SUPPLIERS")
 @NamedQuery(name="Supplier.findAll", query="SELECT s FROM Supplier s")
-public class Supplier implements Serializable {
+public class Supplier extends SignatureSuperclass implements Serializable {
    private static final long serialVersionUID = 1L;
    private int supplierid;
    private String country;
@@ -20,12 +21,11 @@ public class Supplier implements Serializable {
    private List<Item> items;
    private long revenue;
    private boolean hasFreeShipping;
-   private byte[] signature;
+   private boolean preferredSupplier;
    private float paymentDiscount;
 
    public Supplier() {
    }
-
 
    @Id
    @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -46,6 +46,14 @@ public class Supplier implements Serializable {
       this.hasFreeShipping = shipping;
    }
 
+   public boolean isPreferredSupplier() {
+      return this.preferredSupplier;
+   }
+
+   public void setPreferredSupplier(boolean isPreferred) {
+      this.preferredSupplier = isPreferred;
+   }
+
    public long getRevenue() {
       return this.revenue;
    }
@@ -62,20 +70,13 @@ public class Supplier implements Serializable {
       this.country = country;
    }
 
+
    public String getName() {
       return this.name;
    }
 
    public void setName(String name) {
       this.name = name;
-   }
-
-   public byte[] getSignature() {
-      return this.signature;
-   }
-
-   public void setSignature(byte[] signature) {
-      this.signature = signature;
    }
 
    public float getPaymentDiscount() {

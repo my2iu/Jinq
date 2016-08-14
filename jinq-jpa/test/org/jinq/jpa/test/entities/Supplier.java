@@ -21,11 +21,11 @@ public class Supplier extends SignatureSuperclass implements Serializable {
    private List<Item> items;
    private long revenue;
    private boolean hasFreeShipping;
+   private boolean preferredSupplier;
    private float paymentDiscount;
 
    public Supplier() {
    }
-
 
    @Id
    @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -44,6 +44,14 @@ public class Supplier extends SignatureSuperclass implements Serializable {
 
    public void setHasFreeShipping(boolean shipping) {
       this.hasFreeShipping = shipping;
+   }
+
+   public boolean isPreferredSupplier() {
+      return this.preferredSupplier;
+   }
+
+   public void setPreferredSupplier(boolean isPreferred) {
+      this.preferredSupplier = isPreferred;
    }
 
    public long getRevenue() {

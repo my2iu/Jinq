@@ -42,10 +42,10 @@ public class CreateJpaDb
    
    private Sale createSale(Customer customer, int year)
    {
-      return createSale(customer, year, 1, 1, 1);
+      return createSale(customer, year, 1, 1, 1, false);
    }
 
-   private Sale createSale(Customer customer, int year, int month, int day, int hour)
+   private Sale createSale(Customer customer, int year, int month, int day, int hour, boolean isRush)
    {
       LocalDate localDate = LocalDate.of(year, month, day);
       LocalTime localTime = LocalTime.of(hour, 0);
@@ -70,6 +70,7 @@ public class CreateJpaDb
       s.setSqlTime(sqlTime);
       s.setSqlTimestamp(sqlTimestamp);
       s.setCustomer(customer);
+      s.setRush(isRush);
       return s;
    }
 
@@ -94,13 +95,14 @@ public class CreateJpaDb
       return lo;
    }
    
-   private Supplier createSupplier(String name, String country, long revenue, boolean hasFreeShipping)
+   private Supplier createSupplier(String name, String country, long revenue, boolean hasFreeShipping, boolean isPreferredSupplier)
    {
       Supplier s = new Supplier();
       s.setName(name);
       s.setCountry(country);
       s.setRevenue(revenue);
       s.setHasFreeShipping(hasFreeShipping);
+      s.setPreferredSupplier(isPreferredSupplier);
       s.setSignature(name.getBytes(Charset.forName("UTF-8")));
       return s;
    }
@@ -120,9 +122,9 @@ public class CreateJpaDb
       em.persist(dave);
       em.persist(eve);
 
-      Supplier hw = createSupplier("HW Supplier", "Canada", 500, false);
-      Supplier talentSupply = createSupplier("Talent Agency", "USA", 1000, true);
-      Supplier conglomerate = createSupplier("Conglomerate", "Switzerland", 10000000L, false);
+      Supplier hw = createSupplier("HW Supplier", "Canada", 500, false, false);
+      Supplier talentSupply = createSupplier("Talent Agency", "USA", 1000, true, false);
+      Supplier conglomerate = createSupplier("Conglomerate", "Switzerland", 10000000L, false, true);
       em.persist(hw);
       em.persist(talentSupply);
       em.persist(conglomerate);
@@ -145,10 +147,10 @@ public class CreateJpaDb
 
       em.flush();
       
-      Sale s1 = createSale(alice, 2005, 2, 2, 10);
+      Sale s1 = createSale(alice, 2005, 2, 2, 10, false);
       Sale s2 = createSale(alice, 2004);
       Sale s3 = createSale(carol, 2003);
-      Sale s4 = createSale(carol, 2004, 2, 2, 5);
+      Sale s4 = createSale(carol, 2004, 2, 2, 5, true);
       Sale s5 = createSale(dave, 2001);
       Sale s6 = createSale(eve, 2005);
       em.persist(s1);

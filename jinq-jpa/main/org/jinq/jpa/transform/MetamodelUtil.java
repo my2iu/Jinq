@@ -215,13 +215,21 @@ public abstract class MetamodelUtil
       safeMethods.add(sig);
    }
    
-   private void insertFieldMethod(String className, String methodName, String returnType, MetamodelUtilAttribute fieldAttribute)
+   private void insertFieldMethod(String className, String methodName, String altMethodName, String returnType, MetamodelUtilAttribute fieldAttribute)
    {
       MethodSignature methodSig = new MethodSignature(
             className,
             methodName, 
             returnType);
       fieldMethods.put(methodSig, fieldAttribute);
+      if (altMethodName != null)
+      {
+         MethodSignature altMethodSig = new MethodSignature(
+               className,
+               altMethodName, 
+               returnType);
+         fieldMethods.put(altMethodSig, fieldAttribute);
+      }
    }
    
    private void insertNLinkMethod(String className, String methodName, String returnType, MetamodelUtilAttribute pluralAttribute)
@@ -254,8 +262,12 @@ public abstract class MetamodelUtil
          Class<?> fieldJavaType = singularAttrib.getJavaType();
          Member javaMember = singularAttrib.getJavaMember();
          String name = javaMember.getName(); 
+         String altName = null;
          if (javaMember instanceof Field)
          {
+            // Special handling of naming of boolean getters
+            if (fieldJavaType == Boolean.TYPE || "java.lang.Boolean".equals(fieldJavaType.getName()))
+               altName = "is" + name.substring(0, 1).toUpperCase() + name.substring(1);
             // We'll have to guess the getter name based on the name of the field.
             name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
          }
@@ -287,20 +299,20 @@ public abstract class MetamodelUtil
          if (entityClassName.equals(declaredClassName)) entityClassName = null;
          // Register the method to field mapping
          MetamodelUtilAttribute fieldAttribute = new MetamodelUtilAttribute(singularAttrib);
-         insertFieldMethod(declaredClassName, name, returnType, fieldAttribute);
+         insertFieldMethod(declaredClassName, name, altName, returnType, fieldAttribute);
          if (entityClassName != null)
-            insertFieldMethod(entityClassName, name, returnType, fieldAttribute);
+            insertFieldMethod(entityClassName, name, altName, returnType, fieldAttribute);
          if (alternateReturnType != null)
-            insertFieldMethod(declaredClassName, name, alternateReturnType, fieldAttribute);
+            insertFieldMethod(declaredClassName, name, altName, alternateReturnType, fieldAttribute);
          if (alternateReturnType != null && entityClassName != null)
-            insertFieldMethod(entityClassName, name, alternateReturnType, fieldAttribute);
+            insertFieldMethod(entityClassName, name, altName, alternateReturnType, fieldAttribute);
          // The method is also callable from its subclasses, so register the method
          // in its subclasses as well.
          for (String className: subclassNames)
          {
-            insertFieldMethod(className, name, returnType, fieldAttribute);
+            insertFieldMethod(className, name, altName, returnType, fieldAttribute);
             if (alternateReturnType != null)
-               insertFieldMethod(className, name, alternateReturnType, fieldAttribute);
+               insertFieldMethod(className, name, altName, alternateReturnType, fieldAttribute);
          }
          // The attribute might be an embedded type, in which case, we need to scan the 
          // embedded type for getters as well since it won't show up as an entity.

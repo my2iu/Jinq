@@ -1087,6 +1087,28 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
   //   }
 
   @Test
+  def testBooleanJavaBeanNaming() {
+      // Direct access to boolean variables in a WHERE must be converted to a comparison 
+    val suppliers = streamAll(em, classOf[Supplier])
+      .where(s => s.isPreferredSupplier())
+      .select(s => (s, s.isPreferredSupplier()))
+      .toList;
+    Assert.assertEquals("SELECT A, A.preferredSupplier FROM Supplier A WHERE A.preferredSupplier = TRUE", query);
+    Assert.assertEquals(1, suppliers.length);
+    Assert.assertEquals("Conglomerate", suppliers(0)._1.getName());
+    Assert.assertTrue(suppliers(0)._2);
+
+    val rushSales = streamAll(em, classOf[Sale])
+      .where(s => s.isRush())
+      .select(s => (s, s.isRush()))
+      .toList;
+    Assert.assertEquals("SELECT A, A.rush FROM Sale A WHERE A.rush = TRUE", query);
+    Assert.assertEquals(1, rushSales.length);
+    Assert.assertEquals("Carol", rushSales(0)._1.getCustomer().getName());
+    Assert.assertTrue(rushSales(0)._2);
+  }
+
+  @Test
   def testEnum() {
     val value = ItemType.OTHER;
     val items = streamAll(em, classOf[Item])

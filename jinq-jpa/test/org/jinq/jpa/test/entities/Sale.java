@@ -41,6 +41,8 @@ public class Sale implements Serializable {
    private Calendar calendar;
    @Embedded
    private CreditCard creditCard;
+   @Column(name="RUSH_ORDER")
+   private boolean rush;
 
    public Sale() {
    }
@@ -134,4 +136,13 @@ public class Sale implements Serializable {
       this.customer = customer;
    }
 
+   public boolean isRush() 
+   {
+      return rush;
+   }
+   
+   public void setRush(boolean isRush)
+   {
+      this.rush = isRush;
+   }
 }

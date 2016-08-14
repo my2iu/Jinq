@@ -1,11 +1,10 @@
 package org.jinq.hibernate.test.entities;
 
 import java.io.Serializable;
-
 import javax.persistence.*;
-
 import java.util.List;
 
+import org.hibernate.annotations.Type;
 
 /**
  * The persistent class for the SUPPLIERS database table.
@@ -23,11 +22,11 @@ public class Supplier extends SignatureSuperclass implements Serializable {
    private List<Item> items;
    private long revenue;
    private boolean hasFreeShipping;
+   private boolean preferredSupplier;
    private float paymentDiscount;
 
    public Supplier() {
    }
-
 
    @Id
    @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -46,6 +45,18 @@ public class Supplier extends SignatureSuperclass implements Serializable {
 
    public void setHasFreeShipping(boolean shipping) {
       this.hasFreeShipping = shipping;
+   }
+
+   // Some strange Hibernate incompatibility with Derby where the new Derby
+   // supports boolean data types, but Hibernate is still using integers, but somehow
+   // that's ok with the hasFreeShipping field but not the preferredSupplier field.
+   @Type(type="yes_no")
+   public boolean isPreferredSupplier() {
+      return this.preferredSupplier;
+   }
+
+   public void setPreferredSupplier(boolean isPreferred) {
+      this.preferredSupplier = isPreferred;
    }
 
    public long getRevenue() {
@@ -72,7 +83,7 @@ public class Supplier extends SignatureSuperclass implements Serializable {
    public void setName(String name) {
       this.name = name;
    }
-   
+
    public float getPaymentDiscount() {
       return this.paymentDiscount;
    }

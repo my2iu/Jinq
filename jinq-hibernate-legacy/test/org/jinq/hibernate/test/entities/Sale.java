@@ -1,14 +1,14 @@
 package org.jinq.hibernate.test.entities;
 
-import java.io.Serializable;
-
 import javax.persistence.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.annotations.Type;
 
 /**
  * The persistent class for the SALES database table.
@@ -41,6 +41,9 @@ public class Sale implements Serializable {
    private Calendar calendar;
    @Embedded
    private CreditCard creditCard;
+   @Column(name="RUSH_ORDER")
+   @Type(type="yes_no")
+   private boolean rush;
 
    public Sale() {
    }
@@ -134,4 +137,13 @@ public class Sale implements Serializable {
       this.customer = customer;
    }
 
+   public boolean isRush() 
+   {
+      return rush;
+   }
+   
+   public void setRush(boolean isRush)
+   {
+      this.rush = isRush;
+   }
 }

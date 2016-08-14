@@ -263,7 +263,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Conglomerate", suppliers.get(0).getOne().getName());
       assertEquals("HW Supplier", suppliers.get(1).getOne().getName());
    }
-   
+
    @Test(expected=ClassCastException.class)
    public void testBooleanOperations()
    {
@@ -279,6 +279,29 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(1, suppliers.size());
       assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
       assertTrue(!suppliers.get(0).getTwo());
+   }
+
+   @Test
+   public void testBooleanJavaBeanNaming()
+   {
+      // Direct access to boolean variables in a WHERE must be converted to a comparison 
+      List<Pair<Supplier, Boolean>> suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> s.isPreferredSupplier())
+            .select(s -> new Pair<>(s, s.isPreferredSupplier()))
+            .toList();
+      assertEquals("SELECT A, A.preferredSupplier FROM Supplier A WHERE A.preferredSupplier = TRUE", query);
+      assertEquals(1, suppliers.size());
+      assertEquals("Conglomerate", suppliers.get(0).getOne().getName());
+      assertTrue(suppliers.get(0).getTwo());
+
+      List<Pair<Sale, Boolean>> rushSales = streams.streamAll(em, Sale.class)
+            .where(s -> s.isRush())
+            .select(s -> new Pair<>(s, s.isRush()))
+            .toList();
+      assertEquals("SELECT A, A.rush FROM Sale A WHERE A.rush = TRUE", query);
+      assertEquals(1, rushSales.size());
+      assertEquals("Carol", rushSales.get(0).getOne().getCustomer().getName());
+      assertTrue(rushSales.get(0).getTwo());
    }
    
    @Test

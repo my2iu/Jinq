@@ -283,6 +283,30 @@ public class JinqJPATypesTest extends JinqJPATestBase
    }
    
    @Test
+   public void testBooleanJavaBeanNaming()
+   {
+      // Direct access to boolean variables in a WHERE must be converted to a comparison 
+      JinqStream<Pair<Supplier, Boolean>> supplierStream = streams.streamAll(em, Supplier.class)
+            .where(s -> s.isPreferredSupplier())
+            .select(s -> new Pair<>(s, s.isPreferredSupplier()));
+      assertEquals("SELECT A, A.preferredSupplier FROM org.jinq.hibernate.test.entities.Supplier A WHERE A.preferredSupplier = TRUE", supplierStream.getDebugQueryString());
+      List<Pair<Supplier, Boolean>> suppliers = supplierStream.toList();
+      assertEquals("SELECT A, A.preferredSupplier FROM org.jinq.hibernate.test.entities.Supplier A WHERE A.preferredSupplier = TRUE", query);
+      assertEquals(1, suppliers.size());
+      assertEquals("Conglomerate", suppliers.get(0).getOne().getName());
+      assertTrue(suppliers.get(0).getTwo());
+
+      List<Pair<Sale, Boolean>> rushSales = streams.streamAll(em, Sale.class)
+            .where(s -> s.isRush())
+            .select(s -> new Pair<>(s, s.isRush()))
+            .toList();
+      assertEquals("SELECT A, A.rush FROM org.jinq.hibernate.test.entities.Sale A WHERE A.rush = TRUE", query);
+      assertEquals(1, rushSales.size());
+      assertEquals("Carol", rushSales.get(0).getOne().getCustomer().getName());
+      assertTrue(rushSales.get(0).getTwo());
+   }
+
+   @Test
    public void testEnum()
    {
       ItemType val = ItemType.OTHER;

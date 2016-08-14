@@ -68,7 +68,16 @@ public class MetamodelUtilFromSessionFactory extends MetamodelUtil
    {
       // Guess the name of the getter based on the field name
       String name = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+      tryToRegisterFieldGetter(name, fieldName, entityClass, type);
+      if (type instanceof PrimitiveType && ((PrimitiveType)type).getPrimitiveClass() == Boolean.TYPE)
+      {
+         String altName = "is" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+         tryToRegisterFieldGetter(altName, fieldName, entityClass, type);
+      }
+   }
 
+   private void tryToRegisterFieldGetter(String name, String fieldName, Class<?> entityClass, Type type)
+   {
       try {
          // Try to find the getter method
          Method m = entityClass.getMethod(name);
@@ -123,7 +132,6 @@ public class MetamodelUtilFromSessionFactory extends MetamodelUtil
          // Eat the error
       }
    }
-
    
    @Override
    public <U> String entityNameFromClass(Class<U> entity)
