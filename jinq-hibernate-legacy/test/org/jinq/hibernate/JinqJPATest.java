@@ -474,6 +474,22 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Alice", customers.get(0).getName());
    }
 
+   @Test
+   public void testJPQLStringStartsWith()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+         .where( c -> c.getName().startsWith("Al"))
+         .toList();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE LOCATE('Al', A.name) = 1", query);
+      assertEquals(1, customers.size());
+      assertEquals("Alice", customers.get(0).getName());
+
+      customers = streams.streamAll(em, Customer.class)
+            .where( c -> !c.getName().startsWith("Al"))
+            .toList();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE NOT LOCATE('Al', A.name) = 1", query);
+      assertEquals(4, customers.size());
+   }
 
    @Test
    public void testJPQLNumberFunctions()

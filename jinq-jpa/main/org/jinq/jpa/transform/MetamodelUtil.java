@@ -357,7 +357,7 @@ public abstract class MetamodelUtil
          {
             IdentifiableType<?> jpaObject = idEntity.getSupertype();
             String className = Type.getInternalName(entity.getJavaType());
-            List<String> newSubclasses = new ArrayList<>();
+            List<String> newSubclasses = new ArrayList<>(subclassNames);
             newSubclasses.add(className);
             findMetamodelEntityGetters(jpaObject, newSubclasses);
          }

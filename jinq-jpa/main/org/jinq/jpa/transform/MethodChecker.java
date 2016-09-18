@@ -47,7 +47,8 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature stringSubstring = new MethodSignature("java/lang/String", "substring", "(II)Ljava/lang/String;");
    public final static MethodSignature stringIndexOf = new MethodSignature("java/lang/String", "indexOf", "(Ljava/lang/String;)I");
    public final static MethodSignature stringContains = new MethodSignature("java/lang/String", "contains", "(Ljava/lang/CharSequence;)Z");
-   
+   public final static MethodSignature stringStartsWith = new MethodSignature("java/lang/String", "startsWith", "(Ljava/lang/String;)Z");
+
    static {
       try {
          // I'm initializing some of these method signatures through reflection 
@@ -88,6 +89,7 @@ class MethodChecker implements PathAnalysisMethodChecker
       jpqlFunctionMethods.add(stringSubstring);
       jpqlFunctionMethods.add(stringIndexOf);
       jpqlFunctionMethods.add(stringContains);
+      jpqlFunctionMethods.add(stringStartsWith);
    }
    
    public final static MethodSignature streamSumInt = TransformationClassAnalyzer.streamSumInt;

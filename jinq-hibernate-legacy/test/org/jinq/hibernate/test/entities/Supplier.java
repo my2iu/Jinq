@@ -14,7 +14,7 @@ import org.hibernate.annotations.Type;
 @Entity
 @Table(name="SUPPLIERS")
 @NamedQuery(name="Supplier.findAll", query="SELECT s FROM Supplier s")
-public class Supplier extends SignatureSuperclass implements Serializable {
+public class Supplier extends SignatureSuperclassSubclass implements Serializable {
    private static final long serialVersionUID = 1L;
    private int supplierid;
    private String country;

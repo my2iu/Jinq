@@ -594,6 +594,18 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
                               base.getOnlyColumn()),
                         new ConstantExpression("0")));
          }
+         else if (sig.equals(MethodChecker.stringStartsWith))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            ColumnExpressions<?> base = val.base.visit(this, passdown);
+            ColumnExpressions<?> search = val.args.get(0).visit(this, passdown);
+            return ColumnExpressions.singleColumn(base.reader,
+                  new BinaryExpression("=", 
+                        FunctionExpression.twoParam("LOCATE", 
+                              search.getOnlyColumn(),
+                              base.getOnlyColumn()),
+                        new ConstantExpression("1")));
+         }
          throw new TypedValueVisitorException("Do not know how to translate the method " + sig + " into a JPQL function");
       }
       else if (sig.equals(TransformationClassAnalyzer.stringBuilderToString))
