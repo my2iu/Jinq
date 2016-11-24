@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.LazyWrappedStream;
@@ -368,5 +370,12 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
       return this;
    }
 
+   @Override
+   public JPAJinqStream<T> orUnion(JPAJinqStream<T> otherSet)
+   {
+      Set<T> merged = collect(Collectors.toSet());
+      merged.addAll(otherSet.collect(Collectors.toSet()));
+      return wrap(JinqStream.from(merged));
+   }
 
 }

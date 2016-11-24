@@ -26,6 +26,7 @@ import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLQueryTransformConfiguration;
 import org.jinq.jpa.transform.JPQLQueryTransformConfigurationFactory;
+import org.jinq.jpa.transform.JPQLTwoQueryMergeQueryTransform;
 import org.jinq.jpa.transform.JoinFetchTransform;
 import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaAnalysis;
@@ -34,6 +35,7 @@ import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MultiAggregateTransform;
+import org.jinq.jpa.transform.OrUnionTransform;
 import org.jinq.jpa.transform.OuterJoinOnTransform;
 import org.jinq.jpa.transform.OuterJoinTransform;
 import org.jinq.jpa.transform.QueryTransformException;
@@ -528,6 +530,43 @@ class JPAQueryComposer<T> implements QueryComposer<T>
          JoinToIterable<T, U> joinLambda)
    {
       return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsExpectingStream(false).setIsOuterJoinFetch(true), joinLambda);
+   }
+
+   public QueryComposer<T> orUnion(JPAJinqStream<T> otherSet)
+   {
+      // Check that the other stream is of a query
+      if (!(otherSet instanceof QueryJPAJinqStream))
+      {
+         translationFail(new IllegalArgumentException("Two queries expected"));
+         return null;
+      }
+      // The other stream should be from the same entity manager
+      if (((QueryJPAJinqStream<?>)otherSet).jpaComposer.em != em)
+      {
+         translationFail(new IllegalArgumentException("Both queries need to share the same entity manager"));
+         return null;
+      }
+      // TODO: Support caching
+      
+      
+         JPQLTwoQueryMergeQueryTransform transform = new OrUnionTransform(getConfig());
+         JPQLQuery<T> newQuery = null;
+         try {
+//            LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.isAllEqualsSafe, hints.isCollectionContainsSafe, hints.dieOnError);
+//            if (lambdaAnalysis == null) { translationFail(); return null; }
+//            getConfig().checkLambdaSideEffects(lambdaAnalysis);
+            newQuery = transform.apply(query, ((QueryJPAJinqStream<?>)otherSet).jpaComposer.query);
+         }
+         catch (QueryTransformException e)
+         {
+            translationFail(e);
+         }
+      if (newQuery == null) { translationFail(); return null; }
+      // TODO: Merge the lambdas from both sides
+      return new JPAQueryComposer<>(this, newQuery, lambdas);
+
+      
+//      return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsExpectingStream(false).setIsOuterJoinFetch(true), joinLambda);
    }
 
    @Override

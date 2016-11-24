@@ -570,4 +570,16 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("SELECT ABS(A.salary + SQRT(A.debt)) + MOD(A.salary, A.debt) FROM Customer A", query);
       assertEquals(5, customers.size());
    }
+   
+   @Test
+   public void testOrUnion()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+         .where(c -> c.getName().equals("Eve"))
+         .orUnion(streams.streamAll(em, Customer.class)
+               .where(c -> c.getName().equals("Alice")))
+         .toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.name = 'Eve' OR A.name = 'Alice'", query);
+      assertEquals(2, customers.size());
+   }
 }

@@ -76,6 +76,15 @@ class QueryJPAJinqStream<T> extends QueryJinqStream<T> implements JPAJinqStream<
       if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
       return new JPAJinqStreamWrapper<>(this).leftOuterJoinFetchList(join);
    }
+   
+   @Override
+   public JPAJinqStream<T> orUnion(JPAJinqStream<T> otherSet)
+   {
+      QueryComposer<T> newComposer = jpaComposer.orUnion(otherSet);
+      if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
+      return new JPAJinqStreamWrapper<>(this).orUnion(otherSet);
+   }
+
 
    // Wrapped versions of old API
    

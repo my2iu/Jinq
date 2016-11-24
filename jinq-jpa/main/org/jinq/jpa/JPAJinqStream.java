@@ -48,7 +48,20 @@ public interface JPAJinqStream<T> extends JinqStream<T>
     */
    public <U> JPAJinqStream<T> leftOuterJoinFetchList(JoinToIterable<T, U> join);
 
-   
+   /**
+    * Emulates a union of two different streams by merging the queries
+    * using an AND operation. JPA does not support UNION operations, so 
+    * Jinq must emulate that behavior using ANDs. It also provides a mechanism
+    * for Jinq to let people create AND expressions programmatically and to specify
+    * complex expressions exactly without relying on the Jinq translation algorithm.
+    * Due to the limitations of using AND to emulate a UNION, the two streams
+    * being UNIONed must be made up of the same queries except for different
+    * where restrictions. 
+    *  
+    * @param otherSet the other stream to merge with
+    * @return a new stream with the contents of the two streams UNIONed together
+    */
+   public JPAJinqStream<T> orUnion(JPAJinqStream<T> otherSet);
    
 
    // Variants of the existing JinqStream API that return a JPAJinqStream instead
