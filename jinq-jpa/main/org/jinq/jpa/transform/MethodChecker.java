@@ -1,6 +1,7 @@
 package org.jinq.jpa.transform;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature mathAbsLong = new MethodSignature("java/lang/Math", "abs", "(J)J");
    public final static MethodSignature bigDecimalAbs = new MethodSignature("java/math/BigDecimal", "abs", "()Ljava/math/BigDecimal;");
    public final static MethodSignature bigIntegerAbs = new MethodSignature("java/math/BigInteger", "abs", "()Ljava/math/BigInteger;");
+   public final static MethodSignature bigDecimalNegate;
    public final static MethodSignature stringToUpper = new MethodSignature("java/lang/String", "toUpperCase", "()Ljava/lang/String;");
    public final static MethodSignature stringToLower = new MethodSignature("java/lang/String", "toLowerCase", "()Ljava/lang/String;");
    public final static MethodSignature stringValueOfObject = new MethodSignature("java/lang/String", "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
@@ -58,6 +60,8 @@ class MethodChecker implements PathAnalysisMethodChecker
          jpqlIsInList = MethodSignature.fromMethod(JPQL.class.getMethod("isInList", Object.class, Collection.class));
          jpqlListContains = MethodSignature.fromMethod(JPQL.class.getMethod("listContains", Collection.class, Object.class));
 
+         bigDecimalNegate = MethodSignature.fromMethod(BigDecimal.class.getMethod("negate"));
+         
          streamSelectAll = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAll", JinqStream.Join.class));
          streamSelectAllList = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAllList", JinqStream.JoinToIterable.class));
          streamJoinList = MethodSignature.fromMethod(JinqStream.class.getMethod("joinList", JinqStream.JoinToIterable.class));
@@ -82,6 +86,7 @@ class MethodChecker implements PathAnalysisMethodChecker
       jpqlFunctionStaticMethods.add(stringValueOfObject);
       jpqlFunctionMethods.add(bigDecimalAbs);
       jpqlFunctionMethods.add(bigIntegerAbs);
+      jpqlFunctionMethods.add(bigDecimalNegate);
       jpqlFunctionMethods.add(stringToUpper);
       jpqlFunctionMethods.add(stringToLower);
       jpqlFunctionMethods.add(stringTrim);

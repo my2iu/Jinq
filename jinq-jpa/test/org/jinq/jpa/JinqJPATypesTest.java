@@ -350,6 +350,19 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(1, lineorders.get(0).getTwo().intValue());
       assertEquals(5, lineorders.get(3).getTwo().intValue());
    }
+   
+   @Test
+   public void testBigDecimalNegate()
+   {
+      List<Pair<Lineorder, BigDecimal>> lineorders = streams.streamAll(em, Lineorder.class)
+            .select(c -> new Pair<>(c, c.getTotal().negate()))
+            .toList();
+      lineorders = lineorders.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A, - A.total FROM Lineorder A", query);
+      assertEquals(11, lineorders.size());
+      assertEquals(-1000, lineorders.get(0).getTwo().intValue());
+      assertEquals(-200, lineorders.get(3).getTwo().intValue());
+   }
 
    @Test
    public void testBigInteger()
