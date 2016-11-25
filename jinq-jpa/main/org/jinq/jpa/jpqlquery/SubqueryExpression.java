@@ -45,4 +45,12 @@ public class SubqueryExpression extends Expression
    {
       visitor.visitSubquery(this);
    }
+   
+   @Override
+   public SubqueryExpression copy()
+   {
+      SubqueryExpression expr = new SubqueryExpression();
+      expr.subquery = subquery.deepCopy();
+      return expr;
+   }
 }

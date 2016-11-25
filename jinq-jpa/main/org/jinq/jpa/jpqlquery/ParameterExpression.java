@@ -12,6 +12,11 @@ public class ParameterExpression extends Expression
       this.argIndex = argIndex;
    }
    
+   void offsetLambdaIndices(int offset)
+   {
+      lambdaIndex += offset;
+   }
+   
    @Override
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
@@ -38,5 +43,11 @@ public class ParameterExpression extends Expression
    public void visit(ExpressionVisitor visitor)
    {
       visitor.visitParameter(this);
+   }
+   
+   @Override
+   public ParameterExpression copy()
+   {
+      return new ParameterExpression(lambdaIndex, argIndex);
    }
 }

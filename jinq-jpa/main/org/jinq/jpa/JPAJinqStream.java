@@ -57,6 +57,11 @@ public interface JPAJinqStream<T> extends JinqStream<T>
     * Due to the limitations of using AND to emulate a UNION, the two streams
     * being UNIONed must be made up of the same queries except for different
     * where restrictions. 
+    * 
+    * The code that checks whether a merge of the two queries is valid or not
+    * is not very robust, so don't rely on Jinq to automatically catch incorrect
+    * uses of the method. Some corner cases aren't checked, so be sure to
+    * verify that you're calling the orUnion on two valid streams yourself.
     *  
     * @param otherSet the other stream to merge with
     * @return a new stream with the contents of the two streams UNIONed together

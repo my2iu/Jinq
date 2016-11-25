@@ -115,7 +115,6 @@ public class JoinTransform extends JPQLOneLambdaQueryTransform
 //                  }
                   toReturn.froms.add(joinFetchFrom);
                   OuterJoinTransform.rewriteFromAliases(toMerge, from, joinFetchFrom);
-                  
                }
                else
                {

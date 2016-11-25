@@ -24,12 +24,12 @@ public class JPAQueryComposerCache
          final int prime = 31;
          int result = 1;
          result = prime * result
-               + ((baseQuery == null) ? 0 : baseQuery.hashCode());
+               + ((baseQuery1 == null) ? 0 : baseQuery1.hashCode());
+         result = prime * result
+               + ((baseQuery2 == null) ? 0 : baseQuery2.hashCode());
          result = prime * result + Arrays.hashCode(lambdaSources);
-         result = prime
-               * result
-               + ((transformationType == null) ? 0 : transformationType
-                     .hashCode());
+         result = prime * result + ((transformationType == null) ? 0
+               : transformationType.hashCode());
          return result;
       }
       @Override
@@ -42,11 +42,17 @@ public class JPAQueryComposerCache
          if (getClass() != obj.getClass())
             return false;
          CacheKey other = (CacheKey) obj;
-         if (baseQuery == null)
+         if (baseQuery1 == null)
          {
-            if (other.baseQuery != null)
+            if (other.baseQuery1 != null)
                return false;
-         } else if (!baseQuery.equals(other.baseQuery))
+         } else if (!baseQuery1.equals(other.baseQuery1))
+            return false;
+         if (baseQuery2 == null)
+         {
+            if (other.baseQuery2 != null)
+               return false;
+         } else if (!baseQuery2.equals(other.baseQuery2))
             return false;
          if (!Arrays.equals(lambdaSources, other.lambdaSources))
             return false;
@@ -59,7 +65,8 @@ public class JPAQueryComposerCache
          return true;
       }
       String transformationType;
-      JPQLQuery<?> baseQuery;
+      JPQLQuery<?> baseQuery1;
+      JPQLQuery<?> baseQuery2;
       String[] lambdaSources;
    }
 
@@ -93,6 +100,25 @@ public class JPAQueryComposerCache
    }
 
    /**
+    * Looks up whether a certain transformation is already in the cache or not.
+    * 
+    * @param base1
+    *           query being transformed
+    * @param base2
+    *           query being transformed
+    * @param transformationType
+    *           type of transformation being applied to the query
+    * @param lambdaSources array of descriptions of the lambdas used in the query
+    * @return cached transformation result or null if this transformation hasn't
+    *         been cached
+    */
+   public synchronized Optional<JPQLQuery<?>> findInCache(JPQLQuery<?> base1, JPQLQuery<?> base2,
+         String transformationType, String[] lambdaSources)
+   {
+      return cacheQuery(base1, base2, transformationType, lambdaSources, null);
+   }
+
+   /**
     * Inserts a transformed query into the cache. If a cache entry is already present, it
     * returns the cached entry; otherwise, it returns resultingQuery
     * @param base query being transformed
@@ -104,9 +130,26 @@ public class JPAQueryComposerCache
    public synchronized Optional<JPQLQuery<?>> cacheQuery(JPQLQuery<?> base,
          String transformationType, String[] lambdaSources, Optional<JPQLQuery<?>> resultingQuery)
    {
+      return cacheQuery(base, null, transformationType, lambdaSources, resultingQuery);
+   }
+
+   /**
+    * Inserts a transformed query into the cache. If a cache entry is already present, it
+    * returns the cached entry; otherwise, it returns resultingQuery
+    * @param base1 query being transformed
+    * @param base2 query being transformed
+    * @param transformationType type of transformation applied to the query
+    * @param lambdaSources array of descriptions of the lambdas used in the query
+    * @param resultingQuery result of the transformation that should be cached
+    * @return the existing cached entry or resultingQuery if nothing is cached
+    */
+   public synchronized Optional<JPQLQuery<?>> cacheQuery(JPQLQuery<?> base1, JPQLQuery<?> base2,
+         String transformationType, String[] lambdaSources, Optional<JPQLQuery<?>> resultingQuery)
+   {
       CacheKey key = new CacheKey();
       key.transformationType = transformationType;
-      key.baseQuery = base;
+      key.baseQuery1 = base1;
+      key.baseQuery2 = base2;
       if (lambdaSources != null)
          key.lambdaSources = Arrays.copyOf(lambdaSources, lambdaSources.length);
       if (cachedQueryTransforms.containsKey(key))

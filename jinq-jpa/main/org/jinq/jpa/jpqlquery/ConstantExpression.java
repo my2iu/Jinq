@@ -1,6 +1,5 @@
 package org.jinq.jpa.jpqlquery;
 
-
 public class ConstantExpression extends Expression
 {
    String text;
@@ -34,5 +33,12 @@ public class ConstantExpression extends Expression
    public void visit(ExpressionVisitor visitor)
    {
       visitor.visitConstant(this);
+   }
+   
+
+   @Override
+   public ConstantExpression copy()
+   {
+      return new ConstantExpression(text);
    }
 }

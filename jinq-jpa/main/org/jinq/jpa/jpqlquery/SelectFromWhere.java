@@ -211,7 +211,17 @@ public class SelectFromWhere<T> extends SelectOnly<T>
       copySelectFromWhereTo(copy);
       return copy;
    }
-   
+
+   public SelectFromWhere<T> deepCopy()
+   {
+      SelectFromWhere<T> copy = new SelectFromWhere<>();
+      copySelectFromWhereTo(copy);
+      for (int n = 0; n < copy.cols.getNumColumns(); n++)
+         copy.cols.columns.set(n, copy.cols.columns.get(n).copy());
+      throw new IllegalArgumentException("Deep copies of queries not implemented yet");
+//      return copy;
+   }
+
 //   @Override
 //   public JPQLQuery<T> copy()
 //   {

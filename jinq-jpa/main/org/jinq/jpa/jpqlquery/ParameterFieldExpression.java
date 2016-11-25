@@ -12,6 +12,11 @@ public class ParameterFieldExpression extends Expression
       this.fieldName = fieldName;
    }
    
+   void offsetLambdaIndices(int offset)
+   {
+      lambdaIndex += offset;
+   }
+   
    @Override
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
@@ -38,5 +43,11 @@ public class ParameterFieldExpression extends Expression
    public void visit(ExpressionVisitor visitor)
    {
       visitor.visitParameterField(this);
+   }
+   
+   @Override
+   public ParameterFieldExpression copy()
+   {
+      return new ParameterFieldExpression(lambdaIndex, fieldName);
    }
 }

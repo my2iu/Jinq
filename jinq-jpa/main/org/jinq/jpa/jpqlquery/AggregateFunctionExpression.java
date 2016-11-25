@@ -44,4 +44,10 @@ public class AggregateFunctionExpression extends Expression
    {
       visitor.visitAggregateFunction(this);
    }
+   
+   @Override
+   public AggregateFunctionExpression copy()
+   {
+      return new AggregateFunctionExpression(base.copy(), aggregateName, isDistinct);
+   }
 }

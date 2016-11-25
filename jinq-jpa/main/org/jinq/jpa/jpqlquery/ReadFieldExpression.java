@@ -44,4 +44,10 @@ public class ReadFieldExpression extends Expression
    {
       visitor.visitReadField(this);
    }
+   
+   @Override
+   public ReadFieldExpression copy()
+   {
+      return new ReadFieldExpression(base.copy(), field);
+   }
 }

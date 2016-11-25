@@ -1,5 +1,6 @@
 package org.jinq.jpa.jpqlquery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -60,5 +61,19 @@ public class CaseWhenExpression extends Expression
    public void visit(ExpressionVisitor visitor)
    {
       visitor.visitCaseWhen(this);
+   }
+   
+   @Override
+   public CaseWhenExpression copy()
+   {
+      List<ConditionResult> casesCopy = new ArrayList<>(cases.size());
+      for (ConditionResult cond: cases)
+      {
+         ConditionResult condCopy = new ConditionResult();
+         condCopy.condition = cond.condition.copy();
+         condCopy.result = cond.result.copy();
+         casesCopy.add(condCopy);
+      }
+      return new CaseWhenExpression(casesCopy);
    }
 }

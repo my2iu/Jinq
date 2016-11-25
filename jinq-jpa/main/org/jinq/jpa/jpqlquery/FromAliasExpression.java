@@ -34,4 +34,10 @@ public class FromAliasExpression extends Expression
    {
       visitor.visitFromAlias(this);
    }
+   
+   @Override
+   public FromAliasExpression copy()
+   {
+      return new FromAliasExpression(from);
+   }
 }

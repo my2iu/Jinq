@@ -77,4 +77,14 @@ public class FunctionExpression extends Expression
    {
       visitor.visitFunction(this);
    }
+   
+   @Override
+   public FunctionExpression copy()
+   {
+      FunctionExpression func = new FunctionExpression();
+      for (Expression arg: arguments)
+         func.arguments.add(arg.copy());
+      func.functionName = functionName;
+      return func;
+   }
 }

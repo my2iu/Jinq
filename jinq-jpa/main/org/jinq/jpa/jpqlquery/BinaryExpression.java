@@ -49,4 +49,10 @@ public class BinaryExpression extends Expression
    {
       visitor.visitBinary(this);
    }
+   
+   @Override
+   public BinaryExpression copy()
+   {
+      return new BinaryExpression(operator, left.copy(), right.copy());
+   }
 }

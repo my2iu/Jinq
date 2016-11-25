@@ -63,4 +63,10 @@ public class UnaryExpression extends Expression
    {
       visitor.visitUnary(this);
    }
+   
+   @Override
+   public UnaryExpression copy()
+   {
+      return new UnaryExpression(prefixOperator, postfixOperator, operand.copy());
+   }
 }

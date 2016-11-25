@@ -582,4 +582,18 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("SELECT A FROM Customer A WHERE A.name = 'Eve' OR A.name = 'Alice'", query);
       assertEquals(2, customers.size());
    }
+   
+   @Test
+   public void testOrUnionParameters()
+   {
+      String name1 = "Alice";
+      String name2 = "Eve";
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+         .where(c -> c.getName().equals(name2))
+         .orUnion(streams.streamAll(em, Customer.class)
+               .where(c -> c.getName().equals(name1)))
+         .toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.name = :param0 OR A.name = :param1", query);
+      assertEquals(2, customers.size());
+   }
 }

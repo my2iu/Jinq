@@ -4,6 +4,10 @@ import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
+import org.jinq.jpa.jpqlquery.OffsetLambdaIndexInExpressionsVisitor;
+import org.jinq.jpa.jpqlquery.ParameterExpression;
+import org.jinq.jpa.jpqlquery.ParameterFieldExpression;
+import org.jinq.jpa.jpqlquery.RecursiveExpressionVisitor;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 
 public class OrUnionTransform extends JPQLTwoQueryMergeQueryTransform
@@ -21,7 +25,7 @@ public class OrUnionTransform extends JPQLTwoQueryMergeQueryTransform
    }
 
    @Override
-   public <U, V> JPQLQuery<U> apply(JPQLQuery<U> query1, JPQLQuery<V> query2)
+   public <U, V, W> JPQLQuery<W> apply(JPQLQuery<U> query1, JPQLQuery<V> query2, int lambdaOffset)
          throws QueryTransformException
    {
       // Just a stub implementation that handles a very basic situtation
@@ -29,6 +33,10 @@ public class OrUnionTransform extends JPQLTwoQueryMergeQueryTransform
       {
          SelectFromWhere<U> sfw1 = (SelectFromWhere<U>)query1;
          SelectFromWhere<V> sfw2 = (SelectFromWhere<V>)query2;
+         // TODO: These correctness checks aren't conservative enough because
+         // it's possible to have identical column expressions, but have the
+         // parameters they refer to be different because the lambdas are
+         // different
          if (!sfw1.cols.isSingleColumn() || !sfw2.cols.isSingleColumn())
             throw new QueryTransformException("Cannot only merge queries that return one field of data");
          if (!sfw1.cols.getOnlyColumn().equals(sfw2.cols.getOnlyColumn()))
@@ -42,11 +50,13 @@ public class OrUnionTransform extends JPQLTwoQueryMergeQueryTransform
          }
          
          // The two queries seem compatible. Do the merge
-         SelectFromWhere<U> merged = sfw1.shallowCopy();
+         SelectFromWhere<?> merged = sfw1.shallowCopy();
 //         for (From from: sfw2.froms)
 //            merged.froms.add(from);
-         merged.where = new BinaryExpression("OR", merged.where, sfw2.where);
-         return merged;
+         Expression offsetWhere = sfw2.where.copy();
+         offsetWhere.visit(new OffsetLambdaIndexInExpressionsVisitor(lambdaOffset));
+         merged.where = new BinaryExpression("OR", merged.where, offsetWhere);
+         return (SelectFromWhere<W>)merged;
       }
       throw new QueryTransformException("Cannot merge the two query streams");
    }

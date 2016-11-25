@@ -380,6 +380,48 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfos);
    }
 
+   private <U, V> JPAQueryComposer<V> applyTransformWithTwoQueryMerge(JPQLTwoQueryMergeQueryTransform transform, JPAJinqStream<U> otherSet)
+   {
+      // Check that the other stream is of a query
+      if (!(otherSet instanceof QueryJPAJinqStream))
+      {
+         translationFail(new IllegalArgumentException("The other stream must be a query"));
+         return null;
+      }
+      // The other stream should be from the same entity manager
+      JPAQueryComposer<U> otherComposer = ((QueryJPAJinqStream<U>)otherSet).jpaComposer; 
+      if (otherComposer.em != em)
+      {
+         translationFail(new IllegalArgumentException("Both queries need to come from the same entity manager"));
+         return null;
+      }
+      
+      JPQLQuery<?> otherQuery = otherComposer.query;
+      Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ?
+            cachedQueries.findInCache(query, otherQuery, transform.getTransformationTypeCachingTag(), null) : null;
+      if (cachedQuery == null)
+      {
+         cachedQuery = Optional.empty();
+         JPQLQuery<V> newQuery = null;
+         try {
+            newQuery = transform.apply(query, otherQuery, lambdas.size());
+         }
+         catch (QueryTransformException e)
+         {
+            translationFail(e);
+         }
+         finally 
+         {
+            // Always cache the resulting query, even if it is an error
+            cachedQuery = Optional.ofNullable(newQuery);
+            if (hints.useCaching)
+               cachedQuery = cachedQueries.cacheQuery(query, otherQuery, transform.getTransformationTypeCachingTag(), null, cachedQuery);
+         }
+      }
+      if (!cachedQuery.isPresent()) { translationFail(); return null; }
+      return new JPAQueryComposer<V>(this, (JPQLQuery<V>)cachedQuery.get(), lambdas, otherComposer.lambdas.toArray(new LambdaInfo[0]));
+   }
+
    /**
     * Holds configuration information used when transforming this composer to a new composer.
     * Since a JPAQueryComposer can only be transformed once, we only need one transformationConfig
@@ -531,42 +573,10 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    {
       return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsExpectingStream(false).setIsOuterJoinFetch(true), joinLambda);
    }
-
+   
    public QueryComposer<T> orUnion(JPAJinqStream<T> otherSet)
    {
-      // Check that the other stream is of a query
-      if (!(otherSet instanceof QueryJPAJinqStream))
-      {
-         translationFail(new IllegalArgumentException("Two queries expected"));
-         return null;
-      }
-      // The other stream should be from the same entity manager
-      if (((QueryJPAJinqStream<?>)otherSet).jpaComposer.em != em)
-      {
-         translationFail(new IllegalArgumentException("Both queries need to share the same entity manager"));
-         return null;
-      }
-      // TODO: Support caching
-      
-      
-         JPQLTwoQueryMergeQueryTransform transform = new OrUnionTransform(getConfig());
-         JPQLQuery<T> newQuery = null;
-         try {
-//            LambdaAnalysis lambdaAnalysis = lambdaInfo.fullyAnalyze(metamodel, hints.lambdaClassLoader, hints.isObjectEqualsSafe, hints.isAllEqualsSafe, hints.isCollectionContainsSafe, hints.dieOnError);
-//            if (lambdaAnalysis == null) { translationFail(); return null; }
-//            getConfig().checkLambdaSideEffects(lambdaAnalysis);
-            newQuery = transform.apply(query, ((QueryJPAJinqStream<?>)otherSet).jpaComposer.query);
-         }
-         catch (QueryTransformException e)
-         {
-            translationFail(e);
-         }
-      if (newQuery == null) { translationFail(); return null; }
-      // TODO: Merge the lambdas from both sides
-      return new JPAQueryComposer<>(this, newQuery, lambdas);
-
-      
-//      return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsExpectingStream(false).setIsOuterJoinFetch(true), joinLambda);
+      return applyTransformWithTwoQueryMerge(new OrUnionTransform(getConfig()), otherSet);
    }
 
    @Override
