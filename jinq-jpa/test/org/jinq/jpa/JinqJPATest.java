@@ -596,4 +596,21 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("SELECT A FROM Customer A WHERE A.name = :param0 OR A.name = :param1", query);
       assertEquals(2, customers.size());
    }
+   
+   @Test
+   public void testAndIntersect()
+   {
+      JPAJinqStream<Customer> base = streams.streamAll(em, Customer.class);
+      List<String> customers = base.where(c -> c.getName().equals("Dave"))
+         .orUnion(base.where(c -> c.getCountry().equals("Switzerland"))
+               .andIntersect(base.where(c -> c.getSalary() > 250)))
+         .select(c -> c.getName())
+         .sortedBy(name -> name)
+         .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE A.name = 'Dave' OR A.country = 'Switzerland' AND A.salary > 250 ORDER BY A.name ASC", query);
+      assertEquals(2, customers.size());
+      assertEquals("Bob", customers.get(0));
+      assertEquals("Dave", customers.get(1));
+   }
+
 }

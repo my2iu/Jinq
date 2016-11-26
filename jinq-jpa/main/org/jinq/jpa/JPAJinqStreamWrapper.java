@@ -378,4 +378,11 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
       return wrap(JinqStream.from(merged));
    }
 
+   @Override
+   public JPAJinqStream<T> andIntersect(JPAJinqStream<T> otherSet)
+   {
+      Set<T> saved = collect(Collectors.toSet());
+      return wrap(JinqStream.from(otherSet.filter(el -> saved.contains(el)).collect(Collectors.toSet())));
+   }
+
 }

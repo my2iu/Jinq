@@ -35,7 +35,7 @@ import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MultiAggregateTransform;
-import org.jinq.jpa.transform.OrUnionTransform;
+import org.jinq.jpa.transform.SetOperationEmulationTransform;
 import org.jinq.jpa.transform.OuterJoinOnTransform;
 import org.jinq.jpa.transform.OuterJoinTransform;
 import org.jinq.jpa.transform.QueryTransformException;
@@ -576,7 +576,12 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    
    public QueryComposer<T> orUnion(JPAJinqStream<T> otherSet)
    {
-      return applyTransformWithTwoQueryMerge(new OrUnionTransform(getConfig()), otherSet);
+      return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.OR_UNION), otherSet);
+   }
+
+   public QueryComposer<T> andIntersect(JPAJinqStream<T> otherSet)
+   {
+      return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.AND_INTERSECT), otherSet);
    }
 
    @Override

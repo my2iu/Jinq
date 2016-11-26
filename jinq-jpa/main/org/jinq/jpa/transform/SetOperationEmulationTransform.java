@@ -10,18 +10,24 @@ import org.jinq.jpa.jpqlquery.ParameterFieldExpression;
 import org.jinq.jpa.jpqlquery.RecursiveExpressionVisitor;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 
-public class OrUnionTransform extends JPQLTwoQueryMergeQueryTransform
+public class SetOperationEmulationTransform extends JPQLTwoQueryMergeQueryTransform
 {
    public enum SetOperationType
    {
-      OR_UNION
+      OR_UNION("OR"), AND_INTERSECT("AND");
+      SetOperationType(String op)
+      {
+         this.op = op;
+      }
+      String op;
    }
 
    SetOperationType type = SetOperationType.OR_UNION;
    
-   public OrUnionTransform(JPQLQueryTransformConfiguration config)
+   public SetOperationEmulationTransform(JPQLQueryTransformConfiguration config, SetOperationType type)
    {
       super(config);
+      this.type = type;
    }
 
    @Override
@@ -55,7 +61,7 @@ public class OrUnionTransform extends JPQLTwoQueryMergeQueryTransform
 //            merged.froms.add(from);
          Expression offsetWhere = sfw2.where.copy();
          offsetWhere.visit(new OffsetLambdaIndexInExpressionsVisitor(lambdaOffset));
-         merged.where = new BinaryExpression("OR", merged.where, offsetWhere);
+         merged.where = new BinaryExpression(type.op, merged.where, offsetWhere);
          return (SelectFromWhere<W>)merged;
       }
       throw new QueryTransformException("Cannot merge the two query streams");
@@ -64,7 +70,7 @@ public class OrUnionTransform extends JPQLTwoQueryMergeQueryTransform
    @Override
    public String getTransformationTypeCachingTag()
    {
-      return OrUnionTransform.class.getName() + ":" + type.name();
+      return SetOperationEmulationTransform.class.getName() + ":" + type.name();
    }
 
 }

@@ -50,11 +50,11 @@ public interface JPAJinqStream<T> extends JinqStream<T>
 
    /**
     * Emulates a union of two different streams by merging the queries
-    * using an AND operation. JPA does not support UNION operations, so 
-    * Jinq must emulate that behavior using ANDs. It also provides a mechanism
-    * for Jinq to let people create AND expressions programmatically and to specify
+    * using an OR operation. JPA does not support UNION operations, so 
+    * Jinq must emulate that behavior using ORs. It also provides a mechanism
+    * for Jinq to let people create OR expressions programmatically and to specify
     * complex expressions exactly without relying on the Jinq translation algorithm.
-    * Due to the limitations of using AND to emulate a UNION, the two streams
+    * Due to the limitations of using OR to emulate a UNION, the two streams
     * being UNIONed must be made up of the same queries except for different
     * where restrictions. 
     * 
@@ -67,7 +67,27 @@ public interface JPAJinqStream<T> extends JinqStream<T>
     * @return a new stream with the contents of the two streams UNIONed together
     */
    public JPAJinqStream<T> orUnion(JPAJinqStream<T> otherSet);
-   
+
+   /**
+    * Emulates an intersect of two different streams by merging the queries
+    * using an AND operation. JPA does not support INTERSECT operations, so 
+    * Jinq must emulate that behavior using ANDs. It also provides a mechanism
+    * for Jinq to let people create AND expressions programmatically and to specify
+    * complex expressions exactly without relying on the Jinq translation algorithm.
+    * Due to the limitations of using AND to emulate a INTERSECT, the two streams
+    * being INTERSECTed must be made up of the same queries except for different
+    * where restrictions. 
+    * 
+    * The code that checks whether a merge of the two queries is valid or not
+    * is not very robust, so don't rely on Jinq to automatically catch incorrect
+    * uses of the method. Some corner cases aren't checked, so be sure to
+    * verify that you're calling the orUnion on two valid streams yourself.
+    *  
+    * @param otherSet the other stream to merge with
+    * @return a new stream with the contents of the two streams INTERSECTed together
+    */
+   public JPAJinqStream<T> andIntersect(JPAJinqStream<T> otherSet);
+
 
    // Variants of the existing JinqStream API that return a JPAJinqStream instead
    // of a JinqStream.
