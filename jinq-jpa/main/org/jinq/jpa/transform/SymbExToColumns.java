@@ -530,7 +530,8 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
             return ColumnExpressions.singleColumn(base.reader,
                   FunctionExpression.singleParam("ABS", base.getOnlyColumn())); 
          }
-         else if (sig.equals(MethodChecker.bigDecimalNegate))
+         else if (sig.equals(MethodChecker.bigDecimalNegate) 
+               || sig.equals(MethodChecker.bigIntegerNegate))
          {
             SymbExPassDown passdown = SymbExPassDown.with(val, in.isExpectingConditional);
             ColumnExpressions<?> base = val.base.visit(this, passdown);
