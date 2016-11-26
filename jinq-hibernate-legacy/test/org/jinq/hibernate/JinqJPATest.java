@@ -19,6 +19,7 @@ import org.jinq.hibernate.test.entities.Item;
 import org.jinq.hibernate.test.entities.Lineorder;
 import org.jinq.hibernate.test.entities.Sale;
 import org.jinq.hibernate.test.entities.Supplier;
+import org.jinq.jpa.JPAJinqStream;
 import org.jinq.jpa.JPQL;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.orm.stream.InQueryStreamSource;
@@ -289,6 +290,20 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("SELECT A, B FROM Customer A LEFT OUTER JOIN A.country B", query);
       assertEquals(5, results.size());
    }
+   
+   @Test
+   public void testCrossJoin()
+   {
+      String country = "Switzerland";
+      double price = 5.0;
+      List<Pair<Customer, Item>> results = streams.streamAll(em, Customer.class)
+            .where(c -> c.getCountry().equals(country))
+            .crossJoin(streams.streamAll(em, Item.class).where(i -> i.getPurchaseprice() > price))
+            .toList();
+      assertEquals("SELECT A, B FROM org.jinq.hibernate.test.entities.Customer A, org.jinq.hibernate.test.entities.Item B WHERE A.country = :param0 AND B.purchaseprice > :param1", query);
+      Collections.sort(results, (c1, c2) -> c1.getOne().getName().compareTo(c2.getOne().getName()));
+      assertEquals(4, results.size());
+   }
 
    @Test
    public void testSort()
@@ -499,5 +514,47 @@ public class JinqJPATest extends JinqJPATestBase
          .toList();
       assertEquals("SELECT ABS(A.salary + SQRT(A.debt)) + MOD(A.salary, A.debt) FROM org.jinq.hibernate.test.entities.Customer A", query);
       assertEquals(5, customers.size());
+   }
+   
+   @Test
+   public void testOrUnion()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+         .where(c -> c.getName().equals("Eve"))
+         .orUnion(streams.streamAll(em, Customer.class)
+               .where(c -> c.getName().equals("Alice")))
+         .toList();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.name = 'Eve' OR A.name = 'Alice'", query);
+      assertEquals(2, customers.size());
+   }
+   
+   @Test
+   public void testOrUnionParameters()
+   {
+      String name1 = "Alice";
+      String name2 = "Eve";
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+         .where(c -> c.getName().equals(name2))
+         .orUnion(streams.streamAll(em, Customer.class)
+               .where(c -> c.getName().equals(name1)))
+         .toList();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.name = :param0 OR A.name = :param1", query);
+      assertEquals(2, customers.size());
+   }
+   
+   @Test
+   public void testAndIntersect()
+   {
+      JPAJinqStream<Customer> base = streams.streamAll(em, Customer.class);
+      List<String> customers = base.where(c -> c.getName().equals("Dave"))
+         .orUnion(base.where(c -> c.getCountry().equals("Switzerland"))
+               .andIntersect(base.where(c -> c.getSalary() > 250)))
+         .select(c -> c.getName())
+         .sortedBy(name -> name)
+         .toList();
+      assertEquals("SELECT A.name FROM org.jinq.hibernate.test.entities.Customer A WHERE A.name = 'Dave' OR A.country = 'Switzerland' AND A.salary > 250 ORDER BY A.name ASC", query);
+      assertEquals(2, customers.size());
+      assertEquals("Bob", customers.get(0));
+      assertEquals("Dave", customers.get(1));
    }
 }

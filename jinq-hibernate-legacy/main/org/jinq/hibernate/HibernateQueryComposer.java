@@ -13,12 +13,14 @@ import java.util.function.Consumer;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.jinq.jpa.JPAJinqStream;
 import org.jinq.jpa.jpqlquery.GeneratedQueryParameter;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.transform.AggregateTransform;
 import org.jinq.jpa.transform.CountTransform;
+import org.jinq.jpa.transform.CrossJoinTransform;
 import org.jinq.jpa.transform.DistinctTransform;
 import org.jinq.jpa.transform.GroupingTransform;
 import org.jinq.jpa.transform.JPAQueryComposerCache;
@@ -27,6 +29,7 @@ import org.jinq.jpa.transform.JPQLNoLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLOneLambdaQueryTransform;
 import org.jinq.jpa.transform.JPQLQueryTransformConfiguration;
 import org.jinq.jpa.transform.JPQLQueryTransformConfigurationFactory;
+import org.jinq.jpa.transform.JPQLTwoQueryMergeQueryTransform;
 import org.jinq.jpa.transform.JoinFetchTransform;
 import org.jinq.jpa.transform.JoinTransform;
 import org.jinq.jpa.transform.LambdaAnalysis;
@@ -39,6 +42,7 @@ import org.jinq.jpa.transform.OuterJoinOnTransform;
 import org.jinq.jpa.transform.OuterJoinTransform;
 import org.jinq.jpa.transform.QueryTransformException;
 import org.jinq.jpa.transform.SelectTransform;
+import org.jinq.jpa.transform.SetOperationEmulationTransform;
 import org.jinq.jpa.transform.SortingTransform;
 import org.jinq.jpa.transform.WhereTransform;
 import org.jinq.orm.internal.QueryComposer;
@@ -47,6 +51,7 @@ import org.jinq.orm.stream.JinqStream.JoinToIterable;
 import org.jinq.orm.stream.JinqStream.JoinWithSource;
 import org.jinq.orm.stream.JinqStream.Select;
 import org.jinq.orm.stream.JinqStream.WhereForOn;
+import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.NextOnlyIterator;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
@@ -380,6 +385,48 @@ class HibernateQueryComposer<T> implements QueryComposer<T>
       return new HibernateQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfos);
    }
 
+   private <U, V> HibernateQueryComposer<V> applyTransformWithTwoQueryMerge(JPQLTwoQueryMergeQueryTransform transform, JinqStream<U> otherSet)
+   {
+      // Check that the other stream is of a query
+      if (!(otherSet instanceof QueryJPAJinqStream))
+      {
+         translationFail(new IllegalArgumentException("The other stream must be a query"));
+         return null;
+      }
+      // The other stream should be from the same entity manager
+      HibernateQueryComposer<U> otherComposer = ((QueryJPAJinqStream<U>)otherSet).jpaComposer; 
+      if (otherComposer.em != em)
+      {
+         translationFail(new IllegalArgumentException("Both queries need to come from the same entity manager"));
+         return null;
+      }
+      
+      JPQLQuery<?> otherQuery = otherComposer.query;
+      Optional<JPQLQuery<?>> cachedQuery = hints.useCaching ?
+            cachedQueries.findInCache(query, otherQuery, transform.getTransformationTypeCachingTag(), null) : null;
+      if (cachedQuery == null)
+      {
+         cachedQuery = Optional.empty();
+         JPQLQuery<V> newQuery = null;
+         try {
+            newQuery = transform.apply(query, otherQuery, lambdas.size());
+         }
+         catch (QueryTransformException e)
+         {
+            translationFail(e);
+         }
+         finally 
+         {
+            // Always cache the resulting query, even if it is an error
+            cachedQuery = Optional.ofNullable(newQuery);
+            if (hints.useCaching)
+               cachedQueries.cacheQuery(query, otherQuery, transform.getTransformationTypeCachingTag(), null, cachedQuery);
+         }
+      }
+      if (!cachedQuery.isPresent()) { translationFail(); return null; }
+      return new HibernateQueryComposer<V>(this, (JPQLQuery<V>)cachedQuery.get(), lambdas, otherComposer.lambdas.toArray(new LambdaInfo[0]));
+   }
+
    /**
     * Holds configuration information used when transforming this composer to a new composer.
     * Since a JPAQueryComposer can only be transformed once, we only need one transformationConfig
@@ -532,6 +579,22 @@ class HibernateQueryComposer<T> implements QueryComposer<T>
       return applyTransformWithTwoLambdas(new OuterJoinOnTransform(getConfig()).setIsExpectingStream(true), join, on);
    }
    
+   @Override
+   public <U> QueryComposer<Pair<T, U>> crossJoin(JinqStream<U> join)
+   {
+      return applyTransformWithTwoQueryMerge(new CrossJoinTransform(getConfig()), join);
+   }
+
+   public QueryComposer<T> orUnion(JPAJinqStream<T> otherSet)
+   {
+      return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.OR_UNION), otherSet);
+   }
+
+   public QueryComposer<T> andIntersect(JPAJinqStream<T> otherSet)
+   {
+      return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.AND_INTERSECT), otherSet);
+   }
+
    @Override
    public Long count()
    {

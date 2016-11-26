@@ -78,6 +78,23 @@ class QueryJPAJinqStream<T> extends QueryJinqStream<T> implements JPAJinqStream<
       return new JPAJinqStreamWrapper<>(this).leftOuterJoinFetchList(join);
    }
 
+   @Override
+   public JPAJinqStream<T> orUnion(JPAJinqStream<T> otherSet)
+   {
+      QueryComposer<T> newComposer = jpaComposer.orUnion(otherSet);
+      if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
+      return new JPAJinqStreamWrapper<>(this).orUnion(otherSet);
+   }
+
+   @Override
+   public JPAJinqStream<T> andIntersect(JPAJinqStream<T> otherSet)
+   {
+      QueryComposer<T> newComposer = jpaComposer.andIntersect(otherSet);
+      if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
+      return new JPAJinqStreamWrapper<>(this).andIntersect(otherSet);
+   }
+
+
    // Wrapped versions of old API
    
    @Override
@@ -170,6 +187,12 @@ class QueryJPAJinqStream<T> extends QueryJinqStream<T> implements JPAJinqStream<
          org.jinq.orm.stream.JinqStream.WhereForOn<T, U> on)
    {
       return wrap(super.leftOuterJoin(join, on));
+   }
+
+   @Override
+   public <U> JPAJinqStream<Pair<T, U>> crossJoin(JinqStream<U> join)
+   {
+      return wrap(super.crossJoin(join));
    }
    
    @Override

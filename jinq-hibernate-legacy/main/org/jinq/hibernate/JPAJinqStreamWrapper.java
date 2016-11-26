@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jinq.jpa.JPAJinqStream;
 import org.jinq.orm.stream.JinqStream;
@@ -259,6 +261,12 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
    }
    
    @Override
+   public <U> JPAJinqStream<Pair<T, U>> crossJoin(JinqStream<U> join)
+   {
+      return wrap(wrapped.crossJoin(join));
+   }
+
+   @Override
    public <U, V> JPAJinqStream<Pair<U, V>> group(
          org.jinq.orm.stream.JinqStream.Select<T, U> select,
          org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, V> aggregate)
@@ -367,6 +375,19 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
    {
       return this;
    }
+   
+   @Override
+   public JPAJinqStream<T> orUnion(JPAJinqStream<T> otherSet)
+   {
+      Set<T> merged = collect(Collectors.toSet());
+      merged.addAll(otherSet.collect(Collectors.toSet()));
+      return wrap(JinqStream.from(merged));
+   }
 
-
+   @Override
+   public JPAJinqStream<T> andIntersect(JPAJinqStream<T> otherSet)
+   {
+      Set<T> saved = collect(Collectors.toSet());
+      return wrap(JinqStream.from(otherSet.filter(el -> saved.contains(el)).collect(Collectors.toSet())));
+   }
 }

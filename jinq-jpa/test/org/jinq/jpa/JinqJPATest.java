@@ -299,7 +299,6 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("SELECT A, B FROM Customer A, Item B WHERE A.country = :param0 AND B.purchaseprice > :param1", query);
       Collections.sort(results, (c1, c2) -> c1.getOne().getName().compareTo(c2.getOne().getName()));
       assertEquals(4, results.size());
-      
    }
 
    @Test
