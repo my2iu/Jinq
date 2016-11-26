@@ -204,7 +204,20 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
          });
       return wrap(streamBuilder.build());
    }
- 
+
+   @Override
+   public <U> JinqStream<Pair<T, U>> crossJoin(JinqStream<U> join)
+   {
+      List<U> saved = join.toList();
+      // TODO: This stream should be constructed on the fly
+      final Stream.Builder<Pair<T,U>> streamBuilder = Stream.builder();
+      forEach( left -> {
+         saved.stream().forEach( right -> 
+            streamBuilder.accept(new Pair<>(left, right)));
+         });
+      return wrap(streamBuilder.build());
+   }
+   
    protected <U, W extends Tuple> JinqStream<W> groupToTuple(Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
       Map<U, List<T>> groups = collect(Collectors.groupingBy(in -> select.select(in)));

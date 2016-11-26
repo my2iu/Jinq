@@ -316,6 +316,14 @@ public interface JinqStream<T> extends Stream<T>
     */
    public <U> JinqStream<Pair<T, U>> leftOuterJoin(JoinWithSource<T, U> join, WhereForOn<T, U> on);
 
+   /**
+    * Performs a full cross-join of the elements of two streams.
+    * 
+    * @param join other stream to perform the cross join with
+    * @return a new stream where each element of the stream is paired up with 
+    *   each element of the join stream
+    */
+   public <U> JinqStream<Pair<T, U>> crossJoin(JinqStream<U> join);
    
    @FunctionalInterface
    public static interface AggregateGroup<W, U, V> extends Serializable

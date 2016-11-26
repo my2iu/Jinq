@@ -259,6 +259,12 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
       return wrap(wrapped.leftOuterJoin(join, on));
    }
 
+   @Override
+   public <U> JinqStream<Pair<T, U>> crossJoin(JinqStream<U> join)
+   {
+      return wrap(wrapped.crossJoin(join));
+   }
+
 
    @Override
    public <U, V> JPAJinqStream<Pair<U, V>> group(
@@ -384,5 +390,4 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
       Set<T> saved = collect(Collectors.toSet());
       return wrap(JinqStream.from(otherSet.filter(el -> saved.contains(el)).collect(Collectors.toSet())));
    }
-
 }

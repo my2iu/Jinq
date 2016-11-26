@@ -187,7 +187,14 @@ class QueryJPAJinqStream<T> extends QueryJinqStream<T> implements JPAJinqStream<
    {
       return wrap(super.leftOuterJoin(join, on));
    }
+ 
+   @Override
+   public <U> JinqStream<Pair<T, U>> crossJoin(JinqStream<U> join)
+   {
+      return wrap(super.crossJoin(join));
+   }
    
+
    @Override
    public <U, V> JPAJinqStream<Pair<U, V>> group(
          org.jinq.orm.stream.JinqStream.Select<T, U> select,

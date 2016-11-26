@@ -286,6 +286,21 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Screws", results.get(2).getOne());
       assertEquals("Screws", results.get(3).getOne());
    }
+   
+   @Test
+   public void testCrossJoin()
+   {
+      String country = "Switzerland";
+      double price = 5.0;
+      List<Pair<Customer, Item>> results = streams.streamAll(em, Customer.class)
+            .where(c -> c.getCountry().equals(country))
+            .crossJoin(streams.streamAll(em, Item.class).where(i -> i.getPurchaseprice() > price))
+            .toList();
+      assertEquals("SELECT A, B FROM Customer A, Item B WHERE A.country = :param0 AND B.purchaseprice > :param1", query);
+      Collections.sort(results, (c1, c2) -> c1.getOne().getName().compareTo(c2.getOne().getName()));
+      assertEquals(4, results.size());
+      
+   }
 
    @Test
    public void testSort()

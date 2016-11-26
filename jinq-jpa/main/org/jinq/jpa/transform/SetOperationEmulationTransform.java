@@ -2,12 +2,8 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.Expression;
-import org.jinq.jpa.jpqlquery.From;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.OffsetLambdaIndexInExpressionsVisitor;
-import org.jinq.jpa.jpqlquery.ParameterExpression;
-import org.jinq.jpa.jpqlquery.ParameterFieldExpression;
-import org.jinq.jpa.jpqlquery.RecursiveExpressionVisitor;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 
 public class SetOperationEmulationTransform extends JPQLTwoQueryMergeQueryTransform

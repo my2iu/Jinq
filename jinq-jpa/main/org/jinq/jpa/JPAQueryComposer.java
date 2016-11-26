@@ -18,6 +18,7 @@ import org.jinq.jpa.jpqlquery.RowReader;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
 import org.jinq.jpa.transform.AggregateTransform;
 import org.jinq.jpa.transform.CountTransform;
+import org.jinq.jpa.transform.CrossJoinTransform;
 import org.jinq.jpa.transform.DistinctTransform;
 import org.jinq.jpa.transform.GroupingTransform;
 import org.jinq.jpa.transform.JPAQueryComposerCache;
@@ -373,14 +374,14 @@ class JPAQueryComposer<T> implements QueryComposer<T>
             // Always cache the resulting query, even if it is an error
             cachedQuery = Optional.ofNullable(newQuery);
             if (hints.useCaching)
-               cachedQuery = cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), lambdaSources, cachedQuery);
+               cachedQueries.cacheQuery(query, transform.getTransformationTypeCachingTag(), lambdaSources, cachedQuery);
          }
       }
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
       return new JPAQueryComposer<>(this, (JPQLQuery<U>)cachedQuery.get(), lambdas, lambdaInfos);
    }
 
-   private <U, V> JPAQueryComposer<V> applyTransformWithTwoQueryMerge(JPQLTwoQueryMergeQueryTransform transform, JPAJinqStream<U> otherSet)
+   private <U, V> JPAQueryComposer<V> applyTransformWithTwoQueryMerge(JPQLTwoQueryMergeQueryTransform transform, JinqStream<U> otherSet)
    {
       // Check that the other stream is of a query
       if (!(otherSet instanceof QueryJPAJinqStream))
@@ -415,7 +416,7 @@ class JPAQueryComposer<T> implements QueryComposer<T>
             // Always cache the resulting query, even if it is an error
             cachedQuery = Optional.ofNullable(newQuery);
             if (hints.useCaching)
-               cachedQuery = cachedQueries.cacheQuery(query, otherQuery, transform.getTransformationTypeCachingTag(), null, cachedQuery);
+               cachedQueries.cacheQuery(query, otherQuery, transform.getTransformationTypeCachingTag(), null, cachedQuery);
          }
       }
       if (!cachedQuery.isPresent()) { translationFail(); return null; }
@@ -561,7 +562,6 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return applyTransformWithTwoLambdas(new OuterJoinOnTransform(getConfig()).setIsExpectingStream(true), join, on);
    }
 
-
    public <U> JPAQueryComposer<T> leftOuterJoinFetch(
          org.jinq.orm.stream.JinqStream.Join<T, U> joinLambda)
    {
@@ -574,6 +574,12 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       return applyTransformWithLambda(new JoinFetchTransform(getConfig()).setIsExpectingStream(false).setIsOuterJoinFetch(true), joinLambda);
    }
    
+   @Override
+   public <U> QueryComposer<Pair<T, U>> crossJoin(JinqStream<U> join)
+   {
+      return applyTransformWithTwoQueryMerge(new CrossJoinTransform(getConfig()), join);
+   }
+
    public QueryComposer<T> orUnion(JPAJinqStream<T> otherSet)
    {
       return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.OR_UNION), otherSet);

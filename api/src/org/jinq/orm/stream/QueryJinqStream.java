@@ -145,6 +145,14 @@ public class QueryJinqStream<T> extends NonQueryJinqStream<T> implements JinqStr
    }
    
    @Override
+   public <U> JinqStream<Pair<T, U>> crossJoin(JinqStream<U> join)
+   {
+      QueryComposer<Pair<T, U>> newComposer = queryComposer.crossJoin(join);
+      if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
+      return super.crossJoin(join);
+   }
+   
+   @Override
    protected <U, W extends Tuple> JinqStream<W> groupToTuple(Select<T, U> select, AggregateGroup<U, T, ?>[] aggregates)
    {
       QueryComposer<W> newComposer = queryComposer.groupToTuple(select, aggregates);

@@ -37,6 +37,7 @@ public interface QueryComposer<T>
    public <U> QueryComposer<Pair<T, U>> leftOuterJoin(JinqStream.Join<T,U> join);
    public <U> QueryComposer<Pair<T, U>> leftOuterJoinIterable(JinqStream.JoinToIterable<T,U> join);
    public <U> QueryComposer<Pair<T, U>> leftOuterJoinWithSource(JinqStream.JoinWithSource<T,U> join, JinqStream.WhereForOn<T, U> on);
+   public <U> QueryComposer<Pair<T, U>> crossJoin(JinqStream<U> join);
 //   public <U, V> QueryComposer<Pair<U, V>> group(JinqStream.Select<T, U> select, JinqStream.AggregateGroup<U, T, V> aggregate);
 
    // returns null if the aggregates cannot be calculated
@@ -51,5 +52,4 @@ public interface QueryComposer<T>
    public <U, W extends Tuple> QueryComposer<W> groupToTuple(Select<T, U> select, JinqStream.AggregateGroup<U, T, ?>[] aggregates);
 
    public boolean setHint(String name, Object val);
-
 }
