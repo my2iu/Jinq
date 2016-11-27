@@ -610,7 +610,26 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("SELECT A FROM Customer A WHERE A.name = :param0 OR A.name = :param1", query);
       assertEquals(2, customers.size());
    }
-   
+
+   @Test
+   public void testOrUnionAndIntersectEmptyWhere()
+   {
+      JPAJinqStream<Customer> customerStream = streams.streamAll(em, Customer.class);
+      List<Customer> customers = customerStream
+            .where(c -> c.getName().equals("Alice"))
+            .orUnion(customerStream)
+            .toList();
+      assertEquals("SELECT A FROM Customer A", query);
+      assertEquals(5, customers.size());
+      
+      customers = customerStream
+            .andIntersect(customerStream.where(c -> c.getName().equals("Alice")))
+            .toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.name = 'Alice'", query);
+      assertEquals(1, customers.size());
+
+   }
+
    @Test
    public void testAndIntersect()
    {

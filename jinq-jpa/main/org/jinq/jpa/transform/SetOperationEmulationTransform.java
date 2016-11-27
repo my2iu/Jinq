@@ -55,9 +55,33 @@ public class SetOperationEmulationTransform extends JPQLTwoQueryMergeQueryTransf
          SelectFromWhere<?> merged = sfw1.shallowCopy();
 //         for (From from: sfw2.froms)
 //            merged.froms.add(from);
-         Expression offsetWhere = sfw2.where.copy();
-         offsetWhere.visit(new OffsetLambdaIndexInExpressionsVisitor(lambdaOffset));
-         merged.where = new BinaryExpression(type.op, merged.where, offsetWhere);
+         if (merged.where == null && sfw2.where == null)
+         {
+            // Nothing to do
+         }
+         if (merged.where == null || sfw2.where == null)
+         {
+            Expression offsetWhere = merged.where;
+            if (sfw2.where != null)
+            {
+               offsetWhere = sfw2.where.copy();
+               offsetWhere.visit(new OffsetLambdaIndexInExpressionsVisitor(lambdaOffset));
+            }
+            switch (type)
+            {
+            case AND_INTERSECT:
+               merged.where = offsetWhere;
+               break;
+            case OR_UNION:
+               merged.where = null;
+            }
+         }
+         else
+         {
+            Expression offsetWhere = sfw2.where.copy();
+            offsetWhere.visit(new OffsetLambdaIndexInExpressionsVisitor(lambdaOffset));
+            merged.where = new BinaryExpression(type.op, merged.where, offsetWhere);
+         }
          return (SelectFromWhere<W>)merged;
       }
       throw new QueryTransformException("Cannot merge the two query streams");
