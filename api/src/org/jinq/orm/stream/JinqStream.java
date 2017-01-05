@@ -12,6 +12,9 @@ import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
 import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple6;
+import org.jinq.tuples.Tuple7;
+import org.jinq.tuples.Tuple8;
 
 /**
  * The JinqStream is a normal Java 8 stream extended with extra methods. These
@@ -383,8 +386,43 @@ public interface JinqStream<T> extends Stream<T>
     */
    public <U, V, W, X, Y> JinqStream<Tuple5<U, V, W, X, Y>> group(
          Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
-         AggregateGroup<U, T, W> aggregate2,
-         AggregateGroup<U, T, X> aggregate3, AggregateGroup<U, T, Y> aggregate4);
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4);
+
+   /**
+    * Calculates five aggregate values instead of one aggregate value for
+    * grouped stream elements.
+    * 
+    * @see #group(Select, AggregateGroup)
+    */
+   public <U, V, W, X, Y, Z> JinqStream<Tuple6<U, V, W, X, Y, Z>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5);
+
+   /**
+    * Calculates six aggregate values instead of one aggregate value for
+    * grouped stream elements.
+    * 
+    * @see #group(Select, AggregateGroup)
+    */
+   public <U, V, W, X, Y, Z, A> JinqStream<Tuple7<U, V, W, X, Y, Z, A>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5,
+         AggregateGroup<U, T, A> aggregate6);
+
+   /**
+    * Calculates seven aggregate values instead of one aggregate value for
+    * grouped stream elements.
+    * 
+    * @see #group(Select, AggregateGroup)
+    */
+   public <U, V, W, X, Y, Z, A, B> JinqStream<Tuple8<U, V, W, X, Y, Z, A, B>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5,
+         AggregateGroup<U, T, A> aggregate6, AggregateGroup<U, T, B> aggregate7);
 
    // TODO: This interface is a little iffy since the function can potentially
    // return different number types

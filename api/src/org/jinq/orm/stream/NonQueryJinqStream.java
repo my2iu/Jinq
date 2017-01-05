@@ -17,13 +17,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.jinq.orm.stream.JinqStream.JoinWithSource;
-import org.jinq.orm.stream.JinqStream.WhereForOn;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
 import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple6;
+import org.jinq.tuples.Tuple7;
+import org.jinq.tuples.Tuple8;
 
 public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqStream<T>
 {
@@ -281,6 +282,50 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       @SuppressWarnings("unchecked")
       AggregateGroup<U, T, ?>[] aggregates = new AggregateGroup[] {
             aggregate1, aggregate2, aggregate3, aggregate4,
+      };
+      return groupToTuple(select, aggregates);
+   }
+
+   @Override
+   public <U, V, W, X, Y, Z> JinqStream<Tuple6<U, V, W, X, Y, Z>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5)
+   {
+      @SuppressWarnings("unchecked")
+      AggregateGroup<U, T, ?>[] aggregates = new AggregateGroup[] {
+            aggregate1, aggregate2, aggregate3, aggregate4,
+            aggregate5,
+      };
+      return groupToTuple(select, aggregates);
+   }
+
+   @Override
+   public <U, V, W, X, Y, Z, A> JinqStream<Tuple7<U, V, W, X, Y, Z, A>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5,
+         AggregateGroup<U, T, A> aggregate6)
+   {
+      @SuppressWarnings("unchecked")
+      AggregateGroup<U, T, ?>[] aggregates = new AggregateGroup[] {
+            aggregate1, aggregate2, aggregate3, aggregate4,
+            aggregate5, aggregate6,
+      };
+      return groupToTuple(select, aggregates);
+   }
+
+   @Override
+   public <U, V, W, X, Y, Z, A, B> JinqStream<Tuple8<U, V, W, X, Y, Z, A, B>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5,
+         AggregateGroup<U, T, A> aggregate6, AggregateGroup<U, T, B> aggregate7)
+   {
+      @SuppressWarnings("unchecked")
+      AggregateGroup<U, T, ?>[] aggregates = new AggregateGroup[] {
+            aggregate1, aggregate2, aggregate3, aggregate4,
+            aggregate5, aggregate6, aggregate7,
       };
       return groupToTuple(select, aggregates);
    }

@@ -18,6 +18,7 @@ import org.jinq.orm.stream.JinqStream;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple8;
 import org.junit.Test;
 
 public class JinqJPAAggregateTest extends JinqJPATestBase
@@ -241,20 +242,42 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    @Test
    public void testGroup()
    {
-    List<Tuple3<String, Long, Integer>> results =
-          streams.streamAll(em, Customer.class)
-          .group(c -> c.getCountry(),
-                (country, stream) -> stream.count(),
-                (country, stream) -> (Integer)stream.min(c -> c.getSalary()))
-          .toList();
-    results.sort((a, b) -> a.getOne().compareTo(b.getOne()));
-    assertEquals(4, results.size());
-    assertEquals(1, (long)results.get(0).getTwo());
-    assertEquals("Canada", results.get(0).getOne());
-    assertEquals(new Tuple3<>("Switzerland", 2l, 200), results.get(1));
-    assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
+      List<Tuple3<String, Long, Integer>> results =
+            streams.streamAll(em, Customer.class)
+            .group(c -> c.getCountry(),
+                  (country, stream) -> stream.count(),
+                  (country, stream) -> (Integer)stream.min(c -> c.getSalary()))
+            .toList();
+      results.sort((a, b) -> a.getOne().compareTo(b.getOne()));
+      assertEquals(4, results.size());
+      assertEquals(1, (long)results.get(0).getTwo());
+      assertEquals("Canada", results.get(0).getOne());
+      assertEquals(new Tuple3<>("Switzerland", 2l, 200), results.get(1));
+      assertEquals("SELECT A.country, COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
    }
-   
+
+   @Test
+   public void testGroupLots()
+   {
+      List<Tuple8<String, Long, Long, Long, Long, Long, Long, Integer>> results =
+            streams.streamAll(em, Customer.class)
+            .group(c -> c.getCountry(),
+                  (country, stream) -> stream.count(),
+                  (country, stream) -> stream.count(),
+                  (country, stream) -> stream.count(),
+                  (country, stream) -> stream.count(),
+                  (country, stream) -> stream.count(),
+                  (country, stream) -> stream.count(),
+                  (country, stream) -> (Integer)stream.min(c -> c.getSalary()))
+            .toList();
+      results.sort((a, b) -> a.getOne().compareTo(b.getOne()));
+      assertEquals(4, results.size());
+      assertEquals(1, (long)results.get(0).getTwo());
+      assertEquals("Canada", results.get(0).getOne());
+      assertEquals(new Tuple8<>("Switzerland", 2l, 2l, 2l, 2l, 2l, 2l, 200), results.get(1));
+      assertEquals("SELECT A.country, COUNT(A), COUNT(A), COUNT(A), COUNT(A), COUNT(A), COUNT(A), MIN(A.salary) FROM Customer A GROUP BY A.country", query);
+   }
+
    @Test
    public void testGroupSortLimit()
    {

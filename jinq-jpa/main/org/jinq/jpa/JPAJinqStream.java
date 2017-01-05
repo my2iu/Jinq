@@ -5,6 +5,9 @@ import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
 import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple6;
+import org.jinq.tuples.Tuple7;
+import org.jinq.tuples.Tuple8;
 
 /**
  * An extension of the JinqStream that includes support for JPQL specific
@@ -149,9 +152,28 @@ public interface JPAJinqStream<T> extends JinqStream<T>
    @Override
    public <U, V, W, X, Y> JPAJinqStream<Tuple5<U, V, W, X, Y>> group(
          Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
-         AggregateGroup<U, T, W> aggregate2,
-         AggregateGroup<U, T, X> aggregate3, AggregateGroup<U, T, Y> aggregate4);
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4);
 
+   @Override
+   public <U, V, W, X, Y, Z> JinqStream<Tuple6<U, V, W, X, Y, Z>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5);
+
+   @Override
+   public <U, V, W, X, Y, Z, A> JinqStream<Tuple7<U, V, W, X, Y, Z, A>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5,
+         AggregateGroup<U, T, A> aggregate6);
+
+   @Override
+   public <U, V, W, X, Y, Z, A, B> JinqStream<Tuple8<U, V, W, X, Y, Z, A, B>> group(
+         Select<T, U> select, AggregateGroup<U, T, V> aggregate1,
+         AggregateGroup<U, T, W> aggregate2, AggregateGroup<U, T, X> aggregate3, 
+         AggregateGroup<U, T, Y> aggregate4, AggregateGroup<U, T, Z> aggregate5,
+         AggregateGroup<U, T, A> aggregate6, AggregateGroup<U, T, B> aggregate7);
 
    @Override
    public <V extends Comparable<V>> JPAJinqStream<T> sortedBy(

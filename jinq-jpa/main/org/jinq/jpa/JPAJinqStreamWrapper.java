@@ -14,6 +14,9 @@ import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
 import org.jinq.tuples.Tuple5;
+import org.jinq.tuples.Tuple6;
+import org.jinq.tuples.Tuple7;
+import org.jinq.tuples.Tuple8;
 
 /**
  * Wraps a normal JinqStream but provides additional JPA functionality.
@@ -302,6 +305,48 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
          org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, Y> aggregate4)
    {
       return wrap(wrapped.group(select, aggregate1, aggregate2, aggregate3, aggregate4));
+   }
+
+   @Override
+   public <U, V, W, X, Y, Z> JPAJinqStream<Tuple6<U, V, W, X, Y, Z>> group(
+         org.jinq.orm.stream.JinqStream.Select<T, U> select,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, V> aggregate1,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, W> aggregate2,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, X> aggregate3,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, Y> aggregate4,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, Z> aggregate5)
+   {
+      return wrap(wrapped.group(select, aggregate1, aggregate2, aggregate3, 
+            aggregate4, aggregate5));
+   }
+
+   @Override
+   public <U, V, W, X, Y, Z, A> JPAJinqStream<Tuple7<U, V, W, X, Y, Z, A>> group(
+         org.jinq.orm.stream.JinqStream.Select<T, U> select,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, V> aggregate1,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, W> aggregate2,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, X> aggregate3,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, Y> aggregate4,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, Z> aggregate5,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, A> aggregate6)
+   {
+      return wrap(wrapped.group(select, aggregate1, aggregate2, aggregate3, 
+            aggregate4, aggregate5, aggregate6));
+   }
+
+   @Override
+   public <U, V, W, X, Y, Z, A, B> JPAJinqStream<Tuple8<U, V, W, X, Y, Z, A, B>> group(
+         org.jinq.orm.stream.JinqStream.Select<T, U> select,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, V> aggregate1,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, W> aggregate2,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, X> aggregate3,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, Y> aggregate4,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, Z> aggregate5,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, A> aggregate6,
+         org.jinq.orm.stream.JinqStream.AggregateGroup<U, T, B> aggregate7)
+   {
+      return wrap(wrapped.group(select, aggregate1, aggregate2, aggregate3, 
+            aggregate4, aggregate5, aggregate6, aggregate7));
    }
 
    @Override
