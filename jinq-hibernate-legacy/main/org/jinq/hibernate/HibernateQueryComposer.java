@@ -1,6 +1,7 @@
 package org.jinq.hibernate;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -126,14 +127,19 @@ class HibernateQueryComposer<T> implements QueryComposer<T>
    {
       for (GeneratedQueryParameter param: parameters)
       {
+         Object paramValue;
          if (param.fieldName == null)
          {
-            q.setParameter(param.paramName, lambdas.get(param.lambdaIndex).getCapturedArg(param.argIndex));
+            paramValue = lambdas.get(param.lambdaIndex).getCapturedArg(param.argIndex);
          }
          else
          {
-            q.setParameter(param.paramName, lambdas.get(param.lambdaIndex).getField(param.fieldName));
+            paramValue = lambdas.get(param.lambdaIndex).getField(param.fieldName);
          }
+         if (paramValue instanceof Collection)
+            q.setParameterList(param.paramName, (Collection<?>)paramValue);
+         else
+            q.setParameter(param.paramName, paramValue);
       }
    }
    

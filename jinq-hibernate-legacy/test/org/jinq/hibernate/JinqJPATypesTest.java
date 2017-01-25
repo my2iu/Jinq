@@ -529,7 +529,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Supplier A WHERE A.country IS NOT NULL", query);
    }
    
-   @Test(expected=ClassCastException.class) // Don't know what Hibernate is doing here
+   @Test
    public void testCollection()
    {
       ArrayList<String> names = new ArrayList<>();
@@ -538,12 +538,12 @@ public class JinqJPATypesTest extends JinqJPATestBase
       List<Customer> customers = streams.streamAll(em, Customer.class)
          .where(c -> JPQL.isInList(c.getName(), names))
          .toList();
-      assertEquals("SELECT A FROM Customer A WHERE A.name IN :param0", query);
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.name IN :param0", query);
       assertEquals(1, customers.size());
       assertEquals("Alice", customers.get(0).getName());
    }
 
-   @Test(expected=ClassCastException.class) // Don't know what Hibernate is doing here
+   @Test
    public void testCollectionContains()
    {
       // Technically, we can't be sure whether calls to Collection.contains()
@@ -556,7 +556,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       List<Customer> customers = streams.streamAll(em, Customer.class)
          .where(c -> names.contains(c.getName()))
          .toList();
-      assertEquals("SELECT A FROM Customer A WHERE A.name IN :param0", query);
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.name IN :param0", query);
       assertEquals(1, customers.size());
       assertEquals("Alice", customers.get(0).getName());
    }
