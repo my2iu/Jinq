@@ -14,6 +14,7 @@
 			<property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
 			<property name="javax.persistence.schema-generation.create-database-schemas" value="true"/>
 			<property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
+			<!--  <property name="eclipselink.weaving" value="static"/> -->
 			<!--  <property name="javax.persistence.jdbc.url" value="jdbc:derby:../bin/derby/data/demoDB;create=true"/> -->
 			<property name="javax.persistence.jdbc.url" value="jdbc:derby:memory:demoDB;create=true"/>
 			<property name="javax.persistence.jdbc.user" value=""/>

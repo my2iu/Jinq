@@ -263,6 +263,19 @@ public abstract class MetamodelUtil
          Member javaMember = singularAttrib.getJavaMember();
          String name = javaMember.getName(); 
          String altName = null;
+         if (name.startsWith("_persistence_get_") && name.endsWith("_vh")
+               && javaMember instanceof Method && ((Method)javaMember).getReturnType().getName().equals("org.eclipse.persistence.indirection.WeavedAttributeValueHolderInterface"))
+         {
+            // When using EclipseLink static weaving, the wrong data is returned 
+            // on attributes of N:1 or 1:1 links configured for lazy fetching
+            // defined on an entity with field-based access. 
+            name = singularAttrib.getName();
+            // Special handling of naming of boolean getters
+            if (fieldJavaType == Boolean.TYPE || "java.lang.Boolean".equals(fieldJavaType.getName()))
+               altName = "is" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            // We'll have to guess the getter name based on the name of the field.
+            name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+         }
          if (javaMember instanceof Field)
          {
             // Special handling of naming of boolean getters

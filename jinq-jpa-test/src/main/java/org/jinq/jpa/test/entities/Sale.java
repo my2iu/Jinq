@@ -29,7 +29,7 @@ public class Sale implements Serializable {
    @OneToMany(mappedBy="sale")
    private List<Lineorder> lineorders = new ArrayList<>();
    //bi-directional many-to-one association to Customer
-   @ManyToOne
+   @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name="CUSTOMERID")
    private Customer customer;
    private java.sql.Date sqlDate;
