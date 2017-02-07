@@ -9,6 +9,7 @@
 	<classpathentry kind="src" path="jinq-jooq/main"/>
 	<classpathentry kind="src" path="jinq-jpa-scala/src/main/java"/>
 	<classpathentry kind="src" path="analysis/test"/>
+	<classpathentry kind="src" path="jinq-jpa-test/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/derby.jar"/>
