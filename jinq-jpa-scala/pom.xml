@@ -64,7 +64,13 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
-	<dependency>
+    <dependency>
+      <groupId>org.jinq</groupId>
+      <artifactId>jinq-jpa-test</artifactId>
+      <version>1.8.17-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+ 	<dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
       <version>10.10.1.1</version>

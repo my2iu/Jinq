@@ -43,6 +43,7 @@
   	<module>api</module>
   	<module>jinq-asm-rebased</module>
   	<module>analysis</module>
+    <module>jinq-jpa-test</module>
     <module>jinq-jpa</module>
     <module>jinq-jpa-scala</module>
     <module>jinq-hibernate-legacy</module>
