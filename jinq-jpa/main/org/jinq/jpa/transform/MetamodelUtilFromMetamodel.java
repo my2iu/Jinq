@@ -3,15 +3,20 @@ package org.jinq.jpa.transform;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
-
 public class MetamodelUtilFromMetamodel extends MetamodelUtil
 {
    final Metamodel metamodel;
+   final boolean useHibernateFullEntityNames;
 
    public MetamodelUtilFromMetamodel(Metamodel metamodel)
    {
+      this(metamodel, false);
+   }
+
+   public MetamodelUtilFromMetamodel(Metamodel metamodel, boolean useHibernateFullEntityNames)
+   {
       this.metamodel = metamodel;
+      this.useHibernateFullEntityNames = useHibernateFullEntityNames;
       
       findMetamodelGetters();
       safeMethods.addAll(fieldMethods.keySet());
@@ -28,9 +33,14 @@ public class MetamodelUtilFromMetamodel extends MetamodelUtil
    
    @Override public <U> String entityNameFromClass(Class<U> entity)
    {
-      EntityType<U> entityType = metamodel.entity(entity);
-      if (entityType == null) return null;
-      return entityType.getName();
+      if (!useHibernateFullEntityNames)
+      {
+         EntityType<U> entityType = metamodel.entity(entity);
+         if (entityType == null) return null;
+         return entityType.getName();
+      }
+      else
+         return entity.getName();
    }
    
    /**
@@ -41,10 +51,15 @@ public class MetamodelUtilFromMetamodel extends MetamodelUtil
     */
    @Override public String entityNameFromClassName(String className)
    {
-      for (EntityType<?> entity: metamodel.getEntities())
-         if (entity.getJavaType().getName().equals(className))
-            return entity.getName();
-      return null;
+      if (!useHibernateFullEntityNames)
+      {
+         for (EntityType<?> entity: metamodel.getEntities())
+            if (entity.getJavaType().getName().equals(className))
+               return entity.getName();
+         return null;
+      }
+      else
+         return className;
    }
 
 }

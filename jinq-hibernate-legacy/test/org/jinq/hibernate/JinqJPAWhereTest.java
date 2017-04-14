@@ -61,14 +61,13 @@ public class JinqJPAWhereTest extends JinqJPATestBase
       assertEquals(5, customers.size());
    }
 
-   @Test(expected=SQLGrammarException.class)  // Hibernate has trouble with Derby and booleans--TODO: investigate further later
    public void testWhereNot()
    {
       List<Supplier> suppliers = streams.streamAll(em, Supplier.class)
            .where(s -> !s.getHasFreeShipping())
            .where(s -> !(s.getName().equals("Conglomerate") || s.getName().equals("Talent Agency")))
            .toList();
-      assertEquals("SELECT A FROM Supplier A WHERE NOT A.hasFreeShipping = TRUE AND (A.name <> 'Conglomerate' AND A.name <> 'Talent Agency')", query);
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Supplier A WHERE NOT A.hasFreeShipping = TRUE AND (A.name <> 'Conglomerate' AND A.name <> 'Talent Agency')", query);
       assertEquals(1, suppliers.size());
       assertEquals("HW Supplier", suppliers.get(0).getName());
    }

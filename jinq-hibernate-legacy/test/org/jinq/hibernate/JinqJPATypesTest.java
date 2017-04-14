@@ -239,7 +239,6 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Carol", sales.get(1).getOne().getName());
    }
 
-   @Test(expected=SQLGrammarException.class)  // Hibernate generating code that Derby can't handle related to booleans--TODO: investigate further later
    public void testBoolean()
    {
       boolean val = false;
@@ -248,7 +247,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .where(s -> s.getHasFreeShipping())
             .select(s -> new Pair<>(s, s.getHasFreeShipping()))
             .toList();
-      assertEquals("SELECT A, A.hasFreeShipping FROM Supplier A WHERE A.hasFreeShipping = TRUE", query);
+      assertEquals("SELECT A, A.hasFreeShipping FROM org.jinq.hibernate.test.entities.Supplier A WHERE A.hasFreeShipping = TRUE", query);
       assertEquals(1, suppliers.size());
       assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
       assertTrue(suppliers.get(0).getTwo());
@@ -259,13 +258,12 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(s -> new Pair<>(s, s.getHasFreeShipping()))
             .toList();
       suppliers = suppliers.stream().sorted((a, b) -> a.getOne().getName().compareTo(b.getOne().getName())).collect(Collectors.toList());
-      assertEquals("SELECT A, A.hasFreeShipping FROM Supplier A WHERE A.hasFreeShipping = :param0", query);
+      assertEquals("SELECT A, A.hasFreeShipping FROM org.jinq.hibernate.test.entities.Supplier A WHERE A.hasFreeShipping = :param0", query);
       assertEquals(2, suppliers.size());
       assertEquals("Conglomerate", suppliers.get(0).getOne().getName());
       assertEquals("HW Supplier", suppliers.get(1).getOne().getName());
    }
    
-   @Test(expected=SQLGrammarException.class)  // Hibernate generating code that Derby can't handle related to booleans--TODO: investigate further later
    public void testBooleanOperations()
    {
       // Comparisons in a SELECT must be converted to a CASE...WHEN... or something
@@ -275,8 +273,8 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .where(s -> s.getHasFreeShipping())
             .select(s -> new Pair<>(s, s.getHasFreeShipping() != true))
             .toList();
-      assertTrue("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN TRUE ELSE FALSE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query)
-            || "SELECT A, CASE WHEN A.hasFreeShipping = TRUE THEN FALSE ELSE TRUE END FROM Supplier A WHERE A.hasFreeShipping = TRUE".equals(query));
+      assertTrue("SELECT A, CASE WHEN NOT A.hasFreeShipping = TRUE THEN TRUE ELSE FALSE END FROM org.jinq.hibernate.test.entities.Supplier A WHERE A.hasFreeShipping = TRUE".equals(query)
+            || "SELECT A, CASE WHEN A.hasFreeShipping = TRUE THEN FALSE ELSE TRUE END FROM org.jinq.hibernate.test.entities.Supplier A WHERE A.hasFreeShipping = TRUE".equals(query));
       assertEquals(1, suppliers.size());
       assertEquals("Talent Agency", suppliers.get(0).getOne().getName());
       assertTrue(!suppliers.get(0).getTwo());

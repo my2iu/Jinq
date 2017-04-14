@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
+import javax.persistence.EntityManagerFactory;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.jinq.hibernate.transform.MetamodelUtilFromSessionFactory;
@@ -14,6 +16,7 @@ import org.jinq.jpa.transform.JPQLQueryTransformConfigurationFactory;
 import org.jinq.jpa.transform.LambdaAnalysisFactory;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MetamodelUtilAttribute;
+import org.jinq.jpa.transform.MetamodelUtilFromMetamodel;
 import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.rebased.org.objectweb.asm.Type;
@@ -33,7 +36,10 @@ public class JinqHibernateStreamProvider
    
    public JinqHibernateStreamProvider(SessionFactory factory)
    {
-      this.metamodel = new MetamodelUtilFromSessionFactory(factory);
+      if (factory instanceof EntityManagerFactory)
+         this.metamodel = new MetamodelUtilFromMetamodel(((EntityManagerFactory)factory).getMetamodel(), true);
+      else
+         this.metamodel = new MetamodelUtilFromSessionFactory(factory);
    }
 
 //   public JinqHibernateStreamProvider(Metamodel metamodel)

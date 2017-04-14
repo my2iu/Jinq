@@ -39,6 +39,7 @@ public class Supplier extends SignatureSuperclassSubclass implements Serializabl
       this.supplierid = supplierid;
    }
 
+   @Type(type="yes_no")
    public boolean getHasFreeShipping() {
       return this.hasFreeShipping;
    }

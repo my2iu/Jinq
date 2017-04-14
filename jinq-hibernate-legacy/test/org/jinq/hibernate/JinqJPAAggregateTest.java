@@ -137,14 +137,13 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT SUM(A.quantity * A.item.saleprice) FROM org.jinq.hibernate.test.entities.Lineorder A", query);
    }
    
-   @Test(expected=Exception.class)  // Hibernate generating code that Derby can't handle--TODO: investigate further later
    public void testSumCase()
    {
       // EclipseLink should be returning a Long, since it's a sum of integers, but it's returning
       // an integer instead.
       assertEquals(1, (long)streams.streamAll(em, Supplier.class)
             .sumInteger(s -> s.getHasFreeShipping() ? 1 : 0));
-      assertEquals("SELECT SUM(CASE WHEN A.hasFreeShipping = TRUE THEN 1 ELSE 0 END) FROM Customer A", query);
+      assertEquals("SELECT SUM(CASE WHEN A.hasFreeShipping = TRUE THEN 1 ELSE 0 END) FROM org.jinq.hibernate.test.entities.Supplier A", query);
    }
 
    @Test
