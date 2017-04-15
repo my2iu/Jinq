@@ -470,6 +470,28 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    }
 
    @Test
+   public void testIsInSubQueryWithSelectSource()
+   {
+      // This is a garbage query, and if you do end up needing something like this, then I suspect that
+      // you're doing something wrong, but someone wants to do this.
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+            .where((c, source) ->
+                  JPQL.isIn(c.getName(), source.stream(Item.class)
+                        .where(i -> i.getName().equals("Widgets"))
+                        .selectAll(i -> JinqStream.from(i.getLineorders()))
+                        .select(lo -> lo.getSale())
+                        .join( (sale, source2) -> source2.stream(Customer.class))
+                        .where( pair -> pair.getTwo().getSalary() == pair.getOne().getCreditCard().getCvv() % 10 * 100 )
+                        .select(pair -> pair.getTwo().getName())
+                  ))
+            .sortedBy(c -> c.getName())
+            .toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.name IN (SELECT D.name FROM Item B JOIN B.lineorders C, Customer D WHERE B.name = 'Widgets' AND D.salary = MOD(C.sale.creditCard.cvv, 10) * 100) ORDER BY A.name ASC", query);
+      assertEquals(1, customers.size());
+      assertEquals("Dave", customers.get(0).getName());
+   }
+   
+   @Test
    public void testIsIn()
    {
       ArrayList<String> names = new ArrayList<>();

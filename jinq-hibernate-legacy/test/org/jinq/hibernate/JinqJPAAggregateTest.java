@@ -442,7 +442,27 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals(1, customers.size());
       assertEquals("Eve", customers.get(0).getName());
    }
-   
+
+   @Test
+   public void testIsInSubQueryWithSelectSource()
+   {
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+            .where((c, source) ->
+                  JPQL.isIn(c.getName(), source.stream(Item.class)
+                        .where(i -> i.getName().equals("Widgets"))
+                        .selectAll(i -> JinqStream.from(i.getLineorders()))
+                        .select(lo -> lo.getSale())
+                        .join( (sale, source2) -> source2.stream(Customer.class))
+                        .where( pair -> pair.getTwo().getSalary() == pair.getOne().getCreditCard().getCvv() % 10 * 100 )
+                        .select(pair -> pair.getTwo().getName())
+                  ))
+            .sortedBy(c -> c.getName())
+            .toList();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.name IN (SELECT D.name FROM org.jinq.hibernate.test.entities.Item B JOIN B.lineorders C, org.jinq.hibernate.test.entities.Customer D WHERE B.name = 'Widgets' AND D.salary = MOD(C.sale.creditCard.cvv, 10) * 100) ORDER BY A.name ASC", query);
+      assertEquals(1, customers.size());
+      assertEquals("Dave", customers.get(0).getName());
+   }
+
    @Test
    public void testIsIn()
    {

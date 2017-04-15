@@ -68,7 +68,7 @@ public class CreateJpaDb
       CreditCard creditCard = new CreditCard();
       creditCard.setName(customer.getName());
       creditCard.setNumber(123456);
-      creditCard.setCvv(123);
+      creditCard.setCvv(year);
       
       Sale s = new Sale();
       s.setDate(date);

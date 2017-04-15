@@ -602,7 +602,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       CreditCard card = new CreditCard();
       card.setName("Dave");
       card.setNumber(123456);
-      card.setCvv(123);
+      card.setCvv(2001);
       sales = streams.streamAll(em, Sale.class)
             .setHint("isObjectEqualsSafe", true)  // compiler translated .equals() to Object.equals() here for some reason
             .where(s -> s.getCreditCard().equals(card))

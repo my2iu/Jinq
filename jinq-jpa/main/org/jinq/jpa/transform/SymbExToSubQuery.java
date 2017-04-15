@@ -47,11 +47,16 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
    {
       return sig.equals(MethodChecker.streamDistinct)
             || sig.equals(MethodChecker.streamSelect)
+            || sig.equals(MethodChecker.streamSelectWithSource)
             || sig.equals(MethodChecker.streamSelectAll)
+            || sig.equals(MethodChecker.streamSelectAllWithSource)
             || sig.equals(MethodChecker.streamSelectAllList)
             || sig.equals(MethodChecker.streamWhere)
+            || sig.equals(MethodChecker.streamWhereWithSource)
             || sig.equals(MethodChecker.streamJoin)
+            || sig.equals(MethodChecker.streamJoinWithSource)
             || sig.equals(MethodChecker.streamJoinList);
+      
    }
    
    @Override public JPQLQuery<?> virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException
@@ -98,9 +103,19 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
                   SelectTransform transform = new SelectTransform(config, false);
                   transformedQuery = transform.apply(subQuery, lambda, argHandler); 
                }
+               else if (sig.equals(MethodChecker.streamSelectWithSource))
+               {
+                  SelectTransform transform = new SelectTransform(config, true);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
                else if (sig.equals(MethodChecker.streamSelectAll))
                {
                   JoinTransform transform = new JoinTransform(config).setJoinAsPairs(false);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
+               else if (sig.equals(MethodChecker.streamSelectAllWithSource))
+               {
+                  JoinTransform transform = new JoinTransform(config).setJoinAsPairs(false).setWithSource(true);
                   transformedQuery = transform.apply(subQuery, lambda, argHandler); 
                }
                else if (sig.equals(MethodChecker.streamSelectAllList))
@@ -113,9 +128,19 @@ public class SymbExToSubQuery extends TypedValueVisitor<SymbExPassDown, JPQLQuer
                   WhereTransform transform = new WhereTransform(config, false);
                   transformedQuery = transform.apply(subQuery, lambda, argHandler); 
                }
+               else if (sig.equals(MethodChecker.streamWhereWithSource))
+               {
+                  WhereTransform transform = new WhereTransform(config, true);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
                else if (sig.equals(MethodChecker.streamJoin))
                {
                   JoinTransform transform = new JoinTransform(config);
+                  transformedQuery = transform.apply(subQuery, lambda, argHandler); 
+               }
+               else if (sig.equals(MethodChecker.streamJoinWithSource))
+               {
+                  JoinTransform transform = new JoinTransform(config).setWithSource(true);
                   transformedQuery = transform.apply(subQuery, lambda, argHandler); 
                }
                else if (sig.equals(MethodChecker.streamJoinList))

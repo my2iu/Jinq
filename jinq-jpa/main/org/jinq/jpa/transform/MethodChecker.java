@@ -65,9 +65,13 @@ class MethodChecker implements PathAnalysisMethodChecker
          bigDecimalNegate = MethodSignature.fromMethod(BigDecimal.class.getMethod("negate"));
          bigIntegerNegate = MethodSignature.fromMethod(BigInteger.class.getMethod("negate"));
          
+         streamSelectWithSource = MethodSignature.fromMethod(JinqStream.class.getMethod("select", JinqStream.SelectWithSource.class));
          streamSelectAll = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAll", JinqStream.Join.class));
+         streamSelectAllWithSource = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAll", JinqStream.JoinWithSource.class));
          streamSelectAllList = MethodSignature.fromMethod(JinqStream.class.getMethod("selectAllList", JinqStream.JoinToIterable.class));
+         streamWhereWithSource = MethodSignature.fromMethod(JinqStream.class.getMethod("where", JinqStream.WhereWithSource.class));
          streamJoinList = MethodSignature.fromMethod(JinqStream.class.getMethod("joinList", JinqStream.JoinToIterable.class));
+         streamJoinWithSource = MethodSignature.fromMethod(JinqStream.class.getMethod("join", JinqStream.JoinWithSource.class));
       } catch (NoSuchMethodException | SecurityException e)
       {
          throw new IllegalArgumentException("Cannot initialize MethodChecker because it cannot find a needed method", e);
@@ -111,12 +115,16 @@ class MethodChecker implements PathAnalysisMethodChecker
    public final static MethodSignature streamAvg = new MethodSignature("org/jinq/orm/stream/JinqStream", "avg", "(Lorg/jinq/orm/stream/JinqStream$CollectNumber;)Ljava/lang/Double;");
    public final static MethodSignature streamCount = new MethodSignature("org/jinq/orm/stream/JinqStream", "count", "()J");
    public final static MethodSignature streamDistinct = new MethodSignature("org/jinq/orm/stream/JinqStream", "distinct", "()Lorg/jinq/orm/stream/JinqStream;");
+   public final static MethodSignature streamSelectWithSource;
    public final static MethodSignature streamSelect = new MethodSignature("org/jinq/orm/stream/JinqStream", "select", "(Lorg/jinq/orm/stream/JinqStream$Select;)Lorg/jinq/orm/stream/JinqStream;");
    public final static MethodSignature streamSelectAll;
    public final static MethodSignature streamSelectAllList;
+   public final static MethodSignature streamSelectAllWithSource;
    public final static MethodSignature streamWhere = new MethodSignature("org/jinq/orm/stream/JinqStream", "where", "(Lorg/jinq/orm/stream/JinqStream$Where;)Lorg/jinq/orm/stream/JinqStream;");
+   public final static MethodSignature streamWhereWithSource;
    public final static MethodSignature streamJoin = new MethodSignature("org/jinq/orm/stream/JinqStream", "join", "(Lorg/jinq/orm/stream/JinqStream$Join;)Lorg/jinq/orm/stream/JinqStream;");
    public final static MethodSignature streamJoinList;
+   public final static MethodSignature streamJoinWithSource;
    public final static MethodSignature streamGetOnlyValue = new MethodSignature("org/jinq/orm/stream/JinqStream", "getOnlyValue", "()Ljava/lang/Object;");
    
    private static final Set<MethodSignature> subqueryMethods = 
@@ -133,12 +141,17 @@ class MethodChecker implements PathAnalysisMethodChecker
       subqueryMethods.add(streamCount);
       subqueryMethods.add(streamDistinct);
       subqueryMethods.add(streamSelect);
+      subqueryMethods.add(streamSelectWithSource);
       subqueryMethods.add(streamSelectAll);
+      subqueryMethods.add(streamSelectAllWithSource);
       subqueryMethods.add(streamSelectAllList);
       subqueryMethods.add(streamWhere);
+      subqueryMethods.add(streamWhereWithSource);
       subqueryMethods.add(streamJoin);
+      subqueryMethods.add(streamJoinWithSource);
       subqueryMethods.add(streamJoinList);
       subqueryMethods.add(streamGetOnlyValue);
+
    }
    
    MethodChecker(Set<Class<?>> safeMethodAnnotations,
