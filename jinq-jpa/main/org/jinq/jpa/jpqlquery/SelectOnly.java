@@ -8,6 +8,8 @@ public class SelectOnly<T> extends JPQLQuery<T>
    public boolean isAggregated = false;
    public boolean isDistinct = false;
    
+   public SelectOnly() {}
+   
    @Override
    public String getQueryString()
    {
@@ -26,37 +28,42 @@ public class SelectOnly<T> extends JPQLQuery<T>
       return cols.reader;
    }
    
-   public boolean isSelectFromWhere()
+   @Override public boolean isSelectFromWhere()
    {
       return false;
    }
    
-   public boolean isSelectOnly()
+   @Override public boolean isSelectOnly()
    {
       return !isDistinct && !isAggregated;
    }
 
-   public boolean isSelectFromWhereGroupHaving()
+   @Override public boolean isSelectFromWhereGroupHaving()
    {
       return false;
    }
 
-   public boolean canSort()
+   @Override public boolean canSort()
    {
       return false;
    }
    
-   public boolean canDistinct()
+   @Override public boolean canDistinct()
    {
       return !isAggregated && !isDistinct;
    }
    
-   public boolean canAggregate()
+   @Override public boolean canAggregate()
    {
       return !isAggregated;
    }
    
-   public boolean isValidSubquery()
+   @Override public boolean canUnsortAggregate()
+   {
+      return !isAggregated;
+   }
+   
+   @Override public boolean isValidSubquery()
    {
       return false;
    }

@@ -24,37 +24,42 @@ public class ParameterAsQuery<T> extends JPQLQuery<T>
       return cols.reader;
    }
    
-   public boolean isSelectFromWhere()
+   @Override public boolean isSelectFromWhere()
    {
       return false;
    }
    
-   public boolean isSelectOnly()
+   @Override public boolean isSelectOnly()
    {
       return false;
    }
 
-   public boolean isSelectFromWhereGroupHaving()
+   @Override public boolean isSelectFromWhereGroupHaving()
    {
       return false;
    }
 
-   public boolean canSort()
+   @Override public boolean canSort()
    {
       return false;
    }
    
-   public boolean canDistinct()
+   @Override public boolean canDistinct()
    {
       return false;
    }
 
-   public boolean canAggregate()
+   @Override public boolean canAggregate()
    {
       return false;
    }
 
-   public boolean isValidSubquery()
+   @Override public boolean canUnsortAggregate()
+   {
+      return false;
+   }
+
+   @Override public boolean isValidSubquery()
    {
       return true;
    }

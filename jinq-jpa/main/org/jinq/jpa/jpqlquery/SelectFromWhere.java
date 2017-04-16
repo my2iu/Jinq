@@ -154,33 +154,38 @@ public class SelectFromWhere<T> extends SelectOnly<T>
       return cols.reader;
    }
    
-   public boolean isSelectFromWhere()
+   @Override public boolean isSelectFromWhere()
    {
       return !isAggregated && sort.isEmpty() && limit < 0 && skip < 0 && !isDistinct;
    }
    
-   public boolean isSelectOnly()
+   @Override public boolean isSelectOnly()
    {
       return false;
    }
 
-   public boolean canSort()
+   @Override public boolean canSort()
    {
       return ((this.getClass() == SelectFromWhere.class && !isAggregated) || (this instanceof GroupedSelectFromWhere))
             && limit < 0 && skip < 0;
    }
    
-   public boolean canDistinct()
+   @Override public boolean canDistinct()
    {
       return isSelectFromWhere();
    }
    
-   public boolean canAggregate()
+   @Override public boolean canAggregate()
    {
       return !isAggregated && sort.isEmpty() && limit < 0 && skip < 0;
    }
-   
-   public boolean isValidSubquery()
+
+   @Override public boolean canUnsortAggregate()
+   {
+      return !isAggregated && !sort.isEmpty() && limit < 0 && skip < 0;
+   }
+
+   @Override public boolean isValidSubquery()
    {
       return limit < 0 && skip < 0 && sort.isEmpty();
    }

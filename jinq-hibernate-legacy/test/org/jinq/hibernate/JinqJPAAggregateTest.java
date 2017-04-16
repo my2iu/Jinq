@@ -58,6 +58,54 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
    }
 
    @Test
+   public void testCountSorted()
+   {
+      // Can count a sorted stream
+      long count = streams.streamAll(em, Customer.class)
+            .where(c -> c.getCountry().equals("UK") )
+            .sortedBy(c -> c.getName())
+            .count();
+      assertEquals("SELECT COUNT(A) FROM org.jinq.hibernate.test.entities.Customer A WHERE A.country = 'UK'", query);
+      assertEquals(1, count);
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testCountSortedLimit()
+   {
+      // Cannot count a limited stream
+      long count = streams.streamAll(em, Customer.class)
+            .where(c -> c.getCountry().equals("UK") )
+            .sortedBy(c -> c.getName())
+            .limit(2)
+            .count();
+      assertEquals("SELECT COUNT(A) FROM org.jinq.hibernate.test.entities.Customer A WHERE A.country = 'UK'", query);
+      assertEquals(1, count);
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testCountSortedInSubquery()
+   {
+      // Cannot count a sorted stream in a subquery
+      long count = streams.streamAll(em, Customer.class)
+            .where(c -> JinqStream.from(c.getSales()).sortedBy(s -> s.getDate()).count() > 1 )
+            .sortedBy(c -> c.getName())
+            .count();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE (SELECT COUNT(B) FROM A.sales B) > 1", query);
+      assertEquals(2, count);
+   }
+
+   @Test(expected=IllegalArgumentException.class)
+   public void testCountSortedInGroup()
+   {
+      // Cannot count a sorted stream in a group by
+      List<Pair<String, Long>> customers = streams.streamAll(em, Customer.class)
+            .group(c -> c.getCountry(), (country, c) -> c.sortedBy(cust -> cust.getName()).count())
+            .toList();
+      assertEquals("SELECT A.country, COUNT(A) FROM org.jinq.hibernate.test.entities.Customer A GROUP BY A.country", query);
+      assertEquals(4, customers.size());
+   }
+
+   @Test
    public void testMax()
    {
       assertEquals(BigInteger.valueOf(11000), 
