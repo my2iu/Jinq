@@ -274,6 +274,19 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
                   .sumInteger(s -> s + 1));
    }
 
+   @Test(expected=IllegalArgumentException.class)
+   public void testMultiAggregateSorted()
+   {
+      // Cannot calculate multiple aggregates on a sorted stream (though calculating a
+      // single aggregate is fine)
+      assertEquals(new Pair<>(1280l, 256.0), 
+            streams.streamAll(em, Customer.class)
+               .sortedBy(c -> c.getName())
+               .aggregate(stream -> stream.sumInteger(c -> c.getSalary()),
+                  stream -> stream.avg(c -> c.getSalary())));
+      assertEquals("SELECT SUM(A.salary), AVG(A.salary) FROM Customer A", query);
+   }
+
    @Test
    public void testSelectDistinct()
    {
