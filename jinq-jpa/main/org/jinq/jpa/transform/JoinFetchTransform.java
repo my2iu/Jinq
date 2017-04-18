@@ -111,7 +111,7 @@ public class JoinFetchTransform extends JPQLOneLambdaQueryTransform
    @Override 
    public String getTransformationTypeCachingTag()
    {
-      return JoinFetchTransform.class.getName();
+      return JoinFetchTransform.class.getName() + ":" + (isOuterJoinFetch ? "1" : "0");
    }
    
    

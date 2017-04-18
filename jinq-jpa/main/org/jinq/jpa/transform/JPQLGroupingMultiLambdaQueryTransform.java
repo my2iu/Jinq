@@ -2,6 +2,7 @@ package org.jinq.jpa.transform;
 
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 
+@Deprecated
 public abstract class JPQLGroupingMultiLambdaQueryTransform extends JPQLQueryTransform
 {
 

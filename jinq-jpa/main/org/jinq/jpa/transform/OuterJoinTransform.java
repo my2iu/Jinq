@@ -150,6 +150,6 @@ public class OuterJoinTransform extends JPQLOneLambdaQueryTransform
    @Override 
    public String getTransformationTypeCachingTag()
    {
-      return OuterJoinTransform.class.getName();
+      return OuterJoinTransform.class.getName() + ":" + (isJoinFetch ? "1" : "0");
    }
 }

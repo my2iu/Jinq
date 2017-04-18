@@ -404,6 +404,35 @@ public class JinqJPATest extends JinqJPATestBase
       assertTrue(where2.query == where3.query);
    }
    
+   @Test
+   public void testCachingSort()
+   {
+      // Regression test. Before, the caching key wasn't properly distinguishing ascending and descending sorts
+      List<Customer> customers = streams.streamAll(em, Customer.class)
+            .sortedBy(Customer::getName)
+            .toList();
+      Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
+      Assert.assertEquals("Alice", customers.get(0).getName());
+      customers = streams.streamAll(em, Customer.class)
+            .sortedDescendingBy(Customer::getName)
+            .toList();
+      Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name DESC", query);
+      Assert.assertEquals("Eve", customers.get(0).getName());
+
+      JinqStream.CollectComparable<Customer, String> nameLambda = (Customer c) -> c.getName();
+      customers = streams.streamAll(em, Customer.class)
+            .sortedBy(nameLambda)
+            .toList();
+      Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name ASC", query);
+      Assert.assertEquals("Alice", customers.get(0).getName());
+      customers = streams.streamAll(em, Customer.class)
+            .sortedDescendingBy(Customer::getName)
+            .toList();
+      Assert.assertEquals("SELECT A FROM Customer A ORDER BY A.name DESC", query);
+      Assert.assertEquals("Eve", customers.get(0).getName());
+
+   }
+   
    private JPAQueryComposer<Customer> repeatedQuery(JPAQueryComposer<Customer> composer, int param)
    {
       Where<Customer, RuntimeException> where = (c -> c.getDebt() == param);
