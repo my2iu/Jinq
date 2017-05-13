@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.jinq.jpa.jpqlquery.BinaryExpression;
 import org.jinq.jpa.jpqlquery.ColumnExpressions;
+import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.GroupedSelectFromWhere;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
@@ -106,6 +107,11 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
          
          disjunction.add(clauses);
       }
+      
+      // If the disjunction is empty, then there are no paths that return true,
+      // so we need to create an expression that returns false
+      if (disjunction.isEmpty())
+         return new BinaryExpression("=", new ConstantExpression("1"), new ConstantExpression("0"));
       
       // Check for some common patterns that we can simplify
       checkForOrChain(disjunction);

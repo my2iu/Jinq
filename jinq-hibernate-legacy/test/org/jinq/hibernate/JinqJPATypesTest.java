@@ -264,6 +264,16 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("HW Supplier", suppliers.get(1).getOne().getName());
    }
    
+   @Test
+   public void testFalse()
+   {
+      List<Supplier> suppliers = streams.streamAll(em, Supplier.class)
+            .where(s -> false)
+            .toList();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Supplier A WHERE 1 = 0", query);
+      assertEquals(0, suppliers.size());
+   }
+
    public void testBooleanOperations()
    {
       // Comparisons in a SELECT must be converted to a CASE...WHEN... or something
