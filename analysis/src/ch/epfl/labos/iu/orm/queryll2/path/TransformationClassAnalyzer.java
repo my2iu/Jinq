@@ -10,10 +10,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
-import java.time.ZonedDateTime;
 import java.time.chrono.ChronoLocalDate;
 import java.time.chrono.ChronoLocalDateTime;
-import java.time.chrono.ChronoZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,16 +21,15 @@ import java.util.Set;
 
 import org.jinq.orm.annotations.EntitySupplier;
 import org.jinq.orm.annotations.NoSideEffects;
-import org.jinq.tuples.Tuple6;
-import org.jinq.tuples.Tuple7;
-import org.jinq.tuples.Tuple8;
 import org.jinq.rebased.org.objectweb.asm.ClassReader;
 import org.jinq.rebased.org.objectweb.asm.tree.ClassNode;
 import org.jinq.rebased.org.objectweb.asm.tree.MethodNode;
 import org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.jinq.tuples.Tuple6;
+import org.jinq.tuples.Tuple7;
+import org.jinq.tuples.Tuple8;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue.ComparisonOp;
 
 public class TransformationClassAnalyzer
 {
