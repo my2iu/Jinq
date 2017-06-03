@@ -582,7 +582,7 @@ public class JinqJPATest extends JinqJPATestBase
       List<Customer> customers = streams.streamAll(em, Customer.class)
             .where( c -> c.getName().contains(al))
             .toList();
-      assertEquals("SELECT A FROM Customer A WHERE LOCATE('Al', A.name) > 0", query);
+      assertEquals("SELECT A FROM Customer A WHERE LOCATE(:param0, A.name) > 0", query);
       assertEquals(1, customers.size());
       assertEquals("Alice", customers.get(0).getName());
    }

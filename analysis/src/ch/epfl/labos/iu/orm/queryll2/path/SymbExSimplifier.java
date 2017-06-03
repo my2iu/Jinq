@@ -1,5 +1,12 @@
 package ch.epfl.labos.iu.orm.queryll2.path;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoLocalDateTime;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -147,6 +154,25 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
       comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampEquals, ComparisonOp.eq);
       comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampBefore, ComparisonOp.lt);
       comparisonMethods.put(TransformationClassAnalyzer.sqlTimestampAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.localDateIsBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.localDateIsAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.localDateIsEqual, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.localTimeIsBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.localTimeIsAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.localDateTimeIsBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.localDateTimeIsAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.localDateTimeIsEqual, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.offsetDateTimeIsBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.offsetDateTimeIsAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.offsetDateTimeIsEqual, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.offsetTimeIsBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.offsetTimeIsAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.offsetTimeIsEqual, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.zonedDateTimeIsBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.zonedDateTimeIsAfter, ComparisonOp.gt);
+      comparisonMethods.put(TransformationClassAnalyzer.zonedDateTimeIsEqual, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.instantIsBefore, ComparisonOp.lt);
+      comparisonMethods.put(TransformationClassAnalyzer.instantIsAfter, ComparisonOp.gt);
       comparisonMethods.put(TransformationClassAnalyzer.bigDecimalEquals, ComparisonOp.eq);
    }
    

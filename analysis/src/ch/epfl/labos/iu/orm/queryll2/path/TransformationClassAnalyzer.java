@@ -4,6 +4,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoLocalDate;
+import java.time.chrono.ChronoLocalDateTime;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +32,7 @@ import org.jinq.rebased.org.objectweb.asm.tree.MethodNode;
 import org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue.ComparisonValue.ComparisonOp;
 
 public class TransformationClassAnalyzer
 {
@@ -85,6 +96,25 @@ public class TransformationClassAnalyzer
    public final static MethodSignature sqlTimestampEquals = new MethodSignature("java/sql/Timestamp", "equals", "(Ljava/sql/Timestamp;)Z");
    public final static MethodSignature sqlTimestampBefore = new MethodSignature("java/sql/Timestamp", "before", "(Ljava/sql/Timestamp;)Z");
    public final static MethodSignature sqlTimestampAfter = new MethodSignature("java/sql/Timestamp", "after", "(Ljava/sql/Timestamp;)Z");
+   public final static MethodSignature localDateIsBefore;
+   public final static MethodSignature localDateIsAfter;
+   public final static MethodSignature localDateIsEqual;
+   public final static MethodSignature localTimeIsBefore;
+   public final static MethodSignature localTimeIsAfter;
+   public final static MethodSignature localDateTimeIsBefore;
+   public final static MethodSignature localDateTimeIsAfter;
+   public final static MethodSignature localDateTimeIsEqual;
+   public final static MethodSignature offsetTimeIsBefore;
+   public final static MethodSignature offsetTimeIsAfter;
+   public final static MethodSignature offsetTimeIsEqual;
+   public final static MethodSignature offsetDateTimeIsBefore;
+   public final static MethodSignature offsetDateTimeIsAfter;
+   public final static MethodSignature offsetDateTimeIsEqual;
+   public final static MethodSignature zonedDateTimeIsBefore;
+   public final static MethodSignature zonedDateTimeIsAfter;
+   public final static MethodSignature zonedDateTimeIsEqual;
+   public final static MethodSignature instantIsBefore;
+   public final static MethodSignature instantIsAfter;
    public final static MethodSignature bigDecimalCompareTo = new MethodSignature("java/math/BigDecimal", "compareTo", "(Ljava/math/BigDecimal;)I");
    public final static MethodSignature bigDecimalEquals = new MethodSignature("java/math/BigDecimal", "equals", "(Ljava/lang/Object;)Z");
    public final static MethodSignature bigDecimalAdd = new MethodSignature("java/math/BigDecimal", "add", "(Ljava/math/BigDecimal;)Ljava/math/BigDecimal;");
@@ -172,6 +202,26 @@ public class TransformationClassAnalyzer
    static {
       try {
          booleanEquals = MethodSignature.fromMethod(Boolean.class.getMethod("equals", Object.class));
+         localDateIsBefore = MethodSignature.fromMethod(LocalDate.class.getMethod("isBefore", ChronoLocalDate.class));
+         localDateIsAfter = MethodSignature.fromMethod(LocalDate.class.getMethod("isAfter", ChronoLocalDate.class));
+         localDateIsEqual = MethodSignature.fromMethod(LocalDate.class.getMethod("isEqual", ChronoLocalDate.class));
+         localTimeIsBefore = MethodSignature.fromMethod(LocalTime.class.getMethod("isBefore", LocalTime.class));
+         localTimeIsAfter = MethodSignature.fromMethod(LocalTime.class.getMethod("isAfter", LocalTime.class));
+         localDateTimeIsBefore = MethodSignature.fromMethod(LocalDateTime.class.getMethod("isBefore", ChronoLocalDateTime.class));
+         localDateTimeIsAfter = MethodSignature.fromMethod(LocalDateTime.class.getMethod("isAfter", ChronoLocalDateTime.class));
+         localDateTimeIsEqual = MethodSignature.fromMethod(LocalDateTime.class.getMethod("isEqual", ChronoLocalDateTime.class));
+         offsetDateTimeIsBefore = MethodSignature.fromMethod(OffsetDateTime.class.getMethod("isBefore", OffsetDateTime.class));
+         offsetDateTimeIsAfter = MethodSignature.fromMethod(OffsetDateTime.class.getMethod("isAfter", OffsetDateTime.class));
+         offsetDateTimeIsEqual = MethodSignature.fromMethod(OffsetDateTime.class.getMethod("isEqual", OffsetDateTime.class));
+         offsetTimeIsBefore = MethodSignature.fromMethod(OffsetTime.class.getMethod("isBefore", OffsetTime.class));
+         offsetTimeIsAfter = MethodSignature.fromMethod(OffsetTime.class.getMethod("isAfter", OffsetTime.class));
+         offsetTimeIsEqual = MethodSignature.fromMethod(OffsetTime.class.getMethod("isEqual", OffsetTime.class));
+         // Need to manually define ZonedDateTime methods because they actually appear on ChronoZonedDateTime, which doesn't match what appears in the code
+         zonedDateTimeIsBefore = new MethodSignature("java/time/ZonedDateTime", "isBefore", "(Ljava/time/chrono/ChronoZonedDateTime;)Z");
+         zonedDateTimeIsAfter = new MethodSignature("java/time/ZonedDateTime", "isAfter", "(Ljava/time/chrono/ChronoZonedDateTime;)Z");
+         zonedDateTimeIsEqual = new MethodSignature("java/time/ZonedDateTime", "isEqual", "(Ljava/time/chrono/ChronoZonedDateTime;)Z");
+         instantIsBefore = MethodSignature.fromMethod(Instant.class.getMethod("isBefore", Instant.class));
+         instantIsAfter = MethodSignature.fromMethod(Instant.class.getMethod("isAfter", Instant.class));
          newTuple6 = MethodSignature.fromConstructor(Tuple6.class.getConstructor(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class));
          tuple6GetOne = MethodSignature.fromMethod(Tuple6.class.getMethod("getOne"));
          tuple6GetTwo = MethodSignature.fromMethod(Tuple6.class.getMethod("getTwo"));
@@ -240,6 +290,25 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(sqlTimestampEquals);
       KnownSafeMethods.add(sqlTimestampBefore);
       KnownSafeMethods.add(sqlTimestampAfter);
+      KnownSafeMethods.add(localDateIsBefore);
+      KnownSafeMethods.add(localDateIsAfter);
+      KnownSafeMethods.add(localDateIsEqual);
+      KnownSafeMethods.add(localTimeIsBefore);
+      KnownSafeMethods.add(localTimeIsAfter);
+      KnownSafeMethods.add(localDateTimeIsBefore);
+      KnownSafeMethods.add(localDateTimeIsAfter);
+      KnownSafeMethods.add(localDateTimeIsEqual);
+      KnownSafeMethods.add(offsetDateTimeIsBefore);
+      KnownSafeMethods.add(offsetDateTimeIsAfter);
+      KnownSafeMethods.add(offsetDateTimeIsEqual);
+      KnownSafeMethods.add(offsetTimeIsBefore);
+      KnownSafeMethods.add(offsetTimeIsAfter);
+      KnownSafeMethods.add(offsetTimeIsEqual);
+      KnownSafeMethods.add(zonedDateTimeIsBefore);
+      KnownSafeMethods.add(zonedDateTimeIsAfter);
+      KnownSafeMethods.add(zonedDateTimeIsEqual);
+      KnownSafeMethods.add(instantIsBefore);
+      KnownSafeMethods.add(instantIsAfter);
       KnownSafeMethods.add(bigDecimalCompareTo);
       KnownSafeMethods.add(bigDecimalEquals);
       KnownSafeMethods.add(bigDecimalAdd);

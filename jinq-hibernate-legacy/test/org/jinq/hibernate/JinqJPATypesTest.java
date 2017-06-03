@@ -7,10 +7,15 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -237,6 +242,133 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(2, sales.size());
       assertEquals("Dave", sales.get(0).getOne().getName());
       assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+   
+   // For tests of new Java 8 java.time stuff for Hibernate 5.2+ only
+   @Test
+   public void testLocalDate()
+   {
+      LocalDate val = LocalDate.of(2002, 1, 1);
+      LocalDate val2 = LocalDate.of(2003, 1, 1);
+      List<Pair<Customer, LocalDate>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getLocalDate().isBefore(val) || s.getLocalDate().equals(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getLocalDate()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.localDate FROM org.jinq.hibernate.test.entities.Sale A WHERE A.localDate < :param0 OR A.localDate = :param1", query);
+      assertEquals(2, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testLocalTime()
+   {
+      LocalTime val = LocalTime.of(6, 0);
+      LocalTime val2 = LocalTime.of(5, 0);
+      List<Pair<Customer, LocalTime>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getLocalTime().isAfter(val) || s.getLocalTime().equals(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getLocalTime()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.localTime FROM org.jinq.hibernate.test.entities.Sale A WHERE A.localTime > :param0 OR A.localTime = :param1", query);
+      assertEquals(2, sales.size());
+      assertEquals("Carol", sales.get(0).getOne().getName());
+      assertEquals("Alice", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testOffsetTime()
+   {
+      OffsetTime val = OffsetTime.of(LocalTime.of(6, 0), ZoneOffset.UTC);
+      OffsetTime val2 = OffsetTime.of(LocalTime.of(5, 0), ZoneOffset.UTC);
+      List<Pair<Customer, OffsetTime>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getOffsetTime().isAfter(val) || s.getOffsetTime().isEqual(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getOffsetTime()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.offsetTime FROM org.jinq.hibernate.test.entities.Sale A WHERE A.offsetTime > :param0 OR A.offsetTime = :param1", query);
+      assertEquals(2, sales.size());
+      assertEquals("Carol", sales.get(0).getOne().getName());
+      assertEquals("Alice", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testLocalDateTime()
+   {
+      LocalDateTime val = LocalDateTime.of(2002, 1, 1, 1, 0);
+      LocalDateTime val2 = LocalDateTime.of(2003, 1, 1, 1, 0);
+      List<Pair<Customer, LocalDateTime>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getLocalDateTime().isBefore(val) || s.getLocalDateTime().isEqual(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getLocalDateTime()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.localDateTime FROM org.jinq.hibernate.test.entities.Sale A WHERE A.localDateTime < :param0 OR A.localDateTime = :param1", query);
+      assertEquals(2, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testOffsetDateTime()
+   {
+      OffsetDateTime val = OffsetDateTime.of(LocalDateTime.of(2002, 1, 1, 1, 0), ZoneOffset.UTC);
+      OffsetDateTime val2 = OffsetDateTime.of(LocalDateTime.of(2003, 1, 1, 1, 0), ZoneOffset.UTC);
+      List<Pair<Customer, OffsetDateTime>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getOffsetDateTime().isBefore(val) || s.getOffsetDateTime().isEqual(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getOffsetDateTime()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.offsetDateTime FROM org.jinq.hibernate.test.entities.Sale A WHERE A.offsetDateTime < :param0 OR A.offsetDateTime = :param1", query);
+      assertEquals(2, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+   
+   @Test
+   public void testZonedDateTime()
+   {
+      ZonedDateTime val = OffsetDateTime.of(LocalDateTime.of(2002, 1, 1, 1, 0), ZoneOffset.UTC).toZonedDateTime();
+      ZonedDateTime val2 = OffsetDateTime.of(LocalDateTime.of(2003, 1, 1, 1, 0), ZoneOffset.UTC).toZonedDateTime();
+      List<Pair<Customer, ZonedDateTime>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getZonedDateTime().isBefore(val) || s.getZonedDateTime().isEqual(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getZonedDateTime()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.zonedDateTime FROM org.jinq.hibernate.test.entities.Sale A WHERE A.zonedDateTime < :param0 OR A.zonedDateTime = :param1", query);
+      assertEquals(2, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testInstant()
+   {
+      Instant val = OffsetDateTime.of(LocalDateTime.of(2002, 1, 1, 1, 0), ZoneOffset.UTC).toInstant();
+      Instant val2 = OffsetDateTime.of(LocalDateTime.of(2003, 1, 1, 1, 0), ZoneOffset.UTC).toInstant();
+      List<Pair<Customer, Instant>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> s.getInstant().isBefore(val) || s.getInstant().equals(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getInstant()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.instant FROM org.jinq.hibernate.test.entities.Sale A WHERE A.instant < :param0 OR A.instant = :param1", query);
+      assertEquals(2, sales.size());
+      assertEquals("Dave", sales.get(0).getOne().getName());
+      assertEquals("Carol", sales.get(1).getOne().getName());
+   }
+
+   @Test
+   public void testDuration()
+   {
+      Duration val = Duration.ofSeconds(5);
+      Duration val2 = Duration.ofDays(2);
+      List<Pair<Customer, Duration>> sales = streams.streamAll(em, Sale.class)
+            .where(s -> !s.getDuration().equals(val) || !s.getDuration().equals(val2))
+            .select(s -> new Pair<>(s.getCustomer(), s.getDuration()))
+            .toList();
+      sales = sales.stream().sorted((a, b) -> a.getTwo().compareTo(b.getTwo())).collect(Collectors.toList());
+      assertEquals("SELECT A.customer, A.duration FROM org.jinq.hibernate.test.entities.Sale A WHERE A.duration <> :param0 OR A.duration <> :param1", query);
+      assertEquals(6, sales.size());
    }
 
    public void testBoolean()

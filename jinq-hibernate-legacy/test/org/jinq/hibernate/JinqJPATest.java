@@ -280,7 +280,7 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals(2, results.size());
    }
 
-   @Test(expected=NullPointerException.class)
+   @Test(expected=IllegalArgumentException.class)
    public void testOuterJoinField()
    {
       // Cannot do outer joins on normal fields. Only navigational links.
@@ -510,10 +510,15 @@ public class JinqJPATest extends JinqJPATestBase
    public void testJPQLStringContainsCharSequence2()
    {
       StringBuilder al = new StringBuilder("A").append("l");
+//      List<Pair<String, Integer>> customers2 = streams.streamAll(em, Customer.class)
+//            .select(c -> new Pair<String, Integer>(c.getName(), c.getName().indexOf(al)))
+//            .toList();
+//      for (Pair<String, Integer> p: customers2)
+//         System.out.println(p);
       List<Customer> customers = streams.streamAll(em, Customer.class)
             .where( c -> c.getName().contains(al))
             .toList();
-      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE LOCATE('Al', A.name) > 0", query);
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE LOCATE(:param0, A.name) > 0", query);
       assertEquals(1, customers.size());
       assertEquals("Alice", customers.get(0).getName());
    }

@@ -3,10 +3,15 @@ package org.jinq.hibernate;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -78,6 +83,17 @@ public class CreateHibernateDb
       s.setCustomer(customer);
       s.setCreditCard(creditCard);
       s.setRush(isRush);
+      
+      // For tests of new Java 8 java.time stuff for Hibernate 5.2+ only
+      s.setDuration(Duration.ofDays(1));
+      s.setLocalDateTime(localDateTime);
+      s.setLocalDate(localDate);
+      s.setLocalTime(localTime);
+      s.setOffsetDateTime(OffsetDateTime.of(localDateTime, ZoneOffset.UTC));
+      s.setOffsetTime(OffsetTime.of(localTime, ZoneOffset.UTC));
+      s.setZonedDateTime(s.getOffsetDateTime().toZonedDateTime());
+      s.setInstant(s.getOffsetDateTime().toInstant());
+
       return s;
    }
 

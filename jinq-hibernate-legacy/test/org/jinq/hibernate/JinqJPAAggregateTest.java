@@ -247,7 +247,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT SUM(A.salary + :param0), :param1 + AVG(A.salary) FROM Customer A", query);
    }
 
-   @Test(expected=QuerySyntaxException.class) // Hibernate can't handle COUNT(DISTINCT)
+   @Test(expected=IllegalArgumentException.class) // Hibernate can't handle COUNT(DISTINCT)
    public void testMultiAggregateWithDistinct()
    {
       // Derby doesn't allow for more than one aggregation of distinct things at the same time,
