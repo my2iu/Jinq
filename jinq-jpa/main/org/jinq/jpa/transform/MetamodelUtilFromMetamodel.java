@@ -51,15 +51,17 @@ public class MetamodelUtilFromMetamodel extends MetamodelUtil
     */
    @Override public String entityNameFromClassName(String className)
    {
-      if (!useHibernateFullEntityNames)
+      for (EntityType<?> entity: metamodel.getEntities())
       {
-         for (EntityType<?> entity: metamodel.getEntities())
-            if (entity.getJavaType().getName().equals(className))
+         if (entity.getJavaType().getName().equals(className))
+         {
+            if (!useHibernateFullEntityNames)
                return entity.getName();
-         return null;
+            else
+               return className;
+         }
       }
-      else
-         return className;
+      return null;
    }
 
 }
