@@ -53,6 +53,9 @@ public class MetamodelUtilFromMetamodel extends MetamodelUtil
    {
       for (EntityType<?> entity: metamodel.getEntities())
       {
+         // Envers can insert entities with null Java types into the metamodel
+         if (entity.getJavaType() == null) continue;
+         
          if (entity.getJavaType().getName().equals(className))
          {
             if (!useHibernateFullEntityNames)
