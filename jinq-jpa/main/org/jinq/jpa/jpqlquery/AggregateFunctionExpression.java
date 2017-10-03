@@ -3,6 +3,8 @@ package org.jinq.jpa.jpqlquery;
 
 public class AggregateFunctionExpression extends Expression
 {
+   private static final int HASH_SEED = 11;
+   private static final int HASH_MULTIPLIER = 37;
    final Expression base;
    final String aggregateName;
    final boolean isDistinct;
@@ -34,9 +36,24 @@ public class AggregateFunctionExpression extends Expression
    
    @Override public boolean equals(Object obj)
    {
+      if (obj == null) return false;
       if (!getClass().equals(obj.getClass())) return false;
       AggregateFunctionExpression o = (AggregateFunctionExpression)obj; 
       return base.equals(o.base) && aggregateName.equals(o.aggregateName) && isDistinct == o.isDistinct;
+   }
+
+   @Override
+   public int hashCode() {
+      int result = HASH_SEED;
+
+      int isDistinctContrib = isDistinct?0:1;
+      result = HASH_MULTIPLIER * result + isDistinctContrib;
+
+      int baseContrib = base == null?0:base.hashCode();
+      result = HASH_MULTIPLIER * result + baseContrib;
+
+      int aggregateNameContrib = aggregateName == null?0:aggregateName.hashCode();
+      return HASH_MULTIPLIER * result + aggregateNameContrib;
    }
 
    @Override
