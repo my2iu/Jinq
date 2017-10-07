@@ -84,8 +84,8 @@
   <dependencies>
     <dependency>
 	  <groupId>org.ow2.asm</groupId>
-	  <artifactId>asm-all</artifactId>
-	  <version>5.0.4</version>
+	  <artifactId>asm-analysis</artifactId>
+	  <version>6.0</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
