@@ -49,6 +49,7 @@ public class LambdaParameterArgumentHandler implements SymbExArgumentHandler
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/sql/Timestamp"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Date"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/Calendar"));
+      ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/util/UUID"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/time/LocalDate"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/time/LocalTime"));
       ALLOWED_QUERY_PARAMETER_TYPES.add(Type.getObjectType("java/time/LocalDateTime"));

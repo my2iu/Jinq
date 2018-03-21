@@ -6,6 +6,7 @@ import javax.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -18,6 +19,7 @@ import java.util.List;
 public class Item implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int itemid;
+	private UUID uuid;
 	private String name;
 	private double purchaseprice;
 	private double saleprice;
@@ -40,6 +42,13 @@ public class Item implements Serializable {
 		this.itemid = itemid;
 	}
 
+	public UUID getUuid() {
+		return this.uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
 
 	public String getName() {
 		return this.name;

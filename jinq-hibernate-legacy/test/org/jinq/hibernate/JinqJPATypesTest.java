@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.hibernate.exception.SQLGrammarException;
@@ -534,6 +535,24 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Conglomerate", Charset.forName("UTF-8").decode(ByteBuffer.wrap(suppliers.get(0).getTwo())).toString());
    }
 
+   @Test
+   public void testUuid()
+   {
+      UUID id = new UUID(0, 3);
+      UUID id2 = new UUID(0, 4);
+      UUID id3 = new UUID(0, 5);
+      List<Pair<String, UUID>> items = streams.streamAll(em, Item.class)
+            .setHint("isAllEqualsSafe", false)
+            .where(i -> !i.getUuid().equals(id) && i.getUuid() != id2 && i.getUuid().compareTo(id3) != 0)
+            .select(i -> new Pair<>(i.getName(), i.getUuid()))
+            .sortedBy(i -> i.getTwo())
+            .toList();
+      assertEquals("SELECT A.name, A.uuid FROM org.jinq.hibernate.test.entities.Item A WHERE A.uuid <> :param0 AND A.uuid <> :param1 AND A.uuid <> :param2 ORDER BY A.uuid ASC", query);
+      assertEquals(2, items.size());
+      assertEquals(new UUID(0, 1), items.get(0).getTwo());
+      assertEquals("Wudgets", items.get(1).getOne());
+   }
+   
    @Test
    public void testEntity()
    {

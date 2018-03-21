@@ -166,6 +166,7 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
       comparisonMethods.put(TransformationClassAnalyzer.instantIsBefore, ComparisonOp.lt);
       comparisonMethods.put(TransformationClassAnalyzer.instantIsAfter, ComparisonOp.gt);
       comparisonMethods.put(TransformationClassAnalyzer.bigDecimalEquals, ComparisonOp.eq);
+      comparisonMethods.put(TransformationClassAnalyzer.uuidEquals, ComparisonOp.eq);
    }
    
    static Map<MethodSignature, TypedValue.MathOpValue.Op> mathMethods;
@@ -188,6 +189,8 @@ public class SymbExSimplifier<I> extends TypedValueVisitor<I, TypedValue, Runtim
       mathMethods.put(TransformationClassAnalyzer.bigIntegerDivide, Op.div);
       mathMethods.put(TransformationClassAnalyzer.bigIntegerMultiply, Op.mul);
       mathMethods.put(TransformationClassAnalyzer.bigIntegerSubtract, Op.minus);
+      mathMethods.put(TransformationClassAnalyzer.uuidCompareTo, Op.cmp);
+      mathMethodsType.put(TransformationClassAnalyzer.uuidCompareTo, Type.INT_TYPE);
    }      
    
    @Override

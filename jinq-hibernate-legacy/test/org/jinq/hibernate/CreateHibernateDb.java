@@ -15,6 +15,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 import org.hibernate.Session;
 import org.jinq.hibernate.test.entities.CreditCard;
@@ -97,10 +98,11 @@ public class CreateHibernateDb
       return s;
    }
 
-   private Item createItem(String name, ItemType type, int purchasePrice, int salePrice)
+   private Item createItem(String name, int uuid, ItemType type, int purchasePrice, int salePrice)
    {
       Item i = new Item();
       i.setName(name);
+      i.setUuid(new UUID(0, uuid));
       i.setType(type);
       i.setSaleprice(salePrice);
       i.setPurchaseprice(purchasePrice);
@@ -154,11 +156,11 @@ public class CreateHibernateDb
       session.persist(talentSupply);
       session.persist(conglomerate);
 
-      Item widgets = createItem("Widgets", ItemType.SMALL, 5, 10);
-      Item wudgets = createItem("Wudgets", ItemType.SMALL, 2, 3);
-      Item talent = createItem("Talent", ItemType.OTHER, 6, 1000);
-      Item lawnmowers = createItem("Lawnmowers", ItemType.BIG, 100, 102);
-      Item screws = createItem("Screws", ItemType.SMALL, 1, 2);
+      Item widgets = createItem("Widgets", 1, ItemType.SMALL, 5, 10);
+      Item wudgets = createItem("Wudgets", 2, ItemType.SMALL, 2, 3);
+      Item talent = createItem("Talent", 3, ItemType.OTHER, 6, 1000);
+      Item lawnmowers = createItem("Lawnmowers", 4, ItemType.BIG, 100, 102);
+      Item screws = createItem("Screws", 5, ItemType.SMALL, 1, 2);
       widgets.setSuppliers(Arrays.asList(hw, conglomerate));
       wudgets.setSuppliers(Arrays.asList(hw));
       talent.setSuppliers(Arrays.asList(talentSupply));

@@ -124,6 +124,8 @@ public class TransformationClassAnalyzer
    public final static MethodSignature bigIntegerDivide = new MethodSignature("java/math/BigInteger", "divide", "(Ljava/math/BigInteger;)Ljava/math/BigInteger;");
    public final static MethodSignature bigIntegerMultiply = new MethodSignature("java/math/BigInteger", "multiply", "(Ljava/math/BigInteger;)Ljava/math/BigInteger;");
    public final static MethodSignature bigIntegerSubtract = new MethodSignature("java/math/BigInteger", "subtract", "(Ljava/math/BigInteger;)Ljava/math/BigInteger;");
+   public final static MethodSignature uuidEquals = new MethodSignature("java/util/UUID", "equals", "(Ljava/lang/Object;)Z");
+   public final static MethodSignature uuidCompareTo = new MethodSignature("java/util/UUID", "compareTo", "(Ljava/util/UUID;)I");
    public final static MethodSignature newPair = new MethodSignature("org/jinq/tuples/Pair", "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
    public final static MethodSignature pairGetOne = new MethodSignature("org/jinq/tuples/Pair", "getOne", "()Ljava/lang/Object;");
    public final static MethodSignature pairGetTwo = new MethodSignature("org/jinq/tuples/Pair", "getTwo", "()Ljava/lang/Object;");
@@ -318,6 +320,8 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(bigIntegerDivide);
       KnownSafeMethods.add(bigIntegerMultiply);
       KnownSafeMethods.add(bigIntegerSubtract);
+      KnownSafeMethods.add(uuidEquals);
+      KnownSafeMethods.add(uuidCompareTo);
       KnownSafeMethods.add(newPair);
       KnownSafeMethods.add(pairGetOne);
       KnownSafeMethods.add(pairGetTwo);
