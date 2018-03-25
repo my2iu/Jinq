@@ -9,7 +9,7 @@
 
   <groupId>org.jinq</groupId>
   <artifactId>jinq</artifactId>
-  <version>1.8.23-SNAPSHOT</version>
+  <version>1.8.24-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <name>Jinq</name>
