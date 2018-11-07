@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <project name="Jinq" default="Zip">
 
-	<property name="asm" location="sample/lib/asm-analysis-merged-6.1.1.jar"/>
-	<property name="rebasedasm" location="sample/lib/rebased-asm-analysis-merged-6.1.1.jar"/>
+	<property name="asm" location="sample/lib/asm-analysis-merged-7.0.jar"/>
+	<property name="rebasedasm" location="sample/lib/rebased-asm-analysis-merged-7.0.jar"/>
 	<property name="jarjar" location="sample/lib/jarjar-1.4.jar"/>
 	<!--
 	<property name="derby" location="lib/derby.jar"/>
