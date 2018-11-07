@@ -14,9 +14,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/derby.jar"/>
 	<classpathentry kind="lib" path="lib/jooq-3.3.2.jar"/>
-	<classpathentry kind="lib" path="sample/lib/javax.persistence_2.1.0.v201304241213.jar" sourcepath="C:/Users/Work/.m2/repository/org/eclipse/persistence/javax.persistence/2.1.0/javax.persistence-2.1.0-sources.jar"/>
-	<classpathentry kind="lib" path="sample/lib/eclipselink-2.5.1.jar"/>
+	<classpathentry kind="lib" path="sample/lib/javax.persistence-2.2.1-unsigned.jar"/>
+	<classpathentry kind="lib" path="sample/lib/eclipselink-2.7.3.jar"/>
 	<classpathentry kind="lib" path="lib/scala-library-2.11.3.jar"/>
-	<classpathentry kind="lib" path="sample/lib/rebased-asm-analysis-merged-6.1.1.jar"/>
+	<classpathentry kind="lib" path="sample/lib/rebased-asm-analysis-merged-7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

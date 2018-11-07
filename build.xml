@@ -9,7 +9,7 @@
 	<property name="derbytools" location="lib/derbytools.jar"/>
 	<property name="derbydata" location="bin/derby/data"/>
 	-->
-	<property name="javax.persistence" location="lib/javax.persistence.jar"/>
+	<property name="javax.persistence" location="sample/lib/javax.persistence-2.2.1-unsigned.jar"/>
 	<property name="jooq" location="lib/jooq-3.3.2.jar"/>
 
 	<target name="Rebase ASM library">

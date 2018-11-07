@@ -697,7 +697,7 @@ class JinqJPAScalaTest extends JinqJPAScalaTestBase {
     // EclipseLink on Derby is returning the result of the subquery as an integer and not a long, causing a cast problem here
     //      customers.sort(Comparator.comparing(pair => pair._1.getName()));
     //      customers.sort(Comparator.comparing(pair => pair._2));
-    Assert.assertEquals("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A ASC), B.name ASC", query);
+    Assert.assertEquals("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A) ASC, B.name ASC", query);
     Assert.assertEquals(5, customers.length);
     // EclipseLink on Derby just isn't handling the sorting by subqueries very well, so the result doesn't
     // seem to be sorted correctly

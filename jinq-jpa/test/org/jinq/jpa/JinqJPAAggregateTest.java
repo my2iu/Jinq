@@ -180,14 +180,12 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT SUM(A.quantity * A.item.saleprice) FROM Lineorder A", query);
    }
    
-   @Test(expected=ClassCastException.class)
+   @Test
    public void testSumCase()
    {
-      // EclipseLink should be returning a Long, since it's a sum of integers, but it's returning
-      // an integer instead.
       assertEquals(1, (long)streams.streamAll(em, Supplier.class)
             .sumInteger(s -> s.getHasFreeShipping() ? 1 : 0));
-      assertEquals("SELECT SUM(CASE WHEN A.hasFreeShipping = TRUE THEN 1 ELSE 0 END) FROM Customer A", query);
+      assertEquals("SELECT SUM(CASE WHEN NOT A.hasFreeShipping = TRUE THEN 0 ELSE 1 END) FROM Supplier A", query);
    }
 
    @Test
@@ -469,7 +467,7 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
 // EclipseLink on Derby is returning the result of the subquery as an integer and not a long, causing a cast problem here
 //      customers.sort(Comparator.comparing(pair -> pair.getOne().getName()));
 //      customers.sort(Comparator.comparing(pair -> pair.getTwo()));
-      assertEquals("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A ASC), B.name ASC", query);
+      assertEquals("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A) ASC, B.name ASC", query);
       assertEquals(5, customers.size());
 // EclipseLink on Derby just isn't handling the sorting by subqueries very well, so the result doesn't
 // seem to be sorted correctly

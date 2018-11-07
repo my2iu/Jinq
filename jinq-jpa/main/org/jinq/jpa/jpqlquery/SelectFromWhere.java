@@ -124,10 +124,10 @@ public class SelectFromWhere<T> extends SelectOnly<T>
                // Special handling of subquery parantheses
                queryState.queryString += "(";
             sortParams.expr.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_ORDER_BY_UNRESTRICTED_OPERATOR_PRECEDENCE);
-            queryState.queryString += (sortParams.isAscending ? " ASC" : " DESC");
             if (sortParams.expr instanceof SubqueryExpression)
                // Special handling of subquery parantheses
                queryState.queryString += ")";
+            queryState.queryString += (sortParams.isAscending ? " ASC" : " DESC");
          }
       }
    }
