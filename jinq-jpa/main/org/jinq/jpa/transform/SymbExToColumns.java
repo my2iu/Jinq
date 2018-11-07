@@ -101,7 +101,12 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
    @Override public ColumnExpressions<?> stringConstantValue(ConstantValue.StringConstant val, SymbExPassDown in) throws TypedValueVisitorException
    {
       return ColumnExpressions.singleColumn(new SimpleRowReader<String>(),
-            new ConstantExpression("'"+ val.val.replaceAll("'", "''") +"'")); 
+            new ConstantExpression("'"+ escapeStringConstant(val.val) +"'")); 
+   }
+   
+   private String escapeStringConstant(String val)
+   {
+      return val.replaceAll("'", "''");
    }
    
    @Override public ColumnExpressions<?> nullConstantValue(NullConstant val, SymbExPassDown in) throws TypedValueVisitorException
@@ -750,7 +755,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       else if (config.metamodel.customSqlFunctionMethods.containsKey(sig))
       {
          // TODO: Add some error checking here
-         String functionName = config.metamodel.customSqlFunctionMethods.get(sig);
+         String functionName = escapeStringConstant(config.metamodel.customSqlFunctionMethods.get(sig));
          Expression[] subVals = new Expression[val.args.size()];
          for (int n = 0; n < subVals.length; n++)
          {
