@@ -747,6 +747,23 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          Function<RowReader<?>[], RowReader<?>> tupleReaderMaker = (RowReader<?>[] valReaders) -> new CustomTupleRowReader<>(tupleInfo.staticBuilder, null, valReaders);
          return handleMakeTupleMethodCall(val, in, tupleReaderMaker);
       }
+      else if (config.metamodel.customSqlFunctionMethods.containsKey(sig))
+      {
+         // TODO: Add some error checking here
+         String functionName = config.metamodel.customSqlFunctionMethods.get(sig);
+         Expression[] subVals = new Expression[val.args.size()];
+         for (int n = 0; n < subVals.length; n++)
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            TypedValue baseVal = val.args.get(n);
+            if (isWideningCast(baseVal))
+               baseVal = skipWideningCast(baseVal);
+            subVals[n] = baseVal.visit(this, passdown).getOnlyColumn();
+         }
+         
+         return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+               FunctionExpression.customSqlFunction(functionName, subVals)); 
+      }
       else
          return super.staticMethodCallValue(val, in);
    }

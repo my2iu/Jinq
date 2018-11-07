@@ -8,6 +8,7 @@ public class FunctionExpression extends Expression
 {
    List<Expression> arguments = new ArrayList<>();
    String functionName;
+   boolean isCustomSqlFunction = false;
    
    public static FunctionExpression singleParam(String name, Expression base)
    {
@@ -35,20 +36,45 @@ public class FunctionExpression extends Expression
       func.functionName = name;
       return func;
    }
+   
+   public static FunctionExpression customSqlFunction(String name, Expression...params)
+   {
+      FunctionExpression func = new FunctionExpression();
+      for (Expression param: params)
+         func.arguments.add(param);
+      func.functionName = name;
+      func.isCustomSqlFunction = true;
+      return func;
+   }
 
    @Override
    public void generateQuery(QueryGenerationState queryState, OperatorPrecedenceLevel operatorPrecedenceScope)
    {
-      queryState.appendQuery(functionName);
-      queryState.appendQuery("(");
-      boolean isFirst = true;
-      for (Expression arg: arguments)
+      if (isCustomSqlFunction)
       {
-         if (!isFirst) queryState.appendQuery(", ");
-         isFirst = false;
-         arg.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+         queryState.appendQuery("function('");
+         queryState.appendQuery(functionName);
+         queryState.appendQuery("'");
+         for (Expression arg: arguments)
+         {
+            queryState.appendQuery(", ");
+            arg.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+         }
+         queryState.appendQuery(")");
       }
-      queryState.appendQuery(")");
+      else
+      {
+         queryState.appendQuery(functionName);
+         queryState.appendQuery("(");
+         boolean isFirst = true;
+         for (Expression arg: arguments)
+         {
+            if (!isFirst) queryState.appendQuery(", ");
+            isFirst = false;
+            arg.generateQuery(queryState, OperatorPrecedenceLevel.JPQL_UNRESTRICTED_OPERATOR_PRECEDENCE);
+         }
+         queryState.appendQuery(")");
+      }
    }
 
    @Override

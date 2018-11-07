@@ -853,4 +853,24 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Eve", purchases.get(4).name);
       assertEquals(1, purchases.get(4).count);
    }
+   
+   public static int regexMatch(String a, String regex)
+   {
+      // Contents of method is ignored
+      return 0;
+   }
+   
+   @Test
+   public void testCustomFunction() throws NoSuchMethodException, SecurityException
+   {
+      streams.registerCustomSqlFunction(JinqJPATypesTest.class.getMethod("regexMatch", String.class, String.class), "isRegexMatch");
+      List<String> customers = streams.streamAll(em, Customer.class)
+            .where(c -> JinqJPATypesTest.regexMatch(c.getName(), "A.*") == 1)
+            .select(c -> c.getName())
+            .toList();
+      assertEquals("SELECT A.name FROM org.jinq.hibernate.test.entities.Customer A WHERE function('isRegexMatch', A.name, 'A.*') = 1", query);
+      assertEquals(1, customers.size());
+      assertEquals("Alice", customers.get(0));
+   }
+
 }

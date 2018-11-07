@@ -17,6 +17,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.persistence.Query;
+
 import org.hibernate.Session;
 import org.jinq.hibernate.test.entities.CreditCard;
 import org.jinq.hibernate.test.entities.Customer;
@@ -134,6 +136,12 @@ public class CreateHibernateDb
       return s;
    }
    
+   // Used to test the invocation of custom DB functions installed on the database 
+   public static int isRegexMatch_DbFunction(String str, String regex)
+   {
+      return str.matches(regex) ? 1 : 0;
+   }
+
    void createDatabase()
    {
       session.beginTransaction();
@@ -200,6 +208,12 @@ public class CreateHibernateDb
       session.persist(addLineorder(s6, wudgets, 2, 9000));
       session.persist(addLineorder(s6, lawnmowers, 2, 10000));
       session.persist(addLineorder(s6, screws, 7, 11000));
+
+      // Add a custom SQL function
+      {
+         Query q = session.createNativeQuery("CREATE FUNCTION isRegexMatch( str VARCHAR(200), regex VARCHAR(200) ) RETURNS INTEGER LANGUAGE JAVA PARAMETER STYLE JAVA NO SQL EXTERNAL NAME 'org.jinq.hibernate.CreateHibernateDb.isRegexMatch_DbFunction' ");
+         q.executeUpdate();
+      }
 
       session.getTransaction().commit();
    }

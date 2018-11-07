@@ -505,7 +505,8 @@ public class JinqJPATest extends JinqJPATestBase
       // Query q = em.createQuery("SELECT A, B FROM Item A join A.suppliers B WHERE A.name = 'Widgets'");  // Hibernate seems to require you to actually use the "join" keyword when using a plural navigational link instead of letting you use commas.
       // Query q = em.createQuery("SELECT A, B FROM Item A JOIN FETCH A.suppliers B WHERE A.name = 'Widgets'");  // In a JOIN FETCH, Hibernate doesn't include the "JOINed" supplier in the result set.  
       // Query q = em.createQuery("SELECT A.name, B.name FROM Item A LEFT JOIN Supplier B ON A.itemid = B.supplierid");  // Is LEFT OUTER JOIN with ON supported?
-      Query q = em.createQuery("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A) ASC, B.name ASC");  // Order by subquery syntax might have changed in EclipseLink 2.7.3 compared to 2.5.1
+      // Query q = em.createQuery("SELECT B, (SELECT COUNT(A) FROM B.sales A) FROM Customer B ORDER BY (SELECT COUNT(A) FROM B.sales A) ASC, B.name ASC");  // Order by subquery syntax might have changed in EclipseLink 2.7.3 compared to 2.5.1
+      Query q = em.createQuery("SELECT A.name, function('isRegexMatch', A.name, 'A.*') FROM Customer A");  // Test custom functions
       
       // Query q = em.createQuery("SELECT A FROM Customer A WHERE ((A.debt) >= 90) IS FALSE");  // Test of existence of IS FALSE (it doesn't exist) 
 

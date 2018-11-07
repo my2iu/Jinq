@@ -47,6 +47,7 @@ public abstract class MetamodelUtil
    protected final Map<MethodSignature, CustomTupleInfo> customTupleStaticBuilderMethods;
    protected final Map<MethodSignature, CustomTupleInfo> customTupleConstructorMethods;
    protected final Map<MethodSignature, Integer> customTupleAccessorMethods;
+   protected final Map<MethodSignature, String> customSqlFunctionMethods;
    
    /**
     * The classes that have been analyzed or are in the process of being analyzed to
@@ -129,6 +130,7 @@ public abstract class MetamodelUtil
       customTupleStaticBuilderMethods = new HashMap<>();
       customTupleConstructorMethods = new HashMap<>();
       customTupleAccessorMethods = new HashMap<>();
+      customSqlFunctionMethods = new HashMap<>();
    }
    
    /**
@@ -139,6 +141,19 @@ public abstract class MetamodelUtil
    public void insertConvertedType(String className)
    {
       convertedTypes.add(className);
+   }
+
+   /**
+    * Registers a static method that will be mapped to a custom SQL function. This
+    * is an experimental function without proper error-checking or stable API
+    */
+   public void insertCustomSqlFunction(String className, Method m, String sqlFunctionName)
+   {
+      if (!Modifier.isStatic(m.getModifiers()))
+         throw new IllegalArgumentException("Custom SQL functions must be a static method");
+      MethodSignature sig = MethodSignature.fromMethod(m);
+      safeStaticMethods.add(sig);
+      customSqlFunctionMethods.put(sig, sqlFunctionName);
    }
    
    /**

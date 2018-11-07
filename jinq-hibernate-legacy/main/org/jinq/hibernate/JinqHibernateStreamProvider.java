@@ -181,4 +181,17 @@ public class JinqHibernateStreamProvider
       metamodel.insertCustomTupleConstructor(
             tupleType.getName(), m, tupleIndexReaders);
    }
+   
+   /**
+    * Registers a static method that will be converted into a call 
+    * to a custom SQL function. Note: This feature is experimental, 
+    * so it has less error-checking than expected, and the API may
+    * change in the future.
+    */
+   public void registerCustomSqlFunction(Method m, String sqlFunctionName)
+   {
+      Class<?> returnType = m.getReturnType();
+      metamodel.insertCustomSqlFunction(
+            returnType.getName(), m, sqlFunctionName);
+   }
 }

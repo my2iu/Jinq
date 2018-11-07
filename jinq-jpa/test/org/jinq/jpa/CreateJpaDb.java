@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.jinq.jpa.test.entities.CreditCard;
 import org.jinq.jpa.test.entities.Customer;
@@ -116,6 +117,12 @@ public class CreateJpaDb
       s.setSignatureExpiry(Date.from(Instant.now()));
       return s;
    }
+
+   // Used to test the invocation of custom DB functions installed on the database 
+   public static int isRegexMatch_DbFunction(String str, String regex)
+   {
+      return str.matches(regex) ? 1 : 0;
+   }
    
    void createDatabase()
    {
@@ -184,6 +191,12 @@ public class CreateJpaDb
       em.persist(addLineorder(s6, lawnmowers, 2, 10000));
       em.persist(addLineorder(s6, screws, 7, 11000));
 
+      // Add a custom SQL function
+      {
+         Query q = em.createNativeQuery("CREATE FUNCTION isRegexMatch( str VARCHAR(200), regex VARCHAR(200) ) RETURNS INTEGER LANGUAGE JAVA PARAMETER STYLE JAVA NO SQL EXTERNAL NAME 'org.jinq.jpa.CreateJpaDb.isRegexMatch_DbFunction' ");
+         q.executeUpdate();
+      }
+      
       em.getTransaction().commit();
    }
 }
