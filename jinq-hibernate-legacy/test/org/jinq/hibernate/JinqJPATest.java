@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.Query;
-
 import org.jinq.hibernate.test.entities.Customer;
 import org.jinq.hibernate.test.entities.Item;
 import org.jinq.hibernate.test.entities.Lineorder;
@@ -22,10 +20,8 @@ import org.jinq.hibernate.test.entities.Supplier;
 import org.jinq.jpa.JPAJinqStream;
 import org.jinq.jpa.JPQL;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
-import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.Where;
-import org.jinq.orm.stream.QueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Assert;
 import org.junit.Test;

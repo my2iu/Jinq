@@ -22,7 +22,6 @@ import org.jinq.jpa.test.entities.Item;
 import org.jinq.jpa.test.entities.Lineorder;
 import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
-import org.jinq.orm.stream.InQueryStreamSource;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.Where;
 import org.jinq.orm.stream.NonQueryJinqStream;
