@@ -591,4 +591,5 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Bob", customers.get(0));
       assertEquals("Dave", customers.get(1));
    }
+   
 }

@@ -37,7 +37,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    public NonQueryJinqStream(Stream<T> wrapped, InQueryStreamSource inQueryStreamSource)
    {
       super(wrapped);
-      this.inQueryStreamSource = inQueryStreamSource;
+      this.inQueryStreamSource = inQueryStreamSource;     
    }
 
    NonQueryJinqStream()
@@ -689,5 +689,5 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    public JinqStream<T> setHint(String name, Object value)
    {
       return this;
-   }
+   }   
 }
