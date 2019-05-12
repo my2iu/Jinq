@@ -1,6 +1,9 @@
 package org.jinq.jpa;
 
+import java.util.Collection;
+import java.util.stream.Stream;
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.NonQueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
