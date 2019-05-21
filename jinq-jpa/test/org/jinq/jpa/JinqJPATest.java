@@ -679,7 +679,63 @@ public class JinqJPATest extends JinqJPATestBase
       JPAJinqStream<Customer> notBobStream = (new JPAJinqStreamWrapper<>(BobStream)).notComplement();        
       Assert.fail();
    }
+   
+   @Test
+   public void testNotComplementQueries()
+   {
+      JPAJinqStream<Customer> base = streams.streamAll(em, Customer.class);
+      JPAJinqStream<Customer> Dave = base.where(c -> c.getName().equals("Dave"));
+      JPAJinqStream<Customer> allCustomers = base;
+      
+      JPAJinqStream<Customer> notDave = Dave.notComplement();
+      List<Customer> notDaveList = notDave.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT A.name = 'Dave'", query);
 
+      JPAJinqStream<Customer> notAll = allCustomers.notComplement();
+      List<Customer> notAllList =  notAll.toList();
+      assertEquals("SELECT A FROM Customer A WHERE 0 = 1", query);
+
+      JPAJinqStream<Customer> notNotAll = notAll.notComplement();
+      List<Customer> notNotAllList =  notNotAll.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT 0 = 1", query);  
+      
+      JPAJinqStream<Customer> q = notNotAll.andIntersect(notDave);
+      List<Customer> qList = q.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT 0 = 1 AND NOT A.name = 'Dave'", query);
+      
+      JPAJinqStream<Customer> notQ = q.notComplement();
+      List<Customer> notQList = notQ.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT (NOT 0 = 1 AND NOT A.name = 'Dave')", query);      
+   }      
+   
+   
+   @Test
+   public void testDifference()
+   {
+      JPAJinqStream<Customer> base = streams.streamAll(em, Customer.class);
+      JPAJinqStream<Customer> Dave = base.where(c -> c.getName().equals("Dave"));
+      String bobName = "Bob";  
+      JPAJinqStream<Customer> Bob = base.where(c -> c.getName().equals(bobName));
+      JPAJinqStream<Customer> allCustomers = base;
+      
+      JPAJinqStream<Customer> allDiffDave = allCustomers.andNotDifference(Dave);
+      List<Customer> allDiffDaveList =  allDiffDave.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT A.name = 'Dave'", query);
+
+      JPAJinqStream<Customer> BobDiffDave = Bob.andNotDifference(Dave);
+      List<Customer> BobDiffDaveResult = BobDiffDave.toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.name = :param0 AND NOT A.name = 'Dave'", query);
+
+      JPAJinqStream<Customer> allDiffAll = allCustomers.andNotDifference(allCustomers);
+      List<Customer> allDiffAllList =  allDiffAll.toList();
+      assertEquals("SELECT A FROM Customer A WHERE 0 = 1", query);
+
+      JPAJinqStream<Customer> DaveDiffAll = Dave.andNotDifference(allCustomers);
+      List<Customer> DaveDiffAllList =  DaveDiffAll.toList();
+      assertEquals("SELECT A FROM Customer A WHERE 0 = 1", query);  
+            
+   }
+   
    @Test
    public void testAndIntersect()
    {

@@ -595,6 +595,11 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    {
       return applyTransformWithLambda(new NotTransform(getConfig()));
    }
+   
+   public QueryComposer<T> difference(JPAJinqStream<T> otherSet)
+   {
+      return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.DIFFERENCE), otherSet);
+   }   
        
    @Override
    public Long count()

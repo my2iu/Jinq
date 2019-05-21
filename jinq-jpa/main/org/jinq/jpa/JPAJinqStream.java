@@ -107,8 +107,14 @@ public interface JPAJinqStream<T> extends JinqStream<T>
     * @return a new stream being a COMPLEMENT of <code>this</code> stream,
     * if <code>this</code> is actually QueryJPAJinqStream and its complement can be succesfully translated
     * @throws UnsupportedOperationException otherwise
+    * 
+    * @see difference(JPAJinqStream<T> otherSet);
     */   
    public JPAJinqStream<T> notComplement();
+   
+   
+   // andNotDifference of sets
+   public JPAJinqStream<T> andNotDifference(JPAJinqStream<T> otherSet);
    
    // Variants of the existing JinqStream API that return a JPAJinqStream instead
    // of a JinqStream.

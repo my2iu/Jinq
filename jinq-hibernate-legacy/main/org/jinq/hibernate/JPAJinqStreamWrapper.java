@@ -438,13 +438,23 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
       return wrap(JinqStream.from(otherSet.filter(el -> saved.contains(el)).collect(Collectors.toSet())));
    }
    
-    @Override
-    public JPAJinqStream<T> notComplement() {        
-       //Set<T> all = ?
-       //Set<T> saved = wrapped.collect(Collectors.toSet());
-       //return wrap( JinqStream.from(all).where( el -> !saved.contains(el)) );
+   @Override
+   public JPAJinqStream<T> notComplement()
+   {        
+      //Set<T> all = ?
+      //Set<T> saved = wrapped.collect(Collectors.toSet());
+      //return wrap( JinqStream.from(all).where( el -> !saved.contains(el)) );
        
-       throw new UnsupportedOperationException("operation not supported for this stream");
-    }   
+      throw new UnsupportedOperationException("operation not supported for this stream");
+   }   
+    
+   @Override
+   public JPAJinqStream<T> andNotDifference(JPAJinqStream<T> otherSet)
+   {   
+       Set<T> saved = collect(Collectors.toSet());
+       Set<T> other = otherSet.collect(Collectors.toSet());
+       saved.removeAll(other);
+       return wrap( JinqStream.from( saved ) );
+   }        
 
 }
