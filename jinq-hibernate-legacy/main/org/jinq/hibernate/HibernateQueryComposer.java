@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-
-
-
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jinq.jpa.JPAJinqStream;
@@ -39,6 +36,7 @@ import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MultiAggregateTransform;
+import org.jinq.jpa.transform.NotTransform;
 import org.jinq.jpa.transform.OuterJoinOnTransform;
 import org.jinq.jpa.transform.OuterJoinTransform;
 import org.jinq.jpa.transform.QueryTransformException;
@@ -600,6 +598,18 @@ class HibernateQueryComposer<T> implements QueryComposer<T>
    {
       return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.AND_INTERSECT), otherSet);
    }
+
+   public QueryComposer<T> notComplement()
+   {
+      return applyTransformWithLambda(new NotTransform(getConfig()));
+   }
+   
+   
+   public QueryComposer<T> difference(JPAJinqStream<T> otherSet)
+   {
+      return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.DIFFERENCE), otherSet);
+   }   
+   
 
    @Override
    public Long count()

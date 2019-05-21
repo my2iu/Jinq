@@ -758,5 +758,5 @@ public interface JinqStream<T> extends Stream<T>
    public static <U> JinqStream<U> of(U value)
    {
       return new NonQueryJinqStream<>(Stream.of(value));
-   }
+   }   
 }

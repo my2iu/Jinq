@@ -7,10 +7,12 @@ import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.Query;
 
@@ -22,6 +24,7 @@ import org.jinq.jpa.test.entities.Sale;
 import org.jinq.jpa.test.entities.Supplier;
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.JinqStream.Where;
+import org.jinq.orm.stream.NonQueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -662,6 +665,77 @@ public class JinqJPATest extends JinqJPATestBase
 
    }
 
+   @Test(expected = UnsupportedOperationException.class)
+   public void testNotComplement()
+   {
+      JPAJinqStream<Customer> base = streams.streamAll(em, Customer.class);
+      JPAJinqStream<Customer> Bob = base.where( c -> c.getName().equals("Bob") );
+      JPAJinqStream<Customer> notBob = Bob.notComplement();
+      List<Customer> notBobList = notBob.toList();
+      
+      assertEquals("SELECT A FROM Customer A WHERE NOT A.name = 'Bob'", query);
+            
+      JinqStream<Customer> BobStream =  new NonQueryJinqStream<>(base);
+      JPAJinqStream<Customer> notBobStream = (new JPAJinqStreamWrapper<>(BobStream)).notComplement();        
+      Assert.fail();
+   }
+   
+   @Test
+   public void testNotComplementQueries()
+   {
+      JPAJinqStream<Customer> base = streams.streamAll(em, Customer.class);
+      JPAJinqStream<Customer> Dave = base.where(c -> c.getName().equals("Dave"));
+      JPAJinqStream<Customer> allCustomers = base;
+      
+      JPAJinqStream<Customer> notDave = Dave.notComplement();
+      List<Customer> notDaveList = notDave.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT A.name = 'Dave'", query);
+
+      JPAJinqStream<Customer> notAll = allCustomers.notComplement();
+      List<Customer> notAllList =  notAll.toList();
+      assertEquals("SELECT A FROM Customer A WHERE 0 = 1", query);
+
+      JPAJinqStream<Customer> notNotAll = notAll.notComplement();
+      List<Customer> notNotAllList =  notNotAll.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT 0 = 1", query);  
+      
+      JPAJinqStream<Customer> q = notNotAll.andIntersect(notDave);
+      List<Customer> qList = q.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT 0 = 1 AND NOT A.name = 'Dave'", query);
+      
+      JPAJinqStream<Customer> notQ = q.notComplement();
+      List<Customer> notQList = notQ.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT (NOT 0 = 1 AND NOT A.name = 'Dave')", query);      
+   }      
+   
+   
+   @Test
+   public void testDifference()
+   {
+      JPAJinqStream<Customer> base = streams.streamAll(em, Customer.class);
+      JPAJinqStream<Customer> Dave = base.where(c -> c.getName().equals("Dave"));
+      String bobName = "Bob";  
+      JPAJinqStream<Customer> Bob = base.where(c -> c.getName().equals(bobName));
+      JPAJinqStream<Customer> allCustomers = base;
+      
+      JPAJinqStream<Customer> allDiffDave = allCustomers.andNotDifference(Dave);
+      List<Customer> allDiffDaveList =  allDiffDave.toList();
+      assertEquals("SELECT A FROM Customer A WHERE NOT A.name = 'Dave'", query);
+
+      JPAJinqStream<Customer> BobDiffDave = Bob.andNotDifference(Dave);
+      List<Customer> BobDiffDaveResult = BobDiffDave.toList();
+      assertEquals("SELECT A FROM Customer A WHERE A.name = :param0 AND NOT A.name = 'Dave'", query);
+
+      JPAJinqStream<Customer> allDiffAll = allCustomers.andNotDifference(allCustomers);
+      List<Customer> allDiffAllList =  allDiffAll.toList();
+      assertEquals("SELECT A FROM Customer A WHERE 0 = 1", query);
+
+      JPAJinqStream<Customer> DaveDiffAll = Dave.andNotDifference(allCustomers);
+      List<Customer> DaveDiffAllList =  DaveDiffAll.toList();
+      assertEquals("SELECT A FROM Customer A WHERE 0 = 1", query);  
+            
+   }
+   
    @Test
    public void testAndIntersect()
    {
@@ -676,6 +750,6 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals(2, customers.size());
       assertEquals("Bob", customers.get(0));
       assertEquals("Dave", customers.get(1));
-   }
+   }   
 
 }

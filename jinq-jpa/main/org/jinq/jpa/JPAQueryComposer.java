@@ -36,6 +36,7 @@ import org.jinq.jpa.transform.LambdaInfo;
 import org.jinq.jpa.transform.LimitSkipTransform;
 import org.jinq.jpa.transform.MetamodelUtil;
 import org.jinq.jpa.transform.MultiAggregateTransform;
+import org.jinq.jpa.transform.NotTransform;
 import org.jinq.jpa.transform.SetOperationEmulationTransform;
 import org.jinq.jpa.transform.OuterJoinOnTransform;
 import org.jinq.jpa.transform.OuterJoinTransform;
@@ -589,7 +590,17 @@ class JPAQueryComposer<T> implements QueryComposer<T>
    {
       return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.AND_INTERSECT), otherSet);
    }
-
+   
+   public QueryComposer<T> notComplement()
+   {
+      return applyTransformWithLambda(new NotTransform(getConfig()));
+   }
+   
+   public QueryComposer<T> difference(JPAJinqStream<T> otherSet)
+   {
+      return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.DIFFERENCE), otherSet);
+   }   
+       
    @Override
    public Long count()
    {

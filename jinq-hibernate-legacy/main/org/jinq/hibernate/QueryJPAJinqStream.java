@@ -96,7 +96,21 @@ class QueryJPAJinqStream<T> extends QueryJinqStream<T> implements JPAJinqStream<
       if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
       return new JPAJinqStreamWrapper<>(this).andIntersect(otherSet);
    }
-
+   @Override
+   public JPAJinqStream<T> notComplement()
+   {
+      QueryComposer<T> newComposer = jpaComposer.notComplement();
+      if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);      
+      return new JPAJinqStreamWrapper<>(this).notComplement();
+   }
+   
+   @Override
+   public JPAJinqStream<T> andNotDifference(JPAJinqStream<T> otherSet)
+   {
+      QueryComposer<T> newComposer = jpaComposer.difference(otherSet);
+      if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
+      return new JPAJinqStreamWrapper<>(this).andNotDifference(otherSet);
+   }   
 
    // Wrapped versions of old API
    
@@ -315,4 +329,5 @@ class QueryJPAJinqStream<T> extends QueryJinqStream<T> implements JPAJinqStream<
    {
       return wrap(super.setHint(name, value));
    }
+
 }

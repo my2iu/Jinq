@@ -1,6 +1,9 @@
 package org.jinq.jpa;
 
+import java.util.Collection;
+import java.util.stream.Stream;
 import org.jinq.orm.stream.JinqStream;
+import org.jinq.orm.stream.NonQueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
@@ -90,8 +93,29 @@ public interface JPAJinqStream<T> extends JinqStream<T>
     * @return a new stream with the contents of the two streams INTERSECTed together
     */
    public JPAJinqStream<T> andIntersect(JPAJinqStream<T> otherSet);
-
-
+   
+   /**
+    * Emulates a complement of stream by negation of the query
+    * using a NOT operation. JPA does not support NOT operations, so 
+    * Jinq must emulate that behavior using NOTs. It also provides a mechanism
+    * for Jinq to let people create NOT expressions programmatically and to specify
+    * complex expressions exactly without relying on the Jinq translation algorithm.
+    *<p>
+    * Since Universe of collection-based <code>NonQueryJinqStream</code> is not well defined,
+    * <code>notComplement()</code> is not supported for such streams.
+    * 
+    * @return a new stream being a COMPLEMENT of <code>this</code> stream,
+    * if <code>this</code> is actually QueryJPAJinqStream and its complement can be succesfully translated
+    * @throws UnsupportedOperationException otherwise
+    * 
+    * @see difference(JPAJinqStream<T> otherSet);
+    */   
+   public JPAJinqStream<T> notComplement();
+   
+   
+   // andNotDifference of sets
+   public JPAJinqStream<T> andNotDifference(JPAJinqStream<T> otherSet);
+   
    // Variants of the existing JinqStream API that return a JPAJinqStream instead
    // of a JinqStream.
    
@@ -193,4 +217,20 @@ public interface JPAJinqStream<T> extends JinqStream<T>
    public JPAJinqStream<T> distinct();
    
    public JPAJinqStream<T> setHint(String name, Object value);
+   
+      /**
+    * Easy way to get a JinqStream from a collection.
+    */
+   public static <U> JPAJinqStream<U> from(Collection<U> collection)
+   {
+      return new JPAJinqStreamWrapper<>(new NonQueryJinqStream<U>(collection.stream()));
+   }
+
+   /**
+    * Creates a JinqStream containing a single object.
+    */
+   public static <U> JPAJinqStream<U> of(U value, Stream<U> universe)
+   {
+      return new JPAJinqStreamWrapper<>(new NonQueryJinqStream<>(Stream.of(value)));
+   }
 }

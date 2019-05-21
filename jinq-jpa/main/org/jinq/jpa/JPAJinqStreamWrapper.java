@@ -1,15 +1,22 @@
 package org.jinq.jpa;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jinq.orm.stream.JinqStream;
 import org.jinq.orm.stream.LazyWrappedStream;
+import org.jinq.orm.stream.NonQueryJinqStream;
+import org.jinq.orm.stream.QueryJinqStream;
 import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple4;
@@ -435,4 +442,23 @@ class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStr
       Set<T> saved = collect(Collectors.toSet());
       return wrap(JinqStream.from(otherSet.filter(el -> saved.contains(el)).collect(Collectors.toSet())));
    }
+
+   @Override
+   public JPAJinqStream<T> notComplement()
+   {        
+      //Set<T> all = ?
+      //Set<T> saved = wrapped.collect(Collectors.toSet());
+      //return wrap( JinqStream.from(all).where( el -> !saved.contains(el)) );
+      
+      throw new UnsupportedOperationException("operation not supported for this stream");
+   }
+        
+   @Override
+   public JPAJinqStream<T> andNotDifference(JPAJinqStream<T> otherSet)
+   {   
+       Set<T> saved = collect(Collectors.toSet());
+       Set<T> other = otherSet.collect(Collectors.toSet());
+       saved.removeAll(other);
+       return wrap( JinqStream.from( saved ) );
+   }    
 }
