@@ -1,5 +1,7 @@
 package org.jinq.jpa;
 
+import javax.persistence.EntityGraph;
+
 class JinqJPAHints
 {
    public JinqJPAHints() { }
@@ -12,6 +14,7 @@ class JinqJPAHints
       useCaching = oldHints.useCaching;
       isObjectEqualsSafe = oldHints.isObjectEqualsSafe;
       isCollectionContainsSafe = oldHints.isCollectionContainsSafe;
+      javaxPersistenceFetchgraph = oldHints.javaxPersistenceFetchgraph;
    }
    
    public int automaticResultsPagingSize = 10000;
@@ -22,6 +25,7 @@ class JinqJPAHints
    public boolean isObjectEqualsSafe = true;
    public boolean isAllEqualsSafe = true;
    public boolean isCollectionContainsSafe = true;
+   public EntityGraph<?> javaxPersistenceFetchgraph = null;
    
    public boolean setHint(String name, Object val)
    {
@@ -41,6 +45,8 @@ class JinqJPAHints
          isAllEqualsSafe = (Boolean)val;
       else if ("isCollectionContainsSafe".equals(name) && val instanceof Boolean)
          isCollectionContainsSafe = (Boolean)val;
+      else if ("javax.persistence.fetchgraph".equals("name") && val instanceof EntityGraph)
+         javaxPersistenceFetchgraph = (EntityGraph<?>)val;
       else
          return false;
       return true;

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityGraph;
 import javax.persistence.Query;
 
 import org.jinq.hibernate.test.entities.Customer;
@@ -57,6 +58,19 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Carol", names.get(2));
       assertEquals("Dave", names.get(3));
       assertEquals("Eve", names.get(4));
+   }
+
+   @Test
+   public void testEntityGraph()
+   {
+      EntityGraph<Sale> entityGraph = em.createEntityGraph(Sale.class);
+      entityGraph.addAttributeNodes("customer");
+      
+      Sale sale = streams.streamAll(em, Sale.class)
+            .setHint("javax.persistence.fetchgraph", entityGraph)
+            .where(s -> s.getSaleid() == 1)
+            .getOnlyValue();
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Sale A WHERE A.saleid = 1", query);
    }
 
    private static void externalMethod() {}

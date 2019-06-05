@@ -155,6 +155,8 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       fillQueryParameters(q, query.getQueryParameters());
       final RowReader<T> reader = query.getRowReader();
       logQuery(queryString, q);
+      if (hints.javaxPersistenceFetchgraph != null)
+         q.setHint("javax.persistence.fetchgraph", hints.javaxPersistenceFetchgraph);
       return reader.readResult(q.getSingleResult());
    }
    
@@ -178,6 +180,8 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       }
       final long initialOffset = skip;
       final long maxTotalResults = limit;
+      if (hints.javaxPersistenceFetchgraph != null)
+         q.setHint("javax.persistence.fetchgraph", hints.javaxPersistenceFetchgraph);
       
       // To handle the streaming of giant result sets, we will break
       // them down into pages. Technically, this is not really correct
