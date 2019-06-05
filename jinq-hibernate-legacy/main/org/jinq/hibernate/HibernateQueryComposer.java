@@ -601,6 +601,11 @@ class HibernateQueryComposer<T> implements QueryComposer<T>
       return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.AND_INTERSECT), otherSet);
    }
 
+   public QueryComposer<T> andNotExcept(JPAJinqStream<T> otherSet)
+   {
+      return applyTransformWithTwoQueryMerge(new SetOperationEmulationTransform(getConfig(), SetOperationEmulationTransform.SetOperationType.AND_NOT_EXCEPT), otherSet);
+   }
+
    @Override
    public Long count()
    {

@@ -97,6 +97,13 @@ class QueryJPAJinqStream<T> extends QueryJinqStream<T> implements JPAJinqStream<
       return new JPAJinqStreamWrapper<>(this).andIntersect(otherSet);
    }
 
+   @Override
+   public JPAJinqStream<T> andNotExcept(JPAJinqStream<T> otherSet)
+   {
+      QueryComposer<T> newComposer = jpaComposer.andNotExcept(otherSet);
+      if (newComposer != null) return makeQueryStream(newComposer, inQueryStreamSource);
+      return new JPAJinqStreamWrapper<>(this).andNotExcept(otherSet);
+   }
 
    // Wrapped versions of old API
    
