@@ -678,4 +678,46 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Dave", customers.get(1));
    }
 
+   @Test
+   public void testAndNotExcept()
+   {
+      JPAJinqStream<Customer> base = streams.streamAll(em, Customer.class);
+      
+      // All \ All
+      List<String> customers = base.andNotExcept(base)
+            .select(c -> c.getName())
+            .sortedBy(name -> name)
+            .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE 1 = 0 ORDER BY A.name ASC", query);
+      assertEquals(0, customers.size());
+
+      // All \ Some
+      customers = base.andNotExcept(base.where(c -> c.getDebt() < 250))
+            .select(c -> c.getName())
+            .sortedBy(name -> name)
+            .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE NOT A.debt < 250 ORDER BY A.name ASC", query);
+      assertEquals(1, customers.size());
+      assertEquals("Carol", customers.get(0));
+
+      // Some \ All
+      customers = base.where(c -> c.getDebt() < 250).andNotExcept(base)
+            .select(c -> c.getName())
+            .sortedBy(name -> name)
+            .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE 1 = 0 ORDER BY A.name ASC", query);
+      assertEquals(0, customers.size());
+
+      // Some \ Some
+      customers = base.where(c -> c.getDebt() < 250)
+            .andNotExcept(base.where(c -> c.getDebt() > 150))
+            .select(c -> c.getName())
+            .sortedBy(name -> name)
+            .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE A.debt < 250 AND NOT A.debt > 150 ORDER BY A.name ASC", query);
+      assertEquals(3, customers.size());
+      assertEquals("Alice", customers.get(0));
+      assertEquals("Dave", customers.get(1));
+      assertEquals("Eve", customers.get(2));
+   }
 }

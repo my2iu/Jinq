@@ -91,6 +91,26 @@ public interface JPAJinqStream<T> extends JinqStream<T>
     */
    public JPAJinqStream<T> andIntersect(JPAJinqStream<T> otherSet);
 
+   /**
+    * Emulates a set difference of two different streams by merging the queries
+    * using an AND NOT operation. JPA does not support EXCEPT operations, so 
+    * Jinq must emulate that behavior using ANDs and NOTs. It also provides a mechanism
+    * for Jinq to let people create NOT expressions programmatically and to specify
+    * complex expressions exactly without relying on the Jinq translation algorithm.
+    * Due to the limitations of using AND NOT to emulate a EXCEPT, the two streams
+    * being EXCEPTed must be made up of the same queries except for different
+    * where restrictions. 
+    * 
+    * The code that checks whether a merge of the two queries is valid or not
+    * is not very robust, so don't rely on Jinq to automatically catch incorrect
+    * uses of the method. Some corner cases aren't checked, so be sure to
+    * verify that you're calling the orUnion on two valid streams yourself.
+    *  
+    * @param otherSet the other stream to merge with
+    * @return a new stream with the contents of the two streams EXCEPTed together
+    */
+   public JPAJinqStream<T> andNotExcept(JPAJinqStream<T> otherSet);
+
 
    // Variants of the existing JinqStream API that return a JPAJinqStream instead
    // of a JinqStream.

@@ -1,16 +1,18 @@
 package org.jinq.jpa.transform;
 
 import org.jinq.jpa.jpqlquery.BinaryExpression;
+import org.jinq.jpa.jpqlquery.ConstantExpression;
 import org.jinq.jpa.jpqlquery.Expression;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.jpqlquery.OffsetLambdaIndexInExpressionsVisitor;
 import org.jinq.jpa.jpqlquery.SelectFromWhere;
+import org.jinq.jpa.jpqlquery.UnaryExpression;
 
 public class SetOperationEmulationTransform extends JPQLTwoQueryMergeQueryTransform
 {
    public enum SetOperationType
    {
-      OR_UNION("OR"), AND_INTERSECT("AND");
+      OR_UNION("OR"), AND_INTERSECT("AND"), AND_NOT_EXCEPT("EXCEPT");
       SetOperationType(String op)
       {
          this.op = op;
@@ -58,6 +60,12 @@ public class SetOperationEmulationTransform extends JPQLTwoQueryMergeQueryTransf
          if (merged.where == null && sfw2.where == null)
          {
             // Nothing to do
+            switch (type)
+            {
+            case AND_NOT_EXCEPT:
+               merged.where = new BinaryExpression("=", new ConstantExpression("1"), new ConstantExpression("0")); 
+               break;
+            }
          }
          if (merged.where == null || sfw2.where == null)
          {
@@ -74,13 +82,29 @@ public class SetOperationEmulationTransform extends JPQLTwoQueryMergeQueryTransf
                break;
             case OR_UNION:
                merged.where = null;
+               break;
+            case AND_NOT_EXCEPT:
+               if (merged.where == null)
+                  merged.where = UnaryExpression.prefix("NOT", offsetWhere);
+               else
+                  merged.where = new BinaryExpression("=", new ConstantExpression("1"), new ConstantExpression("0")); 
+               break;
             }
          }
          else
          {
             Expression offsetWhere = sfw2.where.copy();
             offsetWhere.visit(new OffsetLambdaIndexInExpressionsVisitor(lambdaOffset));
-            merged.where = new BinaryExpression(type.op, merged.where, offsetWhere);
+            switch (type)
+            {
+            case AND_NOT_EXCEPT:
+               merged.where = new BinaryExpression("AND", merged.where, UnaryExpression.prefix("NOT", offsetWhere));
+               break;
+            case AND_INTERSECT:
+            case OR_UNION:
+               merged.where = new BinaryExpression(type.op, merged.where, offsetWhere);
+               break;
+            }
          }
          return (SelectFromWhere<W>)merged;
       }
