@@ -45,7 +45,7 @@ class JinqJPAHints
          isAllEqualsSafe = (Boolean)val;
       else if ("isCollectionContainsSafe".equals(name) && val instanceof Boolean)
          isCollectionContainsSafe = (Boolean)val;
-      else if ("javax.persistence.fetchgraph".equals("name") && val instanceof EntityGraph)
+      else if ("javax.persistence.fetchgraph".equals(name) && val instanceof EntityGraph)
          javaxPersistenceFetchgraph = (EntityGraph<?>)val;
       else
          return false;
