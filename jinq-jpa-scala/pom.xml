@@ -3,7 +3,7 @@
   <parent>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq</artifactId>
-	  <version>1.8.28-SNAPSHOT</version>
+	  <version>1.8.28</version>
   </parent>
   <artifactId>jinq-jpa-scala</artifactId>
   <packaging>jar</packaging>
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>org.jinq</groupId>
       <artifactId>jinq-jpa</artifactId>
-      <version>1.8.28-SNAPSHOT</version>
+      <version>1.8.28</version>
     </dependency>
 	<dependency>
 	  <groupId>org.eclipse.persistence</groupId>
@@ -67,7 +67,7 @@
     <dependency>
       <groupId>org.jinq</groupId>
       <artifactId>jinq-jpa-test</artifactId>
-      <version>1.8.28-SNAPSHOT</version>
+      <version>1.8.28</version>
       <scope>test</scope>
     </dependency>
  	<dependency>
