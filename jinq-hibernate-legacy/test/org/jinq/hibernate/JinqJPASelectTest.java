@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.jinq.hibernate.test.entities.Customer;
 import org.jinq.hibernate.test.entities.Item;
+import org.jinq.hibernate.test.entities.ItemType;
 import org.jinq.hibernate.test.entities.Lineorder;
 import org.jinq.hibernate.test.entities.Sale;
 import org.jinq.orm.stream.JinqStream;
@@ -164,5 +165,38 @@ public class JinqJPASelectTest extends JinqJPATestBase
       assertEquals("SELECT B.name FROM org.jinq.hibernate.test.entities.Item A JOIN A.suppliers B WHERE A.name = 'Screws'", query);
       assertEquals(1, suppliers.size());
       assertEquals("HW Supplier", suppliers.get(0));
+   }
+   
+   @Test
+   public void testSelectAfterSort()
+   {
+      List<String> items = streams.streamAll(em, Item.class)
+            .sortedBy((i) -> i.getSaleprice())
+            .where(i -> i.getType() == ItemType.SMALL)
+            .select(i -> i.getName())
+            .toList();
+
+      assertEquals("SELECT A.name FROM org.jinq.hibernate.test.entities.Item A WHERE A.type = org.jinq.hibernate.test.entities.ItemType.SMALL ORDER BY A.saleprice ASC", query);
+      assertEquals(3, items.size());
+      assertEquals("Screws", items.get(0));
+      assertEquals("Wudgets", items.get(1));
+      assertEquals("Widgets", items.get(2));
+   }
+   
+   @Test
+   public void testSelectHavingAfterSort()
+   {
+      List<Pair<ItemType, Long>> items = streams.streamAll(em, Item.class)
+            .group((i) -> i.getType(), 
+                  (type, istream) -> istream.count(),
+                  (type, istream) -> istream.sumDouble((i) -> i.getPurchaseprice()))
+            .sortedBy((triple) -> triple.getThree())
+            .where((triple) -> triple.getOne() != ItemType.OTHER)
+            .select(i -> new Pair<>(i.getOne(), i.getTwo()))
+            .toList();
+      assertEquals("SELECT A.type, COUNT(A) FROM org.jinq.hibernate.test.entities.Item A GROUP BY A.type HAVING A.type <> org.jinq.hibernate.test.entities.ItemType.OTHER ORDER BY SUM(A.purchaseprice) ASC", query);
+      assertEquals(2, items.size());
+      assertEquals(3, items.get(0).getTwo().intValue());
+      assertEquals(1, items.get(1).getTwo().intValue());
    }
 }
