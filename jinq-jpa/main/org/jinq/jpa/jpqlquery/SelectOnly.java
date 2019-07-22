@@ -42,7 +42,17 @@ public class SelectOnly<T> extends JPQLQuery<T>
    {
       return false;
    }
-
+   
+   @Override public boolean canSelectWhere()
+   {
+      return false;
+   }
+   
+   @Override public boolean canSelectHaving()
+   {
+      return false;
+   }
+   
    @Override public boolean canSort()
    {
       return false;

@@ -164,6 +164,11 @@ public class SelectFromWhere<T> extends SelectOnly<T>
       return false;
    }
 
+   @Override public boolean canSelectWhere()
+   {
+      return !isAggregated && limit < 0 && skip < 0 && !isDistinct;
+   }
+
    @Override public boolean canSort()
    {
       return ((this.getClass() == SelectFromWhere.class && !isAggregated) || (this instanceof GroupedSelectFromWhere))

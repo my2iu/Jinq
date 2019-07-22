@@ -29,6 +29,8 @@ public abstract class JPQLQuery<T> implements JPQLFragment
    public abstract boolean isSelectFromWhere();
    public abstract boolean isSelectOnly();
    public abstract boolean isSelectFromWhereGroupHaving();
+   public abstract boolean canSelectWhere();
+   public abstract boolean canSelectHaving();
    public abstract boolean canAggregate();
    public abstract boolean canUnsortAggregate();
    public abstract boolean canSort();

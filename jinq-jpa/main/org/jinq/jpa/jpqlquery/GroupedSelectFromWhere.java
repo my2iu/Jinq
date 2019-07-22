@@ -53,6 +53,16 @@ public class GroupedSelectFromWhere<T, U> extends SelectFromWhere<T>
       return sort.isEmpty() && limit < 0 && skip < 0;
    }
    
+   @Override public boolean canSelectWhere()
+   {
+      return false;
+   }
+   
+   @Override public boolean canSelectHaving()
+   {
+      return limit < 0 && skip < 0;
+   }
+
    @Override
    public boolean canAggregate()
    {

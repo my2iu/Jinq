@@ -30,7 +30,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
    public <U, V> JPQLQuery<U> apply(JPQLQuery<V> query, LambdaAnalysis where, SymbExArgumentHandler parentArgumentScope) throws QueryTransformException
    {
       try  {
-         if (query.isSelectFromWhere())
+         if (query.canSelectWhere())
          {
             SelectFromWhere<V> sfw = (SelectFromWhere<V>)query;
             Expression methodExpr = computeWhereReturnExpr(where, sfw, parentArgumentScope);
@@ -43,7 +43,7 @@ public class WhereTransform extends JPQLOneLambdaQueryTransform
                toReturn.where = new BinaryExpression("AND", sfw.where, methodExpr);
             return toReturn;
          }
-         else if (query.isSelectFromWhereGroupHaving())
+         else if (query.canSelectHaving())
          {
             GroupedSelectFromWhere<V, ?> sfw = (GroupedSelectFromWhere<V, ?>)query;
             Expression methodExpr = computeWhereReturnExpr(where, sfw, parentArgumentScope);
