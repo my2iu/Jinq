@@ -22,7 +22,7 @@ import org.jinq.tuples.Tuple8;
 /**
  * Wraps a normal JinqStream but provides additional JPA functionality.
  */
-class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStream<T> 
+public class JPAJinqStreamWrapper<T> extends LazyWrappedStream<T> implements JPAJinqStream<T> 
 {
    JinqStream<T> wrapped;
    public JPAJinqStreamWrapper(JinqStream<T> wrapped)
