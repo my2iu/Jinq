@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <project name="Jinq" default="Zip">
 
-	<property name="asm" location="sample/lib/asm-analysis-merged-7.0.jar"/>
-	<property name="rebasedasm" location="sample/lib/rebased-asm-analysis-merged-7.0.jar"/>
+	<property name="asm" location="sample/lib/asm-analysis-merged-7.2.jar"/>
+	<property name="rebasedasm" location="sample/lib/rebased-asm-analysis-merged-7.2.jar"/>
 	<property name="jarjar" location="sample/lib/jarjar-1.4.jar"/>
 	<!--
 	<property name="derby" location="lib/derby.jar"/>
@@ -72,7 +72,7 @@
 		</tstamp>
 		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa-test/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,jinq-hibernate-legacy/**,*/target/**,sample/bin/**,**/derby.log"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa-test/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,jinq-hibernate-legacy/**,*/target/**,sample/bin/**,**/derby.log,.classpath"/>
 			<zipfileset dir="jinq-jpa-test" prefix="Jinq/jinq-jpa-test" includes="src/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa-scala" prefix="Jinq/jinq-jpa-scala" includes="src/**,pom.xml"/>
