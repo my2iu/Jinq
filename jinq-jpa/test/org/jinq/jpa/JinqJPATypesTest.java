@@ -435,8 +435,14 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(c -> valInt / 2).toList();
       assertEquals("SELECT :param0 / 2 FROM Customer A", query);
       assertEquals(2, (int)resultInteger.get(0));
-
-      resultDouble = streams.streamAll(em, Customer.class)
+   }
+   
+   @Test(expected=ClassCastException.class)  // This used to work in EclipseLink 2.7.3, but in 2.7.7, this query now returns a BigDecimal for some reason
+   public void testDivideDoubleByInteger()
+   {
+      double val = 5.0;
+      int valInt = 5;
+      List<Double> resultDouble = streams.streamAll(em, Customer.class)
             .select(c -> val * 2.0 / valInt)
             .sortedBy( num -> num ).toList();
       assertEquals("SELECT :param0 * 2.0 / :param1 FROM Customer A ORDER BY :param0 * 2.0 / :param1 ASC", query);

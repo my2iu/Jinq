@@ -572,7 +572,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .where(lo -> lo.getItem().getName().equals(widgets.getName()));
    }
 
-   @Test(expected=ClassCastException.class) // Hibernate is doing numeric promotion incorrectly
+   @Test
    public void testDivide()
    {
       double val = 5.0;
@@ -586,14 +586,20 @@ public class JinqJPATypesTest extends JinqJPATestBase
             .select(c -> valInt / 2).toList();
       assertEquals("SELECT :param0 / 2 FROM org.jinq.hibernate.test.entities.Customer A", query);
       assertEquals(2, (int)resultInteger.get(0));
-
-      resultDouble = streams.streamAll(em, Customer.class)
-            .select(c -> val * 2.0 / valInt)
-            .sortedBy( num -> num ).toList();
-      assertEquals("SELECT :param0 * 2.0 / :param1 FROM org.jinq.hibernate.test.entities.Customer A ORDER BY :param0 * 2.0 / :param1 ASC", query);
-      assertEquals(2.0, resultDouble.get(0), 0.001);
    }
    
+   @Test(expected=ClassCastException.class) // Hibernate is doing numeric promotion incorrectly and returning an integer
+   public void testDivideDoubleByInteger()
+   {
+      double val = 5.0;
+      int valInt = 5;
+      List<Double> resultDouble = streams.streamAll(em, Customer.class)
+            .select(c -> val * 2.0 / valInt)
+            .sortedBy( num -> num ).toList();
+      assertEquals("SELECT :param0 * 2.0 / :param1 FROM Customer A ORDER BY :param0 * 2.0 / :param1 ASC", query);
+      assertEquals(2.0, resultDouble.get(0), 0.001);
+   }
+
    @Test(expected=Exception.class)  // Hibernate generating code that Derby can't handle--TODO: investigate further later
    public void testJPQLWeirdness()
    {

@@ -36,14 +36,14 @@
     
 	<dependency>
       <groupId>junit</groupId>
-      <artifactId>junit-dep</artifactId>
-      <version>4.11</version>
+      <artifactId>junit</artifactId>
+      <version>4.13</version>
       <scope>test</scope>
     </dependency>
 	<dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
-      <version>10.10.1.1</version>
+      <version>10.14.2.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
