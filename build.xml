@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
 <project name="Jinq" default="Zip">
 
-	<property name="asm" location="sample/lib/asm-analysis-merged-7.2.jar"/>
-	<property name="rebasedasm" location="sample/lib/rebased-asm-analysis-merged-7.2.jar"/>
+	<property name="asmpartspostfix" value="-8.0.1.jar"/>
+	<property name="asm" location="sample/lib/asm-analysis-merged${asmpartspostfix}"/>
+	<property name="asmpartsprefix" location="sample/lib/asm"/>
+	<property name="rebasedasm" location="sample/lib/rebased-asm-analysis-merged${asmpartspostfix}"/>
 	<property name="jarjar" location="sample/lib/jarjar-1.4.jar"/>
 	<!--
 	<property name="derby" location="lib/derby.jar"/>
@@ -13,6 +15,11 @@
 	<property name="jooq" location="lib/jooq-3.3.2.jar"/>
 
 	<target name="Rebase ASM library">
+		<jar destfile="${asm}">
+			<zipfileset src="${asmpartsprefix}${asmpartspostfix}"/>
+			<zipfileset src="${asmpartsprefix}-tree${asmpartspostfix}"/>
+			<zipfileset src="${asmpartsprefix}-analysis${asmpartspostfix}"/>
+		</jar>
 	    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
 	        classpath="${jarjar}"/>
 	    <jarjar jarfile="${rebasedasm}">
@@ -72,13 +79,13 @@
 		</tstamp>
 		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa-test/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,jinq-hibernate-legacy/**,*/target/**,sample/bin/**,**/derby.log,.classpath"/>
+			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa-test/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,jinq-hibernate-legacy/**,*/target/**,sample/bin/**,**/derby.log,.classpath,sample/lib/asm*,sample/lib/rebased-asm*"/>
 			<zipfileset dir="jinq-jpa-test" prefix="Jinq/jinq-jpa-test" includes="src/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa-scala" prefix="Jinq/jinq-jpa-scala" includes="src/**,pom.xml"/>
 			<zipfileset dir="jinq-hibernate-legacy" prefix="Jinq/jinq-hibernate-legacy" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
-			<zipfileset dir="lib/lib" fullpath="Jinq/lib"/>
+			<zipfileset file="${rebasedasm}" fullpath="Jinq/sample/lib/rebased-asm-analysis-merged${asmpartspostfix}"/>
 		</zip>
 	</target>
 	
