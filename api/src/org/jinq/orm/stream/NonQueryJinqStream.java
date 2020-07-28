@@ -466,7 +466,7 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
    @Override 
    public JinqStream<T> distinct()
    {
-      return wrap(distinct());
+      return wrap(super.distinct());
    }
 
    @Override
