@@ -48,7 +48,7 @@
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq-jpa</artifactId>
-	  <version>1.8.33</version>
+	  <version>1.8.34</version>
     </dependency>
 	<dependency>
       <groupId>org.apache.derby</groupId>
