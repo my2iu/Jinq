@@ -57,9 +57,33 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.1</version>
+          <executions>
+            <execution>
+              <id>default-compile</id>
+              <configuration>
+                <release>11</release>
+                <source>11</source>
+                <target>11</target>
+              </configuration>
+            </execution>
+            <execution>
+              <id>base-compile</id>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+              <!-- recompile everything for target VM except the module-info.java -->
+              <configuration>
+                <release>8</release>
+                <source>1.8</source>
+                <target>1.8</target>
+                <excludes>
+                  <exclude>module-info.java</exclude>
+                </excludes>
+              </configuration>
+            </execution>
+          </executions>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
+            <release>11</release>
           </configuration>
         </plugin>
         <plugin>
