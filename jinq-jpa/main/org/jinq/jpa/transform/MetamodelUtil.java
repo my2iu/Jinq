@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.IdentifiableType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.IdentifiableType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import org.jinq.rebased.org.objectweb.asm.Type;
 

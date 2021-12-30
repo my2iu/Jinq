@@ -1,6 +1,6 @@
 package org.jinq.jpa.transform;
 
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute;
 
 /**
  * Holds information about JPA Criteria API Metamodel attribute. 

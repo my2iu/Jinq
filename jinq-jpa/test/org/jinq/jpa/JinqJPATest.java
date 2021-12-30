@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityGraph;
-import javax.persistence.Query;
+import jakarta.persistence.EntityGraph;
+import jakarta.persistence.Query;
 
 import org.jinq.jpa.jpqlquery.JPQLQuery;
 import org.jinq.jpa.test.entities.Customer;
@@ -61,14 +61,14 @@ public class JinqJPATest extends JinqJPATestBase
    // I can't figure out how to do dynamic weaving under Maven. Though I
    // *do* have the code for static weaving in Maven, I don't feel like 
    // using it, so I'll ignore the test.
-   @Test(expected=javax.persistence.PersistenceException.class)
+   @Test(expected=jakarta.persistence.PersistenceException.class)
    public void testEntityGraph()
    {
       EntityGraph<Sale> entityGraph = em.createEntityGraph(Sale.class);
       entityGraph.addAttributeNodes("customer");
       
       Sale sale = streams.streamAll(em, Sale.class)
-            .setHint("javax.persistence.fetchgraph", entityGraph)
+            .setHint("jakarta.persistence.fetchgraph", entityGraph)
             .where(s -> s.getSaleid() == 1)
             .getOnlyValue();
       assertEquals("SELECT A FROM Sale A WHERE A.saleid = 1", query);

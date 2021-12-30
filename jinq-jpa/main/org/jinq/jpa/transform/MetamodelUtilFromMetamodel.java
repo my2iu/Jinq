@@ -1,7 +1,7 @@
 package org.jinq.jpa.transform;
 
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
 
 public class MetamodelUtilFromMetamodel extends MetamodelUtil
 {

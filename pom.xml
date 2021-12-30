@@ -46,7 +46,6 @@
     <module>jinq-jpa-test</module>
     <module>jinq-jpa</module>
     <module>jinq-hibernate-legacy</module>
-    <module>jinq-jpa-scala</module>
     <module>jinq-jooq</module>
   </modules>
   

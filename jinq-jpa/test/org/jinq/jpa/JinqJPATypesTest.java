@@ -274,12 +274,10 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(0, suppliers.size());
    }
    
-   @Test(expected=ClassCastException.class)
+   @Test
    public void testBooleanOperations()
    {
       // Comparisons in a SELECT must be converted to a CASE...WHEN... or something
-      // TODO: CASE...WHEN... is now done, and I've inserted a little hack to convert the 1 and 0 constants 
-      //    into booleans, but EclipseLink is treating TRUE and FALSE and integers in the return type.
       List<Pair<Supplier, Boolean>> suppliers = streams.streamAll(em, Supplier.class)
             .where(s -> s.getHasFreeShipping() && Boolean.TRUE.equals(s.getHasFreeShipping()))
             .select(s -> new Pair<>(s, s.getHasFreeShipping() != true))
@@ -575,7 +573,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Alice", customers.get(0).getName());
    }
 
-   @Test(expected=javax.persistence.PersistenceException.class)
+   @Test(expected=jakarta.persistence.PersistenceException.class)
    public void testCollectionSubQuery()
    {
       // EclipseLink can't seem to handle IN where the elements are entities,

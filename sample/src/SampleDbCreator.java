@@ -8,8 +8,8 @@ import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Date;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
 import com.example.jinq.sample.jpa.entities.Customer;
 import com.example.jinq.sample.jpa.entities.Item;

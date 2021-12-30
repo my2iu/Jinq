@@ -17,7 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import javax.persistence.Query;
+import jakarta.persistence.Query;
 
 import org.hibernate.Session;
 import org.jinq.hibernate.test.entities.CreditCard;

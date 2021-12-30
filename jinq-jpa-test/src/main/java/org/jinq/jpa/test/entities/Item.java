@@ -2,7 +2,7 @@ package org.jinq.jpa.test.entities;
 
 import java.io.Serializable;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;

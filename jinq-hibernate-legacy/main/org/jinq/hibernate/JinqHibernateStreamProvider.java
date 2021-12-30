@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

@@ -2,7 +2,7 @@ package org.jinq.hibernate.test.entities;
 
 import java.io.Serializable;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 /**

@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import org.jinq.jpa.test.entities.CreditCard;
 import org.jinq.jpa.test.entities.Customer;
