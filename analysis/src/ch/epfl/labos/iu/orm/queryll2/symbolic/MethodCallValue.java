@@ -120,6 +120,26 @@ public class MethodCallValue extends TypedValue
       }
    }
    
+   // For invokedynamic calls for string concatenation
+   public static class InvokeDynamicStringConcatCallValue extends MethodCallValue
+   {
+      public List<Object> bsmArgs;
+      public InvokeDynamicStringConcatCallValue(String owner, String name,
+            String desc, List<Object> bsmArgs, List<TypedValue> args)
+      {
+         super(owner, name, desc, args, Type.getReturnType(desc));
+         this.bsmArgs = bsmArgs;
+      }
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
+      {
+         return visitor.invokeDynamicStringConcatCallValue(this, input);
+      }
+      public InvokeDynamicStringConcatCallValue withNewArgs(List<TypedValue> newArgs)
+      {
+         return new InvokeDynamicStringConcatCallValue(owner, name, desc, bsmArgs, newArgs);
+      }
+   }
+   
    public static class VirtualMethodCallValue extends MethodCallValue
    {
       public TypedValue base;

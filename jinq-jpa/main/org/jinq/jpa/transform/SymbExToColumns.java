@@ -31,6 +31,7 @@ import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue.NullConstant;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.InvokeDynamicStringConcatCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
@@ -599,7 +600,7 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          {
             SymbExPassDown passdown = SymbExPassDown.with(val, false);
             ColumnExpressions<?> base = val.base.visit(this, passdown);
-            ColumnExpressions<?> search = val.args.get(0).visit(this, passdown);
+            ColumnExpressions<?> search = val.args.get(0).visit(this, passdown.acceptingCharSequence());
             return ColumnExpressions.singleColumn(base.reader,
                   new BinaryExpression(">", 
                         FunctionExpression.twoParam("LOCATE", 
@@ -623,38 +624,14 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       }
       else if (sig.equals(TransformationClassAnalyzer.stringBuilderToString))
       {
-         List<ColumnExpressions<?>> concatenatedStrings = new ArrayList<>();
-         MethodCallValue.VirtualMethodCallValue baseVal = val;
-         while (true)
-         {
-            if (!(baseVal.base instanceof MethodCallValue.VirtualMethodCallValue))
-               throw new TypedValueVisitorException("Unexpected use of StringBuilder");
-            baseVal = (MethodCallValue.VirtualMethodCallValue)baseVal.base;
-            if (baseVal.getSignature().equals(TransformationClassAnalyzer.newStringBuilderString))
-            {
-               SymbExPassDown passdown = SymbExPassDown.with(val, false);
-               concatenatedStrings.add(baseVal.args.get(0).visit(this, passdown));
-               break;
-            }
-            else if (baseVal.getSignature().equals(TransformationClassAnalyzer.newStringBuilder))
-            {
-               break;
-            }
-            else if (baseVal.getSignature().equals(TransformationClassAnalyzer.stringBuilderAppendString))
-            {
-               SymbExPassDown passdown = SymbExPassDown.with(val, false);
-               concatenatedStrings.add(baseVal.args.get(0).visit(this, passdown));
-            }
-            else
-               throw new TypedValueVisitorException("Unexpected use of StringBuilder");
-         }
-         
-         if (concatenatedStrings.size() == 1)
-            return concatenatedStrings.get(0);
-         Expression head = concatenatedStrings.get(concatenatedStrings.size() - 1).getOnlyColumn();
-         for (int n = concatenatedStrings.size() - 2; n >= 0 ; n--)
-            head = FunctionExpression.twoParam("CONCAT", head, concatenatedStrings.get(n).getOnlyColumn());
-         return ColumnExpressions.singleColumn(new SimpleRowReader<>(), head);
+         if (!(val.base instanceof MethodCallValue.VirtualMethodCallValue))
+            throw new TypedValueVisitorException("Unexpected use of StringBuilder");
+         return buildStringBuilderString((MethodCallValue.VirtualMethodCallValue)val.base);
+      }
+      else if (sig.equals(TransformationClassAnalyzer.stringBuilderAppendString)
+             && in.canAcceptCharSequence)
+      {
+         return buildStringBuilderString(val);
       }
       else
       {
@@ -678,6 +655,81 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       }
    }
 
+   private ColumnExpressions<?> buildStringBuilderString(
+         MethodCallValue.VirtualMethodCallValue baseVal)
+         throws TypedValueVisitorException
+   {
+      List<ColumnExpressions<?>> concatenatedStrings = new ArrayList<>();
+      while (true)
+      {
+         if (baseVal.getSignature().equals(TransformationClassAnalyzer.newStringBuilderString))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(baseVal, false);
+            concatenatedStrings.add(baseVal.args.get(0).visit(this, passdown));
+            break;
+         }
+         else if (baseVal.getSignature().equals(TransformationClassAnalyzer.newStringBuilder))
+         {
+            break;
+         }
+         else if (baseVal.getSignature().equals(TransformationClassAnalyzer.stringBuilderAppendString))
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(baseVal, false);
+            concatenatedStrings.add(baseVal.args.get(0).visit(this, passdown));
+            if (!(baseVal.base instanceof MethodCallValue.VirtualMethodCallValue))
+               throw new TypedValueVisitorException("Unexpected use of StringBuilder");
+            baseVal = (MethodCallValue.VirtualMethodCallValue)baseVal.base;
+         }
+         else
+            throw new TypedValueVisitorException("Unexpected use of StringBuilder");
+      }
+      
+      if (concatenatedStrings.size() == 1)
+         return concatenatedStrings.get(0);
+      Expression head = concatenatedStrings.get(concatenatedStrings.size() - 1).getOnlyColumn();
+      for (int n = concatenatedStrings.size() - 2; n >= 0 ; n--)
+         head = FunctionExpression.twoParam("CONCAT", head, concatenatedStrings.get(n).getOnlyColumn());
+      return ColumnExpressions.singleColumn(new SimpleRowReader<>(), head);
+   }
+
+   @Override public ColumnExpressions<?> invokeDynamicStringConcatCallValue(InvokeDynamicStringConcatCallValue val, SymbExPassDown in) throws TypedValueVisitorException
+   {
+      MethodSignature sig = val.getSignature();
+
+      List<ColumnExpressions<?>> concatenatedStrings = new ArrayList<>();
+      int argIdx = 0;
+      int constantIdx = 0;
+      String recipe = (String)val.bsmArgs.get(0);
+      for (int n = 0; n < recipe.length(); n++)
+      {
+         char code = recipe.charAt(n);
+         if (code == 1)
+         {
+            TypedValue arg = val.args.get(argIdx);
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            concatenatedStrings.add(arg.visit(this, passdown));
+            argIdx++;
+         }
+         else if (code == 2)
+         {
+            constantIdx++;
+            throw new TypedValueVisitorException("Unhandled use of constants in string concatenation lambda");
+         }
+         else
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            concatenatedStrings.add(new ConstantValue.StringConstant(String.valueOf(code)).visit(this, passdown));
+         }
+            
+      }
+      if (concatenatedStrings.size() == 1)
+         return concatenatedStrings.get(0);
+      Expression head = concatenatedStrings.get(concatenatedStrings.size() - 1).getOnlyColumn();
+      for (int n = concatenatedStrings.size() - 2; n >= 0 ; n--)
+         head = FunctionExpression.twoParam("CONCAT", head, concatenatedStrings.get(n).getOnlyColumn());
+      return ColumnExpressions.singleColumn(new SimpleRowReader<>(), head);
+   }
+   
    @Override public ColumnExpressions<?> staticMethodCallValue(MethodCallValue.StaticMethodCallValue val, SymbExPassDown in) throws TypedValueVisitorException 
    {
       MethodSignature sig = val.getSignature();

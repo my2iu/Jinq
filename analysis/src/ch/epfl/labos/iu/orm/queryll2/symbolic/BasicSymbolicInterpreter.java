@@ -393,14 +393,35 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          {
             assert(insn instanceof InvokeDynamicInsnNode);
             InvokeDynamicInsnNode invokeInsn = (InvokeDynamicInsnNode)insn;
-            if (!"java/lang/invoke/LambdaMetafactory".equals(invokeInsn.bsm.getOwner()) 
-                  || !"altMetafactory".equals(invokeInsn.bsm.getName())
-                  || !"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".equals(invokeInsn.bsm.getDesc()))
-               throw new AnalyzerException(insn, "Unknown invokedynamic " + invokeInsn.bsm + " encountered");
-            // Return the Lambda creation result
-            Handle lambdaMethod = (Handle)invokeInsn.bsmArgs[1];
-            Type functionalInterface = Type.getReturnType(invokeInsn.desc);
-            return new LambdaFactory(functionalInterface, lambdaMethod, new ArrayList<>((List<TypedValue>)values));
+            ArrayList<TypedValue> args = new ArrayList<>();
+            Type[] argTypes = Type.getArgumentTypes(invokeInsn.desc);
+            for (int n = 0; n < argTypes.length; n++)
+               args.add((TypedValue)values.get(values.size() - n - 1));
+            if ("java/lang/invoke/StringConcatFactory".equals(invokeInsn.bsm.getOwner())
+                  && "makeConcatWithConstants".equals(invokeInsn.bsm.getName())
+                  && "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".equals(invokeInsn.bsm.getDesc()))
+            {
+               // Return the Lambda creation result (we'll ignore it later on)
+               Handle lambdaMethod = (Handle)invokeInsn.bsm;
+               Type functionalInterface = Type.getReturnType(invokeInsn.desc);
+               ArrayList<Object> bsmArgs = new ArrayList<>();
+               bsmArgs.add((String)invokeInsn.bsmArgs[0]);
+               for (int n = 0; n < invokeInsn.bsmArgs.length; n++)
+               return new MethodCallValue.InvokeDynamicStringConcatCallValue(
+                     lambdaMethod.getOwner(), lambdaMethod.getName(), lambdaMethod.getDesc(),
+                     bsmArgs,
+                     args);
+            }
+            else if ("java/lang/invoke/LambdaMetafactory".equals(invokeInsn.bsm.getOwner()) 
+                  && "altMetafactory".equals(invokeInsn.bsm.getName())
+                  && "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".equals(invokeInsn.bsm.getDesc()))
+            {
+               // Return the Lambda creation result
+               Handle lambdaMethod = (Handle)invokeInsn.bsmArgs[1];
+               Type functionalInterface = Type.getReturnType(invokeInsn.desc);
+               return new LambdaFactory(functionalInterface, lambdaMethod, args);
+            }
+            throw new AnalyzerException(insn, "Unknown invokedynamic " + invokeInsn.bsm + " encountered");
          }
          case MULTIANEWARRAY:
          default:

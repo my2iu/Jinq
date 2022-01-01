@@ -509,13 +509,13 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals(4, customers.size());
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testJPQLStringContainsCharSequence1()
    {
       List<Customer> customers = streams.streamAll(em, Customer.class)
             .where( c -> c.getName().contains(new StringBuilder("A").append("l")))
             .toList();
-      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE LOCATE('Al', A.name) > 0", query);
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE LOCATE(CONCAT('A', 'l'), A.name) > 0", query);
       assertEquals(1, customers.size());
       assertEquals("Alice", customers.get(0).getName());
    }

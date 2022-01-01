@@ -119,6 +119,10 @@ public abstract class TypedValueVisitor<I, O, E extends Exception>
    {
       return methodCallValue(val, in);
    }
+   public O invokeDynamicStringConcatCallValue(MethodCallValue.InvokeDynamicStringConcatCallValue val, I in) throws E
+   {
+      return methodCallValue(val, in);
+   }
    public O virtualMethodCallValue(MethodCallValue.VirtualMethodCallValue val, I in) throws E
    {
       return methodCallValue(val, in);
