@@ -14,13 +14,25 @@
   <build>
     <sourceDirectory>main</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+          <configuration>
+            <release>11</release>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
   
   <dependencies>
 	<dependency>
 	  <groupId>org.jooq</groupId>
 	  <artifactId>jooq</artifactId>
-	  <version>3.3.2</version>
+	  <version>3.15.5</version>
 	  <scope>provided</scope>
 	</dependency>
     <dependency>
