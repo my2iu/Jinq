@@ -3,18 +3,18 @@
 
 	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.1.jar"/>
 	<property name="derby" location="lib/derby-10.10.1.1.jar"/>
-	<property name="eclipselink" location="lib/eclipselink-2.7.3.jar"/>
-	<property name="javax.persistence" location="lib/javax.persistence-2.2.1-unsigned.jar"/>
+	<property name="eclipselink" location="lib/eclipselink-3.0.2.jar"/>
+	<property name="jakarta.persistence" location="lib/jakarta.persistence-api-3.0.0.jar"/>
 	<property name="jinq" location="lib/jinq-all.jar"/>
 
 	<target name="Build Sample Program">
 		<mkdir dir="bin"/>
-		<javac destdir="bin" debug="true" fork="true" target="1.8" includeantruntime="false">
+		<javac destdir="bin" debug="true" fork="true" release="11" includeantruntime="false">
 			<classpath>
 				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${derby}"/>
 				<pathelement location="${eclipselink}"/>
-				<pathelement location="${javax.persistence}"/>
+				<pathelement location="${jakarta.persistence}"/>
 				<pathelement location="${jinq}"/>
 			</classpath>
 			<src path="src"/>
@@ -30,7 +30,7 @@
 				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${derby}"/>
 				<pathelement location="${eclipselink}"/>
-				<pathelement location="${javax.persistence}"/>
+				<pathelement location="${jakarta.persistence}"/>
 				<pathelement location="${jinq}"/>
 				<pathelement location="bin"/>
 			</classpath>
