@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jinq.jpa.JPQL;
 import org.jinq.orm.stream.JinqStream;
 
 import ch.epfl.labos.iu.orm.queryll2.path.Annotations;
@@ -57,10 +56,10 @@ class MethodChecker implements PathAnalysisMethodChecker
       try {
          // I'm initializing some of these method signatures through reflection 
          // instead of statically so that it's easier to find breakages due to method renaming etc.
-         jpqlLike = MethodSignature.fromMethod(JPQL.class.getMethod("like", String.class, String.class));
-         jpqlIsIn = MethodSignature.fromMethod(JPQL.class.getMethod("isIn", Object.class, JinqStream.class));
-         jpqlIsInList = MethodSignature.fromMethod(JPQL.class.getMethod("isInList", Object.class, Collection.class));
-         jpqlListContains = MethodSignature.fromMethod(JPQL.class.getMethod("listContains", Collection.class, Object.class));
+         jpqlLike = new MethodSignature("org/jinq/jpa/JPQL", "like", "(Ljava/lang/String;Ljava/lang/String;)Z");
+         jpqlIsIn = new MethodSignature("org/jinq/jpa/JPQL", "isIn", "(Ljava/lang/Object;Lorg/jinq/orm/stream/JinqStream;)Ljava/lang/Boolean;");
+         jpqlIsInList = new MethodSignature("org/jinq/jpa/JPQL", "isInList", "(Ljava/lang/Object;Ljava/util/Collection;)Ljava/lang/Boolean;");
+         jpqlListContains = new MethodSignature("org/jinq/jpa/JPQL", "listContains", "(Ljava/util/Collection;Ljava/lang/Object;)Ljava/lang/Boolean;");
 
          bigDecimalNegate = MethodSignature.fromMethod(BigDecimal.class.getMethod("negate"));
          bigIntegerNegate = MethodSignature.fromMethod(BigInteger.class.getMethod("negate"));

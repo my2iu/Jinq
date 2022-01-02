@@ -44,6 +44,7 @@
   	<module>jinq-asm-rebased</module>
   	<module>analysis</module>
     <module>jinq-jpa-test</module>
+    <module>jinq-jpa-impl</module>
     <module>jinq-jpa</module>
     <module>jinq-hibernate-legacy</module>
     <module>jinq-jooq</module>

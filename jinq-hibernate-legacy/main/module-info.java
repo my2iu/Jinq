@@ -1,6 +1,7 @@
 module org.jinq.hibernate {
    exports org.jinq.hibernate;
    requires org.jinq.jpa;
+   requires org.jinq.jpa.impl;
    requires org.jinq.analysis;
    requires org.jinq.asmrebased;
    requires transitive org.jinq.api;
