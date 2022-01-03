@@ -19,11 +19,6 @@ import com.example.jinq.sample.jpa.entities.Lineorder;
 import com.example.jinq.sample.jpa.entities.Sale;
 import com.example.jinq.sample.jpa.entities.Supplier;
 
-/**
- * This class is a copy of the one in the unnamed default package.
- * This is here to show how to use the sample code when using 
- * modules.
- */
 public class SampleDbCreator
 {
    EntityManager em;

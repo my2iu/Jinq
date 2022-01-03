@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <project name="Jinq Sample Program" default="Run Sample Program">
 
-	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.1.jar"/>
+	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.2.jar"/>
 	<property name="derby" location="lib/derby-10.10.1.1.jar"/>
 	<property name="eclipselink" location="lib/eclipselink-3.0.2.jar"/>
 	<property name="jakarta.persistence" location="lib/jakarta.persistence-api-3.0.0.jar"/>
-	<property name="jinq" location="lib/jinq-all.jar"/>
+	<property name="jinq" location="lib/jinq-api.jar:lib/jinq-jpa.jar:lib/jinq-jpa-impl.jar:lib/jinq-analysis.jar"/>
 
 	<target name="Build Sample Program">
 		<mkdir dir="bin"/>
 		<javac destdir="bin" debug="true" fork="true" release="11" includeantruntime="false">
+			<modulepath path="${rebasedasm}"/>
+			<modulepath path="${jakarta.persistence}"/>
+			<modulepath path="${jinq}"/>
 			<classpath>
-				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${derby}"/>
-				<pathelement location="${eclipselink}"/>
-				<pathelement location="${jakarta.persistence}"/>
-				<pathelement location="${jinq}"/>
 			</classpath>
 			<src path="src"/>
+			<exclude name="SampleMain.java"/>
 		</javac>
 		<copy todir="bin">
 			<fileset dir="src" includes="META-INF/**"/>
@@ -25,14 +25,14 @@
 	</target>
 
 	<target name="Run Sample Program" depends="Build Sample Program">
-		<java classname="SampleMain" dir="bin" fork="true">
+		<java classname="com.example.jinq.sample.SampleMain" module="com.example.jinq.sample" dir="bin" fork="true">
+			<modulepath path="${rebasedasm}"/>
+			<modulepath path="${jakarta.persistence}"/>
+			<modulepath path="${jinq}"/>
+			<modulepath path="bin"/>
 			<classpath>
-				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${derby}"/>
 				<pathelement location="${eclipselink}"/>
-				<pathelement location="${jakarta.persistence}"/>
-				<pathelement location="${jinq}"/>
-				<pathelement location="bin"/>
 			</classpath>
 		</java>
 	</target>

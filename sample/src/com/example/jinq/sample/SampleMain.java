@@ -18,11 +18,6 @@ import com.example.jinq.sample.jpa.entities.Item;
 import com.example.jinq.sample.jpa.entities.ItemType;
 import com.example.jinq.sample.jpa.entities.Lineorder;
 
-/**
- * This class is a copy of the one in the unnamed default package.
- * This is here to show how to use the sample code when using 
- * modules.
- */
 public class SampleMain
 {
    private static EntityManagerFactory entityManagerFactory;
