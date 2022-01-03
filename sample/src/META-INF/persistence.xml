@@ -15,7 +15,7 @@
 			<property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
 			<property name="jakarta.persistence.jdbc.url" value="jdbc:derby:memory:demoDB;create=true"/>
 			<property name="jakarta.persistence.jdbc.user" value=""/>
-			<property name="jakarta.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+			<property name="jakarta.persistence.jdbc.driver" value="org.apache.derby.iapi.jdbc.AutoloadedDriver"/>
 			<property name="jakarta.persistence.jdbc.password" value=""/>
 		</properties>
 	</persistence-unit>

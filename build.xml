@@ -36,18 +36,20 @@
 	
 	<target name="Build Jinq API" depends="Rebase ASM library">
 		<mkdir dir="bin"/>
-		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
+		<javac destdir="bin" debug="true" fork="true" source="1.8" target="1.8" includeantruntime="false">
 			<src path="api/src"/>
+			<exclude name="module-info.java"/>
 		</javac>
 	</target>
 
 	<target name="Build Jinq Analysis Framework" depends="Build Jinq API">
 		<mkdir dir="bin"/>
-		<javac destdir="bin" debug="true" fork="true" includeantruntime="false">
+		<javac destdir="bin" debug="true" fork="true" source="1.8" target="1.8" includeantruntime="false">
 			<classpath>
 				<pathelement location="${rebasedasm}"/>
 			</classpath>
 			<src path="analysis/src"/>
+			<exclude name="module-info.java"/>
 		</javac>
 	</target>
 
@@ -61,46 +63,25 @@
 	</target>
 
 	<target name="Jinq Jar">
-		<mkdir dir="jarbin/analysis"/>
-		<mkdir dir="jarbin/api"/>
-		<mkdir dir="jarbin/jpa"/>
-		<mkdir dir="jarbin/jpa-impl"/>
-		<mkdir dir="jarbin/jooq"/>
-		<javac destdir="jarbin/api" fork="true" includeantruntime="false">
+		<mkdir dir="jarbin"/>
+		<javac destdir="jarbin" fork="true" source="1.8" target="1.8" includeantruntime="false">
+			<classpath>
+				<pathelement path="${rebasedasm}"/>
+				<pathelement path="${jakarta.persistence}"/>
+			</classpath>
 			<src path="api/src"/>
-		</javac>
-		<jar destfile="sample/lib/jinq-api.jar" basedir="jarbin/api"/>
-		<javac destdir="jarbin/analysis" fork="true" includeantruntime="false">
-			<modulepath path="sample/lib/jinq-api.jar"/>
-			<modulepath path="${rebasedasm}"/>
 			<src path="analysis/src"/>
-		</javac>
-		<jar destfile="sample/lib/jinq-analysis.jar" basedir="jarbin/analysis"/>
-		<javac destdir="jarbin/jpa-impl" fork="true" includeantruntime="false">
-			<modulepath path="sample/lib/jinq-api.jar"/>
-			<modulepath path="sample/lib/jinq-analysis.jar"/>
-			<modulepath path="${rebasedasm}"/>
-			<modulepath path="${jakarta.persistence}"/>
 			<src path="jinq-jpa-impl/main"/>
-		</javac>
-		<jar destfile="sample/lib/jinq-jpa-impl.jar" basedir="jarbin/jpa-impl"/>
-		<javac destdir="jarbin/jpa" fork="true" includeantruntime="false">
-			<modulepath path="sample/lib/jinq-api.jar"/>
-			<modulepath path="sample/lib/jinq-analysis.jar"/>
-			<modulepath path="sample/lib/jinq-jpa-impl.jar"/>
-			<modulepath path="${rebasedasm}"/>
-			<modulepath path="${jakarta.persistence}"/>
 			<src path="jinq-jpa/main"/>
+			<exclude name="module-info.java"/>
 		</javac>
-		<jar destfile="sample/lib/jinq-jpa.jar" basedir="jarbin/jpa"/>
-		<javac destdir="jarbin/jooq" fork="true" includeantruntime="false">
-			<modulepath path="sample/lib/jinq-api.jar"/>
-			<modulepath path="sample/lib/jinq-analysis.jar"/>
+		<javac destdir="jarbin" fork="true" release="11" includeantruntime="false">
+			<modulepath path="${jakarta.persistence}"/>
 			<modulepath path="${rebasedasm}"/>
-			<modulepath path="${jooq}"/>
-			<src path="jinq-jooq/main"/>
+			<classpath path="jarbin"/>
+			<src path="jinq-jpa-all"/>
 		</javac>
-		<jar destfile="sample/lib/jinq-jooq.jar" basedir="jarbin/jooq"/>
+		<jar destfile="sample/lib/jinq-jpa-all.jar" basedir="jarbin"/>
 	</target>
 	
 	<target name="Zip" depends="Jinq Jar">
