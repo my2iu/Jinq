@@ -11,18 +11,6 @@
   <name>Jinq for JPA implementation classes</name>
   <description>Implementation classes for Jinq functional-style queries for JPA</description>
 
-  <build>
-    <sourceDirectory>main</sourceDirectory>
-    <testSourceDirectory>test</testSourceDirectory>
-    <testResources>
-      <testResource>
-        <targetPath>META-INF</targetPath>
-        <directory>test/META-INF</directory>
-      </testResource>
-    </testResources>
-    <directory>target</directory>
-  </build>
-  
   <dependencies>
     <dependency>
 	  <groupId>org.jinq</groupId>
