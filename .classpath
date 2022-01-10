@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="module-info.java" kind="src" path="analysis/src"/>
+	<classpathentry excluding="module-info.java" kind="src" path="jinq-jpa-impl/src/main/java"/>
 	<classpathentry excluding="module-info.java" kind="src" path="api/src"/>
 	<classpathentry excluding="module-info.java" kind="src" path="jinq-jpa/main"/>
 	<classpathentry kind="src" path="jinq-jpa/test"/>
-	<classpathentry kind="src" path="sample/src"/>
 	<classpathentry kind="src" path="api/test"/>
 	<classpathentry excluding="module-info.java" kind="src" path="jinq-jooq/main"/>
-	<classpathentry kind="src" path="jinq-jpa-scala/src/main/java"/>
 	<classpathentry kind="src" path="analysis/test"/>
 	<classpathentry kind="src" path="jinq-jpa-test/src/main/java"/>
+	<classpathentry kind="src" path="jinq-jpa-test/src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11">
+		<attributes>
+			<attribute name="module" value="false"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/derby.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-3.3.2.jar"/>
-	<classpathentry kind="lib" path="sample/lib/javax.persistence-2.2.1-unsigned.jar"/>
-	<classpathentry kind="lib" path="sample/lib/eclipselink-2.7.3.jar"/>
-	<classpathentry kind="lib" path="lib/scala-library-2.11.3.jar"/>
-	<classpathentry kind="lib" path="sample/lib/rebased-asm-analysis-merged-7.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="sample/lib/derby-10.15.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-3.16.1.jar"/>
+	<classpathentry kind="lib" path="sample/lib/eclipselink-3.0.2.jar"/>
+	<classpathentry kind="lib" path="sample/lib/jakarta.persistence-api-3.0.0.jar"/>
+	<classpathentry kind="lib" path="sample/lib/derbyshared-10.15.2.0.jar"/>
+	<classpathentry kind="lib" path="sample/lib/rebased-asm-analysis-merged-9.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
