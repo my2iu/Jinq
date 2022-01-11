@@ -71,7 +71,7 @@
 			</classpath>
 			<src path="api/src"/>
 			<src path="analysis/src"/>
-			<src path="jinq-jpa-impl/main"/>
+			<src path="jinq-jpa-impl/src/main/java"/>
 			<src path="jinq-jpa/main"/>
 			<exclude name="module-info.java"/>
 		</javac>
@@ -90,10 +90,15 @@
 		</tstamp>
 		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa-test/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,jinq-hibernate-legacy/**,*/target/**,sample/bin/**,**/derby.log,.classpath,sample/lib/asm*,sample/lib/rebased-asm*"/>
+			<!--<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa-test/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,jinq-hibernate-legacy/**,*/target/**,sample/bin/**,**/derby.log,.classpath,sample/lib/asm*,sample/lib/rebased-asm*"/>-->
+			<zipfileset dir="." prefix="Jinq" includes="build.xml, LICENSE, pom.xml, README.md"/>
+			<zipfileset dir="." prefix="Jinq" includes="api/**,jinq-asm-rebased/**,jinq-jpa-all/**,analysis/**" excludes="*/target/**"/>
+			<zipfileset dir="sample" prefix="Jinq/sample" includes="modular-src/**,src/**,build.xml,pom.xml"/>
+			<zipfileset dir="sample/lib" prefix="Jinq/sample/lib" includes="*.html,*.txt,*.md"/>
+			<zipfileset dir="sample/lib" prefix="Jinq/sample/lib" includes="derby-10.15.2.0.jar,derbyshared-10.15.2.0.jar,eclipselink-3.0.2.jar,jakarta.persistence-api-3.0.0.jar,jinq-jpa-all.jar"/>
 			<zipfileset dir="jinq-jpa-test" prefix="Jinq/jinq-jpa-test" includes="src/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
-			<zipfileset dir="jinq-jpa-scala" prefix="Jinq/jinq-jpa-scala" includes="src/**,pom.xml"/>
+			<zipfileset dir="jinq-jpa-impl" prefix="Jinq/jinq-jpa-impl" includes="src/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-hibernate-legacy" prefix="Jinq/jinq-hibernate-legacy" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jooq" prefix="Jinq/jinq-jooq" includes="main/**,test/**,pom.xml"/>
 			<zipfileset file="${rebasedasm}" fullpath="Jinq/sample/lib/rebased-asm-analysis-merged${asmpartspostfix}"/>
