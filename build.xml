@@ -27,6 +27,11 @@
 	    	<rule pattern="org.objectweb.asm.**" result="org.jinq.rebased.org.objectweb.asm.@1"/>
 	    	<keep pattern="org.**"/>
 	    </jarjar>
+		<jar destfile="${rebasedasm}" update="true">
+			<manifest>
+				<attribute name="Automatic-Module-Name" value="org.jinq.asmrebased"/>
+			</manifest>
+		</jar>
 	</target>
 	
 	<target name="Build Jinq API" depends="Rebase ASM library">
@@ -57,7 +62,7 @@
 
 	<target name="Jinq Jar">
 		<mkdir dir="jarbin"/>
-		<javac destdir="jarbin" fork="true" includeantruntime="false">
+		<javac destdir="jarbin" fork="true" source="1.8" target="1.8" includeantruntime="false">
 			<classpath>
 				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${jooq}"/>
@@ -66,7 +71,6 @@
 			<src path="analysis/src"/>
 			<src path="api/src"/>
 			<src path="jinq-jpa/main"/>
-			<src path="jinq-jooq/main"/>
 		</javac>
 		<jar destfile="sample/lib/jinq-all.jar">
 			<fileset dir="jarbin"/>
@@ -79,7 +83,12 @@
 		</tstamp>
 		<mkdir dir="lib/lib"/>
 		<zip destfile="jinq-${tstamp}.zip">
-			<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa-test/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,jinq-hibernate-legacy/**,*/target/**,sample/bin/**,**/derby.log,.classpath,sample/lib/asm*,sample/lib/rebased-asm*"/>
+			<!--<zipfileset dir="." prefix="Jinq" excludes="**/CVS,bin/**,lib/**,.settings/**,target/**,jarbin/**,jinq-jpa-test/**,jinq-jpa/**,jinq-jpa-scala/**,jinq-jooq/**,jinq-hibernate-legacy/**,*/target/**,sample/bin/**,**/derby.log,.classpath,sample/lib/asm*,sample/lib/rebased-asm*"/>-->
+			<zipfileset dir="." prefix="Jinq" includes="build.xml, LICENSE, pom.xml, README.md"/>
+			<zipfileset dir="." prefix="Jinq" includes="api/**,jinq-asm-rebased/**,jinq-jpa-all/**,analysis/**" excludes="*/target/**"/>
+			<zipfileset dir="sample" prefix="Jinq/sample" includes="modular-src/**,src/**,build.xml,pom.xml"/>
+			<zipfileset dir="sample/lib" prefix="Jinq/sample/lib" includes="*.html,*.txt,*.md"/>
+			<zipfileset dir="sample/lib" prefix="Jinq/sample/lib" includes="derby-10.10.1.1.jar,eclipselink-2.7.3.jar,javax.persistence-2.2.1-unsigned.jar,jinq-all.jar"/>
 			<zipfileset dir="jinq-jpa-test" prefix="Jinq/jinq-jpa-test" includes="src/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa-scala" prefix="Jinq/jinq-jpa-scala" includes="src/**,pom.xml"/>
