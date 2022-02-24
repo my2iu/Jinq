@@ -389,6 +389,21 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals("Bob", results.get(0).getName());
       assertEquals("Carol", results.get(1).getName());
    }
+   
+   @Test
+   public void testFindFirst()
+   {
+      Optional<Customer> swiss = streams.streamAll(em, Customer.class)
+            .where(c -> c.getCountry().equals("Switzerland")).findFirst();
+      assertEquals("SELECT A FROM Customer A WHERE A.country = 'Switzerland'", query);
+      assertTrue(swiss.get().getName().equals("Alice") 
+            || swiss.get().getName().equals("Bob"));
+
+      Optional<Customer> french = streams.streamAll(em, Customer.class)
+            .where(c -> c.getCountry().equals("France")).findFirst();
+      assertEquals("SELECT A FROM Customer A WHERE A.country = 'France'", query);
+      assertFalse(french.isPresent());
+   }
 
    @Test(expected=IllegalArgumentException.class)
    public void testTooManyPaths()

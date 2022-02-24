@@ -688,6 +688,21 @@ public interface JinqStream<T> extends Stream<T>
    public Optional<T> findOne();
 
    /**
+    * A convenience method for limiting the stream to one element and then
+    * returning that element as an Optional.
+    * 
+    * It cannot be used in subqueries.
+    *
+    * @see Stream#findFirst()
+    */
+   @Override public default Optional<T> findFirst()
+   {
+      List<T> vals = limit(1).toList();
+      if (vals.isEmpty()) return Optional.empty();
+      return Optional.of(vals.get(0));
+   }
+   
+   /**
     * If the stream contains only a single value, this method will return that
     * value. This method is convenient for getting the results of queries that
     * contain only a single value. It is also useful in subqueries.
