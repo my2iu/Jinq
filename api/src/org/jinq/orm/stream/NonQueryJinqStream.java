@@ -478,6 +478,22 @@ public class NonQueryJinqStream<T> extends LazyWrappedStream<T> implements JinqS
       throw new NoSuchElementException();
    }
 
+   /**
+    * A convenience method for limiting the stream to one element and then
+    * returning that element as an Optional.
+    * 
+    * It cannot be used in subqueries.
+    *
+    * @see Stream#findFirst()
+    */
+   @Override 
+   public Optional<T> findFirst()
+   {
+      List<T> vals = limit(1).toList();
+      if (vals.isEmpty()) return Optional.empty();
+      return Optional.of(vals.get(0));
+   }
+   
    @Override
    public T getOnlyValue()
    {
