@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Jinq" default="Zip">
 
-	<property name="asmpartspostfix" value="-9.2.jar"/>
+	<property name="asmpartspostfix" value="-9.3.jar"/>
 	<property name="asm" location="sample/lib/asm-analysis-merged${asmpartspostfix}"/>
 	<property name="asmpartsprefix" location="sample/lib/asm"/>
 	<property name="rebasedasm" location="sample/lib/rebased-asm-analysis-merged${asmpartspostfix}"/>

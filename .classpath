@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="sample/lib/javax.persistence-2.2.1-unsigned.jar"/>
 	<classpathentry kind="lib" path="sample/lib/eclipselink-2.7.3.jar"/>
 	<classpathentry kind="lib" path="lib/scala-library-2.11.3.jar"/>
-	<classpathentry kind="lib" path="sample/lib/rebased-asm-analysis-merged-9.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="sample/lib/rebased-asm-analysis-merged-9.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
