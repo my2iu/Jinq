@@ -10,13 +10,18 @@
 	<classpathentry kind="src" path="jinq-jpa-scala/src/main/java"/>
 	<classpathentry kind="src" path="analysis/test"/>
 	<classpathentry kind="src" path="jinq-jpa-test/src/main/java"/>
+	<classpathentry kind="src" path="jinq-jpa-test/src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/derby.jar"/>
 	<classpathentry kind="lib" path="lib/jooq-3.3.2.jar"/>
 	<classpathentry kind="lib" path="sample/lib/javax.persistence-2.2.1-unsigned.jar"/>
 	<classpathentry kind="lib" path="sample/lib/eclipselink-2.7.3.jar"/>
 	<classpathentry kind="lib" path="lib/scala-library-2.11.3.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="sample/lib/rebased-asm-analysis-merged-9.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

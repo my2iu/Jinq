@@ -703,6 +703,17 @@ public interface JinqStream<T> extends Stream<T>
    }
    
    /**
+    * This method checks if a query/stream returns any results or not.
+    * It is supposed to be used for generating EXISTS subqueries in larger
+    * queries, but a default implementation is provided in case the method
+    * is used outside of that context.
+    */
+   public default boolean exists()
+   {
+      return !limit(1).toList().isEmpty();
+   }
+   
+   /**
     * If the stream contains only a single value, this method will return that
     * value. This method is convenient for getting the results of queries that
     * contain only a single value. It is also useful in subqueries.

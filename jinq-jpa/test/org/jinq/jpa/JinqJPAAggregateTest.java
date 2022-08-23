@@ -19,6 +19,7 @@ import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple5;
 import org.jinq.tuples.Tuple8;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class JinqJPAAggregateTest extends JinqJPATestBase
@@ -526,6 +527,20 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT A FROM Customer A WHERE A.salary = (SELECT MAX(B.salary) FROM Customer B)", query);
       assertEquals(1, results.size());
       assertEquals("Dave",  results.get(0).getName());
+   }
+   
+   @Test
+   public void testExists()
+   {
+      Assert.assertTrue(streams.streamAll(em, Customer.class)
+            .where((c) -> c.getCountry().equals("USA"))
+            .exists());
+      assertEquals("SELECT A FROM Customer A WHERE A.country = 'USA'", query);
+      
+      Assert.assertFalse(streams.streamAll(em, Customer.class)
+            .where((c) -> c.getName().equals("John"))
+            .exists());
+      assertEquals("SELECT A FROM Customer A WHERE A.name = 'John'", query);
    }
 
    @Test
