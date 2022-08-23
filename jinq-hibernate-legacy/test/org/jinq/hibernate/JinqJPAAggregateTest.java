@@ -9,8 +9,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.hibernate.exception.SQLGrammarException;
 import org.hibernate.hql.internal.ast.QuerySyntaxException;
 import org.jinq.hibernate.test.entities.Customer;
@@ -24,6 +22,7 @@ import org.jinq.tuples.Pair;
 import org.jinq.tuples.Tuple3;
 import org.jinq.tuples.Tuple5;
 import org.jinq.tuples.Tuple8;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class JinqJPAAggregateTest extends JinqJPATestBase
@@ -489,6 +488,20 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
       assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.debt < (SELECT B.debt FROM org.jinq.hibernate.test.entities.Customer B WHERE B.name = 'Alice')", query);
       assertEquals(1, customers.size());
       assertEquals("Eve", customers.get(0).getName());
+   }
+   
+   @Test
+   public void testExists()
+   {
+      Assert.assertTrue(streams.streamAll(em, Customer.class)
+            .where((c) -> c.getCountry().equals("USA"))
+            .exists());
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.country = 'USA'", query);
+      
+      Assert.assertFalse(streams.streamAll(em, Customer.class)
+            .where((c) -> c.getName().equals("John"))
+            .exists());
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE A.name = 'John'", query);
    }
 
    @Test

@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.jinq.orm.stream.JinqStream;
@@ -95,6 +96,15 @@ public class NonQueryJinqStreamTest
    public void testFindOneException()
    {
       new NonQueryJinqStream<>( Stream.of(1, 2) ).findOne();
+   }
+   
+   @Test
+   public void testExists()
+   {
+      Assert.assertTrue(new NonQueryJinqStream<>(Stream.of(1, 2)).exists());
+      Assert.assertFalse(new NonQueryJinqStream<>(Stream.empty()).exists());
+      Assert.assertTrue(new NonQueryJinqStream<>(Stream.of(1).filter(val -> val < 3)).exists());
+      Assert.assertFalse(new NonQueryJinqStream<>(Stream.of(5).filter(val -> val < 3)).exists());
    }
    
    @Test
