@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -542,7 +543,50 @@ public class JinqJPAAggregateTest extends JinqJPATestBase
             .exists());
       assertEquals("SELECT A FROM Customer A WHERE A.name = 'John'", query);
    }
+   
+   @Test
+   public void testSubQueryExists()
+   {
+      List<String> customers = streams.streamAll(em, Customer.class)
+            .where((c, db) -> db.stream(Supplier.class).where((s) -> s.getCountry().equals(c.getCountry())).exists())
+            .select(c -> c.getName())
+            .sortedBy(c -> c)
+            .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE EXISTS (SELECT B FROM Supplier B WHERE B.country = A.country) ORDER BY A.name ASC", query);
+      assertEquals(4, customers.size());
+      assertEquals(Arrays.asList("Alice", "Bob", "Carol", "Eve"), customers);
+   }
 
+   @Test
+   public void testSubQueryNotExists()
+   {
+      List<String> customers = streams.streamAll(em, Customer.class)
+            .where((c, db) -> !db.stream(Supplier.class).where((s) -> s.getCountry().equals(c.getCountry())).exists())
+            .select(c -> c.getName())
+            .sortedBy(c -> c)
+            .toList();
+      assertEquals("SELECT A.name FROM Customer A WHERE NOT EXISTS (SELECT B FROM Supplier B WHERE B.country = A.country) ORDER BY A.name ASC", query);
+      assertEquals(1, customers.size());
+      assertEquals(Arrays.asList("Dave"), customers);
+   }
+
+   @Test
+   public void testSubQueryExistsNavigationalLink()
+   {
+      List<Pair<String, Date>> sales = streams.streamAll(em, Sale.class)
+            .where((Sale s) -> 
+               JinqStream.from(s.getLineorders())
+                     .select((lo) -> lo.getItem())
+                     .selectAllList((i) -> i.getSuppliers())
+                     .where((supplier) -> supplier.getCountry().equals("USA"))
+                     .exists())
+            .select(s -> new Pair<>(s.getCustomer().getName(), s.getDate()))
+            .toList();
+      assertEquals("SELECT A.customer.name, A.date FROM Sale A WHERE EXISTS (SELECT C FROM A.lineorders B JOIN B.item.suppliers C WHERE C.country = 'USA')", query);
+      assertEquals(1, sales.size());
+      assertEquals("Dave", sales.get(0).getOne());
+   }
+   
    @Test
    public void testIsInSubQueryWithSelectSource()
    {

@@ -525,6 +525,34 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
 
          throw new TypedValueVisitorException("Cannot apply getOnlyValue() to the given subquery");
       }
+      else if (sig.equals(MethodChecker.streamExists))
+      {
+         SymbExPassDown passdown = SymbExPassDown.with(val, false);
+         
+         // Check out what stream we're aggregating
+         SymbExToSubQuery translator = config.newSymbExToSubQuery(argHandler, true);
+         JPQLQuery<?> subQuery = val.base.visit(translator, passdown);
+
+         if (subQuery.isValidSubquery() && subQuery instanceof SelectFromWhere) 
+         {
+            SelectFromWhere<?> sfw = (SelectFromWhere<?>)subQuery;
+            
+            return ColumnExpressions.singleColumn(new SimpleRowReader<>(),
+                  UnaryExpression.prefix("EXISTS", SubqueryExpression.from(sfw))); 
+//
+//            
+//            ColumnExpressions<?> toReturn = new ColumnExpressions<>(sfw.cols.reader);
+//            for (Expression col: sfw.cols.columns)
+//            {
+//               SelectFromWhere<?> oneColQuery = sfw.shallowCopy();
+//               oneColQuery.cols = ColumnExpressions.singleColumn(new SimpleRowReader<>(), col);
+//               toReturn.columns.add(SubqueryExpression.from(oneColQuery));
+//            }
+//            return toReturn;
+         }
+
+         throw new TypedValueVisitorException("Cannot apply exists() to the given subquery");
+      }
       else if (MethodChecker.jpqlFunctionMethods.contains(sig))
       {
          if (sig.equals(MethodChecker.bigDecimalAbs)

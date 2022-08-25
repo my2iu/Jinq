@@ -61,6 +61,8 @@ public class OperatorPrecedenceLevel
       JPQL_OPERATOR_PRECEDENCE.put("NOT IN", 2180);
       JPQL_OPERATOR_PRECEDENCE.put("IS NULL", 2190);
       JPQL_OPERATOR_PRECEDENCE.put("IS NOT NULL", 2190);
+      // Not really an official operator, but I need an entry here so I can treat EXISTS like an operator during query composition
+      JPQL_OPERATOR_PRECEDENCE.put("EXISTS", 2195);
       JPQL_OPERATOR_PRECEDENCE.put("IS EMPTY", 2200);
       JPQL_OPERATOR_PRECEDENCE.put("IS NOT EMPTY", 2200);
       JPQL_OPERATOR_PRECEDENCE.put("MEMBER OF", 2210);
