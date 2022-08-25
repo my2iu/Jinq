@@ -23,6 +23,12 @@
           <configuration>
             <release>11</release>
           </configuration>
+          <executions>
+            <execution>
+              <id>base-compile</id>
+              <phase>none</phase>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
