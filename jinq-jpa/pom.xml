@@ -3,7 +3,7 @@
   <parent>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq</artifactId>
-	  <version>1.8.35</version>
+	  <version>1.8.36-SNAPSHOT</version>
   </parent>
   <artifactId>jinq-jpa</artifactId>
   <packaging>jar</packaging>
@@ -40,7 +40,7 @@
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq-asm-rebased</artifactId>
-	  <version>1.8.35</version>
+	  <version>1.8.36-SNAPSHOT</version>
     </dependency>
 	<dependency>
 	  <groupId>org.eclipse.persistence</groupId>
@@ -51,12 +51,12 @@
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>api</artifactId>
-	  <version>1.8.35</version>
+	  <version>1.8.36-SNAPSHOT</version>
     </dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>analysis</artifactId>
-	  <version>1.8.35</version>
+	  <version>1.8.36-SNAPSHOT</version>
     </dependency>
     
 	<dependency>
@@ -68,7 +68,7 @@
 	<dependency>
       <groupId>org.jinq</groupId>
       <artifactId>jinq-jpa-test</artifactId>
-      <version>1.8.35</version>
+      <version>1.8.36-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 	<dependency>
