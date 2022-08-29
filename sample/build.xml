@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <project name="Jinq Sample Program" default="Run Sample Program">
 
-	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.2.jar"/>
+	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.3.jar"/>
 	<property name="derby" location="lib/derby-10.10.1.1.jar"/>
-	<property name="eclipselink" location="lib/eclipselink-2.7.3.jar"/>
+	<property name="eclipselink" location="lib/eclipselink-2.7.11.jar"/>
 	<property name="javax.persistence" location="lib/javax.persistence-2.2.1-unsigned.jar"/>
 	<property name="jinq" location="lib/jinq-all.jar"/>
 
 	<target name="Build Sample Program">
 		<mkdir dir="bin"/>
-		<javac destdir="bin" debug="true" fork="true" target="1.8" includeantruntime="false">
+		<javac destdir="bin" debug="true" fork="true" source="1.8" target="1.8" includeantruntime="false">
 			<classpath>
 				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${derby}"/>
