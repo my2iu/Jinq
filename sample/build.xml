@@ -4,7 +4,7 @@
 	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.3.jar"/>
 	<property name="derby" location="lib/derby-10.15.2.0.jar"/>
 	<property name="derbyshared" location="lib/derbyshared-10.15.2.0.jar"/>
-	<property name="eclipselink" location="lib/eclipselink-3.0.2.jar"/>
+	<property name="eclipselink" location="lib/eclipselink-3.0.4.jar"/>
 	<property name="jakarta.persistence" location="lib/jakarta.persistence-api-3.0.0.jar"/>
 	<property name="jinq" location="lib/jinq-jpa-all.jar"/>
 

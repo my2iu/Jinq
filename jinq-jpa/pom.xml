@@ -79,7 +79,7 @@
     <dependency>
       <groupId>org.eclipse.persistence</groupId>
       <artifactId>eclipselink</artifactId>
-      <version>3.0.2</version>
+      <version>3.0.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
