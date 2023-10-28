@@ -726,7 +726,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals("Alice", customers.get(0).getName());
    }
 
-   @Test//(expected=javax.persistence.PersistenceException.class)
+   @Test//(expected=jakarta.persistence.PersistenceException.class)
    public void testCollectionSubQuery()
    {
       // EclipseLink can't seem to handle IN where the elements are entities,

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+<persistence version="2.1" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
 	<persistence-unit name="JPATest" transaction-type="RESOURCE_LOCAL">
 		<class>org.jinq.jpa.test.entities.Customer</class>
 		<class>org.jinq.jpa.test.entities.Item</class>
@@ -11,15 +11,15 @@
 		<class>org.jinq.jpa.test.entities.PhoneNumberToStringConverter</class>
 		<properties>
 			<property name="eclipselink.target-database" value="Derby"/>
-			<property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
-			<property name="javax.persistence.schema-generation.create-database-schemas" value="true"/>
+			<property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+			<property name="jakarta.persistence.schema-generation.create-database-schemas" value="true"/>
 			<property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
 			<!--  <property name="eclipselink.weaving" value="static"/> -->
-			<!--  <property name="javax.persistence.jdbc.url" value="jdbc:derby:../bin/derby/data/demoDB;create=true"/> -->
-			<property name="javax.persistence.jdbc.url" value="jdbc:derby:memory:demoDB;create=true"/>
-			<property name="javax.persistence.jdbc.user" value=""/>
-			<property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
-			<property name="javax.persistence.jdbc.password" value=""/>
+			<!--  <property name="jakarta.persistence.jdbc.url" value="jdbc:derby:../bin/derby/data/demoDB;create=true"/> -->
+			<property name="jakarta.persistence.jdbc.url" value="jdbc:derby:memory:demoDB;create=true"/>
+			<property name="jakarta.persistence.jdbc.user" value=""/>
+			<property name="jakarta.persistence.jdbc.driver" value="org.apache.derby.iapi.jdbc.AutoloadedDriver"/>
+			<property name="jakarta.persistence.jdbc.password" value=""/>
 			<!--  <property name="eclipselink.logging.level.sql" value="FINE"/> -->
 		</properties>
 	</persistence-unit>

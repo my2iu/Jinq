@@ -1,7 +1,7 @@
 package org.jinq.jpa.test.entities;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 @Converter
 public class PhoneNumberToStringConverter implements AttributeConverter<PhoneNumber, String>

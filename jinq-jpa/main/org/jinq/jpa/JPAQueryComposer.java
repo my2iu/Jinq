@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Parameter;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Parameter;
+import jakarta.persistence.Query;
 
 import org.jinq.jpa.jpqlquery.GeneratedQueryParameter;
 import org.jinq.jpa.jpqlquery.JPQLQuery;
@@ -155,8 +155,8 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       fillQueryParameters(q, query.getQueryParameters());
       final RowReader<T> reader = query.getRowReader();
       logQuery(queryString, q);
-      if (hints.javaxPersistenceFetchgraph != null)
-         q.setHint("javax.persistence.fetchgraph", hints.javaxPersistenceFetchgraph);
+      if (hints.jakartaPersistenceFetchgraph != null)
+         q.setHint("jakarta.persistence.fetchgraph", hints.jakartaPersistenceFetchgraph);
       return reader.readResult(q.getSingleResult());
    }
    
@@ -180,8 +180,8 @@ class JPAQueryComposer<T> implements QueryComposer<T>
       }
       final long initialOffset = skip;
       final long maxTotalResults = limit;
-      if (hints.javaxPersistenceFetchgraph != null)
-         q.setHint("javax.persistence.fetchgraph", hints.javaxPersistenceFetchgraph);
+      if (hints.jakartaPersistenceFetchgraph != null)
+         q.setHint("jakarta.persistence.fetchgraph", hints.jakartaPersistenceFetchgraph);
       
       // To handle the streaming of giant result sets, we will break
       // them down into pages. Technically, this is not really correct

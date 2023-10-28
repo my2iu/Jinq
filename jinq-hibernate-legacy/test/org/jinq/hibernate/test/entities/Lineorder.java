@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 

@@ -2,22 +2,24 @@
 <project name="Jinq Sample Program" default="Run Sample Program">
 
 	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.3.jar"/>
-	<property name="derby" location="lib/derby-10.10.1.1.jar"/>
-	<property name="eclipselink" location="lib/eclipselink-2.7.11.jar"/>
-	<property name="javax.persistence" location="lib/javax.persistence-2.2.1-unsigned.jar"/>
-	<property name="jinq" location="lib/jinq-all.jar"/>
+	<property name="derby" location="lib/derby-10.15.2.0.jar"/>
+	<property name="derbyshared" location="lib/derbyshared-10.15.2.0.jar"/>
+	<property name="eclipselink" location="lib/eclipselink-3.0.4.jar"/>
+	<property name="jakarta.persistence" location="lib/jakarta.persistence-api-3.0.0.jar"/>
+	<property name="jinq" location="lib/jinq-jpa-all.jar"/>
 
 	<target name="Build Sample Program">
 		<mkdir dir="bin"/>
-		<javac destdir="bin" debug="true" fork="true" source="1.8" target="1.8" includeantruntime="false">
+		<javac destdir="bin" debug="true" fork="true" release="11" includeantruntime="false">
+			<modulepath path="${rebasedasm}"/>
+			<modulepath path="${jinq}"/>
+			<modulepath path="${jakarta.persistence}"/>
 			<classpath>
-				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${derby}"/>
-				<pathelement location="${eclipselink}"/>
-				<pathelement location="${javax.persistence}"/>
-				<pathelement location="${jinq}"/>
 			</classpath>
 			<src path="src"/>
+			<src path="modular-src"/>
+			<exclude name="SampleMain.java"/>
 		</javac>
 		<copy todir="bin">
 			<fileset dir="src" includes="META-INF/**"/>
@@ -25,14 +27,15 @@
 	</target>
 
 	<target name="Run Sample Program" depends="Build Sample Program">
-		<java classname="SampleMain" dir="bin" fork="true">
+		<java classname="com.example.jinq.sample.SampleMain" module="com.example.jinq.sample" dir="bin" fork="true">
+			<modulepath path="${rebasedasm}"/>
+			<modulepath path="${jinq}"/>
+			<modulepath path="${jakarta.persistence}"/>
+			<modulepath path="bin"/>
 			<classpath>
-				<pathelement location="${rebasedasm}"/>
 				<pathelement location="${derby}"/>
+				<pathelement location="${derbyshared}"/>
 				<pathelement location="${eclipselink}"/>
-				<pathelement location="${javax.persistence}"/>
-				<pathelement location="${jinq}"/>
-				<pathelement location="bin"/>
 			</classpath>
 		</java>
 	</target>

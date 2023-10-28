@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityGraph;
-import javax.persistence.Query;
+import jakarta.persistence.EntityGraph;
+import jakarta.persistence.Query;
 
 import org.jinq.hibernate.test.entities.Customer;
 import org.jinq.hibernate.test.entities.Item;
@@ -67,7 +67,7 @@ public class JinqJPATest extends JinqJPATestBase
       entityGraph.addAttributeNodes("customer");
       
       Sale sale = streams.streamAll(em, Sale.class)
-            .setHint("javax.persistence.fetchgraph", entityGraph)
+            .setHint("jakarta.persistence.fetchgraph", entityGraph)
             .where(s -> s.getSaleid() == 1)
             .getOnlyValue();
       assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Sale A WHERE A.saleid = 1", query);
@@ -524,13 +524,13 @@ public class JinqJPATest extends JinqJPATestBase
       assertEquals(4, customers.size());
    }
 
-   @Test(expected=IllegalArgumentException.class)
+   @Test
    public void testJPQLStringContainsCharSequence1()
    {
       List<Customer> customers = streams.streamAll(em, Customer.class)
             .where( c -> c.getName().contains(new StringBuilder("A").append("l")))
             .toList();
-      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE LOCATE('Al', A.name) > 0", query);
+      assertEquals("SELECT A FROM org.jinq.hibernate.test.entities.Customer A WHERE LOCATE(CONCAT('A', 'l'), A.name) > 0", query);
       assertEquals(1, customers.size());
       assertEquals("Alice", customers.get(0).getName());
    }

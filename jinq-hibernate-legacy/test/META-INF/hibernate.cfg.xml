@@ -5,7 +5,7 @@
 <hibernate-configuration>
   <session-factory>
     <!-- Database connection settings -->
-    <property name="connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</property>
+    <property name="connection.driver_class">org.apache.derby.iapi.jdbc.AutoloadedDriver</property>
     <property name="connection.url">jdbc:derby:memory:demoDB;create=true</property>
     <property name="connection.username"></property>
     <property name="connection.password"></property>

@@ -1,7 +1,7 @@
 package org.jinq.hibernate.test.entities;
 
 import java.io.Serializable;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.List;
 
 import org.hibernate.annotations.Type;

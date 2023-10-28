@@ -3,7 +3,7 @@
   <parent>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq</artifactId>
-	  <version>1.8.36-SNAPSHOT</version>
+	  <version>2.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>jinq-jpa-test</artifactId>
   <packaging>jar</packaging>
@@ -44,9 +44,9 @@
   
   <dependencies>
 	<dependency>
-	  <groupId>org.eclipse.persistence</groupId>
-	  <artifactId>javax.persistence</artifactId>
-	  <version>2.2.1</version>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <version>3.0.0</version>
 	  <scope>provided</scope>
 	</dependency>
   </dependencies>

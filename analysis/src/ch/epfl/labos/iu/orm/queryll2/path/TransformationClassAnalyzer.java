@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jinq.orm.annotations.EntitySupplier;
-import org.jinq.orm.annotations.NoSideEffects;
 import org.jinq.rebased.org.objectweb.asm.ClassReader;
 import org.jinq.rebased.org.objectweb.asm.tree.ClassNode;
 import org.jinq.rebased.org.objectweb.asm.tree.MethodNode;
@@ -373,9 +371,6 @@ public class TransformationClassAnalyzer
       KnownSafeMethods.add(newBigDecimalBigInteger);
       KnownSafeMethods.add(bigDecimalDoubleValue);
       KnownSafeMethods.add(bigIntegerDoubleValue);
-
-      SafeMethodAnnotations.add(NoSideEffects.class);
-      SafeMethodAnnotations.add(EntitySupplier.class);
    }
    
    ClassNode cl = new ClassNode();

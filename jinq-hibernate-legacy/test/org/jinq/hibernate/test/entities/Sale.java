@@ -1,6 +1,6 @@
 package org.jinq.hibernate.test.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Duration;
