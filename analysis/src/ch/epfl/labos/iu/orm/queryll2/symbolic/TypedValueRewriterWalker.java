@@ -164,4 +164,26 @@ public class TypedValueRewriterWalker<I, E extends Exception> extends TypedValue
       remap.put(val, returnVal);
       return returnVal;
    }
+   @Override public TypedValue stringConcatFactoryValue(StringConcatFactory val, I in) throws E
+   {
+      if (remap.containsKey(val)) return remap.get(val);
+      I param = val.visit(parameter, in);
+      StringConcatFactory newVal = val;
+      List<TypedValue> newArgs = new Vector<TypedValue>(val.args.size());
+      boolean isChanged = false;
+      for (TypedValue arg: val.args)
+      {
+         TypedValue newArg = arg.visit(this, param);
+         newArg = newArg.visit(rewriter, param);
+         if (newArg != arg)
+            isChanged = true;
+         newArgs.add(newArg);
+      }
+      if (isChanged) 
+         newVal = val.withNewArgs(newArgs); 
+      TypedValue returnVal = newVal.visit(rewriter, in);
+      remap.put(val, returnVal);
+      return returnVal;
+   }
+
 }

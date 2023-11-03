@@ -274,7 +274,7 @@ public class JinqJPATypesTest extends JinqJPATestBase
       assertEquals(0, suppliers.size());
    }
    
-   @Test(expected=ClassCastException.class)
+   @Test//(expected=ClassCastException.class)
    public void testBooleanOperations()
    {
       // Comparisons in a SELECT must be converted to a CASE...WHEN... or something

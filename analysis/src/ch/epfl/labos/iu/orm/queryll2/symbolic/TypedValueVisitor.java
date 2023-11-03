@@ -123,5 +123,8 @@ public abstract class TypedValueVisitor<I, O, E extends Exception>
    {
       return methodCallValue(val, in);
    }
-
+   public O stringConcatFactoryValue(StringConcatFactory val, I in) throws E
+   {
+      return defaultValue(val, in);
+   }
 }

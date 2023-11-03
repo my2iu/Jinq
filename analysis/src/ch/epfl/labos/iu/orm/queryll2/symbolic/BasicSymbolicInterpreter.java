@@ -393,14 +393,24 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
          {
             assert(insn instanceof InvokeDynamicInsnNode);
             InvokeDynamicInsnNode invokeInsn = (InvokeDynamicInsnNode)insn;
-            if (!"java/lang/invoke/LambdaMetafactory".equals(invokeInsn.bsm.getOwner()) 
-                  || !"altMetafactory".equals(invokeInsn.bsm.getName())
-                  || !"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".equals(invokeInsn.bsm.getDesc()))
+            if ("java/lang/invoke/LambdaMetafactory".equals(invokeInsn.bsm.getOwner()) 
+                  && "altMetafactory".equals(invokeInsn.bsm.getName())
+                  && "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".equals(invokeInsn.bsm.getDesc()))
+            {
+               // Return the Lambda creation result
+               Handle lambdaMethod = (Handle)invokeInsn.bsmArgs[1];
+               Type functionalInterface = Type.getReturnType(invokeInsn.desc);
+               return new LambdaFactory(functionalInterface, lambdaMethod, new ArrayList<>((List<TypedValue>)values));
+            }
+            else if ("java/lang/invoke/StringConcatFactory".equals(invokeInsn.bsm.getOwner()) 
+                  && "makeConcatWithConstants".equals(invokeInsn.bsm.getName())
+                  && "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".equals(invokeInsn.bsm.getDesc()))
+            {
+               Type functionalInterface = Type.getReturnType(invokeInsn.desc);
+               return new StringConcatFactory(functionalInterface, (String)invokeInsn.bsmArgs[0], (List<TypedValue>)values);
+            }
+            else
                throw new AnalyzerException(insn, "Unknown invokedynamic " + invokeInsn.bsm + " encountered");
-            // Return the Lambda creation result
-            Handle lambdaMethod = (Handle)invokeInsn.bsmArgs[1];
-            Type functionalInterface = Type.getReturnType(invokeInsn.desc);
-            return new LambdaFactory(functionalInterface, lambdaMethod, new ArrayList<>((List<TypedValue>)values));
          }
          case MULTIANEWARRAY:
          default:
