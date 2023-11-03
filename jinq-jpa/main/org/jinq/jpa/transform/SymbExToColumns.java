@@ -34,6 +34,7 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue.NullConstant;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
+import ch.epfl.labos.iu.orm.queryll2.symbolic.StringConcatFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -861,6 +862,12 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       throw new TypedValueVisitorException("Trying to create a query using IN but with an unhandled subquery type");
    }
 
+   @Override public ColumnExpressions<?> stringConcatFactoryValue(StringConcatFactory val, SymbExPassDown in) throws TypedValueVisitorException 
+   {
+      throw new TypedValueVisitorException("Jinq does not support string concatentation using invokedynamic that certain JDKs use. Please let Jinq know if you need support for this so it can be implemented");
+   }
+   
+   
    // Tracks which numeric types are considered to have more information than
    // other types.
    static Map<Type, Integer> numericPromotionPriority = new HashMap<>();

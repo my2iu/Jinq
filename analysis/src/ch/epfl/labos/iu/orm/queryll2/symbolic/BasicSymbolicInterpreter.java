@@ -406,8 +406,7 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
                   && "makeConcatWithConstants".equals(invokeInsn.bsm.getName())
                   && "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".equals(invokeInsn.bsm.getDesc()))
             {
-               Type functionalInterface = Type.getReturnType(invokeInsn.desc);
-               return new StringConcatFactory(functionalInterface, (String)invokeInsn.bsmArgs[0], (List<TypedValue>)values);
+               return new StringConcatFactory(invokeInsn.desc, (String)invokeInsn.bsmArgs[0], (List<TypedValue>)values);
             }
             else
                throw new AnalyzerException(insn, "Unknown invokedynamic " + invokeInsn.bsm + " encountered");

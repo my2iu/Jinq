@@ -3,11 +3,7 @@ package ch.epfl.labos.iu.orm.queryll2.symbolic;
 import java.util.List;
 import java.util.Objects;
 
-import org.jinq.rebased.org.objectweb.asm.Handle;
-import org.jinq.rebased.org.objectweb.asm.Opcodes;
 import org.jinq.rebased.org.objectweb.asm.Type;
-
-import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.StaticMethodCallValue;
 
 /**
  * Some versions of the JDK handle string concatenation using
@@ -17,13 +13,15 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue.StaticMethodCallVa
  */
 public class StringConcatFactory extends TypedValue
 {
+   String desc;
    String recipe;
    List<TypedValue> args;
    
    // TODO: Handle parameters passed in to the lambda 
-   public StringConcatFactory(Type functionalInterface, String recipe, List<TypedValue> args/*, Handle lambdaMethod, List<TypedValue> capturedArgs*/)
+   public StringConcatFactory(String desc, String recipe, List<TypedValue> args/*, Handle lambdaMethod, List<TypedValue> capturedArgs*/)
    {
-      super(functionalInterface);
+      super(Type.getReturnType(desc));
+      this.desc = desc;
       this.recipe = recipe;
       this.args = args;
    }
@@ -35,7 +33,7 @@ public class StringConcatFactory extends TypedValue
    
    public StringConcatFactory withNewArgs(List<TypedValue> newArgs)
    {
-      return new StringConcatFactory(type, recipe, newArgs);
+      return new StringConcatFactory(desc, recipe, newArgs);
    }
 
    @Override
@@ -59,7 +57,7 @@ public class StringConcatFactory extends TypedValue
    {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + Objects.hash(args, recipe);
+      result = prime * result + Objects.hash(args, desc, recipe);
       return result;
    }
 
@@ -74,6 +72,7 @@ public class StringConcatFactory extends TypedValue
          return false;
       StringConcatFactory other = (StringConcatFactory) obj;
       return Objects.equals(args, other.args)
+            && Objects.equals(desc, other.desc)
             && Objects.equals(recipe, other.recipe);
    }
 
