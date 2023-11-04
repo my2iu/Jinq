@@ -34,7 +34,6 @@ import ch.epfl.labos.iu.orm.queryll2.symbolic.ConstantValue.NullConstant;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.LambdaFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodCallValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.MethodSignature;
-import ch.epfl.labos.iu.orm.queryll2.symbolic.StringConcatFactory;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValue;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitor;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.TypedValueVisitorException;
@@ -862,11 +861,44 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
       throw new TypedValueVisitorException("Trying to create a query using IN but with an unhandled subquery type");
    }
 
-   @Override public ColumnExpressions<?> stringConcatFactoryValue(StringConcatFactory val, SymbExPassDown in) throws TypedValueVisitorException 
+   @Override public ColumnExpressions<?> stringConcatFactoryValue(MethodCallValue.StringConcatFactoryValue val, SymbExPassDown in) throws TypedValueVisitorException 
    {
-      throw new TypedValueVisitorException("Jinq does not support string concatentation using invokedynamic that certain JDKs use. Please let Jinq know if you need support for this so it can be implemented");
+      MethodSignature sig = val.getSignature();
+
+      List<ColumnExpressions<?>> concatenatedStrings = new ArrayList<>();
+      int argIdx = 0;
+      int constantIdx = 0;
+      String recipe = (String)val.recipe;
+      for (int n = 0; n < recipe.length(); n++)
+      {
+         char code = recipe.charAt(n);
+         if (code == 1)
+         {
+            TypedValue arg = val.args.get(argIdx);
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            concatenatedStrings.add(arg.visit(this, passdown));
+            argIdx++;
+         }
+         else if (code == 2)
+         {
+            constantIdx++;
+            throw new TypedValueVisitorException("Unhandled use of constants in string concatenation lambda");
+         }
+         else
+         {
+            SymbExPassDown passdown = SymbExPassDown.with(val, false);
+            concatenatedStrings.add(new ConstantValue.StringConstant(String.valueOf(code)).visit(this, passdown));
+         }
+            
+      }
+      if (concatenatedStrings.size() == 1)
+         return concatenatedStrings.get(0);
+      Expression head = concatenatedStrings.get(concatenatedStrings.size() - 1).getOnlyColumn();
+      for (int n = concatenatedStrings.size() - 2; n >= 0 ; n--)
+         head = FunctionExpression.twoParam("CONCAT", head, concatenatedStrings.get(n).getOnlyColumn());
+      return ColumnExpressions.singleColumn(new SimpleRowReader<>(), head);
    }
-   
+
    
    // Tracks which numeric types are considered to have more information than
    // other types.

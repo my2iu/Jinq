@@ -164,11 +164,11 @@ public class TypedValueRewriterWalker<I, E extends Exception> extends TypedValue
       remap.put(val, returnVal);
       return returnVal;
    }
-   @Override public TypedValue stringConcatFactoryValue(StringConcatFactory val, I in) throws E
+   @Override public TypedValue stringConcatFactoryValue(MethodCallValue.StringConcatFactoryValue val, I in) throws E
    {
       if (remap.containsKey(val)) return remap.get(val);
       I param = val.visit(parameter, in);
-      StringConcatFactory newVal = val;
+      MethodCallValue.StringConcatFactoryValue newVal = val;
       List<TypedValue> newArgs = new Vector<TypedValue>(val.args.size());
       boolean isChanged = false;
       for (TypedValue arg: val.args)

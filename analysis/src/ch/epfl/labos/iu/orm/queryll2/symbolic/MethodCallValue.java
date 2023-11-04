@@ -4,6 +4,7 @@
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.jinq.rebased.org.objectweb.asm.Type;
 
@@ -174,5 +175,72 @@ public class MethodCallValue extends TypedValue
             return false;
          return true;
       }
+   }
+   
+   /**
+    * Some versions of the JDK handle string concatenation using
+    * invokedynamic and special method handles created using
+    * StringConcatFactory. So we need to track those method handles
+    * here.
+    */
+   public static class StringConcatFactoryValue extends MethodCallValue
+   {
+      public String recipe;
+      
+      // TODO: Handle parameters passed in to the lambda 
+      public StringConcatFactoryValue(String desc, String recipe, List<TypedValue> args)
+      {
+         super("StringConcatFactory", "makeConcatWithConstants", desc, args, Type.getReturnType(desc));
+         this.recipe = recipe;
+      }
+
+      @Override public <I,O,E extends Exception> O visit(TypedValueVisitor<I,O,E> visitor, I input) throws E
+      {
+         return visitor.stringConcatFactoryValue(this, input);
+     }
+      
+      public StringConcatFactoryValue withNewArgs(List<TypedValue> newArgs)
+      {
+         return new StringConcatFactoryValue(desc, recipe, newArgs);
+      }
+
+      @Override
+      public String toString()
+      {
+         String argString = "";
+         boolean isFirst = true;
+         for (TypedValue val: args)
+         {
+            if (!isFirst)
+               argString += ",";
+            isFirst = false;
+            argString += val;
+         }
+         return "StringConcatFactory.makeConcatWithConstants(\"" + recipe + "\","
+               + argString + ")";
+      }
+
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = super.hashCode();
+         result = prime * result + Objects.hash(recipe);
+         return result;
+      }
+
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!super.equals(obj))
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         StringConcatFactoryValue other = (StringConcatFactoryValue) obj;
+         return Objects.equals(recipe, other.recipe);
+      }
+
    }
 }

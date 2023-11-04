@@ -30,7 +30,7 @@ public abstract class TypedValuePostfixWalker<I,O, E extends Exception> extends 
       val.base.visit(this, in);
       return methodCallValue(val, in);
    }
-   @Override public O stringConcatFactoryValue(StringConcatFactory val, I in) throws E
+   @Override public O stringConcatFactoryValue(MethodCallValue.StringConcatFactoryValue val, I in) throws E
    {
       for (TypedValue arg: val.args)
          arg.visit(this, in);

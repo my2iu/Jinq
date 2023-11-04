@@ -1,6 +1,7 @@
 package ch.epfl.labos.iu.orm.queryll2.symbolic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jinq.rebased.org.objectweb.asm.Handle;
@@ -406,7 +407,8 @@ public class BasicSymbolicInterpreter extends InterpreterWithArgs implements Opc
                   && "makeConcatWithConstants".equals(invokeInsn.bsm.getName())
                   && "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".equals(invokeInsn.bsm.getDesc()))
             {
-               return new StringConcatFactory(invokeInsn.desc, (String)invokeInsn.bsmArgs[0], (List<TypedValue>)values);
+               Collections.reverse(values);
+               return new MethodCallValue.StringConcatFactoryValue(invokeInsn.desc, (String)invokeInsn.bsmArgs[0], (List<TypedValue>)values);
             }
             else
                throw new AnalyzerException(insn, "Unknown invokedynamic " + invokeInsn.bsm + " encountered");

@@ -13,7 +13,7 @@ import ch.epfl.labos.iu.orm.queryll2.path.PathAnalysisMethodChecker;
 import ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer;
 import ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter.OperationSideEffect;
 
-public class StringConcatFactoryTest
+public class BasicSymbolicInterpreterTest
 {
    /** 
     * See if we can properly parse the appearance of 
@@ -21,9 +21,9 @@ public class StringConcatFactoryTest
     * code. 
     */
    @Test
-   public void testParsing() throws IOException, AnalyzerException
+   public void testStringConcatFactory() throws IOException, AnalyzerException
    {
-      TransformationClassAnalyzer analyzer = new TransformationClassAnalyzer("ch.epfl.labos.iu.orm.queryll2.symbolic.StringConcatFactoryTest");
+      TransformationClassAnalyzer analyzer = new TransformationClassAnalyzer("ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreterTest");
       PathAnalysisFactory pathAnalysisFactory = new PathAnalysisFactory(
             new PathAnalysisMethodChecker() {
                @Override
@@ -58,7 +58,7 @@ public class StringConcatFactoryTest
       // But the StringConcatFactory will appear for newer JDK compilers
       Assert.assertTrue(
             (returnValue instanceof MethodCallValue && ((MethodCallValue)returnValue).name.equals("toString"))
-            || (returnValue instanceof StringConcatFactory));
+            || (returnValue instanceof MethodCallValue.StringConcatFactoryValue));
    }
    
    public static String concat(String a, String b)
