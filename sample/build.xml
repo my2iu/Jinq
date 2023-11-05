@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Jinq Sample Program" default="Run Sample Program">
 
-	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.3.jar"/>
+	<property name="rebasedasm" location="lib/rebased-asm-analysis-merged-9.6.jar"/>
 	<property name="derby" location="lib/derby-10.15.2.0.jar"/>
 	<property name="derbyshared" location="lib/derbyshared-10.15.2.0.jar"/>
 	<property name="eclipselink" location="lib/eclipselink-3.0.4.jar"/>

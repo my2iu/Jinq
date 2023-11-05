@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Jinq" default="Zip">
 
-	<property name="asmpartspostfix" value="-9.3.jar"/>
+	<property name="asmpartspostfix" value="-9.6.jar"/>
 	<property name="asm" location="sample/lib/asm-analysis-merged${asmpartspostfix}"/>
 	<property name="asmpartsprefix" location="sample/lib/asm"/>
 	<property name="rebasedasm" location="sample/lib/rebased-asm-analysis-merged${asmpartspostfix}"/>
@@ -95,7 +95,7 @@
 			<zipfileset dir="." prefix="Jinq" includes="api/**,jinq-asm-rebased/**,jinq-jpa-all/**,analysis/**" excludes="*/target/**"/>
 			<zipfileset dir="sample" prefix="Jinq/sample" includes="modular-src/**,src/**,build.xml,pom.xml"/>
 			<zipfileset dir="sample/lib" prefix="Jinq/sample/lib" includes="*.html,*.txt,*.md"/>
-			<zipfileset dir="sample/lib" prefix="Jinq/sample/lib" includes="derby-10.15.2.0.jar,derbyshared-10.15.2.0.jar,eclipselink-3.0.2.jar,jakarta.persistence-api-3.0.0.jar,jinq-jpa-all.jar"/>
+			<zipfileset dir="sample/lib" prefix="Jinq/sample/lib" includes="derby-10.15.2.0.jar,derbyshared-10.15.2.0.jar,eclipselink-3.0.4.jar,jakarta.persistence-api-3.0.0.jar,jinq-jpa-all.jar"/>
 			<zipfileset dir="jinq-jpa-test" prefix="Jinq/jinq-jpa-test" includes="src/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa" prefix="Jinq/jinq-jpa" includes="main/**,test/**,pom.xml"/>
 			<zipfileset dir="jinq-jpa-impl" prefix="Jinq/jinq-jpa-impl" includes="src/**,test/**,pom.xml"/>
