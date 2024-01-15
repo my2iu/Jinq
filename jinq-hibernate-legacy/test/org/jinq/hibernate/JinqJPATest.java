@@ -508,6 +508,18 @@ public class JinqJPATest extends JinqJPATestBase
    }
    
    @Test
+   public void testJPQLStringConcatMoreLiterals()
+   {
+      List<String> customers = streams.streamAll(em, Customer.class)
+            .select( c -> c.getName() + ":" + " " + c.getCountry() + " --")
+         .sortedBy( s -> s)
+         .toList();
+      assertEquals("SELECT CONCAT(CONCAT(CONCAT(A.name, ': '), A.country), ' --') FROM org.jinq.hibernate.test.entities.Customer A ORDER BY CONCAT(CONCAT(CONCAT(A.name, ': '), A.country), ' --') ASC", query);
+      assertEquals(5, customers.size());
+      assertEquals("Alice: Switzerland --", customers.get(0));
+   }
+   
+   @Test
    public void testJPQLStringContains()
    {
       List<Customer> customers = streams.streamAll(em, Customer.class)

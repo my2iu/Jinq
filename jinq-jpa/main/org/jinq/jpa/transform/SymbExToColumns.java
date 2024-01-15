@@ -887,14 +887,23 @@ public class SymbExToColumns extends TypedValueVisitor<SymbExPassDown, ColumnExp
          else
          {
             SymbExPassDown passdown = SymbExPassDown.with(val, false);
-            concatenatedStrings.add(new ConstantValue.StringConstant(String.valueOf(code)).visit(this, passdown));
+            // Walk through and grab all the characters and merge them into a single string
+            String mergedString = "";
+            int endChars;
+            for (endChars = n; endChars < recipe.length() && recipe.charAt(endChars) > 2; endChars++)
+            {
+               mergedString += String.valueOf(recipe.charAt(endChars));
+            }
+            concatenatedStrings.add(new ConstantValue.StringConstant(mergedString).visit(this, passdown));
+            // Continue scanning the recipe from the end of the string characters
+            n = endChars - 1;
          }
             
       }
       if (concatenatedStrings.size() == 1)
          return concatenatedStrings.get(0);
-      Expression head = concatenatedStrings.get(concatenatedStrings.size() - 1).getOnlyColumn();
-      for (int n = concatenatedStrings.size() - 2; n >= 0 ; n--)
+      Expression head = concatenatedStrings.get(0).getOnlyColumn();
+      for (int n = 1; n < concatenatedStrings.size(); n++)
          head = FunctionExpression.twoParam("CONCAT", head, concatenatedStrings.get(n).getOnlyColumn());
       return ColumnExpressions.singleColumn(new SimpleRowReader<>(), head);
    }
