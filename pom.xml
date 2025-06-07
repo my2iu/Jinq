@@ -81,7 +81,16 @@
           <pushChanges>false</pushChanges>
         </configuration>
       </plugin> 
-      
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.7.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+        </configuration>
+      </plugin>
+              
       <!-- For building the source packages -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -90,8 +99,9 @@
         <executions>
           <execution>
             <id>attach-sources</id>
+            <phase>verify</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
