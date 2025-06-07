@@ -3,7 +3,7 @@
   <parent>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq</artifactId>
-	  <version>1.8.38</version>
+	  <version>1.8.39-SNAPSHOT</version>
   </parent>
   <artifactId>analysis</artifactId>
   <packaging>jar</packaging>
@@ -33,12 +33,12 @@
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>jinq-asm-rebased</artifactId>
-	  <version>1.8.38</version>
+	  <version>1.8.39-SNAPSHOT</version>
     </dependency>
     <dependency>
 	  <groupId>org.jinq</groupId>
 	  <artifactId>api</artifactId>
-	  <version>1.8.38</version>
+	  <version>1.8.39-SNAPSHOT</version>
     </dependency>
 	<dependency>
       <groupId>junit</groupId>
